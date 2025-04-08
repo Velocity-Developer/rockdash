@@ -30,8 +30,8 @@
 
               <button v-if="item.items" v-ripple :class="[classLink,{'bg-sky-700 text-white' : isActive(item.href)}]">
                   <span class="flex justify-start items-center">
-                      <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true" class="mr-2"/>
-                      <span>{{ item.label }}</span>
+                      <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
+                      <span class="ms-2">{{ item.label }}</span>
                   </span>
                   <Icon v-if="item.items" name="lucide:chevron-down" />
               </button>

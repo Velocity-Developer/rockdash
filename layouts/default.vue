@@ -2,7 +2,7 @@
 
   <div class="flex w-full min-h-screen">
 
-    <div class="page-wrapper flex w-full md:ps-[15rem]">
+    <div class="page-wrapper flex w-full md:ps-[14rem]">
       <div class="xl:block" :class="{ 'block z-[7]': openMenu, 'hidden md:block': !openMenu }">
         <div class="flex">
           <AppSidebar/>
