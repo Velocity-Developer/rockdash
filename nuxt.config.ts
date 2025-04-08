@@ -38,6 +38,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     'nuxt-auth-sanctum',
     '@primevue/nuxt-module',
-    '@nuxt/icon'
+    '@nuxt/icon',
+    '@pinia/nuxt',
   ]
 })

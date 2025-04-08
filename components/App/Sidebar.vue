@@ -1,9 +1,10 @@
 <template>
-  <nav class="h-full w-[14rem] fixed top-0 start-0 bg-white z-[6] border-r border-border px-4">
+  <nav class="h-full fixed top-0 start-0 bg-white z-[6] border-r border-border px-4 transition duration-300 ease-in-out" :class="{ 'md:w-[5rem] w-[14rem]': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
     
     <div class="py-4 text-center">
       <nuxtLink to="/">
-        <img src="~/public/vd.webp" class="w-[9rem] mx-auto"/>
+        <img src="~/public/vd.webp" class="w-[9rem] mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
     
@@ -31,14 +32,14 @@
               <button v-if="item.items" v-ripple :class="[classLink,{'bg-sky-700 text-white' : isActive(item.href)}]">
                   <span class="flex justify-start items-center">
                       <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
-                      <span class="ms-2">{{ item.label }}</span>
+                      <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
                   <Icon v-if="item.items" name="lucide:chevron-down" />
               </button>
-              <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-sky-700 text-white' : isActive(item.href)}]">
+              <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-sky-700 text-white' : isActive(item.href),'!justify-center': useConfig.miniSidebar}]">
                   <span class="flex justify-start items-center">
-                      <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true" class="mr-2"/>
-                      <span :class="{'ml-5':isChild(item.key)}">{{ item.label }}</span>
+                      <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
+                      <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
               </NuxtLink>
 
@@ -50,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+
 //route, cek halaman aktif
 const route = useRoute()
 const isActive = (path : string) => {
@@ -84,4 +86,5 @@ const items = ref([
 
 const classLink = 'w-full mb-0 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-sky-200 hover:text-sky-900';
 
+const useConfig = useConfigStore()
 </script>

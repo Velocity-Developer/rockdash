@@ -1,11 +1,14 @@
 <template>
-  <header :class="['header', { 'scrolled': isScrolled }]" class="sticky top-0 z-[5] bg-white fixed w-full">
+  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="sticky top-0 z-[5] bg-white fixed w-full">
 
     <nav class="px-2 border-gray-700 rounded-none bg-transparent dark:bg-transparent py-4 sm:px-6">
       <div class="mx-auto flex flex-wrap items-center justify-between">
 
         <div>
-          <Button variant="text" @click="emit('toggle')">
+          <Button variant="text" @click="emit('toggle')" class="md:hidden">
+            <Icon name="lucide:menu" />
+          </Button>
+          <Button variant="text" @click="useConfig.toggelMiniSidebar" class="hidden md:block">
             <Icon name="lucide:menu" />
           </Button>
         </div>
@@ -22,7 +25,9 @@
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits(['toggle']);
+const useConfig = useConfigStore()
+
+const emit = defineEmits(['toggle','toggleMini']);
 const { user, logout } = useSanctumAuth() as { user: Ref<User | null>, logout: () => void };
 const isScrolled = ref(false);
 
