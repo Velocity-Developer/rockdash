@@ -5,13 +5,25 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:local": "nuxt dev --port 3005",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prod": "nuxt generate --dotenv .env.production"
   },
   "dependencies": {
+    "@nuxt/icon": "^1.11.0",
+    "@nuxtjs/tailwindcss": "6.13.2",
+    "@primeuix/themes": "^1.0.1",
+    "@primevue/forms": "^4.3.3",
+    "@primevue/nuxt-module": "^4.3.3",
     "nuxt": "^3.16.2",
+    "nuxt-auth-sanctum": "0.6.3",
+    "primevue": "^4.3.3",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0"
   }
 }
