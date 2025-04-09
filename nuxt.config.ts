@@ -4,8 +4,7 @@ import Aura from '@primeuix/themes/aura';
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  ssr: false,
-  
+  ssr: false,  
   sanctum: {
     mode: 'cookie',
     baseUrl: process.env.API_URL,

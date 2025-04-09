@@ -3,7 +3,7 @@
     
     <div class="py-4 text-center">
       <nuxtLink to="/">
-        <img src="~/public/vd.webp" class="w-[9rem] mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="max-h-[50px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
         <img src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
@@ -29,14 +29,14 @@
         >
           <template #item="{ item }">
 
-              <button v-if="item.items" v-ripple :class="[classLink,{'bg-sky-700 text-white' : isActive(item.href)}]">
+              <button v-if="item.items" v-ripple :class="[classLink,{'bg-emerald-700 text-white' : isActive(item.href)}]">
                   <span class="flex justify-start items-center">
                       <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
                       <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
                   <Icon v-if="item.items" name="lucide:chevron-down" />
               </button>
-              <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-sky-700 text-white' : isActive(item.href),'!justify-center': useConfig.miniSidebar}]">
+              <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-teal-700 text-white' : isActive(item.href),'!justify-center': useConfig.miniSidebar}]">
                   <span class="flex justify-start items-center">
                       <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
                       <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="ts">
+import { on } from 'events'
+
 
 //route, cek halaman aktif
 const route = useRoute()
@@ -82,9 +84,23 @@ const items = ref([
       icon: 'lucide:users',
       href:'/users',
   },
+  {
+      key: 'settings',
+      label: 'Settings',
+      icon: 'lucide:settings',
+      href:'/settings',
+  },
 ]);
 
-const classLink = 'w-full mb-0 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-sky-200 hover:text-sky-900';
+const classLink = 'w-full mb-0 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-emerald-200 hover:text-emerald-900';
 
 const useConfig = useConfigStore()
+const client = useSanctumClient();
+
+onMounted( async () => {
+    const getconfig = await client('/api/config');
+    useConfig.setConfig(getconfig);
+});
+
+
 </script>

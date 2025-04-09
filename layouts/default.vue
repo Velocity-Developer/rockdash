@@ -11,7 +11,13 @@
       <div class="body-wrapper w-full bg-white">
         <AppHeader @toggle="toggleMenu" @toggleMini="toggleMini"/>
         <div class="container mx-auto p-6">
+
+          <h1 v-if="$route.meta.title" class="text-lg md:text-2xl font-medium text-slate-900 mb-3 md:mb-5">
+              {{ $route.meta.title }}
+          </h1>
+
           <slot />
+
         </div>
       </div>
 

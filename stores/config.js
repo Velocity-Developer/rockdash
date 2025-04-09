@@ -7,8 +7,21 @@ export const useConfigStore = defineStore('config', () => {
         miniSidebar.value = !miniSidebar.value
     }
 
+    const config = ref({
+        year: new Date().getFullYear(),
+        app_name: '',
+        app_description: '',
+        app_logo: '',
+        app_favicon: '',
+    })
+    const setConfig = (setvalue) => {
+        config.value = setvalue
+    }
+
     return {
         miniSidebar,
-        toggelMiniSidebar
+        toggelMiniSidebar,
+        config,
+        setConfig
     }
 })

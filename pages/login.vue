@@ -13,8 +13,8 @@
   <form @submit.prevent="handleLogin" ref="form" class="max-w-[400px] mx-auto rounded-lg border 
   border-zinc-200 bg-zinc-50 p-4
   flex justify-center flex-col gap-4 w-full" >
-
-      <img src="~/public/vd.webp" class="w-[200px] mx-auto mb-5"/>
+      
+      <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="h-[80px] mx-auto mb-5"/>
 
       <IftaLabel>
           <InputText id="email" v-model="credentials.email" class="w-full" type="email" variant="filled"/>
@@ -51,6 +51,7 @@
     layout: 'welcome',
     title: 'Login',
   })
+  const useConfig = useConfigStore()
   const { login } = useSanctumAuth()
   const route = useRoute()
   const isLoading = ref(false)
@@ -59,7 +60,7 @@
     email: '',
     password: '',
     remember: false
-  })
+  } as any)
 
   const loginError = ref('')
 

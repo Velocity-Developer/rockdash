@@ -11,3 +11,13 @@
   </div>
 
 </template>
+
+<script setup lang="ts">
+const useConfig = useConfigStore()
+const client = useSanctumClient();
+
+onMounted( async () => {
+    const getconfig = await client('/api/config');
+    useConfig.setConfig(getconfig);
+});
+</script>
