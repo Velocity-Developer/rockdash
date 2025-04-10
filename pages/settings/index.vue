@@ -13,27 +13,43 @@
           <label class="text-sm mb-2" for="app_description">Deskripsi Aplikasi</label>
           <Textarea v-model="form.app_description" id="app_description" type="text" class="w-full" required/>
         </div>
-        <div class="flex flex-col mb-4">
-          <label class="text-sm mb-2" for="app_logo">Logo Aplikasi</label>
-          <img v-if="previewLogo" :src="previewLogo" alt="Image" class="mb-2 shadow-md rounded-md w-full sm:w-64" />
-          <div class="w-[6rem]">
-            <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="!justify-end"/>
-          </div>
-        </div>
+
+        <hr class="mb-5">
+
         
-        <div class="flex flex-col mb-4">
-          <label class="text-sm mb-2" for="app_logo_small">Logo Aplikasi (small)</label>
-          <img v-if="previewLogoSmall" :src="previewLogoSmall" alt="Image" class="mb-2 shadow-md rounded-md max-w-[80px] aspect-square" />
-          <div class="w-[6rem]">
-            <FileUpload mode="basic" @select="onLogoSmallSelect" customUpload auto severity="secondary" class="!justify-end"/>
+        <div class="flex flex-col md:flex-row gap-5 mb-4">
+          
+          <div class="flex flex-col mb-4">
+            <label class="text-sm mb-2" for="app_logo">Logo Aplikasi</label>
+            <img v-if="previewLogo" :src="previewLogo" alt="Image" class="mb-2 shadow-md rounded-md w-full sm:w-64" />
+            <div class="w-[6rem]">
+              <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="!justify-end"/>
+            </div>
           </div>
+
+          <div class="flex flex-col mb-4">
+            <label class="text-sm mb-2" for="app_logo_small">Logo Aplikasi (small)</label>
+            <img v-if="previewLogoSmall" :src="previewLogoSmall" alt="Image" class="mb-2 shadow-md rounded-md max-w-[80px] aspect-square" />
+            <div class="w-[6rem]">
+              <FileUpload mode="basic" @select="onLogoSmallSelect" customUpload auto severity="secondary" class="!justify-end"/>
+            </div>
+          </div>
+            
+          <div class="flex flex-col mb-4">
+            <label class="text-sm mb-2" for="app_favicon">Favicon Aplikasi</label>
+            <img v-if="previewFavicon" :src="previewFavicon" alt="Image" class="mb-2 max-w-[80px] shadow-md rounded-md w-auto aspect-square" />
+            <div class="w-[6rem]">
+              <FileUpload mode="basic" @select="onFaviconSelect" customUpload auto severity="secondary" class="!justify-end"/>
+            </div>
+          </div>
+
         </div>
-        
+            
         <div class="flex flex-col mb-4">
-          <label class="text-sm mb-2" for="app_favicon">Favicon Aplikasi</label>
-          <img v-if="previewFavicon" :src="previewFavicon" alt="Image" class="mb-2 max-w-[80px] shadow-md rounded-md w-auto aspect-square" />
+          <label class="text-sm mb-2" for="bg_welcome">Background Welcome</label>
+          <img v-if="previewBGwelcome" :src="previewBGwelcome" alt="Image" class="mb-2 shadow-md rounded-md w-full" />
           <div class="w-[6rem]">
-            <FileUpload mode="basic" @select="onFaviconSelect" customUpload auto severity="secondary" class="!justify-end"/>
+            <FileUpload mode="basic" @select="onBGwelcomeSelect" customUpload auto severity="secondary" class="!justify-end"/>
           </div>
         </div>
 
@@ -66,7 +82,8 @@ const form = reactive({
   app_description: '',
   app_logo: null,
   app_logo_small: null,
-  app_favicon: null
+  app_favicon: null,
+  bg_welcome: null
 })
 
 const previewLogo = ref(null as any)
@@ -85,6 +102,12 @@ const previewFavicon = ref(null as any)
 function onFaviconSelect(event: any) {
   previewFavicon.value = URL.createObjectURL(event.files[0]);
   form.app_favicon = event.files[0]
+}
+
+const previewBGwelcome = ref(null as any)
+function onBGwelcomeSelect(event: any) {
+  previewBGwelcome.value = URL.createObjectURL(event.files[0]);
+  form.bg_welcome = event.files[0]
 }
 
 onMounted(async () => {
@@ -115,6 +138,9 @@ const handleSubmit = async () => {
   }
   if (form.app_favicon) {
     formData.append('app_favicon', form.app_favicon);
+  }
+  if(form.bg_welcome){
+    formData.append('bg_welcome', form.bg_welcome);
   }
 
   try {

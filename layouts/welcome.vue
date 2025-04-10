@@ -1,13 +1,17 @@
 <template>
 
-  <div class="flex flex-col min-h-screen justify-between bg-white text-zinc-900">
-    
-    <div class="grow bg-gradient-to-r from-teal-100 to-sky-200 flex flex-col justify-center">
-      <div class="flex flex-col justify-center p-2">
-        <slot />
+  <div class="relative overflow-hidden h-screen">    
+    <div class="grid grid-cols-12 gap-0 h-screen bg-gradient-to-r from-teal-100 to-sky-200">
+      <div class="xl:col-span-8 lg:col-span-7 col-span-12 bg-lightprimary dark:bg-lightprimary lg:block hidden relative overflow-hidden">
+          <img v-if="bgWelcome" :src="bgWelcome" class="w-full h-full object-cover" alt="welcome" />
       </div>
+      <div class="bg-white xl:col-span-4 lg:col-span-5 col-span-12 sm:px-12 p-5">
+        <div class="flex h-screen items-center px-3 lg:justify-start justify-center">
+          <slot />
+        </div>
+      </div>
+
     </div>
-    
   </div>
 
 </template>
@@ -21,11 +25,11 @@ onMounted( async () => {
     useConfig.setConfig(getconfig);
 });
 
-
 const route = useRoute();
 const pageTitle = computed(() => route.meta.title?route.meta.title+' | '+useConfig.config.app_name : useConfig.config.app_name);
 const pageDescription = computed(() =>(typeof route.meta.description === 'string') ? route.meta.description : useConfig.config.app_description);
 const appFavicon = computed(() => useConfig.config.app_favicon || '');
+const bgWelcome = computed(() => useConfig.config.bg_welcome || '');
 
 useHead({
     title: pageTitle,

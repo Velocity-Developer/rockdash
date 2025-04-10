@@ -9,7 +9,7 @@
             <Icon name="lucide:menu" />
           </Button>
           <Button variant="text" @click="useConfig.toggelMiniSidebar" class="hidden md:block">
-            <Icon name="lucide:menu" />
+            <Icon name="lucide:panel-left" />
           </Button>
         </div>
         <div class="text-end">

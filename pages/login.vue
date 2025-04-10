@@ -10,11 +10,10 @@
     {{ loginError }}
   </Message>
 
-  <form @submit.prevent="handleLogin" ref="form" class="max-w-[400px] mx-auto rounded-lg border 
-  border-zinc-200 bg-zinc-50 p-4
+  <form @submit.prevent="handleLogin" ref="form" class="max-w-[400px] mx-auto p-4
   flex justify-center flex-col gap-4 w-full" >
       
-      <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="h-[80px] mx-auto mb-5"/>
+      <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="h-[50px] mx-auto mb-5"/>
 
       <IftaLabel>
           <InputText id="email" v-model="credentials.email" class="w-full" type="email" variant="filled"/>

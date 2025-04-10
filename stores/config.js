@@ -19,6 +19,7 @@ export const useConfigStore = defineStore('config', () => {
         app_logo: '',
         app_logo_small: '',
         app_favicon: '',
+        bg_welcome: '',
         user: {
             avatar_url: '',
             name: '',
