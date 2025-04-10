@@ -12,6 +12,7 @@ export const useConfigStore = defineStore('config', () => {
         app_name: '',
         app_description: '',
         app_logo: '',
+        app_logo_small: '',
         app_favicon: '',
     })
     const setConfig = (setvalue) => {

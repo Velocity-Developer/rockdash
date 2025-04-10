@@ -95,6 +95,7 @@ onMounted(async () => {
   form.app_name = data.value.app_name
   form.app_description = data.value.app_description
   previewLogo.value = data.value.app_logo
+  previewLogoSmall.value = data.value.app_logo_small
   previewFavicon.value = data.value.app_favicon
 })
 

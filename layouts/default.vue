@@ -44,4 +44,25 @@
     minim.value = !minim.value
   }
 
+  const route = useRoute();
+  const pageTitle = computed(() => route.meta.title?route.meta.title+' | '+useConfig.config.app_name : useConfig.config.app_name);
+  const pageDescription = computed(() =>(typeof route.meta.description === 'string') ? route.meta.description : useConfig.config.app_description);
+  const appFavicon = computed(() => useConfig.config.app_favicon || '');
+
+  useHead({
+    title: pageTitle,
+    meta: [
+      {
+        name: 'description',
+        content: pageDescription
+      }
+    ],
+    link: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: appFavicon
+      }
+    ]
+  });
 </script>

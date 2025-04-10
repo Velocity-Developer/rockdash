@@ -4,7 +4,7 @@
     <div class="py-4 text-center">
       <nuxtLink to="/">
         <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="max-h-[50px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
-        <img src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
+        <img :src="useConfig.config.app_logo_small?useConfig.config.app_logo_small:'~/public/vdi.webp'" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
     
