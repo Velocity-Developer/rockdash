@@ -5,7 +5,7 @@
       <div class="mx-auto flex flex-wrap items-center justify-between">
 
         <div>
-          <Button variant="text" @click="emit('toggle')" class="md:hidden">
+          <Button variant="text" @click="useConfig.toggelOpenSidebar" class="md:hidden">
             <Icon name="lucide:menu" />
           </Button>
           <Button variant="text" @click="useConfig.toggelMiniSidebar" class="hidden md:block">
@@ -13,9 +13,10 @@
           </Button>
         </div>
         <div class="text-end">
-          <Button @click="logout">
-            <Icon name="lucide:log-out" />
-          </Button>
+
+          <Avatar :image="avatarUrl" @click="toggleAvatar" shape="circle" class="cursor-pointer"/>
+          <Menu ref="menuAvatar" id="overlay_avatar_menu" :model="itemsAVatar" :popup="true" />
+
         </div>
 
       </div>
@@ -26,9 +27,7 @@
 
 <script setup lang="ts">
 const useConfig = useConfigStore()
-
-const emit = defineEmits(['toggle','toggleMini']);
-const { user, logout } = useSanctumAuth() as { user: Ref<User | null>, logout: () => void };
+const { user, logout } = useSanctumAuth();
 const isScrolled = ref(false);
 
 // Fungsi untuk memeriksa posisi scroll
@@ -45,4 +44,26 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+
+//menu avatar
+const avatarUrl = computed(() => useConfig.config.user?.avatar_url);
+const menuAvatar = ref();
+const itemsAVatar = ref([
+    {
+        label: computed(() => useConfig.config.user.name?useConfig.config.user.name+' Profile':'User Profile'),
+        items: [
+            {
+                label: 'Settings',
+                command: () => navigateTo('/users/'+useConfig.config.user.id) 
+            },
+            {
+                label: 'Logout',
+                command: () => logout()
+            }
+        ]
+    }
+]);
+const toggleAvatar = (event: any) => {
+  menuAvatar.value.toggle(event);
+};
 </script>

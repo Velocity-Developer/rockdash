@@ -1,10 +1,10 @@
 <template>
-  <nav class="h-full fixed top-0 start-0 bg-white z-[6] border-r border-border px-4 transition duration-300 ease-in-out" :class="{ 'md:w-[5rem] w-[14rem]': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
+  <nav class="group h-full fixed top-0 start-0 bg-white z-[6] border-r border-border px-4 transition-all duration-500 ease-in-out" :class="{ 'hover:md:w-[14rem] md:w-[5rem] w-[14rem] hover:shadow': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
     
     <div class="py-4 text-center">
       <nuxtLink to="/">
-        <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="max-h-[50px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
-        <img :src="useConfig.config.app_logo_small?useConfig.config.app_logo_small:'~/public/vdi.webp'" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
+        <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="max-h-[50px] w-auto mx-auto" :class="{ 'group-hover:md:block md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img :src="useConfig.config.app_logo_small?useConfig.config.app_logo_small:'~/public/vdi.webp'" class="w-[2rem] mx-auto hidden" :class="{ 'group-hover:md:hidden md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
     
@@ -29,17 +29,17 @@
         >
           <template #item="{ item }">
 
-              <button v-if="item.items" v-ripple :class="[classLink,{'bg-emerald-700 text-white' : isActive(item.href)}]">
+              <button v-if="item.items" v-ripple :class="[classLink,{'bg-emerald-700 text-white' : isActive(item.href)}]" @click="useConfig.openSidebar = false">
                   <span class="flex justify-start items-center">
                       <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
                       <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
                   <Icon v-if="item.items" name="lucide:chevron-down" />
               </button>
-              <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-teal-700 text-white' : isActive(item.href),'!justify-center': useConfig.miniSidebar}]">
+              <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-emerald-500 text-white' : isActive(item.href),'group-hover:md:!justify-start md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                   <span class="flex justify-start items-center">
                       <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
-                      <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                      <span class="ms-2" :class="{ 'group-hover:md:inline md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
               </NuxtLink>
 
@@ -51,9 +51,6 @@
 </template>
 
 <script setup lang="ts">
-import { on } from 'events'
-
-
 //route, cek halaman aktif
 const route = useRoute()
 const isActive = (path : string) => {

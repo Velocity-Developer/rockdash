@@ -11,10 +11,6 @@
             <Select :id="item.key" v-model="form[item.key]" :options="item.options" optionLabel="label" optionValue="value" class="w-full" required/>
           </div>
           
-          <div v-else-if="item.type=='checkbox'">
-            <ToggleSwitch v-model="checked" />
-          </div>
-
           <InputText v-else :id="item.key" :type="item.type" v-model="form[item.key]" class="w-full" required/>
 
           <div v-if="errors[item.key]">        
@@ -64,7 +60,10 @@
     'options-role',
     () => client('/api/option/roles')
   )
-  fields.find(f => f.key == 'role').options = OptionRoles.value
+  const roleField = fields.find(f => f.key == 'role');
+  if (roleField) {
+    roleField.options = OptionRoles.value;
+  }
 
   const form = reactive({
     name: '',

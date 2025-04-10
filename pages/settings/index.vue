@@ -1,7 +1,6 @@
 <template>
 
   <Card class="md:w-[40rem]">
-    <template #title>Pengaturan Aplikasi</template>
     <template #content>
       
       <form @submit.prevent="handleSubmit">
@@ -54,6 +53,7 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Settings',
+    description: 'Pengaturan Aplikasi',
 })
 
 const useConfig = useConfigStore()

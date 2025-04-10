@@ -2,6 +2,11 @@ import { defineStore } from 'pinia'
 
 export const useConfigStore = defineStore('config', () => {
 
+    const openSidebar = ref(false)
+    function toggelOpenSidebar() {
+        openSidebar.value = !openSidebar.value
+    }
+
     const miniSidebar = ref(false)
     function toggelMiniSidebar() {
         miniSidebar.value = !miniSidebar.value
@@ -14,12 +19,19 @@ export const useConfigStore = defineStore('config', () => {
         app_logo: '',
         app_logo_small: '',
         app_favicon: '',
+        user: {
+            avatar_url: '',
+            name: '',
+            id: ''
+        }
     })
     const setConfig = (setvalue) => {
         config.value = setvalue
     }
 
     return {
+        openSidebar,
+        toggelOpenSidebar,
         miniSidebar,
         toggelMiniSidebar,
         config,

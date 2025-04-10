@@ -10,7 +10,16 @@
       </div>
 
       <DataTable :value="data.data" size="small" stripedRows scrollable>
-        <Column field="name" header="Name"></Column>
+        <Column field="name" header="Name">
+          <template #body="slotProps">
+
+              <NuxtLink :to="'/users/'+slotProps.data.id" class="flex justify-start items-center gap-2">
+                <Avatar :image="slotProps.data.avatar_url" size="small" shape="circle" class="max-w-[40px]"/>
+                <div>{{ slotProps.data.name }}</div>
+            </NuxtLink>
+
+          </template> 
+        </Column>
         <Column field="email" header="Email"></Column>
         <Column field="role" header="Role"></Column>
         <Column field="options" header="">
@@ -29,7 +38,7 @@
       <div class="text-xs border-b pb-1 mb-1 opacity-50">
         {{ selectedItem.name }}
       </div>
-      <Button type="button" @click="openDialog(selectedItem,'edit')" severity="secondary" variant="text" class="!p-1 !flex !justify-start">
+      <Button as="router-link" :to="'users/'+selectedItem.id" severity="secondary" variant="text" class="!p-1 !flex !justify-start">
         <Icon name="lucide:pen" mode="svg"/> Edit
       </Button>
       <Button type="button" @click="confirmDelete(selectedItem)" severity="danger" variant="text" class="!p-1 !flex !justify-start">
@@ -47,6 +56,7 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Users',
+    description: 'Daftar User Aplikasi',
 })
 const confirm = useConfirm();
 const dialog = ref(false);
