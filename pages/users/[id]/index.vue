@@ -99,7 +99,7 @@
     form.name = dataUser.value.name
     form.email = dataUser.value.email
     form.status = dataUser.value.status
-    form.role = dataUser.value.role
+    form.role = dataUser.value.user_roles[0]
   }
 
   const handleSubmit = async () => {
