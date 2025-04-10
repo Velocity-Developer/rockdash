@@ -13,15 +13,19 @@
         <Column field="name" header="Name">
           <template #body="slotProps">
 
-              <NuxtLink :to="'/users/'+slotProps.data.id" class="flex justify-start items-center gap-2">
-                <Avatar :image="slotProps.data.avatar_url" size="small" shape="circle" class="max-w-[40px]"/>
-                <div>{{ slotProps.data.name }}</div>
+            <NuxtLink :to="'/users/'+slotProps.data.id" class="flex justify-start items-center gap-2">
+              <Avatar :image="slotProps.data.avatar_url" size="small" shape="circle" class="max-w-[40px]"/>
+              <div>{{ slotProps.data.name }}</div>
             </NuxtLink>
 
           </template> 
         </Column>
         <Column field="email" header="Email"></Column>
-        <Column field="role" header="Role"></Column>
+        <Column field="user_roles" header="Role">
+          <template #body="slotProps">
+            {{ slotProps.data.user_roles[0] }}
+          </template> 
+        </Column>
         <Column field="options" header="">
           <template #body="slotProps">
             <Button type="button" @click="displayPop($event, slotProps.data)" variant="text" severity="secondary" rounded>

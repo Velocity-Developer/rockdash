@@ -3,8 +3,11 @@
     
     <div class="py-4 text-center">
       <nuxtLink to="/">
-        <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="max-h-[50px] w-auto mx-auto" :class="{ 'group-hover:md:block md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
-        <img :src="useConfig.config.app_logo_small?useConfig.config.app_logo_small:'~/public/vdi.webp'" class="w-[2rem] mx-auto hidden" :class="{ 'group-hover:md:hidden md:block': useConfig.miniSidebar}"/>
+        <img v-if="useConfig.config.app_logo" :src="useConfig.config.app_logo" class="max-h-[50px] w-auto mx-auto" :class="{ 'group-hover:md:block md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img v-else src="~/public/vd.webp" class="max-h-[50px] w-auto mx-auto" :class="{ 'group-hover:md:block md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        
+        <img v-if="useConfig.config.app_logo_small" :src="useConfig.config.app_logo_small" class="w-[2rem] mx-auto hidden" :class="{ 'group-hover:md:hidden md:block': useConfig.miniSidebar}"/>
+        <img v-else src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'group-hover:md:hidden md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
     

@@ -1,6 +1,5 @@
 <template>
 
-
   <Message severity="error" class="mb-4 max-w-[400px] w-full mx-auto" v-if="route.query.redirect && route.query.redirect !== '/'">
     Hmmm, sepertinya anda mencoba mengakses halaman
     <em>"{{ route.query.redirect }}"</em>, silahkan login terlebih dahulu
@@ -13,7 +12,8 @@
   <form @submit.prevent="handleLogin" ref="form" class="max-w-[400px] mx-auto p-4
   flex justify-center flex-col gap-4 w-full" >
       
-      <img :src="useConfig.config.app_logo?useConfig.config.app_logo:'~/public/vd.webp'" class="h-[50px] mx-auto mb-5"/>
+      <img v-if="appLogo" :src="appLogo" class="h-[50px] mx-auto mb-5"/>
+      <img v-else src="~/public/vd.webp" class="h-[50px] mx-auto mb-5"/>
 
       <IftaLabel>
           <InputText id="email" v-model="credentials.email" class="w-full" type="email" variant="filled"/>
@@ -54,6 +54,7 @@
   const { login } = useSanctumAuth()
   const route = useRoute()
   const isLoading = ref(false)
+  const appLogo = computed(() => useConfig.config.app_logo?useConfig.config.app_logo:'')
 
   const credentials = ref({
     email: '',
