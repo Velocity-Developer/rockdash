@@ -2,7 +2,7 @@
   <div>
     
     <div class="flex gap-2 justify-end items-center">      
-      <Button size="small" severity="info">
+      <Button @click="dialogPermissions = true" size="small" severity="info">
         <Icon name="lucide:user-round-check" size="small"/> Permissions
       </Button>    
       <Button @click="openDialog(null,'add')" size="small">
@@ -16,9 +16,11 @@
       <Column field="user_count" header="Users"></Column>
       <Column field="permissions" header="Permissions">
         <template #body="slotProps">
-          <span v-for="item in slotProps.data.permissions" :key="item">
-            {{ item }},
-          </span>
+          <div class="truncate text-xs max-w-[200px] md:max-w-[300px]">
+            <span v-for="item in slotProps.data.permissions" :key="item">
+              {{ item }},
+            </span>
+          </div>
         </template>
       </Column>
       <Column field="options" header="">
@@ -49,7 +51,7 @@
         <div class="mb-4">
           <label for="permissions" class="form-label">Permissions</label>
 
-          <div class="grid grid-flow-col grid-rows-3 md:grid-rows-2 gap-4 mt-2 mb-3">
+          <div class="grid grid-cols-2 gap-4 mt-2 mb-3">
             <div v-for="item in OptionPermissions" :key="item.value">
               <div class="flex items-center gap-1">
                 <Checkbox :id="item.value" v-model="form.permissions" :value="item.value" />
@@ -68,12 +70,17 @@
       </form> 
   </Dialog>
 
+  <Dialog v-model:visible="dialogPermissions" header="Permissions" :style="{ width: '40rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
+    <PermissionsForm @update="refreshOptionPermissions"/>
+  </Dialog>
+
+
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-    title: 'Pengaturan Roles',
-    description: 'Daftar Roles User di Aplikasi',
+    title: 'Settings Roles',
+    description: 'Daftar Roles & Permissions User di Aplikasi',
 })
 const client = useSanctumClient();
 const { data, status, error, refresh } = await useAsyncData(
@@ -81,8 +88,8 @@ const { data, status, error, refresh } = await useAsyncData(
     () => client('/api/roles')
 )
 
-const { data: OptionPermissions } = await useAsyncData(
-    'permissions',
+const { data: OptionPermissions, refresh: refreshOptionPermissions } = await useAsyncData(
+    'option-permissions',
     () => client('/api/option/permissions')
 )
 
@@ -143,6 +150,12 @@ const handleSubmit = async () => {
         }).then(() => {
             refresh();
             dialog.value = false;
+            toast.add({
+              severity: 'success',
+              summary: 'Berhasil!',
+              detail: 'Role berhasil disimpan',
+              life: 3000
+            });
         });
     }
 
@@ -182,5 +195,8 @@ const confirmDelete = (name: any) => {
         }
     });
 }
+
+
+const dialogPermissions = ref(false);
 
 </script>
