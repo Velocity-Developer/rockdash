@@ -1,9 +1,12 @@
 <template>
   <div>
     
-    <div class="text-right">      
+    <div class="flex gap-2 justify-end items-center">      
+      <Button size="small" severity="info">
+        <Icon name="lucide:user-round-check" size="small"/> Permissions
+      </Button>    
       <Button @click="openDialog(null,'add')" size="small">
-        <Icon name="lucide:plus" size="small"/> Tambah
+        <Icon name="lucide:plus" size="small"/> Add Role
       </Button>
     </div>
     
@@ -11,6 +14,13 @@
       <Column field="name" header="Name Role"></Column>
       <Column field="guard_name" header="Guard Name"></Column>
       <Column field="user_count" header="Users"></Column>
+      <Column field="permissions" header="Permissions">
+        <template #body="slotProps">
+          <span v-for="item in slotProps.data.permissions" :key="item">
+            {{ item }},
+          </span>
+        </template>
+      </Column>
       <Column field="options" header="">
         <template #body="slotProps">
           <div v-if="slotProps.data.name != 'admin'" class="flex gap-2 justify-end items-center">
@@ -29,12 +39,25 @@
 
   </div>  
   
-  <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit Role' : 'Tambah Role'" :style="{ width: '30rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
+  <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit Role' : 'Add Role'" :style="{ width: '30rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
       <form @submit.prevent="handleSubmit"> 
-        <div class="mb-3">
+        <div class="mb-4">
           <label for="name" class="form-label">Name</label>
           <InputText v-model="form.name" id="name" type="text" class="w-full" required/>
           <Message size="small" severity="secondary" variant="simple">Nama role, huruf kecil tanpa spasi contoh: pegawai, admin_kasir</Message>
+        </div>
+        <div class="mb-4">
+          <label for="permissions" class="form-label">Permissions</label>
+
+          <div class="grid grid-flow-col grid-rows-3 md:grid-rows-2 gap-4 mt-2 mb-3">
+            <div v-for="item in OptionPermissions" :key="item.value">
+              <div class="flex items-center gap-1">
+                <Checkbox :id="item.value" v-model="form.permissions" :value="item.value" />
+                <label :for="item.value">{{ item.label }}</label>
+              </div>
+            </div>
+          </div>
+          <Message size="small" severity="secondary" variant="simple">Pilih minimal 1 permission</Message>
         </div>
         <div class="text-end mt-5">
           <Button type="submit">
@@ -58,8 +81,14 @@ const { data, status, error, refresh } = await useAsyncData(
     () => client('/api/roles')
 )
 
+const { data: OptionPermissions } = await useAsyncData(
+    'permissions',
+    () => client('/api/option/permissions')
+)
+
 const form = reactive({
     name: '',
+    permissions: []
 })
 
 const dialog = ref(false);
@@ -74,8 +103,10 @@ const openDialog = (data: any, action: any) => {
 
     if(action === 'edit') {
         form.name = data.name
+        form.permissions = data.permissions
     } else {
         form.name = ''
+        form.permissions = []
     }
 }
 
