@@ -32,16 +32,17 @@
         >
           <template #item="{ item }">
 
-              <button v-if="item.items" v-ripple :class="[classLink,{'bg-emerald-700 text-white' : isActive(item.href)}]" @click="useConfig.openSidebar = false">
+              <button v-if="item.items" v-ripple :class="[classLink,{'bg-emerald-700 text-white' : isActive(item.href),'group-hover:md:!justify-start md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                   <span class="flex justify-start items-center">
-                      <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
-                      <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                      <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
+                      <span class="ms-2" :class="{ 'group-hover:md:inline md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
                   <Icon v-if="item.items" name="lucide:chevron-down" />
               </button>
               <NuxtLink v-else :to="item.href" :class="[classLink,{'bg-emerald-500 text-white' : isActive(item.href),'group-hover:md:!justify-start md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                   <span class="flex justify-start items-center">
-                      <Icon v-if="item.icon" :name="item.icon" mode="svg" :ssr="true"/>
+                      <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
+                      <Icon v-else name="lucide:circle-small" size="small" class="opacity-50" :ssr="true"/>
                       <span class="ms-2" :class="{ 'group-hover:md:inline md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                   </span>
               </NuxtLink>
@@ -88,7 +89,18 @@ const items = ref([
       key: 'settings',
       label: 'Settings',
       icon: 'lucide:settings',
-      href:'/settings',
+      items: [
+          {
+              key: 'setting_app',
+              label: 'Umum',
+              href: '/settings',
+          },
+          {
+              key: 'setting_roles',
+              label: 'Roles',
+              href: '/settings/roles',
+          },
+      ]
   },
 ]);
 

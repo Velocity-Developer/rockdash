@@ -68,8 +68,8 @@
 
 <script setup lang="ts">
 definePageMeta({
-    title: 'Settings',
-    description: 'Pengaturan Aplikasi',
+    title: 'Pengaturan Umum',
+    description: 'Pengaturan Umum di Aplikasi',
 })
 
 const useConfig = useConfigStore()
