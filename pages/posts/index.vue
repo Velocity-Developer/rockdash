@@ -1,8 +1,8 @@
 <template>
   <div>
 
-    <div class="flex flex-col md:flex-row md:justify-between gap-3">      
-      <Button as="router-link" :to="'/posts/create'" class="mb-5" size="small">
+    <div class="flex flex-col md:flex-row md:justify-between gap-3 mb-5">      
+      <Button as="router-link" :to="'/posts/create'" class="mb-3 md:mb-0" size="small">
         <Icon name="lucide:plus" size="small"/> Add New Post
       </Button>
 

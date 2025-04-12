@@ -100,6 +100,16 @@ const items = ref([
               label: 'Add New Post',
               href: '/posts/create',
           },
+          {
+              key: 'posts_category',
+              label: 'Categories',
+              href: '/posts/terms/category',
+          },
+          {
+              key: 'posts_tags',
+              label: 'Tags',
+              href: '/posts/terms/tag',
+          },
       ]
   },
   {
