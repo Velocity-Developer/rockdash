@@ -86,6 +86,23 @@ const items = ref([
       href:'/users',
   },
   {
+      key: 'posts',
+      label: 'Posts',
+      icon: 'lucide:newspaper',
+      items: [
+          {
+              key: 'posts_all',
+              label: 'All Posts',
+              href: '/posts',
+          },
+          {
+              key: 'posts_create',
+              label: 'Add New Post',
+              href: '/posts/create',
+          },
+      ]
+  },
+  {
       key: 'settings',
       label: 'Settings',
       icon: 'lucide:settings',

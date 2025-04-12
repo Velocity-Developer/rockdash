@@ -32,12 +32,14 @@ export default defineNuxtConfig({
             }
         }
     }
-  },
+  }, 
   modules: [
     '@nuxtjs/tailwindcss',
     'nuxt-auth-sanctum',
     '@primevue/nuxt-module',
     '@nuxt/icon',
     '@pinia/nuxt',
+    'dayjs-nuxt',
+    '@nuxt/fonts'
   ]
 })
