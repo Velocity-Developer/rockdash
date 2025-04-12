@@ -1,10 +1,21 @@
 <template>
   <div>
 
-    <div>      
+    <div class="flex flex-col md:flex-row md:justify-between gap-3">      
       <Button as="router-link" :to="'/posts/create'" class="mb-5" size="small">
         <Icon name="lucide:plus" size="small"/> Add New Post
       </Button>
+
+      <form @submit.prevent="refresh()" class="flex flex-row justify-end items-center gap-1">
+        <div v-if="status == 'pending'">
+          <Icon name="lucide:loader-circle" size="small" class="animate-spin"/>
+        </div>
+        <Select v-model="formFilter.count" :options="[20,50,100]" placeholder="Posts per page" size="small"/>
+        <InputText v-model="formFilter.title" placeholder="Search..." size="small" class="max-w-[150px]"/>
+        <Button type="submit" size="small" class="py-2">
+          <Icon name="lucide:search" size="small"/>
+        </Button>
+      </form>
     </div>
     
     <DataTable v-if="data" :value="data.data" v-model:selection="selectedPosts" size="small" stripedRows scrollable>
@@ -25,6 +36,11 @@
         </template>
       </Column>
       <Column field="date" header="Date"></Column>
+      <Column field="status" header="Status">
+        <template #body="slotProps">
+          <PostBadgeStatus :status="slotProps.data?.status" />
+        </template>
+      </Column>
       <Column field="actions" header="">
         <template #body="slotProps">
           <div class="flex justify-end items-center gap-1">
@@ -38,10 +54,30 @@
         </template>
       </Column>
     </DataTable>
-
+    
     <Message v-else severity="warn">
       Posts Kosong
     </Message>
+          
+    <div class="flex flex-col md:flex-row md:justify-between gap-3 mt-4 mb-5">
+      <div>
+        <span class="text-sm text-gray-500">Showing {{ data.from }} to {{ data.to }} of {{ data.total }} entries</span>
+      </div>
+
+      <Paginator
+            :rows="data.per_page"
+            :totalRecords="data.total"
+            @page="onPaginate"
+            :pt="{
+                root: (event: any) => {
+                    const itemForPage =  data.per_page;
+                    const currentPage =  page - 1;
+                    event.state.d_first = itemForPage * currentPage;
+                },
+            }"
+        >
+      </Paginator>
+    </div>
 
   </div>
 </template>
@@ -56,11 +92,28 @@ const toast = useToast();
 const route = useRoute();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
 const client = useSanctumClient();
+
+const formFilter = reactive({
+    title: '',
+    count: 20,
+})
+
 const { data, status, error, refresh } = await useAsyncData(
     'posts-page-'+page.value,
-    () => client('/api/posts?page='+page.value)
+    () => client('/api/posts?page='+page.value,{
+        params: {
+            page: page.value,
+            title: formFilter.title,
+            count: formFilter.count,
+        }
+    })
 )
 const selectedPosts = ref();
+const onPaginate = (event: { page: number }) => {
+    page.value = event.page + 1; 
+    refresh()
+    navigateTo('/posts?page='+page.value)
+};
 
 const confirm = useConfirm();
 const confirmDelete = (id: any) => {    
@@ -95,4 +148,5 @@ const confirmDelete = (id: any) => {
         }
     });
 }
+
 </script>
