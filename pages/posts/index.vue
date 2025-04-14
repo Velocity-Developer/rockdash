@@ -36,6 +36,16 @@
         </template>
       </Column>
       <Column field="date" header="Date"></Column>
+      <Column field="category" header="Category" class="hidden md:table-cell">
+        <template #body="slotProps">
+          <span class="text-xs" v-for="item in slotProps.data?.category" :key="item">{{ item.name }}, </span>
+        </template>
+      </Column>
+      <Column field="tags" header="Tags" class="hidden xl:table-cell">
+        <template #body="slotProps">
+          <span class="text-xs" v-for="item in slotProps.data?.tags" :key="item">{{ item.name }}, </span>
+        </template>
+      </Column>
       <Column field="status" header="Status">
         <template #body="slotProps">
           <PostBadgeStatus :status="slotProps.data?.status" />

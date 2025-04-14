@@ -35,17 +35,24 @@
           </textarea>
         </div>
         
+        <div class="mb-5 border p-4 rounded-lg">
+          <div class="mb-3">
+            <div class="mb-1 opacity-75 text-sm">
+              Categories
+            </div>
+            <MultiSelect v-model="form.category" :options="OptionCategory.data" optionValue="id" optionLabel="name" filter placeholder="Select Categories"
+              :maxSelectedLabels="200" class="w-full" />
+          </div>
+            <div class="mb-1 opacity-75 text-sm">
+              Tags
+            </div>
+            <Textarea v-model="form.tags" class="w-full" rows="5" placeholder="Post Tags"></Textarea>
+            <p class="text-sm text-zinc-400">Use comma (,) to separate tags</p>
+        </div>
+        
       </div>
       <div class="md:basis-[15rem]">
-
-        <div class="mb-5 border p-4 rounded-lg">
-          <div class="mb-1 opacity-75 text-sm">
-            Featured Image
-          </div>
-          <img v-if="srcImage" :src="srcImage" alt="Image" class="w-full object-cover aspect-square rounded-lg mb-1"/>
-          <FileUpload mode="basic" @select="onImageSelect" customUpload auto severity="secondary" class="p-button-outlined" />
-        </div>
-
+        
         <div class="mb-5 border p-4 rounded-lg">
           <div class="mb-3">
             <label class="mb-1 block text-sm" for="status">Post Status</label>
@@ -69,7 +76,15 @@
           </div>
 
         </div>
-        
+
+        <div class="mb-5 border p-4 rounded-lg">
+          <div class="mb-1 opacity-75 text-sm">
+            Featured Image
+          </div>
+          <img v-if="srcImage" :src="srcImage" alt="Image" class="w-full object-cover aspect-square rounded-lg mb-1"/>
+          <FileUpload mode="basic" @select="onImageSelect" customUpload auto severity="secondary" class="p-button-outlined" />
+        </div>
+                
         <div v-if="authorData" class="mt-5 border p-4 rounded-lg flex items-center">
           <Avatar :image="authorData.avatar_url" size="large" shape="circle" class="mr-2" />
           {{ authorData.name }}
@@ -103,6 +118,8 @@ const form = reactive({
   status: 'published',
   date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
   featured_image: '',
+  category: [],
+  tags: '',
 } as any)
 
 onMounted( async () => {
@@ -117,6 +134,16 @@ onMounted( async () => {
 
       if(res.author_data){
         authorData.value = res.author_data
+      }
+
+      if(res.category){
+        //ambil id category
+        form.category = res.category.map((item: any) => item.id)
+      }
+
+      if(res.tags){
+        //ambil name tags, jadikan string
+        form.tags = res.tags.map((item: any) => item.name).join(',')        
       }
 
     } catch (error) {
@@ -145,6 +172,17 @@ watch(() => form.date, () => {
   form.new_date = dayjs(form.date).format('YYYY-MM-DD HH:mm:ss')
 })
 
+const { data: OptionCategory, refresh: refreshOptionCategory } = await useAsyncData(
+    'options-category',
+    () => client('/api/terms',{
+        params: {
+            page: 1,
+            taxonomy: 'category',
+            count: 200
+        }
+    })
+)
+
 const handleSubmit = async () => {
     isLoading.value = true
     errors.value = ''  
@@ -155,6 +193,8 @@ const handleSubmit = async () => {
     formData.append('status', form.status);
     formData.append('date', form.date);
     formData.append('featured_image', newImage.value);
+    formData.append('category', form.category);
+    formData.append('tags', form.tags);
 
     if(form.new_date){
       formData.append('date', form.new_date);
