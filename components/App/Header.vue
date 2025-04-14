@@ -1,5 +1,5 @@
 <template>
-  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="sticky top-0 z-[5] bg-white fixed w-full">
+  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="sticky top-0 z-[5] bg-white dark:bg-zinc-900 fixed w-full">
 
     <nav class="px-2 border-gray-700 rounded-none bg-transparent dark:bg-transparent py-4 sm:px-6">
       <div class="mx-auto flex flex-wrap items-center justify-between">
@@ -12,8 +12,9 @@
             <Icon name="lucide:panel-left" />
           </Button>
         </div>
-        <div class="text-end">
+        <div class="flex flex-row justify-end gap-2 items-center">
 
+          <AppDarkMode />
           <Avatar :image="avatarUrl" @click="toggleAvatar" shape="circle" class="cursor-pointer"/>
           <Menu ref="menuAvatar" id="overlay_avatar_menu" :model="itemsAVatar" :popup="true" />
 

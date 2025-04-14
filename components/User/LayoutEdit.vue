@@ -16,7 +16,7 @@
             item: () => ({
                 class: [
                     '!rounded-lg',
-                    '!bg-zinc-100',
+                    '!bg-zinc-100 dark:!bg-zinc-800',
                     'mb-1',
                 ]
             }),

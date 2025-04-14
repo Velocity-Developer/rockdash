@@ -33,6 +33,11 @@ export default defineNuxtConfig({
         }
     }
   }, 
+  tailwindcss: {   
+    config: { 
+      darkMode: 'class',
+    },
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     'nuxt-auth-sanctum',

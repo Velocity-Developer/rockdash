@@ -35,7 +35,7 @@
           </textarea>
         </div>
         
-        <div class="mb-5 border p-4 rounded-lg">
+        <div class="mb-5 border dark:border-zinc-800 p-4 rounded-lg">
           <div class="mb-3">
             <div class="mb-1 opacity-75 text-sm">
               Categories
@@ -53,7 +53,7 @@
       </div>
       <div class="md:basis-[15rem]">
         
-        <div class="mb-5 border p-4 rounded-lg">
+        <div class="mb-5 border dark:border-zinc-800 p-4 rounded-lg">
           <div class="mb-3">
             <label class="mb-1 block text-sm" for="status">Post Status</label>
             <SelectButton v-model="form.status" id="status" class="w-full" size="small" :options="[{label:'Publish',value:'published'},{label:'Draft',value:'draft'}]" optionLabel="label" optionValue="value" />
@@ -77,7 +77,7 @@
 
         </div>
 
-        <div class="mb-5 border p-4 rounded-lg">
+        <div class="mb-5 border dark:border-zinc-800 p-4 rounded-lg">
           <div class="mb-1 opacity-75 text-sm">
             Featured Image
           </div>

@@ -5,7 +5,7 @@
       <div class="xl:col-span-8 lg:col-span-7 col-span-12 bg-lightprimary dark:bg-lightprimary lg:block hidden relative overflow-hidden">
           <img v-if="bgWelcome" :src="bgWelcome" class="w-full h-full object-cover" alt="welcome" />
       </div>
-      <div class="bg-white flex h-screen items-center px-3 justify-center xl:col-span-4 lg:col-span-5 col-span-12 sm:px-12 p-5">
+      <div class="bg-white dark:bg-zinc-900 flex h-screen items-center px-3 justify-center xl:col-span-4 lg:col-span-5 col-span-12 sm:px-12 p-5">
         <div>
           <slot />
         </div>

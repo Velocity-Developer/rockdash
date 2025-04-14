@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="handleSubmit">
 
-    <div v-for="item in fields" :key="item.key" class="flex flex-col md:flex-row border-b py-1">
+    <div v-for="item in fields" :key="item.key" class="flex flex-col md:flex-row border-b dark:border-zinc-800 py-1">
         <div class="md:basis-1/4 mb-1">
           <label :for="item.key">{{ item.label }}</label>
         </div>
