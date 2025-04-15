@@ -9,10 +9,10 @@
       <DataTable v-if="data" :value="data.data" size="small" stripedRows scrollable>
         <Column field="title" header="Title">
           <template #body="slotProps">
-            <div class="flex">
+            <div @click="openDialog(slotProps.data)" class="flex cursor-pointer">
               <img class="aspect-square object-cover w-8" :src="slotProps.data?.featured_image_url" :alt="slotProps.data?.title" />
               <div class="ms-2 text-xs truncate">
-                <nuxtLink :to="'/posts/edit/'+slotProps.data.id">{{ slotProps.data?.title }}</nuxtLink>
+                {{ slotProps.data?.title }}
               </div>
             </div>
           </template>
@@ -31,12 +31,26 @@
 
     </template>
   </Card>
+
+  <Dialog v-model:visible="dialog" header="Post" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
+    <PostPreview :data="selectedItem" />
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
+import { PostPreview } from '#components';
+
 const client = useSanctumClient();
 const { data, status, error, refresh } = await useAsyncData(
     'dashboard-datatable',
     () => client('/api/dashboard/datatable')
 )
+
+const dialog = ref(false);
+const selectedItem = ref();
+const openDialog = (data: any) => {
+    dialog.value = true;
+    selectedItem.value = data;   
+}
 </script>
