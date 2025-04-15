@@ -137,18 +137,27 @@ const confirmDelete = (id: any) => {
     confirm.require({
         message: 'Anda yakin hapus post ini?',
         header: 'Hapus Post',
-        accept: () => {
-            client(`/api/posts/${id.id}`, {
-                method: 'DELETE',
-            }).then(() => {
+        accept: async () => {
+            try {              
+              const re = await client(`/api/posts/${id.id}`, {
+                  method: 'DELETE',
+              })
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Post berhasil dihapus',
+                life: 3000
+              });
+              refresh();
+            } catch (error) {
+                const er = useSanctumError(error)                 
                 toast.add({
-                  severity: 'success',
-                  summary: 'Berhasil!',
-                  detail: 'Post berhasil dihapus',
-                  life: 3000
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+                    life: 3000
                 });
-                refresh();
-            });
+            }
         },
         rejectProps: {
             label: 'Cancel',

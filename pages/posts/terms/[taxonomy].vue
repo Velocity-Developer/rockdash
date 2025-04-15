@@ -61,6 +61,11 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: ["auth"],
+  permission: 'edit-post'
+})
+
 const route = useRoute()
 const taxonomy = computed(() => route.params.taxonomy)
 

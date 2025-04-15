@@ -70,6 +70,8 @@
 definePageMeta({
     title: 'Pengaturan Umum',
     description: 'Pengaturan Umum di Aplikasi',
+    middleware: ["auth"],
+    permission: 'edit-settings'
 })
 
 const useConfig = useConfigStore()

@@ -81,6 +81,8 @@
 definePageMeta({
     title: 'Settings Roles',
     description: 'Daftar Roles & Permissions User di Aplikasi',
+    middleware: ["auth"],
+    permission: 'edit-settings'
 })
 const client = useSanctumClient();
 const { data, status, error, refresh } = await useAsyncData(

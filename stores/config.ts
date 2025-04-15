@@ -23,11 +23,15 @@ export const useConfigStore = defineStore('config', () => {
         user: {
             avatar_url: '',
             name: '',
-            id: ''
-        }
+            id: '',
+        },
+        permissions: []
     })
-    const setConfig = (setvalue) => {
+    const permissions = ref([] as any)
+    
+    const setConfig = (setvalue: { year: number; app_name: string; app_description: string; app_logo: string; app_logo_small: string; app_favicon: string; bg_welcome: string; user: { avatar_url: string; name: string; id: string }; permissions: never[] } | { year: number; app_name: string; app_description: string; app_logo: string; app_logo_small: string; app_favicon: string; bg_welcome: string; user: { avatar_url: string; name: string; id: string }; permissions: never[] }) => {
         config.value = setvalue
+        permissions.value = config.value.permissions
     }
 
     return {
@@ -36,6 +40,7 @@ export const useConfigStore = defineStore('config', () => {
         miniSidebar,
         toggelMiniSidebar,
         config,
-        setConfig
+        setConfig,
+        permissions
     }
 })
