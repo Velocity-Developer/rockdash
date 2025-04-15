@@ -19,7 +19,7 @@
           <Badge severity="info" size="small">{{ notifikasi.length }}</Badge>
         </div>
 
-          <ScrollPanel style="width: 100%; height: 200px">
+          <ScrollPanel v-if="notifikasi.length" style="width: 100%; height: 200px">
           <div v-for="item in notifikasi" :key="item.id" class="border-b border-zinc-100 dark:border-zinc-800">
             <Button @click="markRead(item)" severity="secondary" variant="text" class="flex flex-row justify-start gap-2 items-baseline w-full !py-1 text-left">
               <div>
@@ -34,6 +34,13 @@
             </Button>
           </div>
         </ScrollPanel>
+        
+        <Button v-if="notifikasi.length" @click="markReadAll" severity="info" class="w-full mt-2">
+          Mark all as read
+        </Button>
+        <Message v-else severity="info" size="small">
+          Notifications is empty
+        </Message>
         
       </div>
     </Popover>
@@ -82,6 +89,17 @@ const markRead = async (data: any) => {
     //close op
     op.value.hide()
 
+    await fetchNotifikasi()
+  } catch (error) {
+  }
+}
+
+//mark all as read
+const markReadAll = async () => {
+  try {
+    await client('/api/notifications/mark-all-as-read', { 
+      method: 'POST'
+    })
     await fetchNotifikasi()
   } catch (error) {
   }
