@@ -25,13 +25,39 @@ export const useConfigStore = defineStore('config', () => {
             name: '',
             id: '',
         },
-        permissions: []
+        permissions: [],
+        app_menus: []
     })
     const permissions = ref([] as any)
+    const app_menus = ref([] as any)
     
-    const setConfig = (setvalue: { year: number; app_name: string; app_description: string; app_logo: string; app_logo_small: string; app_favicon: string; bg_welcome: string; user: { avatar_url: string; name: string; id: string }; permissions: never[] } | { year: number; app_name: string; app_description: string; app_logo: string; app_logo_small: string; app_favicon: string; bg_welcome: string; user: { avatar_url: string; name: string; id: string }; permissions: never[] }) => {
+    const setConfig = (
+        setvalue: {
+            year: number; 
+            app_name: string; 
+            app_description: string; 
+            app_logo: string; 
+            app_logo_small: string; 
+            app_favicon: string; 
+            bg_welcome: string; 
+            user: { avatar_url: string; name: string; id: string }; 
+            permissions: never[] ,
+            app_menus: never[]
+        } | { 
+            year: number; 
+            app_name: string; 
+            app_description: string; 
+            app_logo: string; 
+            app_logo_small: string; 
+            app_favicon: string; 
+            bg_welcome: string; 
+            user: { avatar_url: string; name: string; id: string }; 
+            permissions: never[] ; 
+            app_menus: never[]
+        }) => {
         config.value = setvalue
         permissions.value = config.value.permissions
+        app_menus.value = config.value.app_menus ?? []
     }
 
     return {
@@ -41,6 +67,7 @@ export const useConfigStore = defineStore('config', () => {
         toggelMiniSidebar,
         config,
         setConfig,
-        permissions
+        permissions,
+        app_menus
     }
 })

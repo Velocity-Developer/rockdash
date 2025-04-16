@@ -1,10 +1,16 @@
 export default defineNuxtRouteMiddleware((to, from) => {
-    const config = useConfigStore()
+    interface User {
+        id: number;
+        user_permissions: [];
+    }
 
-    const metaPermission = to.meta.permission;
+    const User = useSanctumUser<User>();
+
+    const metaPermission = to.meta.permission as never;
+    const configPermission = computed(() => User.value?.user_permissions ?? []);
 
     // Cek permissions
-    if (metaPermission && !config.permissions.includes(metaPermission)) {
+    if (metaPermission && configPermission && !configPermission.value.includes(metaPermission)) {
         return navigateTo('/403') // halaman tidak punya akses
     }
     
