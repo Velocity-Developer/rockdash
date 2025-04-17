@@ -129,7 +129,7 @@ onMounted( async () => {
       Object.assign(form, res)
 
       if(res.featured_image){
-        srcImage.value = res.featured_image_url
+        srcImage.value = res.featured_image.full||res.featured_image.default
       }
 
       if(res.author_data){

@@ -23,8 +23,12 @@
       <Column field="title" header="Title">
         <template #body="slotProps">
           <div class="flex">
-            <img class="aspect-square object-cover w-8" :src="slotProps.data?.featured_image_url" :alt="slotProps.data?.title" />
-            <div class="ms-2">
+            <img 
+                class="aspect-square object-cover w-9 h-9" 
+                :src="slotProps.data?.featured_image?.thumbnail ?? slotProps.data?.featured_image?.default"
+                :alt="slotProps.data?.title"
+              /> 
+              <div class="ms-2">
               <nuxtLink :to="'/posts/edit/'+slotProps.data.id">{{ slotProps.data?.title }}</nuxtLink>
             </div>
           </div>
