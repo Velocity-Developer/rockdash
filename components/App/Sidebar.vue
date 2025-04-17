@@ -70,7 +70,7 @@ const client = useSanctumClient();
 const AppMenus = computed(() => useConfig.app_menus || [])
 
 onMounted( async () => {
-    const getconfig = await client('/api/config');
+    const getconfig = await client('/api/dash/config');
     useConfig.setConfig(getconfig);
 });
 

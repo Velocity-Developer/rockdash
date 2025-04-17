@@ -115,7 +115,7 @@ function onBGwelcomeSelect(event: any) {
 onMounted(async () => {
   const { data } = await useAsyncData(
     'config',
-    () => client('/api/config')
+    () => client('/api/dash/config')
   )
   form.app_name = data.value.app_name
   form.app_description = data.value.app_description
@@ -146,7 +146,7 @@ const handleSubmit = async () => {
   }
 
   try {
-    const res = await client('/api/setconfig', {
+    const res = await client('/api/dash/setconfig', {
       method: 'POST',
       body: formData
     })
@@ -157,7 +157,7 @@ const handleSubmit = async () => {
       life: 3000
     });
     
-    const getconfig = await client('/api/config');
+    const getconfig = await client('/api/dash/config');
     useConfig.setConfig(getconfig);
 
   } catch (error) {
