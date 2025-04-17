@@ -14,8 +14,8 @@
         </div>
         <div class="flex flex-row justify-end gap-2 items-center">
 
-          <AppHeaderNotif />
-          <AppDarkMode />
+          <DashHeaderNotif />
+          <DashDarkMode />
           <Avatar :image="avatarUrl" @click="toggleAvatar" shape="circle" class="cursor-pointer"/>
           <Menu ref="menuAvatar" id="overlay_avatar_menu" :model="itemsAVatar" :popup="true" />
 

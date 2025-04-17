@@ -55,7 +55,7 @@
   </div>
   
   <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit Term' : 'Add Term'" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
-    <TermForm :taxonomy="taxonomy" :data="selectedItem" :action="dialogAction" @update="refresh" />
+    <PostTermForm :taxonomy="taxonomy" :data="selectedItem" :action="dialogAction" @update="refresh" />
   </Dialog>
 
 </template>

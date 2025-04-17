@@ -5,11 +5,11 @@
     <div class="page-wrapper flex w-full transition duration-300 ease-in-out" :class="{'md:ps-[5rem]': useConfig.miniSidebar,'md:ps-[14rem]': !useConfig.miniSidebar }">
       <div class="xl:block" :class="{ 'block z-[7]': useConfig.openSidebar, 'hidden md:block': !useConfig.openSidebar }">
         <div class="flex">
-          <AppSidebar :toggleMini="minim"/>
+          <DashSidebar :toggleMini="minim"/>
         </div>
       </div>
       <div class="body-wrapper w-full bg-white dark:bg-zinc-900">
-        <AppHeader @toggleMini="toggleMini"/>
+        <DashHeader @toggleMini="toggleMini"/>
         <div class="container mx-auto p-6">
 
           <div v-if="$route.meta.title" class="bg-emerald-50 dark:bg-zinc-800 p-3 md:p-5 rounded-lg mb-3 md:mb-5">
