@@ -56,7 +56,7 @@ const itemsAVatar = ref([
         items: [
             {
                 label: 'Settings',
-                command: () => navigateTo('/users/'+useConfig.config.user.id) 
+                command: () => navigateTo('/dash/users/'+useConfig.config.user.id) 
             },
             {
                 label: 'Logout',
