@@ -1,13 +1,13 @@
 <template>
-  <nav class="group h-full fixed top-0 start-0 bg-white dark:bg-zinc-800 z-[6] border-r border-border dark:border-gray-600 px-4 transition-all duration-500 ease-in-out" :class="{ 'hover:md:w-[14rem] md:w-[5rem] w-[14rem] hover:shadow': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
+  <nav class="group h-full fixed top-0 start-0 bg-white dark:bg-zinc-800 z-[999] border-r border-border dark:border-gray-600 px-4 transition-all duration-500 ease-in-out" :class="{ 'hover:md:w-[14rem] md:w-[5rem] w-[14rem] hover:shadow': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
     
     <div class="py-4 text-center">
       <nuxtLink to="/">
-        <img v-if="useConfig.config.app_logo" :src="useConfig.config.app_logo" class="max-h-[40px] w-auto mx-auto" :class="{ 'group-hover:md:block md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
-        <img v-else src="~/public/vd.webp" class="max-h-[40px] w-auto mx-auto" :class="{ 'group-hover:md:block md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img v-if="useConfig.config.app_logo" :src="useConfig.config.app_logo" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img v-else src="~/public/vd.webp" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
         
-        <img v-if="useConfig.config.app_logo_small" :src="useConfig.config.app_logo_small" class="w-[2rem] mx-auto hidden" :class="{ 'group-hover:md:hidden md:block': useConfig.miniSidebar}"/>
-        <img v-else src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'group-hover:md:hidden md:block': useConfig.miniSidebar}"/>
+        <img v-if="useConfig.config.app_logo_small" :src="useConfig.config.app_logo_small" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
+        <img v-else src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
     
@@ -33,18 +33,18 @@
             class="w-full border-none rounded-none !gap-0">
                 <template #item="{ item }">
                     
-                <button v-if="item.items" v-ripple :class="[classLink,{'bg-emerald-700 text-white dark:text-gray-100' : isActive(item.route),'group-hover:md:!justify-start md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
+                <button v-if="item.items" v-ripple v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-emerald-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                     <span class="flex justify-start items-center">
                         <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
-                        <span class="ms-2" :class="{ 'group-hover:md:inline md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                     <Icon v-if="item.items" name="lucide:chevron-down" />
                 </button>
-                <NuxtLink v-else :to="item.route" :class="[classLink,{'bg-emerald-700 text-white dark:text-gray-100' : isActive(item.route),'group-hover:md:!justify-start md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
+                <NuxtLink v-else :to="item.route" v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-emerald-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                     <span class="flex justify-start items-center">
                         <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
                         <Icon v-else name="lucide:circle-small" size="small" class="opacity-50" :ssr="true"/>
-                        <span class="ms-2" :class="{ 'group-hover:md:inline md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                 </NuxtLink>
 

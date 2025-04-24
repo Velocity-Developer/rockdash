@@ -14,7 +14,11 @@
           <template #body="slotProps">
 
             <NuxtLink :to="'/dash/users/'+slotProps.data.id" class="flex justify-start items-center gap-2">
-              <Avatar :image="slotProps.data.avatar_url" size="small" shape="circle" class="max-w-[40px]"/>
+              <Avatar
+              :image="slotProps.data.avatar_url"
+              size="small"
+              shape="circle"
+              class="max-w-[40px]"/>
               <div>{{ slotProps.data.name }}</div>
             </NuxtLink>
 

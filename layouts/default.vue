@@ -3,7 +3,7 @@
   <div class="flex w-full min-h-screen">
 
     <div class="page-wrapper flex w-full transition duration-300 ease-in-out" :class="{'md:ps-[5rem]': useConfig.miniSidebar,'md:ps-[14rem]': !useConfig.miniSidebar }">
-      <div class="xl:block" :class="{ 'block z-[7]': useConfig.openSidebar, 'hidden md:block': !useConfig.openSidebar }">
+      <div class="xl:block" :class="{ 'block z-[90]': useConfig.openSidebar, 'hidden md:block': !useConfig.openSidebar }">
         <div class="flex">
           <DashSidebar :toggleMini="minim"/>
         </div>
@@ -28,7 +28,7 @@
 
       <div 
       @click="useConfig.openSidebar = false" 
-      class="fixed top-0 end-0 start-0 bottom-0 bg-black opacity-50 z-[6] md:hidden" 
+      class="fixed top-0 end-0 start-0 bottom-0 bg-black opacity-50 z-[80] md:hidden" 
       :class="{ 'hidden': !useConfig.openSidebar }"></div>
 
     </div>

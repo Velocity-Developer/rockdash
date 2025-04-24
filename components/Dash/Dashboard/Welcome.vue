@@ -7,7 +7,17 @@
 
           <div class="flex items-center gap-3 mb-8">
             <div>
-              <Avatar :image="useConfig.config.user?.avatar_url" shape="circle" />
+              <Avatar 
+                :image="useConfig.config.user?.avatar_url" 
+                shape="circle"        
+                :pt="{
+                  image: (options) => ({
+                      class: [
+                          '!object-cover',
+                      ]
+                  })
+                }"
+              />
             </div>
             <div class="font-bold text-zinc-800 dark:text-white">
               Selamat Datang, {{ useConfig.config.user?.name }} !!
