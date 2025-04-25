@@ -1,5 +1,5 @@
 <template>
-  <nav class="group h-full fixed top-0 start-0 bg-white dark:bg-zinc-800 z-[999] border-r border-border dark:border-gray-600 px-4 transition-all duration-500 ease-in-out" :class="{ 'hover:md:w-[14rem] md:w-[5rem] w-[14rem] hover:shadow': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
+  <nav class="group h-full fixed top-0 start-0 bg-white dark:bg-zinc-800 z-[999] border-r border-border dark:border-gray-600 px-4 transition-all duration-500 ease-in-out" :class="{ 'md:w-[5rem] w-[14rem] hover:shadow': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
     
     <div class="py-4 text-center">
       <nuxtLink to="/">

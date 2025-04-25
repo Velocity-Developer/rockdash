@@ -7,7 +7,7 @@ export const useConfigStore = defineStore('config', () => {
         openSidebar.value = !openSidebar.value
     }
 
-    const miniSidebar = ref(false)
+    const miniSidebar = ref(true)
     function toggelMiniSidebar() {
         miniSidebar.value = !miniSidebar.value
     }
