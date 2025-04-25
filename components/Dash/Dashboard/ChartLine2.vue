@@ -32,16 +32,16 @@ const setChartData = () => {
         datasets: [
             {
                 label: 'Pembuatan',
-                backgroundColor: documentStyle.getPropertyValue('--p-emerald-500'),
-                borderColor: documentStyle.getPropertyValue('--p-emerald-500'),
+                backgroundColor: documentStyle.getPropertyValue('--primary'),
+                borderColor: documentStyle.getPropertyValue('--primary'),
                 data: [25, 90, 40, 81],
                 pointRadius: 0,
                 tension: 0.4
             },
             {
                 label: 'Perpanjangan',
-                backgroundColor: documentStyle.getPropertyValue('--p-gray-500'),
-                borderColor: documentStyle.getPropertyValue('--p-gray-500'),
+                backgroundColor: documentStyle.getPropertyValue('--secondary'),
+                borderColor: documentStyle.getPropertyValue('--secondary'),
                 data: [50, 78, 40, 50],
                 pointRadius: 0,
                 tension: 0.4

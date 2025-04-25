@@ -15,6 +15,6 @@ const props = defineProps({
       {{ error.message }}
     </div>
 
-    <NuxtLink to="/" class="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded">Go back home</NuxtLink>
+    <NuxtLink to="/" class="bg-primary-500 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded">Go back home</NuxtLink>
   </div>
 </template>

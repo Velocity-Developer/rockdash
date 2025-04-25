@@ -1,5 +1,5 @@
 <template>
-  <Card class="bg-emerald-50 dark:bg-zinc-800 shadow-sm">
+  <Card class="bg-primary-50 dark:bg-zinc-800 shadow-sm">
     <template #content>
 
       <div class="grid grid-cols-12">

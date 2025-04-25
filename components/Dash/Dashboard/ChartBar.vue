@@ -32,8 +32,8 @@ const setChartData = () => {
         datasets: [
             {
                 label: 'Penjualan',
-                backgroundColor: documentStyle.getPropertyValue('--p-emerald-500'),
-                borderColor: documentStyle.getPropertyValue('--p-emerald-500'),
+                backgroundColor: documentStyle.getPropertyValue('--primary'),
+                borderColor: documentStyle.getPropertyValue('--primary'),
                 data: [25, 59, 40, 81, 56, 80, 90],
                 pointRadius: 0,
                 tension: 0.4,
@@ -41,8 +41,8 @@ const setChartData = () => {
             },
             {
                 label: 'Pemasukan',
-                backgroundColor: documentStyle.getPropertyValue('--p-sky-500'),
-                borderColor: documentStyle.getPropertyValue('--p-sky-500'),
+                backgroundColor: documentStyle.getPropertyValue('--secondary'),
+                borderColor: documentStyle.getPropertyValue('--secondary'),
                 data: [55, 59, 10, 71, 45, 80, 70],
                 pointRadius: 0,
                 tension: 0.4,
