@@ -122,6 +122,7 @@ onMounted(async () => {
   previewLogo.value = data.value.app_logo
   previewLogoSmall.value = data.value.app_logo_small
   previewFavicon.value = data.value.app_favicon
+  previewBGwelcome.value = data.value.bg_welcome
 })
 
 const handleSubmit = async () => {
