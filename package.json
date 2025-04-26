@@ -7,9 +7,10 @@
     "dev": "nuxt dev",
     "dev:local": "nuxt dev --port 3005",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "nuxt preview --port 3005",
     "postinstall": "nuxt prepare",
-    "prod": "nuxt generate --dotenv .env.production"
+    "prod": "nuxt generate --dotenv .env.production",
+    "build:local": "nuxt build --dotenv .env.production"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.11.1",
