@@ -7,5 +7,5 @@ html {
 }
 :root {
     --primary: theme(colors.teal.500);
-    --secondary: theme(colors.orange.500);
+    --secondary: theme(colors.orange.400);
 }
