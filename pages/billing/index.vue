@@ -30,10 +30,19 @@
           </div>
           <Button @click="visibleDrawerFilter = true">
             <Icon name="lucide:filter" /> Filter
+            <span
+            class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
+            v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
+            ></span>
           </Button>
         </div>
       </div>
 
+      <div class="bg-primary-50 dark:bg-zinc-700 border border-primary-200 dark:border-primary-600 text-xs w-auto inline-block p-4 rounded-lg mb-3">
+        Pembuatan Bulan Ini: <span class="font-bold">{{ prediksi.total }}</span>
+        <br>
+        Prediksi Pembuatan Bulan ini: <span class="font-bold">{{ prediksi.prediksi }}</span>
+      </div>
 
       <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollable>
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
@@ -294,4 +303,27 @@ function handleSortTable(event: any) {
   updateRouteParams()
   refresh()
 }
+
+const prediksi = ref({
+  total: 0,
+  prediksi: 0,
+} as any);
+
+//onmounted, tunggu 3 detik.
+onMounted(() => {
+  setTimeout(() => {
+      
+    //fetch dapatkan data prediksi dari api
+    try {
+      const res = client('/api/billing_prediksi_bulanini').then((res) => {
+        prediksi.value.total = res.total;
+        prediksi.value.prediksi = res.prediksi;
+      })
+    } catch (error) {
+      console.log(error);
+    }
+    
+  }, 3000);
+})
+
 </script>
