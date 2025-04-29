@@ -1,15 +1,16 @@
 <template>
   <header :class="['header', { 'scrolled shadow': isScrolled }]" class="sticky top-0 z-[5] bg-white dark:bg-zinc-900 fixed w-full">
 
-    <nav class="px-2 border-gray-700 rounded-none bg-transparent dark:bg-transparent py-4 sm:px-6">
+    <nav class="px-2 border-gray-700 rounded-none bg-transparent dark:bg-transparent py-3 sm:px-6">
       <div class="mx-auto flex flex-wrap items-center justify-between">
 
         <div>
           <Button variant="text" @click="useConfig.toggelOpenSidebar" class="md:!hidden">
             <Icon name="lucide:menu" />
           </Button>
-          <Button variant="text" @click="useConfig.toggelMiniSidebar" class="hidden md:block">
-            <Icon name="lucide:panel-left" />
+          <Button variant="text" severity="secondary" @click="useConfig.toggelMiniSidebar" class="hidden md:block">
+            <Icon v-if="useConfig.miniSidebar" name="lucide:panel-left-open" />
+            <Icon v-else name="lucide:panel-left-close" />
           </Button>
         </div>
         <div class="flex flex-row justify-end gap-2 items-center">
