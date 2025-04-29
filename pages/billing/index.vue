@@ -35,7 +35,7 @@
       </div>
 
 
-      <DataTable :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows resizableColumns scrollable>
+      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollable>
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column field="jenis" header="Jenis"></Column>
         <Column field="webhost.nama_web" header="Nama Web"></Column>
@@ -52,12 +52,12 @@
               {{ formatMoney(slotProps.data.trf) }}
           </template>
         </Column>
-        <Column field="tgl_masuk" header="Masuk Tgl">        
+        <Column field="tgl_masuk" sortable header="Masuk Tgl">        
           <template #body="slotProps">
               {{ formatTanggal(slotProps.data.tgl_masuk) }}
           </template>
         </Column>
-        <Column field="tgl_deadline" header="Deadline Tgl">       
+        <Column field="tgl_deadline" sortable header="Deadline Tgl">       
           <template #body="slotProps">
               {{ formatTanggal(slotProps.data.tgl_deadline) }}
           </template>
@@ -72,7 +72,7 @@
               {{ formatMoney(slotProps.data.dibayar) }}
           </template>
         </Column>
-        <Column field="kurang" header="Kurang">
+        <Column field="lunas" sortable header="Kurang">
           <template #body="slotProps">
               {{ slotProps.data.lunas }}
           </template>
@@ -86,7 +86,7 @@
           </template>
         </Column>
         <Column field="webhost.telegram" header="Telegram"></Column>
-        <Column field="webhost.hpads" header="HP Ads"></Column>
+        <Column field="webhost.hpads" sortable header="HP Ads"></Column>
         <Column field="webhost.wa" header="WA">
           <template #body="slotProps">
             <div class="whitespace-normal">
@@ -101,7 +101,13 @@
             </div>
           </template>
         </Column>
-        <Column field="dikerjakan_oleh" header="Dikerjakan"></Column>
+        <Column field="dikerjakan_oleh" header="Dikerjakan">
+          <template #body="slotProps">
+            <template v-for="item in slotProps.data.karyawans">
+              <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
+            </template>
+          </template>
+        </Column>
       </DataTable>
 
       <div class="flex justify-between items-center text-xs mt-3">
@@ -201,6 +207,8 @@ const filters = reactive({
     hpads: '',
     wa: '',
     email: '',
+    order_by: 'tgl_masuk',
+    order: 'desc',
 } as any);
 
 // Fungsi untuk mengubah params filters menjadi query URL route
@@ -277,4 +285,13 @@ function resetFilters() {
   visibleDrawerFilter.value = false;
 }
 
+//handeSortTable
+function handleSortTable(event: any) {
+  const sortField = event.sortField;
+  const sortOrder = event.sortOrder;
+  filters.order_by = sortField;
+  filters.order = sortOrder==1?'asc':'desc';
+  updateRouteParams()
+  refresh()
+}
 </script>
