@@ -46,6 +46,11 @@
 
       <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollable>
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+        <Column header="#" headerStyle="width:3rem">
+          <template #body="slotProps">
+              {{ slotProps.index + 1 }}
+          </template>
+        </Column>
         <Column field="jenis" header="Jenis"></Column>
         <Column field="webhost.nama_web" header="Nama Web"></Column>
         <Column field="webhost.paket.paket" header="Paket"></Column>
@@ -144,6 +149,12 @@
         </Paginator>
       </div>
 
+      <div class="mt-3">
+        <Button v-if="selectedRowsNamaWeb" @click="copyToClipboard()" size="small">
+          <Icon name="lucide:copy" /> Copy Nama Web
+        </Button>
+      </div>
+
     
     </template>    
   </Card>
@@ -202,7 +213,7 @@ const client = useSanctumClient();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
 
 const filters = reactive({
-    per_page: route.query.per_page || 150,
+    per_page: route.query.per_page || 50,
     page: computed(() => page.value),
     tgl_masuk_start: route.query.tgl_masuk_start || '',
     tgl_masuk_end: route.query.tgl_masuk_end || '',
@@ -246,8 +257,6 @@ watch(filters, () => {
     filters.tgl_masuk_start = filters.tgl_masuk_start?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):'';
     filters.tgl_masuk_end = filters.tgl_masuk_end?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):'';
 })
-
-const selectedRows = ref();
 
 const visibleDrawerFilter = ref(false);
 const filterSubmit = async () => {
@@ -326,4 +335,20 @@ onMounted(() => {
   }, 3000);
 })
 
+
+const selectedRows = ref();
+const selectedRowsNamaWeb = ref('');
+//watch
+watch(selectedRows, (newValue, oldValue) => {
+  if(newValue.length > 0) {
+    //set selectedRowsNamaWeb array, join dengan enter
+    selectedRowsNamaWeb.value = newValue.map((item: any) => item.webhost.nama_web).join(', ');
+  }
+})
+
+//copy selectedRowsNamaWeb ke clipboard
+function copyToClipboard() {
+  navigator.clipboard.writeText(selectedRowsNamaWeb.value);
+  alert('Nama Web berhasil di copy ke clipboard');
+}
 </script>

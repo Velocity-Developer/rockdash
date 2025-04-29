@@ -78,6 +78,6 @@ const isActive = (path : string) => {
   return route.path === path
 }
 
-const classLink = 'w-full mb-0 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-primary-200 dark:hover:bg-primary-900 hover:text-primary-900 dark:hover:text-primary-100';
+const classLink = 'w-full mb-0 md:mb-1 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-primary-200 dark:hover:bg-primary-900 hover:text-primary-900 dark:hover:text-primary-100';
 
 </script>
