@@ -41,7 +41,13 @@
             {{ slotProps.index + 1 }}
         </template>
     </Column>
-    <Column field="nama_web" header="Nama Web" frozen></Column>
+    <Column field="nama_web" header="Nama Web" frozen>
+      <template #body="slotProps">
+        <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline">
+          {{ slotProps.data.nama_web }}
+        </NuxtLink>
+      </template>
+    </Column>
     <Column field="paket" header="Paket">
       <template #body="slotProps">
         {{ slotProps.data.paket?.paket }}

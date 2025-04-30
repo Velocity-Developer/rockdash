@@ -52,7 +52,13 @@
           </template>
         </Column>
         <Column field="jenis" header="Jenis"></Column>
-        <Column field="webhost.nama_web" header="Nama Web"></Column>
+        <Column field="webhost.nama_web" header="Nama Web">
+          <template #body="slotProps">
+            <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline">
+              {{ slotProps.data.webhost.nama_web }}
+            </NuxtLink>
+          </template>
+        </Column>
         <Column field="webhost.paket.paket" header="Paket"></Column>
         <Column field="deskripsi" header="Deskripsi">
           <template #body="slotProps">
