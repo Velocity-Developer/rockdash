@@ -25,7 +25,7 @@
         <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
         Memuat...
       </div>
-      <Button @click="visibleDrawerFilter = true">
+      <Button @click="visibleDrawerFilter = true" size="small">
         <Icon name="lucide:filter" /> Filter
         <span
         class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
@@ -98,7 +98,7 @@
           </label>
 
           <DatePicker
-            v-if="item.key == 'tgl_masuk_start' || item.key == 'tgl_masuk_end'"
+            v-if="item.key == 'tgl_mulai_start' || item.key == 'tgl_mulai_end'"
             v-model="filters[item.key]"
             class="w-full mb-1" 
             size="small"
