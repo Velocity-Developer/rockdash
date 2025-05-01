@@ -35,16 +35,16 @@
                     
                 <button v-if="item.items" v-ripple v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                     <span class="flex justify-start items-center">
-                        <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
-                        <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
+                        <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                     <Icon v-if="item.items" name="lucide:chevron-down" />
                 </button>
                 <NuxtLink v-else :to="item.route" v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                     <span class="flex justify-start items-center">
-                        <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
+                        <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
                         <Icon v-else name="lucide:circle-small" size="small" class="opacity-50" :ssr="true"/>
-                        <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                 </NuxtLink>
 
