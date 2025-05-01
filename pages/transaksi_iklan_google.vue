@@ -298,8 +298,18 @@ function copyToClipboard() {
   alert('Nama Web berhasil di copy ke clipboard');
 }
 
+import * as XLSX from "xlsx";
 const dt = ref();
 const exportCSV = () => {
-    dt.value.exportCSV();
+    // dt.value.exportCSV();
+    //Convert JSON ke worksheet
+    const worksheet = XLSX.utils.json_to_sheet(data.value.data)
+
+    //Buat workbook dan tambahkan worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    //Generate file Excel dan download
+    XLSX.writeFile(workbook, 'Transaksi Iklan Google.xlsx')
 };
 </script>
