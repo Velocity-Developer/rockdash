@@ -3,7 +3,7 @@
   <Card>
     <template #content>
       
-      <div class="w-full flex justify-between items-end text-xs mb-5">
+      <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
         <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
           <div>
             <div class="mb-1">Per Page : </div>            
@@ -40,16 +40,16 @@
       <div class="overflow-x-auto mb-4">
         <div class="flex gap-4">
 
-          <div class="min-w-[200px] p-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
+          <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
             <div class="mb-1 text-sm">Total Transaksi</div>
-            <div class="text-xl font-bold text-end">
+            <div class="md:text-xl font-bold text-end">
               {{ formatMoney(totalTrf) }}
             </div>
           </div>
           
-          <div class="min-w-[200px] p-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
+          <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
             <div class="mb-1 text-sm">Total Dibayar</div>
-            <div class="text-xl font-bold text-end">
+            <div class="md:text-xl font-bold text-end">
               {{ formatMoney(totalDibayar) }}
             </div>
           </div>
@@ -200,8 +200,8 @@ const page = ref(route.query.page ? Number(route.query.page) : 1);
 const filters = reactive({
     per_page: route.query.per_page || 50,
     page: computed(() => page.value),
-    tgl_masuk_start: route.query.tgl_masuk_start || '',
-    tgl_masuk_end: route.query.tgl_masuk_end || '',
+    tgl_masuk_start: route.query.tgl_masuk_start || dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+    tgl_masuk_end: route.query.tgl_masuk_end || dayjs().format('YYYY-MM-DD'),
     nama_web: '',
     jenis: '',
     deskripsi: '',
@@ -244,11 +244,12 @@ watch(filters, () => {
 
 //watch status
 const useConfig = useConfigStore()
+useConfig.isLoaderDash = false;
 watch(status, (newValue, oldValue) => {
-    if(newValue == 'success') {
-      useConfig.isLoaderDash = false;
-    } else {
+    if(newValue == 'pending') {
       useConfig.isLoaderDash = true;
+    } else {
+      useConfig.isLoaderDash = false;
     }
 })
 
