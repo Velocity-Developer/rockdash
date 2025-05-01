@@ -5,11 +5,11 @@
     <div class="page-wrapper flex w-full transition duration-300 ease-in-out" :class="{'md:ps-[5rem]': useConfig.miniSidebar,'md:ps-[14rem]': !useConfig.miniSidebar }">
       <div class="xl:block" :class="{ 'block z-[90]': useConfig.openSidebar, 'hidden md:block': !useConfig.openSidebar }">
         <div class="flex">
-          <DashSidebar :toggleMini="minim"/>
+          <DashSidebar/>
         </div>
       </div>
       <div class="body-wrapper w-full bg-white dark:bg-zinc-900">
-        <DashHeader @toggleMini="toggleMini"/>
+        <DashHeader />
         <div class="container mx-auto p-6">
 
           <div v-if="$route.meta.title" class="bg-primary-50 dark:bg-zinc-800 p-3 md:p-5 rounded-lg mb-3 md:mb-5">
@@ -39,11 +39,6 @@
 
 <script setup lang="ts">
   const useConfig = useConfigStore()
-
-  const minim = ref(false)
-  function toggleMini() {
-    minim.value = !minim.value
-  }
 
   const route = useRoute();
   const pageTitle = computed(() => route.meta.title?route.meta.title+' | '+useConfig.config.app_name : useConfig.config.app_name);
