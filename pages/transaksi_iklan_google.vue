@@ -37,6 +37,26 @@
         </div>
       </div>
 
+      <div class="overflow-x-auto mb-4">
+        <div class="flex gap-4">
+
+          <div class="min-w-[200px] p-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
+            <div class="mb-1 text-sm">Total Transaksi</div>
+            <div class="text-xl font-bold text-end">
+              {{ formatMoney(totalTrf) }}
+            </div>
+          </div>
+          
+          <div class="min-w-[200px] p-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
+            <div class="mb-1 text-sm">Total Dibayar</div>
+            <div class="text-xl font-bold text-end">
+              {{ formatMoney(totalDibayar) }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-sm" ref="dt" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollable>
         <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
@@ -230,6 +250,18 @@ watch(status, (newValue, oldValue) => {
     } else {
       useConfig.isLoaderDash = true;
     }
+})
+
+//total trf dan dibayar
+const totalTrf = computed(() => {
+  return data.value.data.reduce((acc: number, item: any) => {
+    return acc + Number(item.trf);
+  }, 0);
+})
+const totalDibayar = computed(() => {
+  return data.value.data.reduce((acc: number, item: any) => {
+    return acc + Number(item.dibayar || 0);
+  }, 0);
 })
 
 const visibleDrawerFilter = ref(false);
