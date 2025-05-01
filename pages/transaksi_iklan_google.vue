@@ -24,10 +24,6 @@
         </form>
 
         <div class="flex justify-end items-center gap-1">
-          <div v-if="status == 'pending'" class=" flex items-center justify-end gap-2 mr-3">
-            <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
-            Memuat...
-          </div>
           <Button @click="exportCSV()" severity="warn" size="small">
             <Icon name="lucide:file-spreadsheet" /> Export CSV
           </Button>
@@ -100,12 +96,7 @@
 
       <div class="flex justify-between items-center text-xs mt-3">
         <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}
-          
-          <div v-if="status == 'pending'" class=" flex items-center justify-end gap-2">
-            <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
-            Memuat...
-          </div>
+          {{ data.from }} - {{ data.to }} dari {{ data.total }}          
         </div>
 
         <Paginator
@@ -229,6 +220,16 @@ watch(filters, () => {
     //ubah format date dayjs
     filters.tgl_masuk_start = filters.tgl_masuk_start?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):'';
     filters.tgl_masuk_end = filters.tgl_masuk_end?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):'';
+})
+
+//watch status
+const useConfig = useConfigStore()
+watch(status, (newValue, oldValue) => {
+    if(newValue == 'success') {
+      useConfig.isLoaderDash = false;
+    } else {
+      useConfig.isLoaderDash = true;
+    }
 })
 
 const visibleDrawerFilter = ref(false);

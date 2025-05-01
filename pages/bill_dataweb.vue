@@ -21,10 +21,6 @@
     </form>
 
     <div class="flex justify-end items-center">
-      <div v-if="status == 'pending'" class=" flex items-center justify-end gap-2 mr-3">
-        <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
-        Memuat...
-      </div>
       <Button @click="visibleDrawerFilter = true" size="small">
         <Icon name="lucide:filter" /> Filter
         <span
@@ -64,12 +60,7 @@
   
   <div class="flex justify-between items-center text-xs mt-3">
         <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}
-          
-          <div v-if="status == 'pending'" class=" flex items-center justify-end gap-2">
-            <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
-            Memuat...
-          </div>
+          {{ data.from }} - {{ data.to }} dari {{ data.total }}          
         </div>
 
         <Paginator
@@ -144,7 +135,7 @@ const page = ref(route.query.page ? Number(route.query.page) : 1);
 
 
 const filters = reactive({
-    per_page: route.query.per_page || 150,
+    per_page: route.query.per_page || 50,
     page: computed(() => page.value),
     tgl_mulai_start: route.query.tgl_mulai_start || '',
     tgl_mulai_end: route.query.tgl_mulai_end || '',
@@ -184,6 +175,16 @@ watch(filters, () => {
     //ubah format date dayjs
     filters.tgl_mulai_start = filters.tgl_mulai_start?dayjs(filters.tgl_mulai_start).format('YYYY-MM-DD'):'';
     filters.tgl_mulai_end = filters.tgl_mulai_end?dayjs(filters.tgl_mulai_end).format('YYYY-MM-DD'):'';
+})
+
+//watch status
+const useConfig = useConfigStore()
+watch(status, (newValue, oldValue) => {
+    if(newValue == 'success') {
+      useConfig.isLoaderDash = false;
+    } else {
+      useConfig.isLoaderDash = true;
+    }
 })
 
 const selectedRows = ref();
