@@ -288,8 +288,8 @@ function split_comma(text: string) {
 //reset filters
 function resetFilters() {
   filters.per_page = 150;
-  filters.tgl_masuk_start = '';
-  filters.tgl_masuk_end = '';
+  filters.tgl_masuk_start = dayjs().subtract(1, 'month').format('YYYY-MM-DD');
+  filters.tgl_masuk_end = dayjs().format('YYYY-MM-DD');
   filters.nama_web = '';
   filters.paket = '';
   filters.jenis = '';
