@@ -57,6 +57,7 @@
       >
       </Paginator>
     </div>
+    <DashLoader :loading="isLoadingDash"/>
 
 </template>
 
@@ -114,13 +115,12 @@ const onPaginate = (event: { page: number }) => {
 };
 
 //watch status
-const useConfig = useConfigStore()
-useConfig.isLoaderDash = false;
+const isLoadingDash = ref(false)
 watch(status, (newValue, oldValue) => {
-    if(newValue == 'pending') {
-      useConfig.isLoaderDash = true;
+    if(newValue == 'success') {
+      isLoadingDash.value = false;
     } else {
-      useConfig.isLoaderDash = false;
+      isLoadingDash.value = true;
     }
 })
 

@@ -194,6 +194,7 @@
       </div>
     </form>
   </Drawer>
+  <DashLoader :loading="isLoadingDash"/>
 
 </template>
 
@@ -256,12 +257,12 @@ watch(filters, () => {
 })
 
 //watch status
-const useConfig = useConfigStore()
+const isLoadingDash = ref(false)
 watch(status, (newValue, oldValue) => {
     if(newValue == 'success') {
-      useConfig.isLoaderDash = false;
+      isLoadingDash.value = false;
     } else {
-      useConfig.isLoaderDash = true;
+      isLoadingDash.value = true;
     }
 })
 

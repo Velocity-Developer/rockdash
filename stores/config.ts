@@ -60,19 +60,11 @@ export const useConfigStore = defineStore('config', () => {
         app_menus.value = config.value.app_menus ?? []
     }
 
-    //Loader Dashboard
-    const isLoaderDash = ref(true)
-    function setLoaderDash() {
-        isLoaderDash.value = !isLoaderDash.value
-    }
-
     return {
         openSidebar,
         toggelOpenSidebar,
         miniSidebar,
         toggelMiniSidebar,
-        isLoaderDash,
-        setLoaderDash,
         config,
         setConfig,
         permissions,
