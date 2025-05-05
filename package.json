@@ -13,18 +13,18 @@
     "build:local": "nuxt build --dotenv .env.production"
   },
   "dependencies": {
-    "@nuxt/fonts": "^0.11.1",
-    "@nuxt/icon": "^1.11.0",
-    "@nuxtjs/tailwindcss": "6.13.2",
-    "@pinia/nuxt": "^0.10.1",
-    "@primeuix/themes": "^1.0.1",
+    "@nuxt/fonts": "^0.11.2",
+    "@nuxt/icon": "^1.12.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@pinia/nuxt": "^0.11.0",
+    "@primeuix/themes": "^1.0.3",
     "@primevue/forms": "^4.3.3",
     "@primevue/nuxt-module": "^4.3.3",
-    "chart.js": "^4.4.8",
+    "chart.js": "^4.4.9",
     "dayjs-nuxt": "^2.1.11",
-    "nuxt": "^3.16.2",
-    "nuxt-auth-sanctum": "0.6.3",
-    "pinia": "^3.0.1",
+    "nuxt": "^3.17.1",
+    "nuxt-auth-sanctum": "^0.6.6",
+    "pinia": "^3.0.2",
     "primevue": "^4.3.3",
     "quill": "^2.0.3",
     "vue": "^3.5.13",
@@ -32,6 +32,6 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0"
+    "@types/node": "^22.15.3"
   }
 }
