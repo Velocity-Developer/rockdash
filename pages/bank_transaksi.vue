@@ -1,86 +1,165 @@
 <template>
+  
+  <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
+    <Button type="button" size="small" class="capitalize">
+      Tambah Transaksi {{ getBankLabel(filters.bank) }}
+    </Button> 
+    <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="mm/yy" class="w-[10rem]">
+      <template #inputicon="slotProps">
+        <Icon name="lucide:calendar" @click="slotProps.clickCallback" />
+      </template>
+    </DatePicker>
+    <Button type="button" severity="contrast" class="text-white hover:text-primary bg-secondary border-secondary" size="small">
+      <Icon name="lucide:file-spreadsheet"/>
+      Export CSV
+    </Button>
+  </div>
+  <div class="overflow-x-auto whitespace-nowrap pt-2 mb-5">
+      <SelectButton 
+        v-model="filters.bank"
+        size="small"
+        :options="banks"
+        optionValue="value"
+        optionLabel="label"
+        allowEmpty
+      />
+  </div>
 
-  <div class="flex flex-col md:flex-row gap-4 md:items-end mb-8">
+  <div class="overflow-x-auto mb-5">
+    <div class="flex gap-4">
 
-    <div class="md:basis-[70%]">
-      
-      <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
-        <Button type="button" size="small" class="capitalize">
-          Tambah Transaksi {{ getBankLabel(filters.bank) }}
-        </Button> 
-        <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="mm/yy" class="w-[10rem]">
-          <template #inputicon="slotProps">
-            <Icon name="lucide:calendar" @click="slotProps.clickCallback" />
-          </template>
-        </DatePicker>
-        <Button type="button" severity="contrast" class="text-white hover:text-primary bg-secondary border-secondary" size="small">
-          <Icon name="lucide:file-spreadsheet"/>
-          Export CSV
-        </Button>
-      </div>
-      <div class="overflow-x-auto whitespace-nowrap pt-2">
-          <SelectButton 
-            v-model="filters.bank"
-            size="small"
-            :options="banks"
-            optionValue="value"
-            optionLabel="label"
-          />
-      </div>
-
-    </div>
-
-    <div class="md:flex-1 md:flex md:justify-end">
-      <div v-if="dataSaldo" class="relative overflow-hidden border border-primary-300 bg-primary-50 dark:bg-primary-800 p-2 rounded md:w-[200px]">
-        {{ getBankLabel(filters.bank) }}
-        <div class="text-xs">
-          {{ dataSaldo.bulan }}
+      <div class="w-[200px] py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
+        <div class="text-xs mb-2 flex items-center gap-1">
+          <Icon name="lucide:wallet"/>
+          Saldo : {{ dataSaldo.bulan }}
         </div>
-        <div class="text-lg text-end font-bold text-secondary-600 dark:text-secondary-200">
+        <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
+        <div v-else class="font-bold text-end">
           {{ formatMoney(dataSaldo.nominal) }}
         </div>
       </div>
-    </div>
+      <div class="w-[200px] py-2 px-3 bg-green-100 dark:bg-green-800 border border-green-500 rounded">
+        <div class="text-xs mb-2 flex items-center gap-1">
+          <Icon name="lucide:hard-drive-download"/>
+          Total Masuk
+        </div>
+        <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
+        <div v-else class="font-bold text-end">
+          {{ formatMoney(data?.total_masuk) }}
+        </div>
+      </div>
+      <div class="w-[200px] py-2 px-3 bg-red-50 dark:bg-red-900 border border-red-600 rounded">
+        <div class="text-xs mb-2 flex items-center gap-1">
+          <Icon name="lucide:hard-drive-upload"/>
+          Total Keluar
+        </div>
+        <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
+        <div v-else class="font-bold text-end">
+          {{ formatMoney(data?.total_keluar) }}
+        </div>
+      </div>
 
+    </div>
   </div>
 
-  <DataTable :value="data.data" size="small" class="text-sm" stripedRows scrollable>
+  <DataTable :value="data.data" size="small" class="text-sm" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" stripedRows scrollable>
     <Column header="#" headerStyle="width:3rem">
       <template #body="slotProps">
           {{ slotProps.index + 1 }}
       </template>
     </Column>
-    <Column field="tgl" header="Tanggal" class="whitespace-nowrap"></Column>
+    <Column field="nomor" header="Tanggal" :sortable="true" class="whitespace-nowrap">
+      <template #body="slotProps">
+        {{ slotProps.data.tgl }}
+        <span class="hidden">
+          {{ slotProps.data.nomor }}
+        </span>
+      </template>
+    </Column>
     <Column field="jenis" header="Jenis">
       <template #body="slotProps">
-        <template v-if="slotProps.data.cs_main_project">
-          <span v-for="item in slotProps.data.cs_main_project">
-            {{ item.webhost.nama_web }}
-          </span>
-        </template>
-        <template v-else>
-          -
-        </template>
+
+        <ul v-if="slotProps.data.cs_main_project" class="list-disc ps-4">
+          <li v-for="item in slotProps.data.cs_main_project" class="text-xs">
+            <div class="font-bold">
+              {{ item.tgl_masuk }}
+            </div>
+            <div>
+              {{ item.jenis }}
+            </div>
+            <div class="text-primary font-bold">
+              {{ item.webhost.nama_web }}
+            </div>
+            <div class="font-bold">
+              {{ formatMoney(item.dibayar) }}
+            </div>
+            <div v-if="item.deskripsi" class="italic">
+              "{{ item.deskripsi }}"
+            </div>
+            <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
+              <Badge v-if="itembank.jenis_transaksi == 'masuk'">
+                {{ itembank.bank }} masuk {{ formatMoney(itembank.nominal) }}
+              </Badge>
+              <Badge v-if="itembank.jenis_transaksi == 'keluar'" severity="danger">
+                {{ itembank.bank }} keluar {{ formatMoney(itembank.nominal) }}
+              </Badge>
+            </div>
+          </li>          
+        </ul>
+        <ul v-if="slotProps.data.transaksi_keluar" class="list-disc ps-4">
+          <li v-for="item in slotProps.data.transaksi_keluar" class="text-xs">
+            <div class="font-bold">
+              {{ item.tgl }}
+            </div>
+            <div v-if="item.jenis" class="italic">
+              "{{ item.jenis }}"
+            </div>
+            <div class="font-bold">
+              {{ formatMoney(item.jml) }}
+            </div>
+            <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
+              <Badge v-if="itembank.jenis_transaksi == 'masuk'">
+                {{ itembank.bank }} masuk {{ formatMoney(itembank.nominal) }}
+              </Badge>
+              <Badge v-if="itembank.jenis_transaksi == 'keluar'" severity="danger">
+                {{ itembank.bank }} keluar {{ formatMoney(itembank.nominal) }}
+              </Badge>
+            </div>
+          </li>          
+        </ul>
+
       </template>
     </Column>
     <Column field="keterangan_bank" header="Keterangan Bank"></Column>
-    <Column field="masuk" header="Masuk">
+    <Column field="masuk" header="Masuk" class="text-teal-500 dark:text-teal-600">
       <template #body="slotProps">
-        {{ formatMoney(slotProps.data.nominal) }}
+        <template v-if="slotProps.data.jenis_transaksi == 'masuk'">
+          {{ formatMoney(slotProps.data.nominal) }}
+        </template>
       </template>
     </Column>
-    <Column field="keluar" header="Keluar">
+    <Column field="keluar" header="Keluar" class="text-red-500 dark:text-red-600">
       <template #body="slotProps">
-        {{ formatMoney(slotProps.data.nominal) }}
+        <template v-if="slotProps.data.jenis_transaksi == 'keluar'">
+          {{ formatMoney(slotProps.data.nominal) }}
+        </template>
       </template>
     </Column>
     <Column field="saldo" header="Saldo">
       <template #body="slotProps">
-        {{ formatMoney(slotProps.data.nominal) }}
+        {{ formatMoney(slotProps.data.saldo) }}
       </template>
     </Column>
     <Column field="act" header="">
       <template #body="slotProps">
+        <div class="flex items-center justify-end gap-1">
+          <Button severity="danger" size="small">
+            <Icon name="lucide:trash"/>
+          </Button>
+          <Button severity="secondary" size="small">
+            <Icon name="lucide:pen"/>
+          </Button>
+        </div>
       </template>
     </Column>
   </DataTable>
@@ -91,6 +170,7 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Bank Transaksi',
+    description: 'Catatan riwayat transaksi bank',
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
@@ -162,4 +242,5 @@ const dataSaldo = computed(() => {
     return 0;
   }
 })
+
 </script>
