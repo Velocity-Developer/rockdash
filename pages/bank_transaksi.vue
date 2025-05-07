@@ -1,7 +1,7 @@
 <template>
   
   <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
-    <Button type="button" @click="openDialog('add',{})" size="small" class="capitalize">
+    <Button type="button" @click="openDialog('add',{tgl:filters.bulan,bank:filters.bank})" size="small" class="capitalize">
       Tambah Transaksi {{ getBankLabel(filters.bank) }}
     </Button> 
     <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="mm/yy" class="w-[10rem]">
@@ -25,10 +25,10 @@
       />
   </div>
 
-  <div class="overflow-x-auto mb-5">
+  <div class="overflow-x-auto mb-5 pb-2">
     <div class="flex gap-4">
 
-      <div class="w-[200px] py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
+      <div class="min-w-[200px] py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:wallet"/>
           Saldo Bawaan : {{ dataSaldo.bulan }}
@@ -38,7 +38,7 @@
           {{ formatMoney(dataSaldo.nominal,filters.bank) }}
         </div>
       </div>
-      <div class="w-[200px] py-2 px-3 bg-green-100 dark:bg-green-800 border border-green-500 rounded">
+      <div class="min-w-[200px] py-2 px-3 bg-green-100 dark:bg-green-800 border border-green-500 rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:hard-drive-download"/>
           Total Masuk
@@ -48,7 +48,7 @@
           {{ formatMoney(data?.total_masuk,filters.bank) }}
         </div>
       </div>
-      <div class="w-[200px] py-2 px-3 bg-red-50 dark:bg-red-900 border border-red-600 rounded">
+      <div class="min-w-[200px] py-2 px-3 bg-red-50 dark:bg-red-900 border border-red-600 rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:hard-drive-upload"/>
           Total Keluar

@@ -12,6 +12,10 @@
       />
     </div>
     <div class="mb-3">
+      <label class="block mb-1">Jenis</label>
+      <BankTransaksiSelectJenis :data="props.data" @select="handleSelectJenis"/>
+    </div>
+    <div class="mb-3">
       <label class="block mb-1">Tanggal</label>
       <DatePicker v-model="forms.tgl" dateFormat="yy-mm-dd" class="w-full"/>
       <Message v-if="errors.value?.tgl" severity="warn" class="mt-1">{{ errors.value.tgl[0] }}</Message>
@@ -119,5 +123,10 @@ const handleSubmit = async () => {
     } 
   }
   loadingSubmit.value = false;
+}
+
+//handle select jenis
+const handleSelectJenis = (data : any) => {
+  console.log(data)
 }
 </script>
