@@ -1,7 +1,7 @@
 <template>
   
   <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
-    <Button type="button" size="small" class="capitalize">
+    <Button type="button" @click="openDialog('add',{})" size="small" class="capitalize">
       Tambah Transaksi {{ getBankLabel(filters.bank) }}
     </Button> 
     <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="mm/yy" class="w-[10rem]">
@@ -31,11 +31,11 @@
       <div class="w-[200px] py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:wallet"/>
-          Saldo : {{ dataSaldo.bulan }}
+          Saldo Bawaan : {{ dataSaldo.bulan }}
         </div>
         <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
         <div v-else class="font-bold text-end">
-          {{ formatMoney(dataSaldo.nominal) }}
+          {{ formatMoney(dataSaldo.nominal,filters.bank) }}
         </div>
       </div>
       <div class="w-[200px] py-2 px-3 bg-green-100 dark:bg-green-800 border border-green-500 rounded">
@@ -45,7 +45,7 @@
         </div>
         <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
         <div v-else class="font-bold text-end">
-          {{ formatMoney(data?.total_masuk) }}
+          {{ formatMoney(data?.total_masuk,filters.bank) }}
         </div>
       </div>
       <div class="w-[200px] py-2 px-3 bg-red-50 dark:bg-red-900 border border-red-600 rounded">
@@ -55,7 +55,7 @@
         </div>
         <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
         <div v-else class="font-bold text-end">
-          {{ formatMoney(data?.total_keluar) }}
+          {{ formatMoney(data?.total_keluar,filters.bank) }}
         </div>
       </div>
 
@@ -119,21 +119,21 @@
         <ul v-if="slotProps.data.cs_main_project || slotProps.data.transaksi_keluar" class="list-decimal ps-4">
           <li v-for="item in slotProps.data.cs_main_project" class="text-xs">
             <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
-              <div v-if="itembank.jenis_transaksi == 'masuk'" class="bg-sky-500 text-white rounded p-1">
-                {{ itembank.bank }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
+              <div v-if="itembank.jenis_transaksi == 'masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
+                {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
-              <div v-if="itembank.jenis_transaksi == 'keluar'" class="bg-red-500 text-white rounded p-1">
-                {{ itembank.bank }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
+              <div v-if="itembank.jenis_transaksi == 'keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
+                {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
             </div>
           </li>
           <li v-for="item in slotProps.data.transaksi_keluar" class="text-xs">
             <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
-              <div v-if="itembank.jenis_transaksi == 'masuk'" class="bg-sky-500 text-white rounded p-1">
-                {{ itembank.bank }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
+              <div v-if="itembank.jenis_transaksi == 'masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
+                {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
-              <div v-if="itembank.jenis_transaksi == 'keluar'" class="bg-red-500 text-white rounded p-1">
-                {{ itembank.bank }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
+              <div v-if="itembank.jenis_transaksi == 'keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
+                {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
             </div>
           </li>
@@ -164,7 +164,7 @@
     <Column field="act" header="">
       <template #body="slotProps">
         <div class="flex items-center justify-end gap-1">
-          <Button severity="secondary" size="small" v-tooltip="'Edit'">
+          <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small" v-tooltip="'Edit'">
             <Icon name="lucide:pen"/>
           </Button>
           <Button severity="danger" size="small" v-tooltip="'Hapus'">
@@ -174,6 +174,10 @@
       </template>
     </Column>
   </DataTable>
+
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Transaksi':'Edit Transaksi'" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <BankTransaksiForm :action="actionDialog" :data="selectedData" :bank="filters.bank" @update="refresh()"/>
+  </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
 </template>
@@ -188,22 +192,15 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute();
 
-const banks = ref([
-  {value: 'bca', label: 'BCA'},
-  {value: 'bca stok', label: 'BCA Stok'},
-  {value:'mandiri', label: 'Mandiri'},
-  {value: 'bni', label: 'BNI'},
-  {value: 'bri', label: 'BRI'},
-  {value: 'dbs', label: 'DBS'},
-  {value: 'jago', label: 'Jago'},
-  {value: 'gopay', label: 'Gopay'},
-  {value:'resellercamp', label: 'RESELLERCAMP'},
-  {value:'srsx', label: 'SRSX'},
-  {value: 'jenius', label: 'Jenius'},
-]);
+//get opsi bank
+const { data: banks,status: statusDataBank} = await useAsyncData(
+    'data_opsi-bank',
+    () => client('/api/data_opsi/bank')
+)
+
 //get label bank from value
 const getBankLabel = (value: string) => {
-  const bank = banks.value.find((bank) => bank.value === value);
+  const bank = banks.value.find((bank: { value: string; }) => bank.value === value);
   return bank ? bank.label : value;
 }
 
@@ -253,5 +250,14 @@ const dataSaldo = computed(() => {
     return 0;
   }
 })
+
+const visibleDialog = ref(false);
+const actionDialog = ref('add');
+const selectedData = ref({});
+const openDialog = (action: string , data: Object) => {
+  actionDialog.value = action;
+  visibleDialog.value = true;
+  selectedData.value = data;
+}
 
 </script>
