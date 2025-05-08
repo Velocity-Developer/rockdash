@@ -70,10 +70,12 @@
     </Column>
     <Column field="nomor" header="Tanggal" :sortable="true" class="whitespace-nowrap !align-top">
       <template #body="slotProps">
-        {{ slotProps.data.tgl }}
-        <span class="hidden">
-          {{ slotProps.data.nomor }}
-        </span>
+        <div @click="openDialog('edit',slotProps.data)">
+          {{ slotProps.data.tgl }}
+          <span class="hidden">
+            {{ slotProps.data.nomor }}
+          </span>
+        </div>
       </template>
     </Column>
     <Column field="jenis" header="Jenis" class="align-top">
@@ -175,7 +177,7 @@
     </Column>
   </DataTable>
 
-  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Transaksi':'Edit Transaksi'" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDialogForm" modal :header="actionDialog=='add'?'Tambah Transaksi':'Edit Transaksi'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <BankTransaksiForm :action="actionDialog" :data="selectedData" :bank="filters.bank" @update="refresh()"/>
   </Dialog>
 
@@ -251,12 +253,13 @@ const dataSaldo = computed(() => {
   }
 })
 
-const visibleDialog = ref(false);
+const visibleDialogForm = ref(false);
 const actionDialog = ref('add');
 const selectedData = ref({});
+
 const openDialog = (action: string , data: Object) => {
   actionDialog.value = action;
-  visibleDialog.value = true;
+  visibleDialogForm.value = true;
   selectedData.value = data;
 }
 

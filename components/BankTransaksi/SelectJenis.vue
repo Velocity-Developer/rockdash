@@ -1,14 +1,38 @@
 <template>
-  
-  {{ props.data }}
 
-  <div class="text-end">
-    <Button @click='visibleDialog = true' size="small">
-      Pilih Jenis
+  <div>
+    <ul v-if="dataJenis && dataJenis.length > 0" class="border rounded-lg">
+      <li v-for="(item,index) in dataJenis" class="border-b p-2 flex flex-col md:flex-row md:justify-between">
+        <div>
+          <div class="text-xs font-bold">
+            <span class="mr-1" v-if="item.tgl">{{ item.tgl }}</span>
+            <span class="mr-1" v-else>{{ item.tgl_masuk }}</span>
+
+            <Badge v-if="item.kategori == 'keluar'" size="small" severity="danger">{{ item.kategori }}</Badge>
+            <Badge v-if="item.kategori == 'masuk'" size="small" severity="info">{{ item.kategori }}</Badge>
+
+          </div>
+          <div class="text-sm italic">
+            {{ item.jenis }}
+          </div>
+        </div>
+        <div class="text-sm font-bold pt-1 text-end">
+          {{ formatMoney(item.nominal) }}        
+        </div>
+      </li>
+    </ul>
+    <Message v-else severity="info">
+      Belum ada data transaksi dipilih
+    </Message>
+  </div>
+  
+  <div class="text-end mt-3">
+    <Button @click='visibleDial = true' severity="info" size="small">
+      <Icon name="lucide:plus" /> Pilih Jenis
     </Button>
   </div>
 
-  <Dialog v-model:visible="visibleDialog" modal header="Pilih Transaksi Keluar / Project" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDial" modal header="Pilih Transaksi Keluar / Project" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <form @submit.prevent="handleSearch" class="flex mb-3">
       <InputText v-model="forms.search" placeholder="Cari Jenis" class="w-full" />
       <Button type="submit">
@@ -22,7 +46,7 @@
     
     <div v-if="dataSearch" class="mt-3">
 
-      <DataTable :value="dataSearch.data" size="small" class="text-sm" v-model:selection="selectedRows" sortField="tgl" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollable>
+      <DataTable :value="dataSearch.data" size="small" class="text-sm" v-model:selection="selectedRows" sortField="tgl" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollable scrollHeight="40vh">
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column field="tgl" header="Tanggal Masuk" :sortable="true" class="align-top whitespace-nowrap">
           <template #body="slotProps">
@@ -85,6 +109,12 @@
           </template>
         </Column>
       </DataTable>
+
+      <div class="text-end pt-3">
+        <Button @click="visibleDial = false" type="button">          
+          <Icon name="lucide:arrow-down" /> Pilih Jenis ({{ countSelectedRows }})
+        </Button>
+      </div>
       
     </div>
 
@@ -94,15 +124,10 @@
 
 <script setup lang="ts">
 const client = useSanctumClient();
-const props = defineProps({
-  data: {
-    type: Object,
-    required: false,
-  },
-});
+const props = defineProps(['data']);
 const emit = defineEmits(['select']);
 
-const visibleDialog = ref(false);
+const visibleDial = ref(false);
 
 const forms = reactive({
   search: '',
@@ -123,17 +148,59 @@ const handleSearch = async () => {
   loadingSearch.value = false;
 }
 
-const selectedRows = ref();
+const dataJenis = ref({} as any);
+//onmount
+onMounted(() => {
+  //buat array baru gabungan dari props.data..cs_main_project dan props.data.transaksi_keluar
+  const newArray = [];
+  if(props.data.cs_main_project){
+    for(let i = 0; i < props.data.cs_main_project.length; i++) {
+      newArray.push({
+        id: 'masuk-'+props.data.cs_main_project[i].id,
+        id_transaksi_keluar: null,
+        id_cs_main_project: props.data.cs_main_project[i].id,
+        jenis: props.data.cs_main_project[i].jenis+', '+props.data.cs_main_project[i].webhost.nama_web,
+        tgl: props.data.cs_main_project[i].tgl_masuk,
+        kategori: 'masuk',
+        nominal: props.data.cs_main_project[i].dibayar,
+      })
+    }
+  }
+  if(props.data.transaksi_keluar){
+    for(let i = 0; i < props.data.transaksi_keluar.length; i++) {
+      newArray.push({
+        id:'keluar-'+props.data.transaksi_keluar[i].id,
+        id_transaksi_keluar: props.data.transaksi_keluar[i].id,
+        id_cs_main_project: null,
+        jenis: props.data.transaksi_keluar[i].jenis,
+        tgl: props.data.transaksi_keluar[i].tgl,
+        kategori:'keluar',
+        nominal: props.data.transaksi_keluar[i].jml,
+      });
+    }
+  }
+  dataJenis.value = newArray;
+})
+
 //watch
+const selectedRows = ref();
+const countSelectedRows = ref(0);
 watch(selectedRows, (newValue, oldValue) => {
 
   //buat array
   const newArray = newValue.map((item: any) => {
     return {
-      id: item.id_transaksi_keluar? item.id_transaksi_keluar : item.id,
-      jenis: item.jenis,
+      id: item.id_transaksi_keluar? 'keluar-'+item.id_transaksi_keluar : 'masuk-'+item.id,
+      id_transaksi_keluar: item.id_transaksi_keluar,
+      id_cs_main_project: item.id,
+      jenis: item.tgl?item.jenis:item.jenis+', '+item.webhost.nama_web,
+      tanggal: item.tgl?item.tgl:item.tgl_masuk,
+      kategori: item.tgl_masuk?'masuk':'keluar',
+      nominal: item.dibayar?item.dibayar:item.jml,
     }
   });
+  countSelectedRows.value = newArray.length;
+  dataJenis.value = newArray;
   emit('select', newArray);
 
 })
