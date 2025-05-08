@@ -9,7 +9,7 @@ export function formatMoney(value: number, currency: string = 'Rp') {
 
   //jika currency = reseller maka currency = USD
   if(currency === 'resellercamp'){
-    currency = 'USD' 
+    currency = '$' 
   } else {
     currency = 'Rp' 
   }
