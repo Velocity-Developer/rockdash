@@ -169,7 +169,7 @@
           <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small" v-tooltip="'Edit'">
             <Icon name="lucide:pen"/>
           </Button>
-          <Button severity="danger" size="small" v-tooltip="'Hapus'">
+          <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small" v-tooltip="'Hapus'">
             <Icon name="lucide:trash"/>
           </Button>
         </div>
@@ -263,4 +263,39 @@ const openDialog = (action: string , data: Object) => {
   selectedData.value = data;
 }
 
+//delete
+const toast = useToast();
+const confirm = useConfirm();
+const confirmDelete = (id: any) => {
+    confirm.require({
+        message: 'Anda yakin untuk hapus transaksi ini ?',
+        header: 'Hapus Transaksi',
+        accept: () => {
+            client(`/api/bank_transaksi/${id}`, {
+                method: 'DELETE',
+            }).then(() => {
+                refresh();
+                toast.add({
+                  severity: 'success',
+                  summary: 'Berhasil!',
+                  detail: 'Transaksi berhasil dihapus',
+                  life: 3000
+                });
+            });
+        },
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+}
 </script>
