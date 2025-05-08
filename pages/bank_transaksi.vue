@@ -9,9 +9,9 @@
         <Icon name="lucide:calendar" @click="slotProps.clickCallback" />
       </template>
     </DatePicker>
-    <Button type="button" severity="contrast" class="text-white hover:text-primary bg-secondary border-secondary" size="small">
+    <Button @click="exportExcel()" type="button" severity="contrast" class="text-white hover:text-primary bg-secondary border-secondary" size="small">
       <Icon name="lucide:file-spreadsheet"/>
-      Export CSV
+      Export Excel
     </Button>
   </div>
   <div class="overflow-x-auto whitespace-nowrap pt-2 mb-5">
@@ -297,5 +297,28 @@ const confirmDelete = (id: any) => {
             //callback to execute when user rejects to delete
         }
     });
+}
+
+//export gunakan xlsx
+import * as XLSX from "xlsx";
+const dt = ref();
+const exportExcel = async () => {
+  //request ke api
+  try {
+    const response = await client('/api/bank_transaksi_export',{
+      params: filters
+    })
+    //Convert JSON ke worksheet
+    const worksheet = XLSX.utils.json_to_sheet(response)
+
+    //Buat workbook dan tambahkan worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    //Generate file Excel dan download
+    XLSX.writeFile(workbook, `Transaksi Bank ${filters.bank} ${filters.bulan}.xlsx`)
+  } catch (error) {
+    const er = useSanctumError(error);
+  }
 }
 </script>
