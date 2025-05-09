@@ -13,6 +13,9 @@
       <Icon name="lucide:file-spreadsheet"/>
       Export Excel
     </Button>
+        <Button @click="dialogFormSaldo = true" severity="warn" size="small">
+          <Icon name="lucide:square-pen"/> Saldo {{ filters.bulan }}
+        </Button>
   </div>
   <div class="overflow-x-auto whitespace-nowrap pt-2 mb-5">
       <SelectButton 
@@ -28,7 +31,7 @@
   <div class="overflow-x-auto mb-5 pb-2">
     <div class="flex gap-4">
 
-      <div class="min-w-[200px] py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
+      <div @click="dialogFormSaldo = true" class="min-w-[200px] group relative cursor-pointer py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:wallet"/>
           Saldo Bawaan : {{ dataSaldo.bulan }}
@@ -37,8 +40,12 @@
         <div v-else class="font-bold text-end">
           {{ formatMoney(dataSaldo.nominal,filters.bank) }}
         </div>
+        <div class="absolute w-full text-sm group-hover:block hidden bottom-0 end-0 bg-amber-100 dark:bg-amber-700 px-4 py-1 shadow-lg rounded border">
+          <Icon name="lucide:square-pen"/>
+          Atur Saldo Bawaan
+        </div>
       </div>
-      <div class="min-w-[200px] py-2 px-3 bg-green-100 dark:bg-green-800 border border-green-500 rounded">
+      <div class="min-w-[200px] py-2 px-3 bg-sky-100 dark:bg-sky-800 border border-sky-500 rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:hard-drive-download"/>
           Total Masuk
@@ -68,9 +75,9 @@
           {{ slotProps.index + 1 }}
       </template>
     </Column>
-    <Column field="nomor" header="Tanggal" :sortable="true" class="whitespace-nowrap !align-top">
+    <Column field="nomor" header="Tanggal" :sortable="true" class="!align-top">
       <template #body="slotProps">
-        <div @click="openDialog('edit',slotProps.data)">
+        <div @click="openDialog('edit',slotProps.data)" class="whitespace-nowrap text-xs">
           {{ slotProps.data.tgl }}
           <span class="hidden">
             {{ slotProps.data.nomor }}
@@ -121,20 +128,20 @@
         <ul v-if="slotProps.data.cs_main_project || slotProps.data.transaksi_keluar" class="list-decimal ps-4">
           <li v-for="item in slotProps.data.cs_main_project" class="text-xs">
             <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
-              <div v-if="itembank.jenis_transaksi == 'masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'masuk'" v-tooltip="'Masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
-              <div v-if="itembank.jenis_transaksi == 'keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'keluar'" v-tooltip="'Keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
             </div>
           </li>
           <li v-for="item in slotProps.data.transaksi_keluar" class="text-xs">
             <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
-              <div v-if="itembank.jenis_transaksi == 'masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'masuk'" v-tooltip="'Masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
-              <div v-if="itembank.jenis_transaksi == 'keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'keluar'" v-tooltip="'Keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
             </div>
@@ -143,7 +150,13 @@
         </ul>
       </template>
     </Column>
-    <Column field="keterangan_bank" header="Keterangan Bank" class="align-top"></Column>
+    <Column field="keterangan_bank" header="Keterangan Bank" class="align-top">
+      <template #body="slotProps">
+        <div class="max-w-[100px] text-xs break-all" v-tooltip="slotProps.data.keterangan_bank">
+          {{ slotProps.data.keterangan_bank }}
+        </div>
+      </template>
+    </Column>
     <Column field="masuk" header="Masuk" class="whitespace-nowrap text-sky-500 dark:text-sky-600">
       <template #body="slotProps">
         <template v-if="slotProps.data.jenis_transaksi == 'masuk'">
@@ -179,6 +192,10 @@
 
   <Dialog v-model:visible="visibleDialogForm" modal :header="actionDialog=='add'?'Tambah Transaksi':'Edit Transaksi'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <BankTransaksiForm :action="actionDialog" :data="selectedData" :bank="filters.bank" @update="refresh()"/>
+  </Dialog>
+  
+  <Dialog v-model:visible="dialogFormSaldo" modal :header="'Atur Saldo '+filters.bank" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <BankTransaksiFormSaldo :bulan="filters.bulan" :bank="filters.bank" @update="refresh()"/>
   </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
@@ -321,4 +338,7 @@ const exportExcel = async () => {
     const er = useSanctumError(error);
   }
 }
+
+//atur saldo
+const dialogFormSaldo = ref(false);
 </script>
