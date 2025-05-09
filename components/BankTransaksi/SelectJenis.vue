@@ -27,7 +27,7 @@
   </div>
   
   <div class="text-end mt-3">
-    <Button @click='visibleDial = true' severity="info" size="small">
+    <Button @click='openPilihJenis()' severity="info" size="small">
       <Icon name="lucide:plus" /> Pilih Jenis
     </Button>
   </div>
@@ -46,7 +46,7 @@
     
     <div v-if="dataSearch" class="mt-3">
 
-      <DataTable :value="dataSearch.data" size="small" class="text-sm" v-model:selection="selectedRows" sortField="tgl" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollable scrollHeight="40vh">
+      <DataTable :value="dataSearch.data" size="small" class="text-sm" v-model:selection="selectedRows" sortField="tgl" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]" selectionMode="multiple" stripedRows scrollable scrollHeight="50vh">
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column field="tgl" header="Tanggal Masuk" :sortable="true" class="align-top whitespace-nowrap">
           <template #body="slotProps">
@@ -136,6 +136,7 @@ const forms = reactive({
 // Handle Search Form
 const loadingSearch = ref(false);
 const dataSearch = ref({} as any);
+
 const handleSearch = async () => {
   loadingSearch.value = true;
   dataSearch.value = [];
@@ -150,7 +151,8 @@ const handleSearch = async () => {
 
 const dataJenis = ref({} as any);
 //onmount
-onMounted(() => {
+onMounted( () => {
+
   //buat array baru gabungan dari props.data..cs_main_project dan props.data.transaksi_keluar
   const newArray = [];
   if(props.data.cs_main_project){
@@ -204,4 +206,20 @@ watch(selectedRows, (newValue, oldValue) => {
   emit('select', newArray);
 
 })
+
+//pilin jenis
+const openPilihJenis = async () => {
+  visibleDial.value = true; 
+  
+  //jika dataSearch kosong
+  // if(!dataSearch){
+    //ambil 20 data terakhir
+    try {
+      const response = await client('/api/bank_transaksi_last_transaksi');
+      dataSearch.value = response; 
+    } catch (error) {
+      const er = useSanctumError(error);
+    }
+  // }
+}
 </script>
