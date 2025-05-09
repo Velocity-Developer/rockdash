@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollable>
+  <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollHeight="70vh" scrollable>
     <Column header="#" headerStyle="width:3rem">
         <template #body="slotProps">
             {{ slotProps.index + 1 }}

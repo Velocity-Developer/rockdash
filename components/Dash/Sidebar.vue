@@ -33,7 +33,7 @@
             class="w-full border-none rounded-none !gap-0">
                 <template #item="{ item }">
                     
-                <button v-if="item.items" v-ripple v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
+                <button v-if="item.items" v-ripple v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]">
                     <span class="flex justify-start items-center">
                         <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
                         <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>

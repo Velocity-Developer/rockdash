@@ -7,9 +7,9 @@
         <div class="flex items-center gap-1">
           <div>
             <Button variant="text" @click="useConfig.toggelOpenSidebar" class="md:!hidden">
-              <Icon name="lucide:menu" />
+              <Icon name="lucide:panel-left-open" />
             </Button>
-            <Button variant="text" severity="secondary" @click="useConfig.toggelMiniSidebar" class="hidden md:inline-flex">
+            <Button variant="text" severity="secondary" @click="useConfig.toggelMiniSidebar" class="!hidden md:!inline-flex">
               <Icon v-if="useConfig.miniSidebar" name="lucide:panel-left-open" />
               <Icon v-else name="lucide:panel-left-close" />
             </Button>
@@ -19,7 +19,7 @@
                 @click="visibleSearch = true"
                 variant="text"
                 severity="secondary"
-                class="md:!rounded-full md:!py-1 md:!text-sm md:!border md:!border-zinc-300 md:dark:!border-zinc-700 md:justify-start md:w-[10rem]"
+                class="md:!rounded-full md:!py-1 md:!text-sm md:!border md:!border-zinc-300 md:dark:!border-zinc-700 md:!justify-start md:w-[10rem]"
               >
                 <Icon name="lucide:search" />
                 <span class="hidden md:inline">Search</span>
@@ -35,7 +35,7 @@
             :image="avatarUrl" 
             @click="toggleAvatar" 
             shape="circle" 
-            class="cursor-pointer"        
+            class="cursor-pointer !hidden md:!inline"        
             :pt="{
               image: (options) => ({
                   class: [
@@ -45,6 +45,19 @@
             }"
           />
           <Menu ref="menuAvatar" id="overlay_avatar_menu" :model="itemsAVatar" :popup="true" />
+          <Avatar 
+            :image="avatarUrl"
+            @click="dialogAvatarMenu = true" 
+            shape="circle" 
+            class="cursor-pointer md:!hidden"        
+            :pt="{
+              image: (options) => ({
+                  class: [
+                      '!object-cover',
+                  ]
+              })
+            }"
+          />
 
         </div>
 
@@ -55,6 +68,30 @@
 
   <Dialog v-model:visible="visibleSearch" modal header="Pencarian" :style="{ width: '30rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
     <HeaderSearch @openlink="visibleSearch = false"/>
+  </Dialog>
+
+  <Dialog v-model:visible="dialogAvatarMenu" modal :header="useConfig.config.user.name" position="top" :style="{ width: '30rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
+    <template #container="{ closeCallback }">
+      <div>
+        <Menu
+          :model="itemsAVatar"
+          :pt="{
+              root: () => ({
+                  class: [
+                      '!border-0',
+                  ]
+              })
+            }"
+        />
+        <div class="text-end">
+          <Button 
+          @click="dialogAvatarMenu = false" 
+          severity="contrast"
+          size="small"
+          >Cancel</Button>
+        </div>
+      </div>    
+  </template>
   </Dialog>
 
 </template>
@@ -102,4 +139,5 @@ const toggleAvatar = (event: any) => {
 };
 
 const visibleSearch = ref(false);
+const dialogAvatarMenu = ref(false);
 </script>
