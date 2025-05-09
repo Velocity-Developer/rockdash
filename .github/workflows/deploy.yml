@@ -1,0 +1,46 @@
+name: Deploy Nuxt Build to Hosting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20.10.0
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Create .env.production
+      run: |
+        echo "API_URL=${{ secrets.NUXT_API_URL }}" > .env.production
+
+    - name: Generate Nuxt App
+      run: npm run generate -- --dotenv .env.production
+
+    - name: Upload Build to FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /public_html/
+        local-dir: .output/public/
+        exclude: |
+          **/.git*
+          **/node_modules/**
+          **/.github/**
+          **/.env.production
+          **/.htaccess
+          **/api/**
+        dangerous-clean-slate: false
