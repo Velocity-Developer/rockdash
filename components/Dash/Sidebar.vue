@@ -35,16 +35,16 @@
                     
                 <button v-if="item.items" v-ripple v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                     <span class="flex justify-start items-center">
-                        <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
-                        <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
+                        <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                     <Icon v-if="item.items" name="lucide:chevron-down" />
                 </button>
                 <NuxtLink v-else :to="item.route" v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]" @click="useConfig.openSidebar = false">
                     <span class="flex justify-start items-center">
-                        <Icon v-if="item.icon" :name="item.icon" :ssr="true"/>
+                        <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
                         <Icon v-else name="lucide:circle-small" size="small" class="opacity-50" :ssr="true"/>
-                        <span class="ms-2" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                 </NuxtLink>
 
@@ -78,6 +78,6 @@ const isActive = (path : string) => {
   return route.path === path
 }
 
-const classLink = 'w-full mb-0 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-primary-200 dark:hover:bg-primary-900 hover:text-primary-900 dark:hover:text-primary-100';
+const classLink = 'w-full mb-0 md:mb-1 flex items-center justify-between px-4 py-2 cursor-pointer rounded hover:bg-primary-200 dark:hover:bg-primary-900 hover:text-primary-900 dark:hover:text-primary-100';
 
 </script>

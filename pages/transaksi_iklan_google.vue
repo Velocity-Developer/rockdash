@@ -3,7 +3,7 @@
   <Card>
     <template #content>
       
-      <div class="w-full flex justify-between items-end text-xs mb-5">
+      <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
         <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
           <div>
             <div class="mb-1">Per Page : </div>            
@@ -23,23 +23,54 @@
           </div>
         </form>
 
-        <div class="flex justify-end items-center">
-          <div v-if="status == 'pending'" class=" flex items-center justify-end gap-2 mr-3">
-            <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
-            Memuat...
-          </div>
-          <Button @click="visibleDrawerFilter = true">
+        <div class="flex justify-end items-center gap-1">
+          <Button @click="exportCSV()" severity="warn" size="small">
+            <Icon name="lucide:file-spreadsheet" /> Export CSV
+          </Button>
+          <Button @click="visibleDrawerFilter = true" size="small">
             <Icon name="lucide:filter" /> Filter
+            <span
+            class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
+            v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
+            ></span>
           </Button>
         </div>
       </div>
 
+      <div class="overflow-x-auto mb-4">
+        <div class="flex gap-4">
 
-      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollable>
-        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+          <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
+            <div class="mb-1 text-sm">Total Transaksi</div>
+            <div class="md:text-xl font-bold text-end">
+              {{ formatMoney(totalTrf) }}
+            </div>
+          </div>
+          
+          <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
+            <div class="mb-1 text-sm">Total Dibayar</div>
+            <div class="md:text-xl font-bold text-end">
+              {{ formatMoney(totalDibayar) }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-sm" ref="dt" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollable>
+        <Column header="#" headerStyle="width:3rem">
+          <template #body="slotProps">
+              {{ slotProps.index + 1 }}
+          </template>
+        </Column>
         <Column field="jenis" header="Jenis"></Column>
-        <Column field="webhost.nama_web" header="Nama Web"></Column>
-        <Column field="webhost.paket.paket" header="Paket"></Column>
+        <Column field="nama_web" header="Nama Web">
+          <template #body="slotProps">
+            <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline block break-all w-[160px]">
+              {{ slotProps.data.nama_web }}
+            </NuxtLink>
+          </template>
+        </Column>
         <Column field="deskripsi" header="Deskripsi">
           <template #body="slotProps">
             <div class="max-w-[200px] whitespace-normal">
@@ -47,24 +78,9 @@
             </div>
           </template>
         </Column>
-        <Column field="trf" header="Trf">
+        <Column field="trf" header="Transfer" class="font-bold text-primary-500 dark:text-primary-400">
           <template #body="slotProps">
               {{ formatMoney(slotProps.data.trf) }}
-          </template>
-        </Column>
-        <Column field="tgl_masuk" sortable header="Masuk Tgl">        
-          <template #body="slotProps">
-              {{ formatTanggal(slotProps.data.tgl_masuk) }}
-          </template>
-        </Column>
-        <Column field="tgl_deadline" sortable header="Deadline Tgl">       
-          <template #body="slotProps">
-              {{ formatTanggal(slotProps.data.tgl_deadline) }}
-          </template>
-        </Column>
-        <Column field="biaya" header="Total Biaya">
-          <template #body="slotProps">
-              {{ formatMoney(slotProps.data.biaya) }}
           </template>
         </Column>
         <Column field="dibayar" header="Dibayar">
@@ -72,52 +88,35 @@
               {{ formatMoney(slotProps.data.dibayar) }}
           </template>
         </Column>
-        <Column field="lunas" sortable header="Kurang">
+        <Column field="tgl_masuk" header="Tgl Masuk" class="whitespace-nowrap">        
           <template #body="slotProps">
-              {{ slotProps.data.lunas }}
+              {{ formatTanggal(slotProps.data.tgl_masuk) }}
           </template>
         </Column>
-        <Column field="saldo" header="Saldo"></Column>
-        <Column field="webhost.hp" header="HP">
+        <Column field="tgl_deadline" header="Deadline Tgl" class="whitespace-nowrap ">       
+          <template #body="slotProps">
+              {{ formatTanggal(slotProps.data.tgl_deadline) }}
+          </template>
+        </Column>
+        <Column field="wa" header="WA">
           <template #body="slotProps">
             <div class="whitespace-normal">
-              {{ split_comma(slotProps.data.webhost.hp) }}
+              {{ split_comma(slotProps.data.wa) }}
             </div>
           </template>
         </Column>
-        <Column field="webhost.telegram" header="Telegram"></Column>
-        <Column field="webhost.hpads" sortable header="HP Ads"></Column>
-        <Column field="webhost.wa" header="WA">
+        <Column field="email" header="Email">
           <template #body="slotProps">
             <div class="whitespace-normal">
-              {{ split_comma(slotProps.data.webhost.wa) }}
+              {{ split_comma(slotProps.data.email) }}
             </div>
-          </template>
-        </Column>
-        <Column field="webhost.email" header="Email">
-          <template #body="slotProps">
-            <div class="whitespace-normal">
-              {{ split_comma(slotProps.data.webhost.email) }}
-            </div>
-          </template>
-        </Column>
-        <Column field="dikerjakan_oleh" header="Dikerjakan">
-          <template #body="slotProps">
-            <template v-for="item in slotProps.data.karyawans">
-              <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
-            </template>
           </template>
         </Column>
       </DataTable>
 
       <div class="flex justify-between items-center text-xs mt-3">
         <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}
-          
-          <div v-if="status == 'pending'" class=" flex items-center justify-end gap-2">
-            <Icon name="lucide:loader-circle" mode="svg" class="animate-spin"/>
-            Memuat...
-          </div>
+          {{ data.from }} - {{ data.to }} dari {{ data.total }}          
         </div>
 
         <Paginator
@@ -133,6 +132,12 @@
             }"
         >
         </Paginator>
+      </div>
+
+      <div class="mt-3">
+        <Button v-if="selectedRowsNamaWeb" @click="copyToClipboard()" size="small">
+          <Icon name="lucide:copy" /> Copy Nama Web
+        </Button>
       </div>
 
     
@@ -177,13 +182,14 @@
       </div>
     </form>
   </Drawer>
+  <DashLoader :loading="isLoadingDash"/>
 
 </template>
 
 <script setup lang="ts">
 definePageMeta({
-    title: 'Billing',
-    description: 'Daftar Project',
+    title: 'Transaksi Iklan Google',
+    description: 'Daftar Transaksi Project Iklan Google',
 })
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
@@ -193,12 +199,11 @@ const client = useSanctumClient();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
 
 const filters = reactive({
-    per_page: route.query.per_page || 150,
+    per_page: route.query.per_page || 50,
     page: computed(() => page.value),
-    tgl_masuk_start: route.query.tgl_masuk_start || '',
-    tgl_masuk_end: route.query.tgl_masuk_end || '',
+    tgl_masuk_start: route.query.tgl_masuk_start || dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+    tgl_masuk_end: route.query.tgl_masuk_end || dayjs().format('YYYY-MM-DD'),
     nama_web: '',
-    paket: '',
     jenis: '',
     deskripsi: '',
     trf: '',
@@ -220,8 +225,8 @@ function updateRouteParams() {
 }
 
 const { data, status, error, refresh } = await useAsyncData(
-    'billing-page-'+page.value,
-    () => client('/api/billing',{
+    'transaksi_iklan_google-page-'+page.value,
+    () => client('/api/transaksi_iklan_google',{
         params: filters
     })
 )
@@ -238,7 +243,27 @@ watch(filters, () => {
     filters.tgl_masuk_end = filters.tgl_masuk_end?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):'';
 })
 
-const selectedRows = ref();
+//watch status
+const isLoadingDash = ref(false)
+watch(status, (newValue, oldValue) => {
+    if(newValue == 'success') {
+      isLoadingDash.value = false;
+    } else {
+      isLoadingDash.value = true;
+    }
+})
+
+//total trf dan dibayar
+const totalTrf = computed(() => {
+  return data.value.data.reduce((acc: number, item: any) => {
+    return acc + Number(item.trf);
+  }, 0);
+})
+const totalDibayar = computed(() => {
+  return data.value.data.reduce((acc: number, item: any) => {
+    return acc + Number(item.dibayar || 0);
+  }, 0);
+})
 
 const visibleDrawerFilter = ref(false);
 const filterSubmit = async () => {
@@ -250,13 +275,8 @@ const fieldsFilter = [
   { key: 'tgl_masuk_start', label: 'Tanggal Masuk', type: 'date' },
   { key: 'tgl_masuk_end', label: 'Tanggal Masuk', type: 'date' },
   { key: 'nama_web', label: 'Nama Web', type: 'text' },
-  { key: 'paket', label: 'Paket', type: 'text' },
-  { key: 'jenis', label: 'Jenis', type: 'text' },
   { key: 'deskripsi', label: 'Deskripsi', type: 'text' },
   { key: 'trf', label: 'Trf', type: 'text' },
-  { key: 'hp', label: 'HP', type: 'text' },
-  { key: 'telegram', label: 'Telegram', type: 'text' },
-  { key: 'hpads', label: 'HP Ads', type: 'text' },
   { key: 'wa', label: 'WA', type: 'text' },
   { key: 'email', label: 'Email', type: 'text' },
 ]
@@ -268,8 +288,8 @@ function split_comma(text: string) {
 //reset filters
 function resetFilters() {
   filters.per_page = 150;
-  filters.tgl_masuk_start = '';
-  filters.tgl_masuk_end = '';
+  filters.tgl_masuk_start = dayjs().subtract(1, 'month').format('YYYY-MM-DD');
+  filters.tgl_masuk_end = dayjs().format('YYYY-MM-DD');
   filters.nama_web = '';
   filters.paket = '';
   filters.jenis = '';
@@ -294,4 +314,36 @@ function handleSortTable(event: any) {
   updateRouteParams()
   refresh()
 }
+
+
+const selectedRows = ref();
+const selectedRowsNamaWeb = ref('');
+//watch
+watch(selectedRows, (newValue, oldValue) => {
+  if(newValue.length > 0) {
+    //set selectedRowsNamaWeb array, join dengan enter
+    selectedRowsNamaWeb.value = newValue.map((item: any) => item.nama_web).join(', ');
+  }
+})
+
+//copy selectedRowsNamaWeb ke clipboard
+function copyToClipboard() {
+  navigator.clipboard.writeText(selectedRowsNamaWeb.value);
+  alert('Nama Web berhasil di copy ke clipboard');
+}
+
+import * as XLSX from "xlsx";
+const dt = ref();
+const exportCSV = () => {
+    // dt.value.exportCSV();
+    //Convert JSON ke worksheet
+    const worksheet = XLSX.utils.json_to_sheet(data.value.data)
+
+    //Buat workbook dan tambahkan worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    //Generate file Excel dan download
+    XLSX.writeFile(workbook, 'Transaksi Iklan Google.xlsx')
+};
 </script>
