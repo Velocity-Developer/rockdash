@@ -20,7 +20,7 @@
     </form>
   </div>
 
-  <DataTable :value="data.data" size="small" class="text-sm" selectionMode="single" stripedRows scrollable>
+  <DataTable :value="data.data" size="small" class="text-sm" selectionMode="single" stripedRows scrollHeight="70vh" scrollable>
     <Column header="#" headerStyle="width:3rem">
         <template #body="slotProps">
             {{ slotProps.index + 1 }}

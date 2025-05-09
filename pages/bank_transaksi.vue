@@ -62,7 +62,7 @@
     </div>
   </div>
 
-  <DataTable :value="data.data" size="small" class="text-sm" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollable>
+  <DataTable :value="data.data" size="small" class="text-sm" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollHeight="70vh" scrollable>
     <Column header="#" headerStyle="width:3rem" class="align-top">
       <template #body="slotProps">
           {{ slotProps.index + 1 }}

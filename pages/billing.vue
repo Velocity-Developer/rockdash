@@ -40,7 +40,7 @@
         Prediksi Pembuatan Bulan ini: <span class="font-bold">{{ prediksi.prediksi }}</span>
       </div>
 
-      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollable>
+      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
