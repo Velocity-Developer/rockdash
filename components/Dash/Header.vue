@@ -70,7 +70,7 @@
     <HeaderSearch @openlink="visibleSearch = false"/>
   </Dialog>
 
-  <Dialog v-model:visible="dialogAvatarMenu" modal :header="useConfig.config.user.name" position="top" :style="{ width: '30rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="dialogAvatarMenu" modal :header="useConfig.config?.user?.name" position="top" :style="{ width: '30rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
     <template #container="{ closeCallback }">
       <div>
         <Menu
