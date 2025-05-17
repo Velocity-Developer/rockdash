@@ -8,8 +8,8 @@
       <div class="hidden md:block">
           <div>Tgl Masuk</div>
           <div class="flex items-center justify-end gap-2 mt-1">
-            <DatePicker v-model="filters.tgl_masuk_start" placeholder="dari" size="small" class="w-[130px]"/>
-            <DatePicker v-model="filters.tgl_masuk_end" placeholder="sampai" size="small" class="w-[130px]"/>
+            <DatePicker v-model="filters.tgl_masuk_start" dateFormat="yy/mm/dd" placeholder="dari" size="small" class="w-[130px]"/>
+            <DatePicker v-model="filters.tgl_masuk_end" dateFormat="yy/mm/dd" placeholder="sampai" size="small" class="w-[130px]"/>
           </div>
       </div>
       <div>
@@ -26,11 +26,15 @@
             {{ (slotProps.index + 1) }}
         </template>
     </Column> -->
-    <Column field="tanggal" header="Tanggal" class="whitespace-nowrap"></Column>
+    <Column field="tanggal" header="Tanggal" class="whitespace-nowrap">
+      <template #body="slotProps">
+        {{ slotProps.data.tanggal?dayjs(slotProps.data.tanggal).format('YYYY/MM/DD'):'' }}
+      </template>
+    </Column>
     <Column field="jenis" header="Jenis"></Column>
     <Column field="nama_web" header="Nama Web"></Column>
     <Column field="deskripsi" header="Deskripsi"></Column>
-    <Column field="trf" header="Trf">
+    <Column field="trf" header="Trf" class="whitespace-nowrap">
       <template #body="slotProps">
         {{ formatMoney(slotProps.data.trf) }}
       </template>
@@ -45,7 +49,11 @@
         </span>
       </template>
     </Column>
-    <Column field="tgl_deadline" header="Deadline" class="whitespace-nowrap"></Column>
+    <Column field="tgl_deadline" header="Deadline" class="whitespace-nowrap">
+      <template #body="slotProps">
+        {{ slotProps.data.tgl_deadline?dayjs(slotProps.data.tgl_deadline).format('YYYY/MM/DD'):'' }}
+      </template>
+    </Column>
   </DataTable>
 
   <div class="flex justify-between items-center text-xs mt-3">
@@ -85,7 +93,7 @@ const client = useSanctumClient();
 const filters = reactive({
     per_page: route.query.per_page || 50,
     page: route.query.page || 1,
-    tgl_masuk_start: route.query.tgl_masuk_start || dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
+    tgl_masuk_start: route.query.tgl_masuk_start || dayjs().format('YYYY-MM-01'),
     tgl_masuk_end: route.query.tgl_masuk_end || dayjs().format('YYYY-MM-DD'),
     order_by: 'tgl_masuk',
     order: 'desc',
