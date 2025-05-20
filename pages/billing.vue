@@ -3,7 +3,7 @@
   <Card>
     <template #content>
       
-      <div class="w-full flex justify-between items-end text-xs mb-5">
+      <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
         <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
           <div>
             <div class="mb-1">Per Page : </div>            
@@ -23,8 +23,11 @@
           </div>
         </form>
 
-        <div class="flex justify-end items-center">
-          <Button @click="visibleDrawerFilter = true">
+        <div class="flex justify-end items-center gap-2">
+          <Button @click="openDialog('add')" size="small">
+            <Icon name="lucide:plus-circle" /> Tambah
+          </Button>
+          <Button @click="visibleDrawerFilter = true" size="small">
             <Icon name="lucide:filter" /> Filter
             <span
             class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
@@ -47,14 +50,24 @@
               {{ slotProps.index + 1 }}
           </template>
         </Column>
-        <Column field="jenis" header="Jenis"></Column>
         <Column field="webhost.nama_web" header="Nama Web">
           <template #body="slotProps">
-            <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline">
-              {{ slotProps.data.webhost.nama_web }}
-            </NuxtLink>
+            <div class="group relative py-1">
+              <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline block">
+                {{ slotProps.data.webhost.nama_web }}
+              </NuxtLink>
+              <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
+                <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
+                  <Icon name="lucide:pencil" /> Edit
+                </Button>
+                <Button @click="confirmDelete(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" severity="danger" size="small">
+                  <Icon name="lucide:trash-2" /> Hapus
+                </Button>
+               </div>
+            </div>
           </template>
         </Column>
+        <Column field="jenis" header="Jenis"></Column>
         <Column field="webhost.paket.paket" header="Paket"></Column>
         <Column field="deskripsi" header="Deskripsi">
           <template #body="slotProps">
@@ -122,6 +135,18 @@
             <template v-for="item in slotProps.data.karyawans">
               <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
             </template>
+          </template>
+        </Column>
+        <Column field="act" header="">
+          <template #body="slotProps">
+            <div class="flex item-center gap-1 justify-end">
+              <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
+                <Icon name="lucide:pencil" />
+              </Button>
+              <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
+                <Icon name="lucide:trash-2" />
+              </Button>
+            </div>
           </template>
         </Column>
       </DataTable>
@@ -194,6 +219,11 @@
       </div>
     </form>
   </Drawer>
+
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh()" />
+  </Dialog>
+
   <DashLoader :loading="isLoadingDash"/>
 
 </template>
@@ -358,5 +388,57 @@ watch(selectedRows, (newValue, oldValue) => {
 function copyToClipboard() {
   navigator.clipboard.writeText(selectedRowsNamaWeb.value);
   alert('Nama Web berhasil di copy ke clipboard');
+}
+
+const visibleDialog = ref(false);
+const actionDialog = ref('add');
+const dataDialog = ref({});
+const openDialog = async (action: string, data = {}) => {
+  visibleDialog.value = true;
+  actionDialog.value = action;
+  dataDialog.value = data;
+}
+
+const toast = useToast();
+const confirm = useConfirm();
+const confirmDelete = (id: any) => {    
+    confirm.require({
+        message: 'Anda yakin hapus data ini?',
+        header: 'Hapus Data',
+        accept: async () => {
+            try {              
+              const re = await client(`/api/cs_main_project/${id}`, {
+                  method: 'DELETE',
+              })
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Data berhasil dihapus',
+                life: 3000
+              });
+            } catch (error) {
+                const er = useSanctumError(error)                 
+                toast.add({
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+                    life: 3000
+                });
+            }
+        },
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
 }
 </script>
