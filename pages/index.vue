@@ -11,21 +11,21 @@
 
   <div class="flex flex-col md:flex-row gap-5 mb-5">
     <div class="md:basis-[65%]">
-      <DashDashboardChartBar />
+      <DashDashboardChartLine2 />
     </div>
     <div class="md:basis-[35%]">
       <DashDashboardChartDoughnut />
     </div>
   </div>
   
-  <div class="flex flex-col md:flex-row gap-5">
+  <!-- <div class="flex flex-col md:flex-row gap-5">
     <div class="md:basis-[35%]">
-      <DashDashboardChartLine2 />
+      <DashDashboardChartBar />
     </div>
     <div class="md:basis-[65%]">
       <DashDashboardDataTable />
     </div>
-  </div>
+  </div> -->
 
 </template>
 

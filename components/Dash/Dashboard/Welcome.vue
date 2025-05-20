@@ -25,11 +25,15 @@
           </div>
           <div class="flex items-center gap-6">
             <div class="border-r border-gray-200 pr-6">
-              <div class="text-2xl md:text-3xl text-zinc-900 dark:text-white">2,340</div>
-              <div class="text-sm dark:text-zinc-400">Total Penjualan</div>
+              <div class="text-2xl md:text-3xl text-zinc-900 dark:text-white">
+                {{ projectThisMonth }}
+              </div>
+              <div class="text-sm dark:text-zinc-400">Project bulan ini</div>
             </div>
             <div>
-              <div class="text-2xl md:text-3xl text-zinc-900 dark:text-white">57%</div>
+              <div class="text-2xl md:text-3xl text-zinc-900 dark:text-white">
+                {{performThisMonth}}%
+              </div>
               <div class="text-sm dark:text-zinc-400">Kenaikan Performa</div>
             </div>
           </div>
@@ -47,4 +51,23 @@
 
 <script setup lang="ts">
 const useConfig = useConfigStore()
+const client = useSanctumClient();
+
+const projectThisMonth = ref(0);
+const performThisMonth = ref(0)
+
+//tunggu 1 detik
+setTimeout( async () => {
+
+  //ambil data dari api
+  try {
+    const res = await client('/api/dashboard/welcome')
+    projectThisMonth.value = res.total_project_bulanini
+    performThisMonth.value = res.perform
+  } catch(eror){
+    const er = useSanctumError(eror)
+  }
+
+}, 1000)
+
 </script>

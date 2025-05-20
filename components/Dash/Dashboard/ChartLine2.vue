@@ -4,10 +4,10 @@
     <template #content>
 
       <div>
-        <div class="text-sm dark:text-zinc-400">Minggu ini</div>
+        <div class="text-sm dark:text-zinc-400 mb-4">Project Tahun ini</div>
       </div>
       <div>
-        <Chart type="line" :data="chartData" :options="chartOptions" class="h-[300px]" />
+        <Chart type="line" :data="chartData" :options="chartOptions" class="h-[30rem]"/>
       </div>
     
     </template>
@@ -16,10 +16,21 @@
 </template>
 
 <script setup lang="ts">
+const client = useSanctumClient();
+const { data } = await useAsyncData(
+    'dashboard-chart_tahunini',
+    async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // delay 2 detik
+      return client('/api/dashboard/chart_tahunini')
+    }
+)
+
 onMounted(() => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
 });
+
+import { Colors } from 'chart.js';
 
 const chartData = ref();
 const chartOptions = ref();
@@ -27,26 +38,9 @@ const chartOptions = ref();
 const setChartData = () => {
     const documentStyle = getComputedStyle(document.documentElement);
 
-    return {
-        labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
-        datasets: [
-            {
-                label: 'Pembuatan',
-                backgroundColor: documentStyle.getPropertyValue('--primary'),
-                borderColor: documentStyle.getPropertyValue('--primary'),
-                data: [25, 90, 40, 81],
-                pointRadius: 0,
-                tension: 0.4
-            },
-            {
-                label: 'Perpanjangan',
-                backgroundColor: documentStyle.getPropertyValue('--secondary'),
-                borderColor: documentStyle.getPropertyValue('--secondary'),
-                data: [50, 78, 40, 50],
-                pointRadius: 0,
-                tension: 0.4
-            }
-        ]
+    return {      
+        labels: data.value?.labels,
+        datasets: data.value?.datasets
     };
 };
 const setChartOptions = () => {
@@ -54,11 +48,14 @@ const setChartOptions = () => {
         maintainAspectRatio: false,
         aspectRatio: 0.20,
         plugins: {
-            legend: {
-                labels: true
-            },
+            // legend: {
+            //     labels: true
+            // },
             tooltip: {
                 enabled: true
+            },
+            colors: {
+              enabled: true
             }
         },
         scales: {
@@ -66,7 +63,7 @@ const setChartOptions = () => {
               display: true
             },
             y: {
-              display: false
+              display: true
             }
         }
     };
