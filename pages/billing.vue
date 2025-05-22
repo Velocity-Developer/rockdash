@@ -416,6 +416,7 @@ const confirmDelete = (id: any) => {
                 detail: 'Data berhasil dihapus',
                 life: 3000
               });
+              refresh()
             } catch (error) {
                 const er = useSanctumError(error)                 
                 toast.add({
