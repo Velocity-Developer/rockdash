@@ -9,11 +9,19 @@
 
       <div class="col-start-1 col-end-3">
         <label class="mb-1 block" for="jenis">Jenis</label>
-        <Select name="jenis" id="jenis" v-model="form.jenis" :options="dataJenisProject" class="w-full" />
+        <Select name="jenis" id="jenis" 
+        v-model="form.jenis" 
+        :options="dataOpsi.jenis_project" 
+        filter showClear
+        class="w-full" />
       </div>
       <div class="col-start-3 col-end-5">
         <label class="mb-1 block" for="paket">Paket</label>
-        <InputText id="paket" name="paket" v-model="form.paket" class="w-full" />
+        <Select name="paket" id="paket" v-model="form.paket"
+          :options="dataOpsi.paket"        
+          optionValue="value" optionLabel="label"
+          filter showClear
+        class="w-full" />
       </div>
 
       <div class="col-span-4 md:col-start-1 md:col-end-3">
@@ -76,21 +84,23 @@
 
       <div class="col-span-4">
         <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>
-        <div class="flex gap-1">
-          <div class="bg-zinc-200 dark:bg-zinc-700 p-2 rounded w-full">
-            <template v-if="form.karyawans">
-              <template v-for="(item,i) in form.karyawans">
-                <Chip class="!font-normal">{{ item.nama }} ({{ item.pivot.porsi }})</Chip>
-              </template>
-            </template>
-          </div>
-          <Button type="button" @click="form.dikerjakan_oleh = ''">
-            <Icon name="lucide:user-plus"/> Pilih
-          </Button>
-        </div>
+        
+        <MultiSelect name="dikerjakan_oleh" id="dikerjakan_oleh" v-model="form.dikerjakan_oleh" 
+          :options="dataOpsi.karyawan" 
+          optionValue="value" optionLabel="label"
+          filter showClear
+        class="w-full" />
+
       </div>
 
       <div class="col-span-4 text-right">
+
+        <div>
+          <Message v-for="item in errorSubmit" severity="error" text="true" class="mb-2" closable>
+            {{ item[0] }}
+          </Message>
+        </div>
+
         <Button type="submit" :loading="loadingSubmit">
           <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
           <Icon v-else name="lucide:save"/>
@@ -129,13 +139,13 @@ const form = reactive({
   hpads: '',
   wa:'',
   email: '',
-  dikerjakan_oleh: '',
+  dikerjakan_oleh: [],
 } as any);
 
 //get opsi jenis
-const { data: dataJenisProject} = await useAsyncData(
-    'data_opsi-jenis_project',
-    () => client('/api/data_opsi/jenis_project')
+const { data: dataOpsi} = await useAsyncData(
+    'data_opsi-form-csmainproject',
+    () => client('/api/data_opsis?keys[]=paket&keys[]=jenis_project&keys[]=karyawan')
 )
 
 //set data if action is edit
@@ -160,45 +170,46 @@ onMounted(() => {
     form.dikerjakan_oleh = data.raw_dikerjakan;
     form.karyawans = data.karyawans;
   }
-  console.log('data-edit',data);
 })
 
+const errorSubmit = ref({} as any)
 const loadingSubmit = ref(false);
 const handleSubmit = async () => {
   loadingSubmit.value = true;
+  errorSubmit.value = {};
 
   //ubah tgl
   form.tgl_masuk = form.tgl_masuk?dayjs(form.tgl_masuk).format('YYYY-MM-DD'):'';
   form.tgl_deadline = form.tgl_deadline?dayjs(form.tgl_deadline).format('YYYY-MM-DD'):'';
 
-  console.log('form',form);
+  try {
 
-  // try {
+    if (action == 'edit') {
+      const response = await client(`/api/cs_main_project/${form.id}`, {
+        method: 'PUT',
+        body: form,
+      });
+    } else {
+      const response = await client('/api/cs_main_project', {
+        method: 'POST',
+        body: form,
+      });
+    }
+    
+    emit('update');
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil!',
+      detail: 'Data berhasil disimpan',
+      life: 3000
+    });
+    
+  } catch (error) {
+    const er = useSanctumError(error);
+    errorSubmit.value = er.bag;
+    console.log(er);
+  }
 
-  //   if (action == 'edit') {
-  //     const response = await client(`/api/cs_main_project/${form.id}`, {
-  //       method: 'PUT',
-  //       body: form,
-  //     });
-  //   } else {
-  //     const response = await client('/api/cs_main_project', {
-  //       method: 'POST',
-  //       body: form,
-  //     });
-  //   }
-    
-  //   emit('update');
-  //   toast.add({
-  //     severity: 'success',
-  //     summary: 'Berhasil!',
-  //     detail: 'Data berhasil disimpan',
-  //     life: 3000
-  //   });
-    
-  // } catch (error) {
-  //   const er = useSanctumError(error);
-  //   console.log(er);
-  // }
   loadingSubmit.value = false;
 }
 </script>
