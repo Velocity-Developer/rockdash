@@ -22,7 +22,7 @@
     "@primevue/nuxt-module": "^4.3.4",
     "chart.js": "^4.4.9",
     "dayjs-nuxt": "^2.1.11",
-    "nuxt": "^3.17.3",
+    "nuxt": "^3.17.4",
     "nuxt-auth-sanctum": "^0.6.7",
     "pinia": "^3.0.2",
     "primevue": "^4.3.4",
@@ -32,6 +32,6 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
-    "@types/node": "^22.15.18"
+    "@types/node": "^22.15.21"
   }
 }
