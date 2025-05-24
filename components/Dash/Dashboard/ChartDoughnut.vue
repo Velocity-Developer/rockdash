@@ -4,7 +4,7 @@
     <template #content>
 
       <div>
-        <div class="text-sm dark:text-zinc-400">Hari ini</div>
+        <div class="text-sm dark:text-zinc-400 mb-4">Project Hari ini</div>
       </div>
       <div>
         <Chart type="doughnut" :data="chartData" :options="chartOptions" class="h-[400px]" />
@@ -16,6 +16,15 @@
 </template>
 
 <script setup lang="ts">
+const client = useSanctumClient();
+const { data } = await useAsyncData(
+    'dashboard-chart_hariini',
+    async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // delay 1 detik
+      return client('/api/dashboard/chart_hariini')
+    }
+)
+
 onMounted(() => {
     chartData.value = setChartData();
     chartOptions.value = setChartOptions();
@@ -26,15 +35,18 @@ const chartOptions = ref();
 const setChartData = () => {
     const documentStyle = getComputedStyle(document.body);
 
-    return {
-        labels: ['A', 'B', 'C'],
-        datasets: [
-            {
-                data: [540, 325, 702],
-                backgroundColor: [documentStyle.getPropertyValue('--primary'), documentStyle.getPropertyValue('--secondary'), documentStyle.getPropertyValue('---p-zinc-200')],
-                hoverBackgroundColor: [documentStyle.getPropertyValue('--primary'), documentStyle.getPropertyValue('--p-secondary'), documentStyle.getPropertyValue('--p-zinc-500')]
-            }
-        ]
+    return {      
+        labels: data.value?.labels,
+        datasets: [{
+            label: 'Project',
+            data: data.value?.data,
+            backgroundColor: [
+              'rgb(255, 99, 132)',
+              'rgb(54, 162, 235)',
+              'rgb(255, 205, 86)'
+            ],
+            hoverOffset: 4
+        }]
     };
 };
 

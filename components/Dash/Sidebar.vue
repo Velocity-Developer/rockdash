@@ -11,7 +11,7 @@
       </nuxtLink>
     </div>
     
-    <ScrollPanel style="width: 100%; height: calc(100vh - 70px)">
+    <ScrollPanel style="width: 100%; height: calc(93vh - 70px)">
         
         <div v-if="AppMenus.length > 0">
             <PanelMenu
@@ -58,6 +58,12 @@
         </ul>
 
     </ScrollPanel>
+
+    <div class="py-2">
+        <Badge v-if="useConfig.config.role" class="truncate text-center bg-secondary block pt-1 font-normal pb-1" v-tooltip="useConfig.config.role">
+            {{ useConfig.config.role }}
+        </Badge>
+    </div>
 
   </nav>
 </template>
