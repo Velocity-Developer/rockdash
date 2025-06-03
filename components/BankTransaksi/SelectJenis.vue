@@ -46,7 +46,17 @@
     
     <div v-if="dataSearch" class="mt-3">
 
-      <DataTable :value="dataSearch.data" size="small" class="text-sm" v-model:selection="selectedRows" sortField="tgl" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]" selectionMode="multiple" stripedRows scrollable scrollHeight="50vh">
+      <DataTable 
+        :value="dataSearch.data" 
+        size="small" class="text-sm" 
+        v-model:selection="selectedRows" 
+        sortField="tgl" :sortOrder="-1" 
+        paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]" 
+        selectionMode="multiple" 
+        stripedRows scrollable scrollHeight="50vh"
+        :rowClass="getRowClass"
+      >
+
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column field="tgl" header="Tanggal Masuk" :sortable="true" class="align-top whitespace-nowrap">
           <template #body="slotProps">
@@ -221,5 +231,13 @@ const openPilihJenis = async () => {
       const er = useSanctumError(error);
     }
   // }
+}
+
+function getRowClass(data: any) {
+  if (data.bank && Array.isArray(data.bank) && data.bank.length === 0) {
+    return '!bg-amber-100 dark:!bg-amber-800';
+  } else {
+    return '';
+  }
 }
 </script>
