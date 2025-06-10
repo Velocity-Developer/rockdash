@@ -8,7 +8,14 @@
     />
   </div>
 
-  <DataTable :value="data.data" size="small" class="text-xs" stripedRows scrollHeight="75vh" scrollable>
+  <DataTable 
+    :value="data.data" 
+    size="small" 
+    class="text-xs" 
+    stripedRows scrollHeight="75vh" 
+    scrollable
+    :rowClass="getRowClass"
+  >
       <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
       <Column header="No" headerStyle="width:3rem">
         <template #body="slotProps">
@@ -23,8 +30,14 @@
           </a>
         </template>
       </Column>
-      <Column field="jenis" header="Jenis"></Column>
-      <Column field="webhost.paket.paket" header="Paket"></Column>
+      <Column field="jenis" header="Paket">      
+        <template #body="slotProps">
+          <div>{{ slotProps.data.jenis }}</div>
+          <div class="text-xs text-primary" v-if="slotProps.data.webhost.paket">
+            {{ slotProps.data.webhost.paket.paket }}
+          </div>
+        </template>
+      </Column>
       <Column field="deskripsi" header="Deskripsi">
         <template #body="slotProps">
           <div class="max-w-[150px] whitespace-normal">
@@ -39,7 +52,7 @@
       </Column>
       <Column field="catatan" header="Catatan">
         <template #body="slotProps">
-          <div class="max-w-[200px] break-all whitespace-normal pr-1">
+          <div class="max-w-[180px] break-all whitespace-normal pr-1">
             {{ slotProps.data.wm_project?.catatan }}
           </div>
         </template>
@@ -48,51 +61,35 @@
         <template #body="slotProps">
           <template v-if="slotProps.data.wm_project">
             <span>{{slotProps.data.wm_project.webmaster}}</span>
-            <ProgressBar v-if="slotProps.data.wm_project.progress" :value="slotProps.data.wm_project.progress" class="text-xs"/>
           </template>
         </template>
       </Column>
       <Column field="status" header="Status">       
         <template #body="slotProps">
-          <template v-if="slotProps.data.wm_project">
 
-            <span
-              v-if="slotProps.data.wm_project.status_multi === 'selesai'"
-              v-tooltip="slotProps.data.wm_project.date_selesai ? 'Selesai' : slotProps.data.wm_project.status_multi"
-            >
-              <Icon
-                :name="slotProps.data.wm_project.date_selesai ? 'lucide:circle-check' : 'lucide:clock-fading'"
-                size="1.5rem"
-                :class="slotProps.data.wm_project.date_selesai ? 'text-green-500' : 'text-amber-500'"
-              />
+          <div v-if="slotProps.data.wm_project" class="flex gap-1 justify-end items-center">
+
+            <span v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
+              <Icon name="lucide:circle-check" size="1.15rem" class="text-green-500" />
+            </span>
+            <span v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " v-tooltip.left="'Koreksi'">
+              <Icon name="lucide:clock-fading" size="1.15rem" class="text-sky-500" />
+            </span>
+            <span v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
+              <Icon name="lucide:hourglass" size="1.15rem" class="text-amber-500" />
             </span>
 
-            <span
-              v-else-if="slotProps.data.wm_project.status_multi === 'pending' && slotProps.data.wm_project.date_selesai"
-              v-tooltip="'Proses Koreksi'"
-            >
-              <Icon name="lucide:loader" size="1.5rem" class="text-blue-500" />
-            </span>
+            <Button severity="contrast" size="small" class="text-xs" v-tooltip.left="'Edit'">
+              <Icon name="lucide:square-pen"/>
+            </Button>
 
-            <span
-              v-else
-              v-tooltip="slotProps.data.wm_project.status_multi"
-            >
-              <Icon name="lucide:clock-fading" size="1.5rem" class="text-amber-500" />
-            </span>
+          </div>
+          <div v-else class="text-end">
+            <Button size="small" class="text-xs py-1">
+              Ambil
+            </Button>
+          </div>
 
-
-          </template>
-        </template>
-      </Column>
-      <Column field="act" header="">       
-        <template #body="slotProps">
-          <Button v-if="slotProps.data.wm_project" severity="contrast" size="small" class="text-xs">
-            Edit
-          </Button>
-          <Button v-else size="small" class="text-xs">
-            Ambil
-          </Button>
         </template>
       </Column>
   </DataTable>
@@ -187,5 +184,15 @@ watch(() => filters.value.jenis_project, (newVal, oldVal) => {
   updateRouteParams()
   getData()
 })
+
+function getRowClass(data: any) {
+  if (!data.wm_project) {
+    return 'hover:!bg-emerald-50 dark:hover:!bg-emerald-800';
+  } else if (data.wm_project && data.wm_project.status_multi == 'pending') {
+    return 'hover:!bg-amber-50 dark:hover:!bg-amber-800';
+  } else {
+    return '';
+  }
+}
 
 </script>
