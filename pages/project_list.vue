@@ -69,6 +69,7 @@
 
           <div v-if="slotProps.data.wm_project" class="flex gap-1 justify-end items-center">
 
+            <!-- Icon status Pengerjaan -->
             <span v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
               <Icon name="lucide:circle-check" size="1.15rem" class="text-green-500" />
             </span>
@@ -79,13 +80,13 @@
               <Icon name="lucide:hourglass" size="1.15rem" class="text-amber-500" />
             </span>
 
-            <Button severity="contrast" size="small" class="text-xs" v-tooltip.left="'Edit'">
+            <Button severity="info" variant="text" class="py-1 px-0" @click="openDialog('edit',slotProps.data)" v-tooltip.left="'Edit'">
               <Icon name="lucide:square-pen"/>
             </Button>
 
           </div>
           <div v-else class="text-end">
-            <Button size="small" class="text-xs py-1">
+            <Button size="small" class="text-xs py-1" @click="openDialog('add',slotProps.data)">
               Ambil
             </Button>
           </div>
@@ -112,6 +113,11 @@
         >
         </Paginator>
       </div>
+
+      
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Ambil':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <ProjectListForm :action="actionDialog" :data="dataDialog" @update="getData()" />
+  </Dialog>
 
   <DashLoader :loading="loading"/>
 </template>
@@ -195,4 +201,12 @@ function getRowClass(data: any) {
   }
 }
 
+const visibleDialog = ref(false);
+const actionDialog = ref('add');
+const dataDialog = ref({});
+const openDialog = async (action: string, data = {}) => {
+  visibleDialog.value = true;
+  actionDialog.value = action;
+  dataDialog.value = data;
+}
 </script>
