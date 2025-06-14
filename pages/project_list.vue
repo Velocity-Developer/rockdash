@@ -30,9 +30,14 @@
           </a>
         </template>
       </Column>
-      <Column field="jenis" header="Paket">      
+      <Column field="jenis" header="Jenis" class="hidden 2xl:table-cell">      
         <template #body="slotProps">
           <div>{{ slotProps.data.jenis }}</div>
+        </template>
+      </Column>
+      <Column field="paket" header="Paket">      
+        <template #body="slotProps">
+          <div class="2xl:hidden">{{ slotProps.data.jenis }}</div>
           <div class="text-xs text-primary" v-if="slotProps.data.webhost.paket">
             {{ slotProps.data.webhost.paket.paket }}
           </div>
@@ -71,16 +76,16 @@
 
             <!-- Icon status Pengerjaan -->
             <span v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
-              <Icon name="lucide:circle-check" size="1.15rem" class="text-green-500" />
+              <Icon name="lucide:circle-check-big" size="1.15rem" class="text-green-500" />
             </span>
             <span v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " v-tooltip.left="'Koreksi'">
-              <Icon name="lucide:clock-fading" size="1.15rem" class="text-sky-500" />
+              <Icon name="lucide:binoculars" size="1.15rem" class="text-orange-300" />
             </span>
             <span v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
-              <Icon name="lucide:hourglass" size="1.15rem" class="text-amber-500" />
+              <Icon name="lucide:swords" size="1.15rem" class="text-red-500 animate-pulse" />
             </span>
 
-            <Button severity="info" variant="text" class="py-1 px-0" @click="openDialog('edit',slotProps.data)" v-tooltip.left="'Edit'">
+            <Button severity="contrast" variant="text" class="pt-1 px-1" @click="openDialog('edit',slotProps.data)" v-tooltip.left="'Edit'">
               <Icon name="lucide:square-pen"/>
             </Button>
 
