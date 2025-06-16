@@ -24,7 +24,7 @@
       <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
       <Column header="No" headerStyle="width:3rem">
         <template #body="slotProps">
-            {{ slotProps.index + 1 }}
+            {{ slotProps.index + data.from }}
         </template>
       </Column>
       <Column field="webhost.nama_web" header="Nama Web">
@@ -196,7 +196,8 @@ onMounted(() => {
 //watch filters.jenis_project
 watch(() => filters.value.jenis_project, (newVal, oldVal) => {
   //simpan ke local storage
-  localStorage.setItem('project_list.jenis_project', newVal.toString())
+  const val = newVal?newVal.toString():'12'
+  localStorage.setItem('project_list.jenis_project', val)
   updateRouteParams()
   getData()
 })

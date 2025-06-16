@@ -22,10 +22,10 @@ const MyPreset = definePreset(Aura, {
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: {
-    enabled: true,
+    enabled: false,
 
     timeline: {
-      enabled: true
+      enabled: false
     }
   },
   build: {

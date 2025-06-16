@@ -9,26 +9,37 @@
         </Button>
       </div>
 
-      <DataTable :value="data.data" size="small" class="text-sm" stripedRows scrollable>
+      <DataTable v-if="dataUs && dataUs.data" :value="dataUs.data" size="small" class="text-sm" stripedRows scrollable>
         <Column field="name" header="Name">
           <template #body="slotProps">
 
-            <NuxtLink :to="'/dash/users/'+slotProps.data.id" class="flex justify-start items-center gap-2">
+            <button type="button" @click="openDialog(slotProps.data,'edit')" class="flex justify-start items-center gap-2">
               <Avatar
               :image="slotProps.data.avatar_url"
               size="small"
               shape="circle"
               class="max-w-[40px]"/>
               <div>{{ slotProps.data.name }}</div>
-            </NuxtLink>
+            </button>
 
           </template> 
         </Column>
+        <Column field="username" header="Username"></Column>
         <Column field="email" header="Email"></Column>
         <Column field="user_roles" header="Role">
           <template #body="slotProps">
             {{ slotProps.data.user_roles[0] }}
           </template> 
+        </Column>
+        <Column field="status" header="Status">
+          <template #body="slotProps">
+            <Badge v-if="slotProps.data.status == 'active'" severity="success">
+              {{ slotProps.data.status }}
+            </Badge>
+            <Badge v-else severity="danger">
+              {{ slotProps.data.status }}
+            </Badge>
+          </template>
         </Column>
         <Column field="options" header="">
           <template #body="slotProps">
@@ -39,19 +50,24 @@
         </Column>
       </DataTable>
 
-      <Paginator
-            :rows="data.per_page"
-            :totalRecords="data.total"
+      <div v-if="dataUs && dataUs.data" class="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+        <div class="text-sm">
+          {{ dataUs.from }} - {{ dataUs.to }} of {{ dataUs.total }}
+        </div>
+        <Paginator            
+            :rows="dataUs.per_page"
+            :totalRecords="dataUs.total"
             @page="onPaginate"
             :pt="{
                 root: (event: any) => {
-                    const itemForPage =  data.per_page;
+                    const itemForPage =  dataUs.per_page;
                     const currentPage =  page - 1;
                     event.state.d_first = itemForPage * currentPage;
                 },
             }"
-        >
-      </Paginator>
+          >
+        </Paginator>
+      </div>
 
     </template>    
   </Card>
@@ -70,9 +86,12 @@
     </div>
   </Popover>
 
-  <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit User' : 'Tambah User'" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
-      <DashUserForm :data="selectedItem" :action="dialogAction" @close="dialog = false" @update="refresh"/>
+  <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit User' : 'Add User'" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
+    <DashUserPreview v-if="dialogAction == 'view'" :data="selectedItem" />
+    <DashUserForm v-else :idUser="selectedItem?.id" :action="dialogAction" @update="getData"/>
   </Dialog>
+
+  <DashLoader :loading="loading"/>
 
 </template>
 
@@ -81,22 +100,36 @@ definePageMeta({
     title: 'Users',
     description: 'Daftar User Aplikasi',
 })
+const route = useRoute();
 const confirm = useConfirm();
+const client = useSanctumClient();
 const dialog = ref(false);
 const dialogAction = ref('view');
 const selectedItem = ref();
 const op = ref();
-
-const route = useRoute();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
-const client = useSanctumClient();
-const { data, status, error, refresh } = await useAsyncData(
-    'users-page-'+page.value,
-    () => client('/api/users?page='+page.value)
-)
+
+const dataUs = ref([] as any);
+const loading = ref(false);
+const getData = async () => {
+  try {
+    loading.value = true;
+    const res = await client('/api/users?page='+page.value);
+    dataUs.value = res
+    loading.value = false;
+  } catch (error) {
+    const er = useSanctumError(error);
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  getData()
+})
+
 const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1; 
-    refresh()
+    getData()
     navigateTo('/dash/users?page='+page.value)
 };
 
@@ -110,7 +143,7 @@ const displayPop = async (event: Event, data: any) => {
 const openDialog = (data: any, action: any) => {
     op.value.hide();
     dialog.value = true;
-    selectedItem.value = data;    
+    selectedItem.value = data&&data.id?data:'';    
     dialogAction.value = action;
 }
 
@@ -122,7 +155,7 @@ const confirmDelete = (id: any) => {
             client(`/api/users/${id.id}`, {
                 method: 'DELETE',
             }).then(() => {
-                refresh();
+                getData();
             });
         },
         rejectProps: {
