@@ -1,19 +1,25 @@
 <template>
 
-  <SelectButton 
-    v-if="action !== 'add'"
-    v-model="action"
-    :options="optionAction"
-    optionLabel="label"
-    optionValue="value"
-    class="mb-3"
-    />
+  <div class="text-center mb-3">
+    <SelectButton 
+      v-if="action !== 'add'"
+      v-model="action"
+      :options="optionAction"
+      optionLabel="label"
+      optionValue="value"
+      >
+      <template #option="slotProps">
+        <Icon :name="slotProps.option.icon" />
+        {{ slotProps.option.label }}        
+    </template>
+    </SelectButton>
+  </div>
 
   <form @submit.prevent="handleSubmit">
 
     <div v-for="item in fields" :key="item.key">
 
-      <div v-if="item.action && item.action.includes(action)" class="flex flex-col md:flex-row border-b py-1">
+      <div v-if="item.action && item.action.includes(action) && item.key!='avatar_image'" class="flex flex-col md:flex-row border-b py-1">
         <div class="md:basis-1/4 mb-1">
           <label :for="item.key">{{ item.label }}</label>
         </div>
@@ -49,6 +55,16 @@
         </div>
       </div>
 
+      <div v-else-if="item.action && item.action.includes(action) && item.key == 'avatar_image'" class="md:flex-1">
+        
+        <div class="flex flex-col items-center gap-3">
+          <img :src="previewAvatar" class="w-[200px] h-[200px] object-cover rounded-full" />
+          <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="warning"/>
+        </div>
+        
+        
+      </div>
+
     </div>
     
     <div class="text-end mt-3">
@@ -79,20 +95,11 @@
   const errors = ref('' as any)
 
   const optionAction = [
-    { label: 'Profil', value: 'edit' },
-    { label: 'Password', value: 'edit_password' },
-    { label: 'Avatar', value: 'edit_avatar' },
+    { label: 'Profil', value: 'edit', icon: 'lucide:user' },
+    { label: 'Password', value: 'edit_password', icon: 'lucide:lock' },
+    { label: 'Avatar', value: 'edit_avatar', icon: 'lucide:image' },
   ];
 
-  
-  // const { data: OptionRoles} = await useAsyncData(
-  //   'options-role',
-  //   () => client('/api/option/roles')
-  // )
-  // const roleField = fields.find(f => f.key == 'role');
-  // if (roleField) {
-  //   roleField.options = OptionRoles.value;
-  // }
   const OptionRoles = ref([
     { label: 'Admin', value: 'admin' },
   ] as any)
@@ -178,6 +185,13 @@
       required: true,
       action: ['add','edit_password'],
     },
+    { 
+      key: 'avatar_image',
+      label: 'Avatar',
+      type: 'upload',
+      required: false,
+      action: ['edit_avatar'],
+    },
   ];
 
   const form = reactive({
@@ -192,9 +206,11 @@
     password_confirmation: '',
     role: '',
     avatar: '',
+    image: '',
   } as any)
 
 //update form dari data
+const previewAvatar = ref('')
 const loading = ref(false);
 const getData = async () => {
   if (idUser) {
@@ -212,6 +228,7 @@ const getData = async () => {
       form.avatar = res.avatar
       form.password = null,
       form.password_confirmation = null
+      previewAvatar.value = res.avatar_url
     } catch (error) {
       const er = useSanctumError(error);
       loading.value = false;
@@ -230,7 +247,7 @@ watch(() => action.value, (newVal, oldVal) => {
   getData()
 })
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     isLoading.value = true
     errors.value = ''
 
@@ -286,9 +303,42 @@ watch(() => action.value, (newVal, oldVal) => {
             life: 3000
         });
       }
+      
+    } else if(action.value == 'edit_avatar' ) {
+      const formData = new FormData();
+      formData.append('image', form.image);
+
+      try {
+        const res = await client(`/api/user/updateavatar/`+idUser, {
+          method: 'PUT',
+          body: formData
+        })
+        toast.add({
+          severity: 'success',
+          summary: 'Berhasil!',
+          detail: 'Avatar berhasil diubah',
+          life: 3000
+        });
+        emit('update')
+      } catch (error) {
+        const er = useSanctumError(error)  
+        errors.value = er.bag
+        console.log(errors) 
+        toast.add({
+            severity: 'error',
+            summary: 'Gagal!',
+            detail: er.msg ? er.msg : 'Terjadi kesalahan saat simpan data',
+            life: 3000
+        });
+      }
     }
     
     isLoading.value = false
-  }
+}
+
+function onFileSelect(event: any) {
+  previewAvatar.value = URL.createObjectURL(event.files[0]);
+  form.image = event.files[0]
+}
 
 </script>

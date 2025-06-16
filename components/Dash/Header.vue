@@ -94,6 +94,10 @@
   </template>
   </Dialog>
 
+  <Dialog v-model:visible="dialogUserSetting" header="Pengaturan Profil" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
+    <DashUserForm :idUser="useConfig.config.user.id" :action="'edit'" @update="UserUpdate"/>
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -121,11 +125,15 @@ const avatarUrl = computed(() => useConfig.config.user?.avatar_url);
 const menuAvatar = ref();
 const itemsAVatar = ref([
     {
-        label: computed(() => useConfig.config.user.name?useConfig.config.user.name+' Profile':'User Profile'),
+        label: computed(() => useConfig.config.user.name?useConfig.config.user.name:'User Profile'),
         items: [
+            // {
+            //     label: 'Settings',
+            //     command: () => navigateTo('/dash/users/'+useConfig.config.user.id) 
+            // },
             {
-                label: 'Settings',
-                command: () => navigateTo('/dash/users/'+useConfig.config.user.id) 
+                label: 'Pengaturan',
+                command: () => dialogUserSetting.value = true 
             },
             {
                 label: 'Logout',
@@ -140,4 +148,13 @@ const toggleAvatar = (event: any) => {
 
 const visibleSearch = ref(false);
 const dialogAvatarMenu = ref(false);
+const dialogUserSetting = ref(false);
+
+//
+const client = useSanctumClient();
+const UserUpdate = async () => {
+  dialogUserSetting.value = false;
+  const getconfig = await client('/api/dash/config');
+  useConfig.setConfig(getconfig);
+}
 </script>
