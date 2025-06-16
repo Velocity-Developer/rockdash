@@ -18,11 +18,11 @@
       <img v-else src="~/public/vd.webp" class="h-[50px] mx-auto mb-5"/>
 
       <IftaLabel>
-          <InputText id="email" v-model="credentials.email" class="w-full" type="email" variant="filled"/>
-          <label for="email">Email</label>
+          <InputText id="username" v-model="credentials.username" class="w-full" variant="filled"/>
+          <label for="username">Username</label>
       </IftaLabel>
       <IftaLabel>
-          <InputText type="password" id="password" v-model="credentials.password" class="w-full" />
+          <Password :feedback="false" id="password" v-model="credentials.password" class="w-full" toggleMask/>
           <label for="password">Password</label>
       </IftaLabel>
 
@@ -61,7 +61,7 @@
   const appLogo = computed(() => useConfig.config.app_logo?useConfig.config.app_logo:'')
 
   const credentials = ref({
-    email: '',
+    username: '',
     password: '',
     use_remember: false
   } as any)
