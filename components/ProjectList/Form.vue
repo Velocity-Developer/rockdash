@@ -1,5 +1,21 @@
 <template>
 
+  <div v-if="data" class="border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900 rounded p-3 mb-3">
+
+    <div v-if="loadingWmProject" class="my-2">
+      <Icon name="lucide:loader-circle" class="animate-spin"/> Memuat data...
+    </div>
+    <div v-else>
+      <div>
+        {{ data.jenis }} <a class="hover:underline font-bold" :href="data.webhost.nama_web" target="_blank"> {{ data.webhost.nama_web }} </a>
+      </div>
+      <div>
+        Deadline : {{ formatTanggal(data.tgl_deadline) }}
+      </div>
+    </div>
+
+  </div>
+
   <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
     
     <div>
@@ -10,11 +26,11 @@
     <div class="flex gap-4">
       <div class="flex-1">
         <label for="date_mulai">Tanggal Mulai</label>
-        <DatePicker v-model="form.date_mulai" showTime hourFormat="24" date-format="yy-mm-dd" class="w-full" required/>
+        <DatePicker v-model="form.date_mulai" showTime hourFormat="24" class="w-full" required/>
       </div>
       <div class="flex-1">
         <label for="date_selesai">Tanggal Selesai</label>
-        <DatePicker v-model="form.date_selesai" showTime hourFormat="24" date-format="yy-mm-dd" class="w-full" :disabled="form.progress < 60"/>
+        <DatePicker v-model="form.date_selesai" showTime hourFormat="24" class="w-full" :disabled="form.progress < 60"/>
       </div>
     </div>
         
@@ -53,6 +69,11 @@
     </div>
 
     <div class="text-end">
+      
+      <div v-if="errors && errors.value" class="mb-2">
+        <Message v-for="error of errors.value" :key="error" severity="warn" class="mt-1">{{ error[0] }}</Message>
+      </div>
+
       <Button type="submit" :loading="loadingSubmit">
         <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
         <Icon v-else name="lucide:save"/>
@@ -61,6 +82,7 @@
     </div>
 
   </form>
+
 
   <Dialog v-model:visible="visibleDialog" modal header="Sesuaikan dengan paket web." :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <ScrollPanel style="width: 100%; height: 60vh">
@@ -75,7 +97,7 @@
         </tr>
       </table>
     </ScrollPanel>
-    {{ form.progress }}
+    
     <ProgressBar 
         v-if="form.progress" 
         :value="form.progress??0" 
@@ -87,14 +109,6 @@
         }"
       />
   </Dialog>
-
-  <div v-if="loadingWmProject" class="my-2">
-    <Icon name="lucide:loader-circle" class="animate-spin"/> Memuat data...
-  </div>
-
-  <pre>
-    {{ wm_project }}
-  </pre>
 
 </template>
 
@@ -109,24 +123,26 @@ const data = props.data;
 const emit = defineEmits(['update']);
 const visibleDialog = ref(false);
 
-const wm_project = ref({} as any);
+const wm_project = ref(data.wm_project as any);
+
 const form = reactive({
   webmaster: '',
-  date_mulai: dayjs().format('YYYY/MM/DD HH:mm') as any,
+  date_mulai: dayjs().format('YYYY-MM-DD HH:mm') as any,
   date_selesai: '' as any,
   catatan: '',
   status_multi: 'pending',
   qc: '',
-  id_cs_main_project: data.id_cs_main_project,
-  progress: 0
+  id_cs_main_project: data.id,
+  progress: 0,
+  id_karyawan: data.raw_dikerjakan?data.raw_dikerjakan[0]:23
 });
 
 // Watch agar form terisi saat wm_project ter-update
 watch(wm_project, (newVal) => {
   if (newVal) {
     form.webmaster = newVal.webmaster ?? '';
-    form.date_mulai = newVal.date_mulai_formatted ?? dayjs().format('YYYY/MM/DD HH:mm');
-    form.date_selesai = newVal.date_selesai_formatted ?? '';
+    form.date_mulai = newVal.date_mulai_formatted ?dayjs(newVal.date_mulai_formatted).format('YYYY-MM-DD HH:mm'): dayjs().format('YYYY-MM-DD HH:mm');
+    form.date_selesai = newVal.date_selesai_formatted ?dayjs(newVal.date_selesai_formatted).format('YYYY-MM-DD HH:mm'): '';
     form.catatan = newVal.catatan ?? '';
     form.status_multi = newVal.status_multi ?? 'pending';
     form.qc = newVal.quality_control ?? '';
@@ -179,6 +195,10 @@ const handleSubmit = async () => {
   loadingSubmit.value = true;
   errors.value = {};
 
+  //date
+  form.date_mulai = dayjs(form.date_mulai).format('YYYY-MM-DD HH:mm:ss');
+  form.date_selesai = form.date_selesai?dayjs(form.date_selesai).format('YYYY-MM-DD HH:mm:ss'):'';
+
   if(!wm_project.value) {
     try {
       await client('/api/wm_project', {
@@ -212,7 +232,7 @@ const handleSubmit = async () => {
       toast.add({
         severity: 'success',
         summary: 'Berhasil!',
-        detail: 'Project berhasil diubah',
+        detail: 'Project berhasil diperbarui',
         life: 3000
       });
     } catch (er) {
@@ -221,7 +241,7 @@ const handleSubmit = async () => {
       toast.add({
         severity: 'error',
         summary: 'Gagal!',
-        detail: 'Project gagal diubah',
+        detail: 'Project gagal diperbarui',
         life: 3000
       });
     }

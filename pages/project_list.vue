@@ -1,11 +1,16 @@
 <template>
 
-  <div class="mb-3">
+  <div class="mb-3 flex gap-3 flex-col md:flex-row md:justify-between">
     <SelectButton 
     v-model="filters.jenis_project" 
     :options="[{label:'Semua',value:0},{label:'Biasa',value:10},{label:'Custom',value:12},{label:'Lainnya',value:23}]"
     optionLabel="label" optionValue="value"
     />
+    <div class="text-end">
+      <Button size="small" severity="info" @click="getData()">
+        <Icon name="lucide:refresh-cw" class="mr-1" :class="{ 'animate-spin': loading }"/> Reload
+      </Button>
+    </div>
   </div>
 
   <DataTable 
