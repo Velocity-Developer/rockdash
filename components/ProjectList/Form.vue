@@ -68,12 +68,15 @@
       </div>  
     </div>
 
-    <div class="text-end">
-      
-      <div v-if="errors && errors.value" class="mb-2">
-        <Message v-for="error of errors.value" :key="error" severity="warn" class="mt-1">{{ error[0] }}</Message>
-      </div>
+    <div v-if="errors && errors.value" class="mb-2">
+      <Message v-for="error of errors.value" :key="error" severity="warn" class="mt-1">{{ error[0] }}</Message>
+    </div>
 
+    <div class="flex justify-end gap-2">
+      <Button v-if="wm_project &&wm_project.id_wm_project" @click="confirmDelete(wm_project.id_wm_project)" severity="danger">
+        <Icon name="lucide:trash-2"/>
+        Hapus
+      </Button>
       <Button type="submit" :loading="loadingSubmit">
         <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
         <Icon v-else name="lucide:save"/>
@@ -260,4 +263,49 @@ watch(() => form.qc, () => {
   const progress = total > 0 ? (current / total) * 100 : 0;
   form.progress = Math.floor(progress * 100) / 100;
 })
+
+const confirm = useConfirm();
+const confirmDelete = (id: any) => {    
+    confirm.require({
+        message: 'ini akan mengembalikan project ke belum diambil,dan hapus data pengerjaan',
+        header: 'Batalkan ambil project ini?',
+        accept: async () => {
+            try {              
+              const re = await client(`/api/wm_project/${id}`, {
+                  method: 'DELETE',
+              })
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Data berhasil dihapus',
+                life: 3000
+              });
+              //reset wm_project
+              wm_project.value = {};
+              emit('update')
+            } catch (error) {
+                const er = useSanctumError(error)                 
+                toast.add({
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+                    life: 3000
+                });
+            }
+        },
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+}
 </script>
