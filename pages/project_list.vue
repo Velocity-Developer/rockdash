@@ -67,32 +67,45 @@
           </div>
         </template>
       </Column>
-      <Column field="user" header="User">       
+      <Column field="webmaster" header="Webmaster" class="hidden 2xl:table-cell">       
         <template #body="slotProps">
           <template v-if="slotProps.data.wm_project">
-            <span>{{slotProps.data.wm_project.webmaster}}</span>
+            <span v-if="slotProps.data.wm_project.user" class="truncate block w-[70px]">
+              {{slotProps.data.wm_project.user.name}}
+            </span>
+            <span v-else>
+              {{slotProps.data.wm_project.webmaster}}
+            </span>
           </template>
         </template>
       </Column>
-      <Column field="status" header="Status">       
+      <Column field="status" header="">       
         <template #body="slotProps">
 
-          <div v-if="slotProps.data.wm_project" class="flex gap-1 justify-end items-center">
+          <div v-if="slotProps.data.wm_project" class="flex gap-0 justify-end items-center">
+
+            <Button variant="text" rounded class="!p-0 transition-all	hover:scale-125 relative z-1 hover:z-10" v-if="slotProps.data.wm_project.user && slotProps.data.wm_project.user.avatar_url" @click="openDialog('edit',slotProps.data)">
+              <Avatar 
+                :image="slotProps.data.wm_project.user.avatar_url" 
+                class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
+                shape="circle" 
+                size="small"
+                v-tooltip.left="slotProps.data.wm_project.user.name"
+               />
+            </Button>
 
             <!-- Icon status Pengerjaan -->
-            <span v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
-              <Icon name="lucide:circle-check-big" size="1.15rem" class="text-green-500" />
+            <span class="transition-all relative z-1 hover:z-10" @click="openDialog('edit',slotProps.data)">
+              <Button class="!p-1 border border-white dark:border-gray-600" severity="success" rounded v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
+                <Icon name="lucide:circle-check-big" size="1.15rem" />
+              </Button>
+              <Button class="!p-1 border border-white dark:border-gray-600" severity="warn" rounded v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " v-tooltip.left="'Koreksi'">
+                <Icon name="lucide:binoculars" size="1.15rem"/>
+              </Button>
+              <Button class="!p-1 border border-white dark:border-gray-600" severity="danger" rounded v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
+                <Icon name="lucide:swords" size="1.15rem" class="animate-pulse duration-75" />
+              </Button>
             </span>
-            <span v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " v-tooltip.left="'Koreksi'">
-              <Icon name="lucide:binoculars" size="1.15rem" class="text-orange-300" />
-            </span>
-            <span v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
-              <Icon name="lucide:swords" size="1.15rem" class="text-red-500 animate-pulse" />
-            </span>
-
-            <Button severity="contrast" variant="text" class="pt-1 px-1" @click="openDialog('edit',slotProps.data)" v-tooltip.left="'Edit'">
-              <Icon name="lucide:square-pen"/>
-            </Button>
 
           </div>
           <div v-else class="text-end">
@@ -221,3 +234,4 @@ const openDialog = async (action: string, data = {}) => {
   dataDialog.value = data;
 }
 </script>
+

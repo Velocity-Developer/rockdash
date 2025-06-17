@@ -17,10 +17,26 @@
   </div>
 
   <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
-    
+        
     <div>
-      <label for="webmaster">Webmaster</label>
-      <Select v-model="form.webmaster" :options="opsiWebmaster" optionValue="value" optionLabel="label" class="w-full" required/>
+      <label for="user">User</label>
+      <Select v-model="form.user_id" :options="opsiUsers" filter optionValue="value" optionLabel="label" class="w-full" required>
+        <template #value="slotProps">
+          <div v-if="slotProps.value && UserSelected(slotProps.value)" class="flex items-center">
+            <img :alt="UserSelected(slotProps.value).label" :src="UserSelected(slotProps.value).avatar" class="w-8 h-8 rounded-full mr-2" />
+            <div>{{ UserSelected(slotProps.value).label }}</div>
+          </div>
+          <div v-else>
+            Pilih User
+          </div>
+        </template>
+        <template #option="slotProps">
+          <div class="flex items-center">
+              <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2" />
+              <div>{{ slotProps.option.label }}</div>
+          </div>
+        </template>
+      </Select>
     </div>
 
     <div class="flex gap-4">
@@ -86,6 +102,8 @@
 
   </form>
 
+  {{ form }}
+
 
   <Dialog v-model:visible="visibleDialog" modal header="Sesuaikan dengan paket web." :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <ScrollPanel style="width: 100%; height: 60vh">
@@ -129,7 +147,7 @@ const visibleDialog = ref(false);
 const wm_project = ref(data.wm_project as any);
 
 const form = reactive({
-  webmaster: '',
+  user_id: wm_project.value?.user_id ?? null,
   date_mulai: dayjs().format('YYYY-MM-DD HH:mm') as any,
   date_selesai: '' as any,
   catatan: '',
@@ -143,7 +161,7 @@ const form = reactive({
 // Watch agar form terisi saat wm_project ter-update
 watch(wm_project, (newVal) => {
   if (newVal) {
-    form.webmaster = newVal.webmaster ?? '';
+    form.user_id = newVal.user_id ?? null;
     form.date_mulai = newVal.date_mulai_formatted ?dayjs(newVal.date_mulai_formatted).format('YYYY-MM-DD HH:mm'): dayjs().format('YYYY-MM-DD HH:mm');
     form.date_selesai = newVal.date_selesai_formatted ?dayjs(newVal.date_selesai_formatted).format('YYYY-MM-DD HH:mm'): '';
     form.catatan = newVal.catatan ?? '';
@@ -153,16 +171,16 @@ watch(wm_project, (newVal) => {
   }
 }, { immediate: true });
 
-//get opsi webmaster
-const opsiWebmaster = ref([] as any);
+//get opsi
 const opsiQuality = ref([] as any);
+const opsiUsers = ref([] as any);
 
 const loadingWmProject = ref(false);
 onMounted(async () => {
   try {
-    const res = await client('/api/data_opsis?keys[]=webmaster&keys[]=quality')
-    opsiWebmaster.value = res.webmaster;
+    const res = await client('/api/data_opsis?keys[]=quality&keys[]=users')
     opsiQuality.value = res.quality;
+    opsiUsers.value = res.users;
   } catch (error) {
     console.log(error);
   }
@@ -308,4 +326,15 @@ const confirmDelete = (id: any) => {
         }
     });
 }
+
+const UserSelected = (id: any) => {
+  //get value from opsiUsers
+  if(id) {
+    const user = opsiUsers.value.find((user: { value: any; }) => user.value === id);
+    return user
+  } else {
+    return false;
+  }
+}
+
 </script>
