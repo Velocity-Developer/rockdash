@@ -60,7 +60,7 @@
     </ScrollPanel>
 
     <div class="py-2">
-        <Badge v-if="useConfig.config.role" class="truncate text-center bg-secondary block pt-1 font-normal pb-1" v-tooltip="useConfig.config.role">
+        <Badge v-if="useConfig.config.role" class="truncate text-center bg-secondary !block pt-1 font-normal pb-1" v-tooltip="useConfig.config.role">
             {{ useConfig.config.role }}
         </Badge>
     </div>

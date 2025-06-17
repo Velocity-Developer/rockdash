@@ -63,7 +63,7 @@
           class="mb-3"
           :pt="{
             value: {
-              class: form.progress > 60 ? 'bg-emerald-500' : 'bg-amber-500'
+              class: form.progress > 60 ? '!bg-emerald-500' : '!bg-amber-500'
             }
           }"
         />
@@ -122,7 +122,7 @@
         class="mt-3"
         :pt="{
           value: {
-            class: form.progress > 60 ? 'bg-emerald-500' : 'bg-amber-500'
+            class: form.progress > 60 ? '!bg-emerald-500' : '!bg-amber-500'
           }
         }"
       />
