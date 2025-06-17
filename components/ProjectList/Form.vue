@@ -7,7 +7,7 @@
     </div>
     <div v-else>
       <div>
-        {{ data.jenis }} <a class="hover:underline font-bold" :href="data.webhost.nama_web" target="_blank"> {{ data.webhost.nama_web }} </a>
+        {{ data.jenis }} <a class="hover:underline font-bold" :href="'https://'+data.webhost.nama_web" target="_blank"> {{ data.webhost.nama_web }} </a>
       </div>
       <div>
         Deadline : {{ formatTanggal(data.tgl_deadline) }}
@@ -101,9 +101,6 @@
     </div>
 
   </form>
-
-  {{ form }}
-
 
   <Dialog v-model:visible="visibleDialog" modal header="Sesuaikan dengan paket web." :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <ScrollPanel style="width: 100%; height: 60vh">
