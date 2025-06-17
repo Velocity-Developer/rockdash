@@ -84,14 +84,23 @@
 
           <div v-if="slotProps.data.wm_project" class="flex gap-0 justify-end items-center">
 
-            <Button variant="text" rounded class="!p-0 transition-all	hover:scale-125 relative z-1 hover:z-10" v-if="slotProps.data.wm_project.user && slotProps.data.wm_project.user.avatar_url" @click="openDialog('edit',slotProps.data)">
+            <Button variant="text" rounded class="!p-0 transition-all	hover:scale-125 relative z-1 hover:z-10" @click="openDialog('edit',slotProps.data)">
               <Avatar 
+                v-if="slotProps.data.wm_project.user && slotProps.data.wm_project.user.avatar_url"
                 :image="slotProps.data.wm_project.user.avatar_url" 
                 class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
                 shape="circle" 
                 size="small"
                 v-tooltip.left="slotProps.data.wm_project.user.name"
                />
+               <Avatar 
+                v-else-if="slotProps.data.wm_project.webmaster && !slotProps.data.wm_project.user"
+                :label="firstChara(slotProps.data.wm_project.webmaster)" 
+                class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
+                shape="circle"
+                size="small"
+                v-tooltip.left="slotProps.data.wm_project.webmaster"
+                />
             </Button>
 
             <!-- Icon status Pengerjaan -->
@@ -232,6 +241,10 @@ const openDialog = async (action: string, data = {}) => {
   visibleDialog.value = true;
   actionDialog.value = action;
   dataDialog.value = data;
+}
+
+const firstChara = (name: any) => {
+  return name.charAt(0);
 }
 </script>
 
