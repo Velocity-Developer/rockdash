@@ -1,10 +1,8 @@
 <template>
   <div v-if="loading" class="fixed bottom-5 end-5 z-[999]">
-    <div class="flex gap-2 items-center text-primary-600 dark:text-primary-200 bg-primary-200 dark:bg-primary-700 py-2 px-4 rounded text-sm">
-      <Icon name="lucide:loader-circle" class="animate-spin" />
+    <div class="flex gap-2 items-center shadow-lg text-sm text-primary-600 dark:text-primary-200 bg-primary-50 dark:bg-zinc-800 py-1 px-3 rounded">
       {{ label }}
-      <span class="animate-bounce">...</span>
-      <span class="animate-bounce">..</span>
+      <Icon name="lucide:loader-2" size="2rem" class="animate-spin" />
     </div>
   </div>
 </template>
