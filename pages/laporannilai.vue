@@ -39,7 +39,8 @@
                 </div>
               </template>
             </Column>
-            <Column field="on_progress" header="Pengerjaan"></Column>
+            <Column field="progress" header="Pengerjaan"></Column>
+            <Column field="selesai" header="Selesai"></Column>
             <Column field="total" header="Total"></Column>
           </DataTable>
         </template>
@@ -49,7 +50,7 @@
   </div>
 
 
-  <Tabs value='21' class="shadow rounded bg-zinc-100 mt-5">
+  <Tabs value="1" class="shadow rounded bg-zinc-100 mt-5">
       <TabList>
           <Tab v-for="tab in data.users" :key="tab.id" :value="tab.id">
             <div class="flex items-center text-xs font-normal">          
@@ -74,19 +75,19 @@
                       {{ slotProps.index + 1 }}
                   </template>
                 </Column>
-                <Column field="webhost.nama_web" header="Nama Web"></Column>
-                <Column field="jenis" header="Jenis">
+                <Column field="cs_main_project.webhost.nama_web" header="Nama Web"></Column>
+                <Column field="cs_main_project.jenis" header="Jenis">
                   <template #body="slotProps">
-                    <div>{{ slotProps.data.jenis }}</div>
-                    <div class="text-primary" v-if="slotProps.data.webhost.paket">
-                      {{ slotProps.data.webhost.paket.paket }}
+                    <div>{{ slotProps.data.cs_main_project.jenis }}</div>
+                    <div class="text-primary" v-if="slotProps.data.cs_main_project.webhost.paket">
+                      {{ slotProps.data.cs_main_project.webhost.paket.paket }}
                     </div>
                   </template>
                 </Column>
                 <!-- <Column field="deskripsi" header="Deskripsi"></Column> -->
-                <Column field="wm_project.status_multi" header="Status"></Column>
-                <Column field="wm_project.date_mulai_formatted" header="Mulai"></Column>
-                <Column field="wm_project.date_selesai_formatted" header="Selesai"></Column>
+                <Column field="status_multi" header="Status"></Column>
+                <Column field="date_mulai_formatted" header="Mulai"></Column>
+                <Column field="date_selesai_formatted" header="Selesai"></Column>
               </DataTable> 
               
           </TabPanel>
@@ -108,7 +109,7 @@ const route = useRoute();
 
 const filters = ref({
   bulan: route.query.bulan || dayjs().format('YYYY-MM'),
-  jenis_project: route.query.jenis_project || 0,
+  jenis_project: route.query.jenis_project || 10,
 } as any);
 
 // Fungsi untuk mengubah params filters menjadi query URL route
