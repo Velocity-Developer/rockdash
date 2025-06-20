@@ -39,6 +39,7 @@
                 </div>
               </template>
             </Column>
+            <Column field="on_progress" header="Pengerjaan"></Column>
             <Column field="total" header="Total"></Column>
           </DataTable>
         </template>
@@ -48,8 +49,7 @@
   </div>
 
 
-
-  <!-- <Tabs value='21' class="shadow rounded bg-zinc-100 mt-5">
+  <Tabs value='21' class="shadow rounded bg-zinc-100 mt-5">
       <TabList>
           <Tab v-for="tab in data.users" :key="tab.id" :value="tab.id">
             <div class="flex items-center text-xs font-normal">          
@@ -75,8 +75,15 @@
                   </template>
                 </Column>
                 <Column field="webhost.nama_web" header="Nama Web"></Column>
-                <Column field="jenis" header="Jenis"></Column>
-                <Column field="deskripsi" header="Deskripsi"></Column>
+                <Column field="jenis" header="Jenis">
+                  <template #body="slotProps">
+                    <div>{{ slotProps.data.jenis }}</div>
+                    <div class="text-primary" v-if="slotProps.data.webhost.paket">
+                      {{ slotProps.data.webhost.paket.paket }}
+                    </div>
+                  </template>
+                </Column>
+                <!-- <Column field="deskripsi" header="Deskripsi"></Column> -->
                 <Column field="wm_project.status_multi" header="Status"></Column>
                 <Column field="wm_project.date_mulai_formatted" header="Mulai"></Column>
                 <Column field="wm_project.date_selesai_formatted" header="Selesai"></Column>
@@ -84,7 +91,7 @@
               
           </TabPanel>
       </TabPanels>
-  </Tabs> -->
+  </Tabs>
 
   <DashLoader :loading="loading"/>
 </template>
@@ -104,9 +111,18 @@ const filters = ref({
   jenis_project: route.query.jenis_project || 0,
 } as any);
 
+// Fungsi untuk mengubah params filters menjadi query URL route
+const router = useRouter();
+function updateRouteParams() {
+  router.push({
+    query: { ...filters.value },
+  });
+}
+
 const data = ref([] as any) ;
 const loading = ref(false);
 const getData = async () => {
+  updateRouteParams() 
   loading.value = true;
   ///ubah bulan ke format YYYY-MM
   filters.value.bulan = dayjs(filters.value.bulan).format('YYYY-MM');
