@@ -91,7 +91,14 @@
                 class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
                 shape="circle" 
                 size="small"
-                v-tooltip.left="slotProps.data.wm_project.user.name"
+                v-tooltip.left="slotProps.data.wm_project.user.name"                        
+                :pt="{
+                  image: (options) => ({
+                      class: [
+                          '!object-cover',
+                      ]
+                  })
+                }"
                />
                <Avatar 
                 v-else-if="slotProps.data.wm_project.webmaster && !slotProps.data.wm_project.user"
@@ -99,7 +106,14 @@
                 class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
                 shape="circle"
                 size="small"
-                v-tooltip.left="slotProps.data.wm_project.webmaster"
+                v-tooltip.left="slotProps.data.wm_project.webmaster"                        
+                :pt="{
+                  image: (options) => ({
+                      class: [
+                          '!object-cover',
+                      ]
+                  })
+                }"
                 />
             </Button>
 

@@ -18,7 +18,15 @@
               :image="slotProps.data.avatar_url"
               size="small"
               shape="circle"
-              class="max-w-[40px]"/>
+              class="max-w-[40px]"                      
+              :pt="{
+                image: (options) => ({
+                    class: [
+                        '!object-cover',
+                    ]
+                })
+              }"
+              />
               <div>{{ slotProps.data.name }}</div>
             </button>
 

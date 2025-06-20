@@ -34,7 +34,19 @@
             <Column field="name" header="Nama">
               <template #body="slotProps">
                 <div class="flex items-center">
-                  <Avatar :image="slotProps.data.avatar" class="w-7 h-7 mr-2" size="large" shape="circle" />
+                  <Avatar 
+                  :image="slotProps.data.avatar" 
+                  class="w-7 h-7 mr-2" 
+                  size="large" 
+                  shape="circle"                          
+                  :pt="{
+                    image: (options) => ({
+                        class: [
+                            '!object-cover',
+                        ]
+                    })
+                  }"
+                  />
                   {{ slotProps.data.name }}
                 </div>
               </template>
@@ -54,7 +66,19 @@
       <TabList>
           <Tab v-for="tab in data.users" :key="tab.id" :value="tab.id">
             <div class="flex items-center text-xs font-normal">          
-              <Avatar :image="tab.avatar" class="w-5 h-5 mr-2" size="large" shape="circle" />
+              <Avatar 
+              :image="tab.avatar" 
+              class="w-5 h-5 mr-2" 
+              size="large" 
+              shape="circle"                      
+              :pt="{
+                image: (options) => ({
+                    class: [
+                        '!object-cover',
+                    ]
+                })
+              }"
+              />
               {{ tab.name }}
             </div>
           </Tab>
