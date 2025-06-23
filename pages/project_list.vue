@@ -24,7 +24,11 @@
           size="small"
         />
         <Button size="small" severity="info" @click="getData()">
-          <Icon name="lucide:refresh-cw" class="mr-1" :class="{ 'animate-spin': loading }"/> Reload
+          <Icon name="lucide:refresh-cw" :class="{ 'animate-spin': loading }"/> Reload
+        </Button>
+        <Button @click="visibleDrawerFilter = true" size="small">
+          <Icon name="lucide:filter" />
+          Filter
         </Button>
       </div>
     </div>
@@ -68,7 +72,7 @@
       </Column>
       <Column field="deskripsi" header="Deskripsi">
         <template #body="slotProps">
-          <div class="max-w-[150px] whitespace-normal">
+          <div class="max-w-[150px] break-all whitespace-normal">
             {{ slotProps.data.deskripsi }}
           </div>
         </template>
@@ -145,10 +149,13 @@
                 severity="contrast" rounded 
                 v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " 
                 v-tooltip.left="slotProps.data.wm_project.status_project ? slotProps.data.wm_project.status_project : 'Koreksi'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-binoculars-icon lucide-binoculars"><path d="M10 10h4"/><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M20 21a2 2 0 0 0 2-2v-3.851c0-1.39-2-2.962-2-4.829V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2z"/><path d="M 22 16 L 2 16"/><path d="M4 21a2 2 0 0 1-2-2v-3.851c0-1.39 2-2.962 2-4.829V8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2z"/><path d="M9 7V4a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-binoculars-icon lucide-binoculars"><path d="M10 10h4"/><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M20 21a2 2 0 0 0 2-2v-3.851c0-1.39-2-2.962-2-4.829V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2z"/><path d="M 22 16 L 2 16"/><path d="M4 21a2 2 0 0 1-2-2v-3.851c0-1.39 2-2.962 2-4.829V8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2z"/><path d="M9 7V4a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3"/></svg>
               </Button>
               <Button class="!p-1 border border-white dark:border-gray-600" severity="danger" rounded v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords-icon lucide-swords"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>
+              </Button>
+              <Button v-else class="!p-1 border border-white dark:border-gray-600" size="small">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings2-icon lucide-settings-2"><path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
               </Button>
             </span>
 
@@ -186,6 +193,15 @@
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Ambil':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <ProjectListForm :action="actionDialog" :data="dataDialog" @update="getData()" />
   </Dialog>
+
+  
+  <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
+    <form @submit.prevent="filterSubmit">
+      <ScrollPanel style="width: 100%; height: 69vh">
+
+      </ScrollPanel>
+    </form>
+  </Drawer>
 
   <DashLoader :loading="loading"/>
 </template>
@@ -288,6 +304,13 @@ const openDialog = async (action: string, data = {}) => {
 
 const firstChara = (name: any) => {
   return name.charAt(0);
+}
+
+const visibleDrawerFilter = ref(false);
+const filterSubmit = async () => {
+    getData()
+    visibleDrawerFilter.value = false;
+    updateRouteParams()
 }
 </script>
 
