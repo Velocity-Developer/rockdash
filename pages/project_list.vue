@@ -51,9 +51,9 @@
       </Column>
       <Column field="nama_web" header="Nama Web">
         <template #body="slotProps">
-          <a v-if="slotProps.data.webhost" :href="'https://'+slotProps.data.webhost.nama_web" target="_blank" class="group hover:underline">
+          <a v-if="slotProps.data.webhost" :href="'https://'+slotProps.data.webhost.nama_web" target="_blank" class="group hover:underline relative inline-block pr-4">
             {{ slotProps.data.webhost.nama_web }} 
-            <Icon name="lucide:external-link" class="ml-1 hidden group-hover:inline-block"/>
+            <Icon name="lucide:external-link" class="absolute end-0 top-0 hidden group-hover:inline-block"/>
           </a>
         </template>
       </Column>
@@ -170,24 +170,24 @@
       </Column>
   </DataTable>
   <div class="flex justify-between items-center text-xs mt-3">
-        <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}
-        </div>
+    <div>
+      {{ data.from }} - {{ data.to }} dari {{ data.total }}
+    </div>
 
-        <Paginator
-            :rows="data.per_page"
-            :totalRecords="data.total"
-            @page="onPaginate"
-            :pt="{
-                root: (event: any) => {
-                    const itemForPage =  data.per_page;
-                    const currentPage =  filters.page - 1;
-                    event.state.d_first = itemForPage * currentPage;
-                },
-            }"
-        >
-        </Paginator>
-      </div>
+    <Paginator
+        :rows="data.per_page"
+        :totalRecords="data.total"
+        @page="onPaginate"
+        :pt="{
+            root: (event: any) => {
+                const itemForPage =  data.per_page;
+                const currentPage =  filters.page - 1;
+                event.state.d_first = itemForPage * currentPage;
+            },
+        }"
+    >
+    </Paginator>
+  </div>
 
       
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Ambil':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
@@ -198,8 +198,61 @@
   <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
     <form @submit.prevent="filterSubmit">
       <ScrollPanel style="width: 100%; height: 69vh">
-
+          <div class="mb-3">
+            <label class="mb-1 block text-sm" for="nama_web">Nama Web</label>
+            <InputText id="nama_web" v-model="filters.nama_web" class="w-full" />
+          </div>
+          <div class="mb-3">
+            <label class="mb-1 block text-sm" for="jenis_project">Jenis Project</label>
+            <Select
+              v-model="filters.jenis_project" 
+              :options="[{label:'Semua',value:0},{label:'Biasa',value:10},{label:'Custom',value:12},{label:'Lainnya',value:23}]"
+              optionLabel="label" optionValue="value"
+              class="w-full"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="mb-1 block text-sm" for="status_pengerjaan">Status Pengerjaan</label>
+            <Select
+              v-model="filters.status_pengerjaan" 
+              :options="[
+                'Semua status',
+                'Belum dikerjakan',
+                'Dalam pengerjaan',
+                'Menunggu koreksi',
+                'Proses koreksi',
+                'Kurang konfirmasi',
+                'Selesai'
+              ]"
+              class="w-full"
+            />
+          </div>
+          <div class="mb-3">
+            <label class="mb-1 block text-sm" for="paket">Paket</label>
+            <Select
+              v-model="filters.paket" 
+              :options="opsiPaket"
+              optionLabel="label" optionValue="value"
+              class="w-full" showClear
+            />
+          </div>
+          <div class="mb-3">
+            <label class="mb-1 block text-sm" for="jenis">Jenis Paket</label>
+            <Select
+              v-model="filters.jenis" 
+              :options="opsiJenis"
+              class="w-full" showClear
+            />
+          </div>
       </ScrollPanel>
+      <div>
+        <Button type="submit" class="w-full">
+          <Icon name="lucide:filter" /> Filter
+        </Button>
+        <!-- <Button @click="resetFilters()" severity="contrast" class="w-full mt-3">
+          <Icon name="lucide:x" /> Reset
+        </Button> -->
+      </div>
     </form>
   </Drawer>
 
@@ -232,7 +285,10 @@ const filters = ref({
   page: Number(route.query.page) || 1,
   jenis_project: getInitialJenisProject(),
   status_pengerjaan: route.query.status_pengerjaan || 'Belum dikerjakan',
-})
+  jenis: route.query.jenis || '',
+  paket: route.query.paket || '',
+  nama_web: route.query.nama_web || '',
+} as any);
 
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
@@ -312,5 +368,19 @@ const filterSubmit = async () => {
     visibleDrawerFilter.value = false;
     updateRouteParams()
 }
+
+//get opsi
+const opsiJenis = ref([] as any);
+const opsiPaket = ref([] as any);
+onMounted(async () => {
+  try {
+    const res = await client('/api/data_opsis?keys[]=jenis_project&keys[]=paket')
+    opsiJenis.value = res.jenis_project;
+    opsiPaket.value = res.paket;
+  } catch (error) {
+    console.log(error);
+  }
+})
+
 </script>
 
