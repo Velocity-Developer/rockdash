@@ -23,7 +23,7 @@
       <Select v-model="form.user_id" :options="opsiUsers" filter optionValue="value" optionLabel="label" class="w-full" required>
         <template #value="slotProps">
           <div v-if="slotProps.value && UserSelected(slotProps.value)" class="flex items-center">
-            <img :alt="UserSelected(slotProps.value).label" :src="UserSelected(slotProps.value).avatar" class="w-8 h-8 rounded-full mr-2" />
+            <img :alt="UserSelected(slotProps.value).label" :src="UserSelected(slotProps.value).avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
             <div>{{ UserSelected(slotProps.value).label }}</div>
           </div>
           <div v-else>
@@ -32,7 +32,7 @@
         </template>
         <template #option="slotProps">
           <div class="flex items-center">
-              <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2" />
+              <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
               <div>{{ slotProps.option.label }}</div>
           </div>
         </template>
@@ -73,13 +73,31 @@
       </div>
       <div class="flex-1 flex justify-end">
         <div>
-          <SelectButton 
+          
+          <label for="status_project">Status Project</label>
+          <!-- <div class="w-full mb-3"> -->
+            <Select
+              v-model="form.status_project" 
+              :options="[
+                'Belum dikerjakan',
+                'Dalam pengerjaan',
+                'Menunggu koreksi',
+                'Proses koreksi',
+                'Kurang konfirmasi',
+                'Selesai'
+              ]"
+              :disabled="form.progress < 60" 
+              allowEmpty
+              class="w-full"
+            />
+          <!-- </div> -->
+          <!-- <SelectButton 
             v-model="form.status_multi" 
             :options="[{label:'Pending',value:'pending'},{label:'Selesai',value:'selesai'}]" 
             optionValue="value" optionLabel="label" 
             :disabled="form.progress < 60" 
             allowEmpty required
-          />
+          /> -->
         </div>
       </div>  
     </div>
@@ -152,7 +170,8 @@ const form = reactive({
   qc: '',
   id_cs_main_project: data.id,
   progress: 0,
-  id_karyawan: data.raw_dikerjakan?data.raw_dikerjakan[0]:23
+  id_karyawan: data.raw_dikerjakan?data.raw_dikerjakan[0]:23,
+  status_project: 'Belum dikerjakan',
 });
 
 // Watch agar form terisi saat wm_project ter-update
@@ -165,6 +184,7 @@ watch(wm_project, (newVal) => {
     form.status_multi = newVal.status_multi ?? 'pending';
     form.qc = newVal.quality_control ?? '';
     form.progress = newVal.progress ?? 0;
+    form.status_project = newVal.status_project ?? 'Belum dikerjakan';
   }
 }, { immediate: true });
 
@@ -219,7 +239,7 @@ const handleSubmit = async () => {
 
   if(!wm_project.value) {
     try {
-      await client('/api/wm_project', {
+      const res = await client('/api/wm_project', {
         method: 'POST',
         body: form
       })
@@ -230,6 +250,7 @@ const handleSubmit = async () => {
         detail: 'Project berhasil diambil',
         life: 3000
       });
+      form.status_project = res.status_project
     } catch (er) {
       const error = useSanctumError(er);
       errors.value = error.bag;
@@ -242,7 +263,7 @@ const handleSubmit = async () => {
     }
   } else if(wm_project.value) {
     try {
-      await client('/api/wm_project/'+wm_project.value.id_wm_project, {
+      const res = await client('/api/wm_project/'+wm_project.value.id_wm_project, {
         method: 'PUT',
         body: form
       })
@@ -253,6 +274,7 @@ const handleSubmit = async () => {
         detail: 'Project berhasil diperbarui',
         life: 3000
       });
+      form.status_project = res.status_project
     } catch (er) {
       const error = useSanctumError(er);
       errors.value = error.bag;
