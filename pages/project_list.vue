@@ -374,7 +374,7 @@ const opsiJenis = ref([] as any);
 const opsiPaket = ref([] as any);
 onMounted(async () => {
   try {
-    const res = await client('/api/data_opsis?keys[]=jenis_project&keys[]=paket')
+    const res = await client('/api/data_opsis?keys[]=jenis_project&keys[]=paket') as { jenis_project: any, paket: any }
     opsiJenis.value = res.jenis_project;
     opsiPaket.value = res.paket;
   } catch (error) {
