@@ -272,7 +272,7 @@ const { data, status, error, refresh } = await useAsyncData(
     () => client('/api/billing',{
         params: filters
     })
-)
+) as any
 const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1;
     updateRouteParams()
@@ -318,7 +318,7 @@ const fieldsFilter = [
 ]
 
 function split_comma(text: string) {
-  return text.split(',').join('\n');
+  return text?text.split(',').join('\n'):'';
 }
 
 //reset filters
@@ -362,10 +362,9 @@ onMounted(() => {
       
     //fetch dapatkan data prediksi dari api
     try {
-      const res = client('/api/billing_prediksi_bulanini').then((res) => {
-        prediksi.value.total = res.total;
-        prediksi.value.prediksi = res.prediksi;
-      })
+      const res = client('/api/billing_prediksi_bulanini') as any
+      prediksi.value.total = res.total;
+      prediksi.value.prediksi = res.prediksi;
     } catch (error) {
       console.log(error);
     }
