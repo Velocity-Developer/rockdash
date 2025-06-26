@@ -29,6 +29,7 @@
 const emit = defineEmits(['openlink'])
 const client = useSanctumClient();
 const isLoading = ref(false)
+const toast = useToast();
 
 const form = reactive({
     search: '',
@@ -38,11 +39,28 @@ const results = ref([] as any)
 const handleSubmit = async () => {
   isLoading.value = true;
 
+  //jika search kosong / kurang dari 3 karakter
+  if(!form.search || form.search.length < 3){
+    toast.add({
+        severity: 'warn',
+        summary: 'Kesalahan!',
+        detail: 'Pencarian harus lebih dari minimal 3 karakter',
+        life: 3000
+    });
+    isLoading.value = false;
+    return;
+  }
+
   try {
-    const response = await client(`/api/webhost_search/`+form.search)
+    const response = await client(`/api/webhost_search/`+form.search) as any
     results.value = response;
   } catch (error: any) {
-    const er = useSanctumError(error)
+    toast.add({
+        severity: 'warn',
+        summary: 'Tidak ditemukan!',
+        detail: error?.data?.message,
+        life: 3000
+    });
   }
 
   isLoading.value = false;
