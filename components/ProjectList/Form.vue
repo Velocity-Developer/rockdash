@@ -195,7 +195,7 @@ const opsiUsers = ref([] as any);
 const loadingWmProject = ref(false);
 onMounted(async () => {
   try {
-    const res = await client('/api/data_opsis?keys[]=quality&keys[]=users')
+    const res = await client('/api/data_opsis?keys[]=quality&keys[]=users') as any
     opsiQuality.value = res.quality;
     opsiUsers.value = res.users;
   } catch (error) {
@@ -206,7 +206,7 @@ onMounted(async () => {
   loadingWmProject.value = true;
   if(!data.wm_project) {
     try {
-      const res = await client('/api/cs_main_project/'+data.id)
+      const res = await client('/api/cs_main_project/'+data.id) as any
       if(res.wm_project){
         wm_project.value = res.wm_project??null;
       }
@@ -242,7 +242,7 @@ const handleSubmit = async () => {
       const res = await client('/api/wm_project', {
         method: 'POST',
         body: form
-      })
+      }) as any
       emit('update');
       toast.add({
         severity: 'success',
@@ -266,7 +266,7 @@ const handleSubmit = async () => {
       const res = await client('/api/wm_project/'+wm_project.value.id_wm_project, {
         method: 'PUT',
         body: form
-      })
+      }) as any
       emit('update');
       toast.add({
         severity: 'success',
@@ -299,6 +299,19 @@ watch(() => form.qc, () => {
   // Hindari pembagian nol
   const progress = total > 0 ? (current / total) * 100 : 0;
   form.progress = Math.floor(progress * 100) / 100;
+  
+  //jika form.date_selesai tidak kosong, dan form.progress > 60
+  if(form.date_selesai && form.progress > 60) {
+    form.status_project = 'Menunggu koreksi'      
+  }
+})
+
+//watch form.qc dan form.date_selesai
+watch(() => form.date_selesai, () => {
+    //jika form.date_selesai tidak kosong, dan form.progress > 60
+    if(form.date_selesai && form.progress > 60) {
+      form.status_project = 'Menunggu koreksi'      
+    }
 })
 
 const confirm = useConfirm();
