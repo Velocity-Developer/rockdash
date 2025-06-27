@@ -21,7 +21,7 @@
             'Kurang konfirmasi',
             'Selesai'
           ]"
-          size="small"
+          size="small" showClear
         />
         <Button size="small" severity="info" @click="getData()">
           <Icon name="lucide:refresh-cw" :class="{ 'animate-spin': loading }"/> Reload
@@ -29,6 +29,12 @@
         <Button @click="visibleDrawerFilter = true" size="small">
           <Icon name="lucide:filter" />
           Filter
+        </Button>
+        <Button 
+          v-if="filters.nama_web || filters.paket || filters.jenis"
+          @click="resetFilters" severity="danger" 
+          size="small" v-tooltip.left="'Reset Filter'">
+          <Icon name="lucide:x" />
         </Button>
       </div>
     </div>
@@ -249,9 +255,9 @@
         <Button type="submit" class="w-full">
           <Icon name="lucide:filter" /> Filter
         </Button>
-        <!-- <Button @click="resetFilters()" severity="contrast" class="w-full mt-3">
+        <Button @click="resetFilters" severity="contrast" class="w-full mt-3">
           <Icon name="lucide:x" /> Reset
-        </Button> -->
+        </Button>
       </div>
     </form>
   </Drawer>
@@ -289,6 +295,19 @@ const filters = ref({
   paket: route.query.paket || '',
   nama_web: route.query.nama_web || '',
 } as any);
+
+//reset filters
+const resetFilters = () => {
+  filters.value.page = 1;
+  filters.value.jenis_project= getInitialJenisProject();
+  filters.value.status_pengerjaan= route.query.status_pengerjaan || 'Belum dikerjakan';
+  filters.value.jenis = '';
+  filters.value.paket = '';
+  filters.value.nama_web = '';
+  updateRouteParams()
+  getData()
+  visibleDrawerFilter.value = false;
+}
 
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
