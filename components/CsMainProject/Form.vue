@@ -79,14 +79,14 @@
       </div>
       <div class="col-start-3 col-end-5">
         <label class="mb-1 block" for="email">Email</label>
-        <InputText type="email" id="email" name="email" v-model="form.email" class="w-full" />
+        <Textarea id="email" name="deskripsi" v-model="form.email" class="w-full"></Textarea>
       </div>
 
       <div class="col-span-4">
         <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>
         
         <MultiSelect name="dikerjakan_oleh" id="dikerjakan_oleh" v-model="form.dikerjakan_oleh" 
-          :options="dataOpsi.karyawan" 
+          :options="[{label:'Lainnya (eko)',value:23},{label:'Web Custom',value:12},{label:'Web Biasa',value:10}]" 
           optionValue="value" optionLabel="label"
           filter showClear
         class="w-full" />
@@ -146,7 +146,7 @@ const form = reactive({
 const { data: dataOpsi} = await useAsyncData(
     'data_opsi-form-csmainproject',
     () => client('/api/data_opsis?keys[]=paket&keys[]=jenis_project&keys[]=karyawan')
-)
+) as any
 
 //set data if action is edit
 onMounted(() => {
