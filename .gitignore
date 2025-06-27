@@ -22,3 +22,5 @@ logs
 .env
 .env.*
 !.env.example
+0.0.0.0
+.vscode
