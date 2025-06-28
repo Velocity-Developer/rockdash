@@ -55,7 +55,7 @@
       <Textarea v-model="form.catatan" class="w-full" />
     </div>
 
-    <div class="flex gap-4 justify-between">
+    <div class="flex gap-4 justify-between items-end">
       <div class="flex-1">
         <ProgressBar 
           v-if="form.progress" 
@@ -67,8 +67,8 @@
             }
           }"
         />
-        <Button @click="visibleDialog = true" size="small">
-          <Icon name="lucide:eye"/> Quality Control
+        <Button @click="visibleDialog = true" size="small" class="w-full">
+          <Icon name="lucide:square-check"/> Quality Control
         </Button>
       </div>
       <div class="flex-1 flex justify-end">
@@ -120,9 +120,9 @@
 
   </form>
 
-  <Dialog v-model:visible="visibleDialog" modal header="Sesuaikan dengan paket web." :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDialog" modal header="Sesuaikan dengan paket web." :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <ScrollPanel style="width: 100%; height: 60vh">
-        <table class="table-fixed border-collapse">
+        <table class="table-fixed border-collapse text-sm">
         <tr v-for="quality of opsiQuality" :key="quality.value" class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900/50 dark:even:bg-gray-950">
           <td class="align-top border-b border-gray-100 dark:border-gray-800 p-2">
             <Checkbox v-model="form.qc" :inputId="quality.value" name="quality" :value="quality.label" />
@@ -134,16 +134,24 @@
       </table>
     </ScrollPanel>
     
-    <ProgressBar 
-        v-if="form.progress" 
-        :value="form.progress??0" 
-        class="mt-3"
-        :pt="{
-          value: {
-            class: form.progress > 60 ? '!bg-emerald-500' : '!bg-amber-500'
-          }
-        }"
-      />
+    <div class="flex gap-3">
+      <div class="flex-1">
+        <ProgressBar 
+            v-if="form.progress" 
+            :value="form.progress??0" 
+            class="mt-3"
+            :pt="{
+              value: {
+                class: form.progress > 60 ? '!bg-emerald-500' : '!bg-amber-500'
+              }
+            }"
+          />
+      </div> 
+      <div class="text-end">
+        <Button @click="visibleDialog = false">Selesai</Button>
+      </div>
+    </div>
+
   </Dialog>
 
 </template>
@@ -307,12 +315,17 @@ watch(() => form.qc, () => {
 })
 
 //watch form.qc dan form.date_selesai
-watch(() => form.date_selesai, () => {
-    //jika form.date_selesai tidak kosong, dan form.progress > 60
-    if(form.date_selesai && form.progress > 60) {
-      form.status_project = 'Menunggu koreksi'      
-    }
-})
+watch(() => form.date_selesai, (newVal, oldVal) => {
+  const previousStatus = form.status_project;
+
+  // Pastikan kondisi:
+  // 1. form.date_selesai tidak kosong
+  // 2. form.progress > 60
+  // 3. status sebelumnya adalah 'Dalam pengerjaan'
+  if (!oldVal && newVal && form.progress > 60 && previousStatus === 'Dalam pengerjaan' || previousStatus === 'Belum dikerjakan') {
+    form.status_project = 'Menunggu koreksi';
+  }
+});
 
 const confirm = useConfirm();
 const confirmDelete = (id: any) => {    
