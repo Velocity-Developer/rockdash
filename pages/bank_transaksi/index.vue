@@ -215,7 +215,7 @@ const route = useRoute();
 const { data: banks,status: statusDataBank} = await useAsyncData(
     'data_opsi-bank',
     () => client('/api/data_opsi/bank')
-)
+) as any
 
 //get label bank from value
 const getBankLabel = (value: string) => {
@@ -233,7 +233,7 @@ const { data, status, error, refresh } = await useAsyncData(
     () => client('/api/bank_transaksi',{
         params: filters
     })
-)
+) as any
 
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
@@ -264,7 +264,7 @@ watch(status, (newValue, oldValue) => {
 //data saldo
 const dataSaldo = computed(() => {
   if(data.value) {
-    return data.value.saldo;
+    return data.value?.saldo;
   } else {
     return 0;
   }
@@ -324,7 +324,8 @@ const exportExcel = async () => {
   try {
     const response = await client('/api/bank_transaksi_export',{
       params: filters
-    })
+    }) as any
+    
     //Convert JSON ke worksheet
     const worksheet = XLSX.utils.json_to_sheet(response)
 
