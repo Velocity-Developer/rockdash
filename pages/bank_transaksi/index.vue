@@ -1,4 +1,8 @@
 <template>
+
+  <div class="text-xl text-end mb-3">
+    {{ getBankLabel(filters.bank) }}
+  </div>
   
   <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
     <Button type="button" @click="openDialog('add',{tgl:filters.bulan,bank:filters.bank})" size="small" class="capitalize">
@@ -34,11 +38,11 @@
       <div @click="dialogFormSaldo = true" class="min-w-[200px] group relative cursor-pointer py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:wallet"/>
-          Saldo Bawaan : {{ dataSaldo.bulan }}
+          Saldo Bawaan : {{ dataSaldo?.bulan }}
         </div>
         <Skeleton v-if="status == 'pending'" class="w-full mt-2 h-20" />
         <div v-else class="font-bold text-end">
-          {{ formatMoney(dataSaldo.nominal,filters.bank) }}
+          {{ formatMoney(dataSaldo?.nominal,filters.bank) }}
         </div>
         <div class="absolute w-full text-sm group-hover:block hidden bottom-0 end-0 bg-amber-100 dark:bg-amber-700 px-4 py-1 shadow-lg rounded border">
           <Icon name="lucide:square-pen"/>
@@ -210,12 +214,34 @@ const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute();
+const kategori = 'umum';
+
+const filters = reactive({
+    bank: route.query.bank || '',
+    bulan: route.query.bulan || dayjs().format('YYYY-MM'),
+    kategori: kategori||'umum'
+} as any);
+
 
 //get opsi bank
-const { data: banks,status: statusDataBank} = await useAsyncData(
-    'data_opsi-bank',
-    () => client('/api/data_opsi/bank')
-) as any
+const banks = ref([] as any);
+const getBanks = async () => {
+  try {
+    const res = await client('/api/data_opsi/bank',{
+        params: {
+            kategori: filters.kategori
+        }
+    })
+    banks.value = res;
+    filters.bank = banks.value[0].value
+    refresh()
+  } catch (error) {
+    console.log(error);
+  }
+}
+onMounted(() => {
+  getBanks();
+})
 
 //get label bank from value
 const getBankLabel = (value: string) => {
@@ -223,17 +249,23 @@ const getBankLabel = (value: string) => {
   return bank ? bank.label : value;
 }
 
-const filters = reactive({
-    bank: route.query.bank || 'bca',
-    bulan: route.query.bulan || dayjs().format('YYYY-MM'),
-} as any);
-
-const { data, status, error, refresh } = await useAsyncData(
-    'bank_transaksi-'+filters.bulan,
-    () => client('/api/bank_transaksi',{
+const status = ref('')
+const data = ref({} as any)
+const dataSaldo = ref({} as any)
+const refresh = async () => {
+  status.value = 'pending';
+  try {
+    const res = await client('/api/bank_transaksi',{
         params: filters
-    })
-) as any
+    }) as any
+    data.value = res
+    dataSaldo.value = res.saldo;
+    status.value = 'success';
+  } catch (error) {
+    console.log(error);
+    status.value = 'error';
+  }
+}
 
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
@@ -259,15 +291,6 @@ watch(status, (newValue, oldValue) => {
     } else {
       isLoadingDash.value = true;
     }
-})
-
-//data saldo
-const dataSaldo = computed(() => {
-  if(data.value) {
-    return data.value?.saldo;
-  } else {
-    return 0;
-  }
 })
 
 const visibleDialogForm = ref(false);
