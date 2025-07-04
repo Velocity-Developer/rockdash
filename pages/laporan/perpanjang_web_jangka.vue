@@ -24,7 +24,7 @@
 
   <div v-if="data.data && data.data.length > 0" class="mt-3">
 
-    <Card class="my-3 md:w-[50vw]">
+    <Card class="my-3">
       <template #content>
         <div class="overflow-x-auto">
           <div class="mb-3 font-bold">

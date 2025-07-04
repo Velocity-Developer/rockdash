@@ -8,8 +8,8 @@ export function formatMoney(value: number, currency: string = 'Rp') {
   }
 
   const formatted = new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(value)
 
   //jika currency = reseller maka currency = USD
