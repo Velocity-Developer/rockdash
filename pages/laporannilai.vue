@@ -133,7 +133,9 @@ const route = useRoute();
 
 const filters = ref({
   bulan: route.query.bulan || dayjs().format('YYYY-MM'),
-  jenis_project: route.query.jenis_project || 10,
+  jenis_project: localStorage.getItem('jenis_project') 
+    ? parseInt(localStorage.getItem('jenis_project') as string)
+    : (route.query.jenis_project || 10),
 } as any);
 
 // Fungsi untuk mengubah params filters menjadi query URL route
@@ -170,8 +172,10 @@ onMounted(() => {
 
 //watch filters.jenis_project
 watch(() => filters.value.jenis_project, (newVal, oldVal) => {
-  getData()
-})
+  localStorage.setItem('jenis_project', newVal.toString());
+  getData();
+});
+
 //watch filters.bulan
 watch(() => filters.value.bulan, (newVal, oldVal) => {
   getData()
