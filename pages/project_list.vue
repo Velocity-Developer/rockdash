@@ -287,10 +287,21 @@ const getInitialJenisProject = () => {
   return 12
 }
 
+// dapatkan default filters.status_pengerjaan
+const getInitialStatusPengerjaan = () => {
+  const fromRoute = route.query.status_pengerjaan;
+  if (fromRoute && fromRoute !== 'Semua status') return fromRoute;
+
+  const fromStorage = localStorage.getItem('project_list.status_pengerjaan');
+  if (fromStorage && fromStorage !== 'Semua status') return fromStorage;
+
+  return 'Semua status';
+}
+
 const filters = ref({
   page: Number(route.query.page) || 1,
   jenis_project: getInitialJenisProject(),
-  status_pengerjaan: route.query.status_pengerjaan || 'Belum dikerjakan',
+  status_pengerjaan: getInitialStatusPengerjaan(),
   jenis: route.query.jenis || '',
   paket: route.query.paket || '',
   nama_web: route.query.nama_web || '',
@@ -300,10 +311,11 @@ const filters = ref({
 const resetFilters = () => {
   filters.value.page = 1;
   filters.value.jenis_project= getInitialJenisProject();
-  filters.value.status_pengerjaan= route.query.status_pengerjaan || 'Belum dikerjakan';
+  filters.value.status_pengerjaan= 'Semua status';
   filters.value.jenis = '';
   filters.value.paket = '';
   filters.value.nama_web = '';
+  localStorage.setItem('project_list.status_pengerjaan', 'Semua status');
   updateRouteParams()
   getData()
   visibleDrawerFilter.value = false;
@@ -354,6 +366,7 @@ watch(() => filters.value.jenis_project, (newVal, oldVal) => {
 
 //watch filters.status_pengerjaan
 watch(() => filters.value.status_pengerjaan, (newVal, oldVal) => {
+  localStorage.setItem('project_list.status_pengerjaan', newVal || 'Semua status');
   updateRouteParams()
   getData()
 })
