@@ -34,7 +34,7 @@
             <tbody>
               <tr v-for="(item,i) in data.info" :key="i" class="odd:bg-slate-50 even:bg-white dark:odd:bg-zinc-800 dark:even:bg-zinc-900">
                 <td class="p-2 border-b text-left">{{ i }}</td>
-                <td class="p-2 border-b text-right">{{ formatMoney(item) }}</td>
+                <td class="p-2 border-b text-right">{{ formatMoney(item,'Rp',0) }}</td>
               </tr>
             </tbody>
           </table>
@@ -68,8 +68,8 @@
                       <div class="max-w-[15em] truncate">{{ i }}</div>
                     </td>
                     <td class="p-2 border-b text-left">{{ item.total }}</td>
-                    <td class="p-2 border-b text-right">{{ formatMoney(item.biaya) }}</td>
-                    <td class="p-2 border-b text-right">{{ formatMoney(item.profit) }}</td>
+                    <td class="p-2 border-b text-right">{{ formatMoney(item.biaya,'Rp',0) }}</td>
+                    <td class="p-2 border-b text-right">{{ formatMoney(item.profit,'Rp',0) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -79,7 +79,7 @@
         <Column field="webhost.rekap_biaya.total" header="Total Profit">
           <template #body="slotProps">
             <div class="text-right">
-            {{ formatMoney(slotProps.data.webhost.rekap_biaya.total) }}
+            {{ formatMoney(slotProps.data.webhost.rekap_biaya.total,'Rp',0) }}
             </div>
           </template>
         </Column>

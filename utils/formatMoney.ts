@@ -1,5 +1,5 @@
 // utils/formatMoney.ts
-export function formatMoney(value: number, currency: string = 'Rp') {
+export function formatMoney(value: number, currency: string = 'Rp', minimumFractionDigits: number = 2) {
   // const v = new Intl.NumberFormat().format(value);
 
   //jika value = kosong maka return 0
@@ -8,8 +8,8 @@ export function formatMoney(value: number, currency: string = 'Rp') {
   }
 
   const formatted = new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    minimumFractionDigits: minimumFractionDigits,
+    maximumFractionDigits: minimumFractionDigits
   }).format(value)
 
   //jika currency = reseller maka currency = USD
