@@ -26,7 +26,7 @@
                     }),
                     rootList: (options) => ({
                         class: [
-                            '!ps-0',
+                            '!ps-0 bg-gray-100 dark:bg-zinc-700 rounded-lg overflow-hidden',
                         ]
                     })
                 }"
@@ -36,7 +36,7 @@
                 <button v-if="item.items" v-ripple v-tooltip="useConfig.miniSidebar ? item.label : ''" :class="[classLink,{'bg-primary-700 text-white dark:text-gray-100' : isActive(item.route),'md:!justify-center': useConfig.miniSidebar}]">
                     <span class="flex justify-start items-center">
                         <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
-                        <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <span class="ms-2 text-sm text-left" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                     <Icon v-if="item.items" name="lucide:chevron-down" />
                 </button>
@@ -44,7 +44,7 @@
                     <span class="flex justify-start items-center">
                         <Icon v-if="item.icon" :name="item.icon" size="1.15rem" :ssr="true"/>
                         <Icon v-else name="lucide:circle-small" size="small" class="opacity-50" :ssr="true"/>
-                        <span class="ms-2 text-sm" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
+                        <span class="ms-2 text-sm text-left" :class="{ 'md:hidden': useConfig.miniSidebar}">{{ item.label }}</span>
                     </span>
                 </NuxtLink>
 
@@ -76,7 +76,7 @@ const client = useSanctumClient();
 const AppMenus = computed(() => useConfig.app_menus || [])
 
 onMounted( async () => {
-    const getconfig = await client('/api/dash/config');
+    const getconfig = await client('/api/dash/config') as any;
     useConfig.setConfig(getconfig);
 });
 

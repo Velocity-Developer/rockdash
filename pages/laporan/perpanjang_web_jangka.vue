@@ -53,7 +53,7 @@
         <Column field="rincian" header="Rincian">
           <template #body="slotProps">
             <div class="overflow-x-auto">
-              <table class="table-fixed border-collapse text-sm border dark:border-gray-600 w-[50em] shadow hover:shadow-lg bg-zinc-100 dark:bg-zinc-800">
+              <table class="table-fixed border-collapse text-sm border dark:border-gray-600 w-[40em] shadow hover:shadow-lg bg-zinc-100 dark:bg-zinc-800">
                 <thead>
                   <tr>
                     <th class="px-2 border-b text-left">Jenis</th>
