@@ -8,8 +8,17 @@ export const useConfigStore = defineStore('config', () => {
     }
 
     const miniSidebar = ref(true)
+    // Cek localStorage saat komponen dimuat
+    onMounted(() => {
+        const saved = localStorage.getItem('miniSidebar')
+        if (saved !== null) {
+            //jika true maka miniSidebar = true
+            miniSidebar.value = saved === 'true'
+        }
+    })
     function toggelMiniSidebar() {
         miniSidebar.value = !miniSidebar.value
+        localStorage.setItem('miniSidebar', miniSidebar.value ? 'true' : 'false');
     }
 
     const config = ref({

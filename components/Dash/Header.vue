@@ -154,7 +154,7 @@ const dialogUserSetting = ref(false);
 const client = useSanctumClient();
 const UserUpdate = async () => {
   dialogUserSetting.value = false;
-  const getconfig = await client('/api/dash/config');
+  const getconfig = await client('/api/dash/config') as any;
   useConfig.setConfig(getconfig);
 }
 </script>

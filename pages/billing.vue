@@ -1,8 +1,5 @@
 <template>
-  
-  <Card>
-    <template #content>
-      
+        
       <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
         <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
           <div>
@@ -176,10 +173,7 @@
           <Icon name="lucide:copy" /> Copy Nama Web
         </Button>
       </div>
-
     
-    </template>    
-  </Card>
 
   <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
     <form @submit.prevent="filterSubmit">

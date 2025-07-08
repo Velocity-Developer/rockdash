@@ -10,15 +10,12 @@
       </div>
       <div class="body-wrapper w-full bg-white dark:bg-zinc-900">
         <DashHeader />
-        <div class="container mx-auto p-6">
+        <div class="container mx-auto px-6 py-2">
 
-          <div v-if="$route.meta.title" class="bg-primary-50 dark:bg-zinc-800 p-3 md:p-5 rounded-lg mb-3 md:mb-5">
-            <h1 class="text-lg md:text-2xl font-medium text-zinc-700 dark:text-primary-400 capitalize">
+          <div v-if="$route.meta.title" class="mb-3">
+            <h1 class="text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">
                 {{ $route.meta.title }}
             </h1>
-            <div v-if="$route.meta.description" class="text-sm text-zinc-400">
-              {{ $route.meta.description }}
-            </div>
           </div>
 
           <slot />

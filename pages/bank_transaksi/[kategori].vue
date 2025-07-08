@@ -1,12 +1,12 @@
 <template>
 
-  <div class="text-xl text-end mb-3">
+  <div class="text-end mb-3">
     {{ getBankLabel(filters.bank) }}
   </div>
   
   <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
     <Button type="button" @click="openDialog('add',{tgl:filters.bulan,bank:filters.bank})" size="small" class="capitalize">
-      Tambah Transaksi {{ getBankLabel(filters.bank) }}
+      Tambah Transaksi
     </Button> 
     <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="mm/yy" class="w-[10rem]">
       <template #inputicon="slotProps">
@@ -73,7 +73,7 @@
     </div>
   </div>
 
-  <DataTable :value="data.data" size="small" class="text-sm" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollHeight="70vh" scrollable>
+  <DataTable :value="data.data" size="small" class="text-sm" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollHeight="90vh" scrollable>
     <Column header="#" headerStyle="width:3rem" class="align-top">
       <template #body="slotProps">
           {{ slotProps.index + 1 }}
@@ -198,7 +198,7 @@
     <BankTransaksiForm :action="actionDialog" :data="selectedData" :bank="filters.bank" @update="refresh()"/>
   </Dialog>
   
-  <Dialog v-model:visible="dialogFormSaldo" modal :header="'Atur Saldo '+filters.bank" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="dialogFormSaldo" modal :header="'Atur Saldo '+getBankLabel(filters.bank)" :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <BankTransaksiFormSaldo :bulan="filters.bulan" :bank="filters.bank" @update="refresh()"/>
   </Dialog>
 
