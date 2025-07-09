@@ -99,7 +99,16 @@
                       {{ slotProps.index + 1 }}
                   </template>
                 </Column>
-                <Column field="cs_main_project.webhost.nama_web" header="Nama Web"></Column>
+                <Column field="cs_main_project.webhost.nama_web" header="Nama Web">                  
+                  <template #body="slotProps">
+                    <span>
+                      {{ slotProps.data.cs_main_project.webhost.nama_web }}
+                    </span>
+                    <Button v-if="isRoles('admin')" @click="confirmDelete(slotProps.data.id_wm_project)" type="button" severity="danger" size="small" variant="text">
+                      <Icon name="lucide:trash-2"/>
+                    </Button>
+                  </template>
+                </Column>
                 <Column field="cs_main_project.jenis" header="Jenis">
                   <template #body="slotProps">
                     <div>{{ slotProps.data.cs_main_project.jenis }}</div>
@@ -181,4 +190,47 @@ watch(() => filters.value.bulan, (newVal, oldVal) => {
   getData()
 })
 
+
+const toast = useToast();
+const confirm = useConfirm();
+const confirmDelete = (id: any) => {    
+    confirm.require({
+        message: 'Anda yakin hapus project ini?',
+        header: 'Hapus Pengerjaan',
+        accept: async () => {
+            try {              
+              const re = await client(`/api/wm_project/${id}`, {
+                  method: 'DELETE',
+              })
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Project berhasil dihapus',
+                life: 3000
+              });
+            } catch (error) {
+                const er = useSanctumError(error)                 
+                toast.add({
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+                    life: 3000
+                });
+            }
+        },
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+}
 </script>

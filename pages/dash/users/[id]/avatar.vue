@@ -48,7 +48,7 @@ function onFileSelect(event: any) {
 const { data: dataUser } = await useAsyncData(
     'user-'+route.params.id,
     () => client('/api/users/'+route.params.id)
-)
+) as any
 previewImage.value = dataUser.value.avatar_url
 
 const handleSubmit = async () => {
@@ -63,7 +63,7 @@ const handleSubmit = async () => {
         const res = await client(`/api/user/updateavatar/`+route.params.id, {
           method: 'PUT',
           body: formData
-        })
+        }) as any
         toast.add({
           severity: 'success',
           summary: 'Berhasil!',

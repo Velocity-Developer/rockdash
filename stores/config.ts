@@ -36,10 +36,12 @@ export const useConfigStore = defineStore('config', () => {
         },
         permissions: [],
         app_menus: [],
-        role: ''
+        role: '',
+        roles: []
     })
     const permissions = ref([] as any)
     const app_menus = ref([] as any)
+    const roles = ref([] as any)
     
     const setConfig = (
         setvalue: {
@@ -53,7 +55,8 @@ export const useConfigStore = defineStore('config', () => {
             user: { avatar_url: string; name: string; id: string }; 
             permissions: never[] ,
             app_menus: never[],
-            role: string
+            role: string,
+            roles: []
         } | { 
             year: number; 
             app_name: string; 
@@ -65,11 +68,13 @@ export const useConfigStore = defineStore('config', () => {
             user: { avatar_url: string; name: string; id: string }; 
             permissions: never[] ; 
             app_menus: never[],
-            role: string
+            role: string,
+            roles: []
         }) => {
         config.value = setvalue
         permissions.value = config.value.permissions
         app_menus.value = config.value.app_menus ?? []
+        roles.value = config.value.roles
     }
 
     return {
@@ -80,6 +85,7 @@ export const useConfigStore = defineStore('config', () => {
         config,
         setConfig,
         permissions,
-        app_menus
+        app_menus,
+        roles
     }
 })
