@@ -44,18 +44,26 @@
 
     <Card class="mt-5">
       <template #content>
-      <DataTable :value="data.data" :paginator="true" :rows="10" responsiveLayout="scroll">
+      <DataTable :value="data.data" :paginator="true" :rows="10" :rowsPerPageOptions="[50, 100, 250, 500]" responsiveLayout="scroll">
+        <Column field="webhost.id_webhost" header="#" headerStyle="width:2rem">
+          <template #body="slotProps">
+            {{ slotProps.index + 1 }}
+          </template>
+        </Column>
         <Column field="webhost.nama_web" header="Web">
           <template #body="slotProps">
-            <div class="max-w-[15em] truncate">{{ slotProps.data.webhost.nama_web }}</div>
+            <div class="max-w-[12em] truncate text-sm" v-tooltip="slotProps.data.webhost.nama_web">
+              {{ slotProps.data.webhost.nama_web }}
+            </div>
           </template>
         </Column>
         <Column field="rincian" header="Rincian">
           <template #body="slotProps">
             <div class="overflow-x-auto">
-              <table class="table-fixed border-collapse text-sm border dark:border-gray-600 w-[40em] shadow hover:shadow-lg bg-zinc-100 dark:bg-zinc-800">
+              <table class="table-fixed border-collapse text-sm border dark:border-gray-600 w-[50em] shadow hover:shadow-lg bg-zinc-100 dark:bg-zinc-800">
                 <thead>
                   <tr>
+                    <th class="px-2 border-b text-left">Tgl</th>
                     <th class="px-2 border-b text-left">Jenis</th>
                     <th class="px-2 border-b text-left">Total</th>
                     <th class="px-2 border-b text-right">Biaya</th>
@@ -64,8 +72,9 @@
                 </thead>
                 <tbody>
                   <tr v-for="(item,i) in slotProps.data.webhost.rekap_biaya.jenis" class="odd:bg-slate-50 dark:odd:bg-slate-800">
+                    <td class="p-2 border-b text-left">{{ item.tanggal }}</td>
                     <td class="p-2 border-b text-left">
-                      <div class="max-w-[15em] truncate">{{ i }}</div>
+                      <div class="max-w-[55em] min-w-[10em] truncate" v-tooltip="i">{{ item.label }}</div>
                     </td>
                     <td class="p-2 border-b text-left">{{ item.total }}</td>
                     <td class="p-2 border-b text-right">{{ formatMoney(item.biaya,'Rp',0) }}</td>
@@ -100,11 +109,17 @@ const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute()
+const router = useRouter()
 
 const filter = reactive({
     bulan: route.query.bulan || dayjs().subtract(1, 'month').format(''),
-    jangka: route.query.jangka || 1,
+    jangka: Number(route.query.jangka) || 1,
 } as any)
+function updateRouteParams() {
+  router.push({
+    query: { ...filter },
+  });
+}
 
 const loading = ref(false);
 const data = ref([] as any);
@@ -113,6 +128,7 @@ const getData = async () => {
 
   //ubah bulan ke format YYYY-MM
   filter.bulan = dayjs(filter.bulan).utc().local().format('YYYY-MM');
+  updateRouteParams()
 
   try {
     const response = await client('/api/laporan/perpanjang_web_jangka',{
