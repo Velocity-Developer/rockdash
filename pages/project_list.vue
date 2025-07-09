@@ -372,13 +372,29 @@ watch(() => filters.value.status_pengerjaan, (newVal, oldVal) => {
 })
 
 function getRowClass(data: any) {
-  if (!data.wm_project) {
-    return 'hover:!bg-emerald-50 dark:hover:!bg-emerald-800';
-  } else if (data.wm_project && data.wm_project.status_multi == 'pending') {
-    return 'hover:!bg-amber-50 dark:hover:!bg-amber-800';
-  } else {
-    return '';
+
+  let kelas = '';
+
+  // Bandingkan dengan hari ini
+  const deadline = dayjs(data.tgl_deadline).startOf('day')
+  const today = dayjs().startOf('day')
+
+  //jika status_pengerjaan == 'Belum dikerjakan' dan tgl_deadline < tgl_today
+  if (filters.value.status_pengerjaan == 'Belum dikerjakan' && deadline.isBefore(today)) {
+    kelas += '!bg-amber-50 dark:!bg-gray-900 ';
+  } else if (filters.value.status_pengerjaan == 'Belum dikerjakan' && deadline.isSame(today)) {
+    kelas += '!bg-amber-100 dark:!bg-slate-700 ';
   }
+
+  if (!data.wm_project) {
+    kelas += 'hover:!bg-emerald-50 dark:hover:!bg-emerald-800 ';
+  } else if (data.wm_project && data.wm_project.status_multi == 'pending') {
+    kelas += 'hover:!bg-amber-50 dark:hover:!bg-amber-800 ';
+  } else {
+    kelas += '';
+  }
+
+  return kelas;
 }
 
 const visibleDialog = ref(false);

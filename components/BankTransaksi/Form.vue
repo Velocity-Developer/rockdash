@@ -84,7 +84,7 @@ const dayjs = useDayjs()
 const { data: dataBank,status: statusDataBank} = await useAsyncData(
     'data_opsi-bank',
     () => client('/api/data_opsi/bank')
-)
+) as any
 
 const forms = reactive({
   bank: props.bank?props.bank:'',

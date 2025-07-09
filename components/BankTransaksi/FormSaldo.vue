@@ -43,7 +43,7 @@ const emit = defineEmits(['update']);
 const { data: dataBank,status: statusDataBank} = await useAsyncData(
     'data_opsi-bank',
     () => client('/api/data_opsi/bank')
-)
+) as any
 
 //get default data
 onMounted(async () => {
@@ -55,7 +55,7 @@ onMounted(async () => {
           bulan: props.bulan,
           bank: props.bank
         }
-      })
+      }) as any
       form.nominal = res.nominal?res.nominal:0;
     } catch (error) {
       console.log(error);
