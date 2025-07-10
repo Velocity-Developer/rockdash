@@ -18,7 +18,69 @@
   </div>
 
   <div>
-    Page: laporan/net_profit
+    <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
+      <Column field="label" header="Bulan">
+        <template #body="slotProps">
+          {{ slotProps.data.label }}
+        </template>
+      </Column>
+      <Column field="biaya_iklan" header="Biaya Iklan">
+        <template #body="slotProps">
+          {{ formatMoney(slotProps.data.biaya_iklan,'',0) }}
+        </template>
+      </Column>
+      <Column field="chat_ads" header="Chat Ads">
+        <template #body="slotProps">
+          -
+        </template>
+      </Column>
+      <Column field="order" header="Order">
+        <template #body="slotProps">
+          {{ slotProps.data.order }}
+        </template>
+      </Column>
+      <Column field="persen_order" header="%Order">
+        <template #body="slotProps">
+          -
+        </template>
+      </Column>
+      <Column field="omzet" header="Omzet">
+        <template #body="slotProps">
+          {{ formatMoney(slotProps.data.omzet,'',0) }}
+        </template>
+      </Column>
+      <Column field="harga_domain" header="Harga Domain">
+        <template #body="slotProps">
+          {{ formatMoney(slotProps.data.harga_domain,'',0) }}
+        </template>
+      </Column>
+      <Column field="biaya_domain" header="Biaya Domain">
+        <template #body="slotProps">
+          {{ formatMoney(slotProps.data.biaya_domain,'',0) }}
+        </template>
+      </Column>
+      <Column field="profit_kotor" header="Profit Kotor">
+        <template #body="slotProps">
+          {{ formatMoney(slotProps.data.profit_kotor,'',0) }}
+        </template>
+      </Column>
+      <Column field="profit_kotor" header="Profit Kotor /Order">
+        <template #body="slotProps">
+          -
+        </template>
+      </Column>
+      <Column field="profit_kotor" header="Net Profit">
+        <template #body="slotProps">
+          -
+        </template>
+      </Column>
+      <Column field="profit_kotor" header="Biaya / Order">
+        <template #body="slotProps">
+          -
+        </template>
+      </Column>
+    </DataTable>
+
   </div>
 
   <DashLoader :loading="loading"/>
@@ -35,7 +97,7 @@ const route = useRoute()
 const router = useRouter()
 
 const filter = reactive({
-    bulan_dari: route.query.bulan_dari || dayjs().subtract(1, 'month').format(''),
+    bulan_dari: route.query.bulan_dari || dayjs().subtract(1, 'year').format(''),
     bulan_sampai: route.query.bulan_sampai || dayjs().format(''),
 } as any)
 function updateRouteParams() {
@@ -67,4 +129,8 @@ const getData = async () => {
   updateRouteParams()
   loading.value = false;
 }
+
+onMounted(() => {
+  getData()
+})
 </script>
