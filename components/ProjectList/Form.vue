@@ -75,7 +75,6 @@
         <div>
           
           <label for="status_project">Status Project</label>
-          <!-- <div class="w-full mb-3"> -->
             <Select
               v-model="form.status_project" 
               :options="[
@@ -90,14 +89,6 @@
               allowEmpty
               class="w-full"
             />
-          <!-- </div> -->
-          <!-- <SelectButton 
-            v-model="form.status_multi" 
-            :options="[{label:'Pending',value:'pending'},{label:'Selesai',value:'selesai'}]" 
-            optionValue="value" optionLabel="label" 
-            :disabled="form.progress < 60" 
-            allowEmpty required
-          /> -->
         </div>
       </div>  
     </div>
@@ -121,7 +112,7 @@
   </form>
 
   <Dialog v-model:visible="visibleDialog" modal header="Sesuaikan dengan paket web." :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <ScrollPanel style="width: 100%; height: 60vh">
+      <ScrollPanel style="width: 100%; height: 60vh" class="py-2">
         <table class="table-fixed border-collapse text-sm">
         <tr v-for="quality of opsiQuality" :key="quality.value" class="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900/50 dark:even:bg-gray-950">
           <td class="align-top border-b border-gray-100 dark:border-gray-800 p-2">
@@ -310,7 +301,7 @@ watch(() => form.qc, () => {
   form.progress = Math.floor(progress * 100) / 100;
   
   //jika form.date_selesai tidak kosong, dan form.progress > 60
-  if(form.date_selesai && form.progress > 60) {
+  if(form.date_selesai && form.progress > 60 && form.status_project === 'Dalam pengerjaan' || form.status_project === 'Belum dikerjakan') {
     form.status_project = 'Menunggu koreksi'      
   }
 })
@@ -318,6 +309,7 @@ watch(() => form.qc, () => {
 //watch form.qc dan form.date_selesai
 watch(() => form.date_selesai, (newVal, oldVal) => {
   const previousStatus = form.status_project;
+
 
   // Pastikan kondisi:
   // 1. form.date_selesai tidak kosong
