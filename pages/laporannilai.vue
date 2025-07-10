@@ -190,14 +190,14 @@ watch(() => filters.value.bulan, (newVal, oldVal) => {
   getData()
 })
 
-
 const toast = useToast();
 const confirm = useConfirm();
 const confirmDelete = (id: any) => {    
     confirm.require({
-        message: 'Anda yakin hapus project ini?',
+        message: 'Anda yakin hapus pengerjaan project ini?',
         header: 'Hapus Pengerjaan',
         accept: async () => {
+            loading.value = true
             try {              
               const re = await client(`/api/wm_project/${id}`, {
                   method: 'DELETE',
@@ -208,6 +208,7 @@ const confirmDelete = (id: any) => {
                 detail: 'Project berhasil dihapus',
                 life: 3000
               });
+              getData()
             } catch (error) {
                 const er = useSanctumError(error)                 
                 toast.add({
@@ -217,6 +218,7 @@ const confirmDelete = (id: any) => {
                     life: 3000
                 });
             }
+            loading.value = false
         },
         rejectProps: {
             label: 'Cancel',
