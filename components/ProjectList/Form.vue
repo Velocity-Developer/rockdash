@@ -157,6 +157,7 @@
 </template>
 
 <script setup lang="ts">
+const useConfig = useConfigStore()
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const toast = useToast();
@@ -170,7 +171,7 @@ const visibleDialog = ref(false);
 const wm_project = ref(data.wm_project as any);
 
 const form = reactive({
-  user_id: wm_project.value?.user_id ?? null,
+  user_id: wm_project.value?.user_id ?? useConfig.config.user.id,
   date_mulai: dayjs().format('YYYY-MM-DD HH:mm') as any,
   date_selesai: '' as any,
   catatan: '',
