@@ -1,5 +1,5 @@
 <template>
-  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="sticky top-0 z-[5] bg-white dark:bg-zinc-900 fixed w-full">
+  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="shadow-sm sticky top-0 z-[5] bg-white dark:bg-zinc-900 fixed w-full">
 
     <nav class="px-2 border-gray-700 rounded-none bg-transparent dark:bg-transparent py-3 sm:px-6">
       <div class="mx-auto flex flex-wrap items-center justify-between">
@@ -14,6 +14,14 @@
               <Icon v-else name="lucide:panel-left-close" />
             </Button>
           </div>
+          <div>
+            <h1 class="text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">
+              {{ $route.meta.title }}
+            </h1>
+          </div>          
+        </div>
+
+        <div class="flex flex-row justify-end gap-2 items-center">
           <div class="flex flex-row items-center gap-2">
               <Button
                 @click="visibleSearch = true"
@@ -25,10 +33,6 @@
                 <span class="hidden md:inline">Search</span>
             </Button>
           </div>
-        </div>
-
-        <div class="flex flex-row justify-end gap-2 items-center">
-
           <DashHeaderNotif />
           <DashDarkMode />
           <Avatar 
@@ -101,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute();
 const useConfig = useConfigStore()
 const { user, logout } = useSanctumAuth();
 const isScrolled = ref(false);

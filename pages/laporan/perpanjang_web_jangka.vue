@@ -1,5 +1,5 @@
 <template>
-
+  
   <div class="flex flex-col md:flex-row md:items-end gap-1">
     <div>
       <label class="mb-1 block text-xs">Bulan :</label>
@@ -104,6 +104,7 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Perpanjang Web BerJangka',
+    development: true
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'

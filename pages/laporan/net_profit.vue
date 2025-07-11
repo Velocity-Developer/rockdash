@@ -21,7 +21,9 @@
     <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
       <Column field="label" header="Bulan">
         <template #body="slotProps">
+          <span @click="openPreview(slotProps.data)" class="cursor-pointer">
           {{ slotProps.data.label }}
+          </span>
         </template>
       </Column>
       <Column field="biaya_iklan" header="Biaya Iklan">
@@ -83,12 +85,36 @@
 
   </div>
 
+    <Dialog v-model:visible="dialogPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <DataTable :value="selectedPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>
+        <Column field="no" header="#">
+          <template #body="slotProps">
+            {{ Number(slotProps.index) + 1 }}
+          </template>
+        </Column>
+        <Column field="webhost.nama_web" header="Web"></Column>
+        <Column field="biaya" header="Biaya">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.biaya,'',0) }}
+          </template>
+        </Column>
+        <Column field="dibayar" header="Dibayar">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.dibayar,'',0) }}
+          </template>
+        </Column>
+        <Column field="waktu_chat_pertama" header="Chat pertama"></Column>
+        <Column field="tgl_masuk" header="Tgl Masuk"></Column>
+      </DataTable>
+    </Dialog>
+
   <DashLoader :loading="loading"/>
 </template>
 
 <script setup lang="ts">
 definePageMeta({
     title: 'Net Profit',
+    development: true
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
@@ -133,4 +159,11 @@ const getData = async () => {
 onMounted(() => {
   getData()
 })
+
+const dialogPreview = ref(false)
+const selectedPreview = ref({} as any)
+const openPreview = (data: any) => {
+  dialogPreview.value = true
+  selectedPreview.value = data
+}
 </script>
