@@ -11,6 +11,12 @@
       <div class="body-wrapper w-full bg-white dark:bg-zinc-900">
         <DashHeader />
         <div class="container mx-auto px-6 py-4 relative">
+          
+            <div v-if="$route.meta.title" class="md:hidden mb-5">
+              <h1 class="text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">
+                {{ $route.meta.title }}
+              </h1>
+            </div> 
 
             <div class="md:absolute md:end-2 md:top-2 mb-3 text-right">
               <Message v-if="$route.meta.development" severity="warn">
