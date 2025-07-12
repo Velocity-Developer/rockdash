@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="pt-10">
     <DataTable :value="data.data" size="small" class="text-sm" stripedRows scrollHeight="70vh" scrollable>
        <Column header="#" headerStyle="width:3rem">
         <template #body="slotProps">
@@ -59,6 +59,7 @@
 definePageMeta({
     title: 'Project Selesai',
     description: 'Daftar Project yang sudah dikerjakan',
+    development: true
 })
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()

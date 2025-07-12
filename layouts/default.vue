@@ -18,8 +18,8 @@
               </h1>
             </div> 
 
-            <div class="md:absolute md:end-2 md:top-2 mb-3 text-right">
-              <Message v-if="$route.meta.development" severity="warn">
+            <div class="md:absolute z-[100] md:end-2 md:top-2 mb-3 text-right">
+              <Message v-if="$route.meta.development" severity="warn" closable>
                 <Icon name="lucide:alert-triangle"/>
                 Halaman masih dalam pengerjaan
               </Message>
