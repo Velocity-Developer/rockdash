@@ -5,6 +5,21 @@
       <div class="col-span-4">
         <label class="mb-1 block" for="nama_web">Nama Web</label>
         <InputText id="nama_web" name="nama_web" v-model="form.nama_web" class="w-full" />
+        
+        <div v-if="loadingSearchWebhost" class="mt-2 opacity-50">
+          <Icon name="lucide:loader" class="animate-spin"/> mencari..
+        </div>
+        <div v-if="search_webhost && search_webhost.length > 0" class="p-4 bg-amber-100 dark:bg-yellow-950 mt-2 rounded">
+          <div class="text-sm">Web ditemukan</div>
+          <Select name="webhost" id="webhost" 
+            v-if="search_webhost && search_webhost.length > 0"
+            v-model="form.id_webhost"
+            :options="search_webhost"
+            optionValue="id_webhost" optionLabel="nama_web"
+            showClear size="small"
+            class="w-full" />
+        </div>
+
       </div>
 
       <div class="col-start-1 col-end-3">
@@ -140,6 +155,7 @@ const form = reactive({
   wa:'',
   email: '',
   dikerjakan_oleh: [],
+  id_webhost: '',
 } as any);
 
 //get opsi jenis
@@ -212,4 +228,52 @@ const handleSubmit = async () => {
 
   loadingSubmit.value = false;
 }
+
+//watch form.nama_web
+const search_webhost = ref({} as any);
+const loadingSearchWebhost = ref(false);
+watch(() => form.nama_web, async (val) => {
+  //cari webhost berdasarkan nama dan karakter lebih dari 3
+  if (val && val.length > 3) {
+    loadingSearchWebhost.value = true;
+    try {
+      const response = await client(`/api/webhost_search/${val}`);
+      search_webhost.value = response;
+    } catch (error) {
+      console.log(error);
+      search_webhost.value = {};
+      form.id_webhost = '';
+    }
+    loadingSearchWebhost.value = false;
+  } else {
+    search_webhost.value = {};
+    form.id_webhost = '';
+  }
+})
+
+const selectedWebhost = ref({} as any);
+//watch form.id_webhost
+watch(() => form.id_webhost, async (val) => {
+  //ambilkan data webhost
+  if(val) {
+    try {
+      const res = await client(`/api/webhost/${val}`);
+      selectedWebhost.value = res;
+
+      //set data ke form
+      form.paket = selectedWebhost.value.paket?.id_paket;
+      form.hp = selectedWebhost.value.hp;
+      form.telegram = selectedWebhost.value.telegram;
+      form.hpads = selectedWebhost.value.hpads;
+      form.wa = selectedWebhost.value.wa;
+      form.email = selectedWebhost.value.email;
+      form.saldo = selectedWebhost.value.saldo;
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+})
+
+
 </script>
