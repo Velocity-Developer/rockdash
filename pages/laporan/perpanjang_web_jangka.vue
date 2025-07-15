@@ -64,7 +64,7 @@
                   <tr>
                     <th class="p-2 text-left">Jenis</th>
                     <th class="p-2 text-left">Total</th>
-                    <th class="p-2 text-right">Jumlah</th>
+                    <th class="p-2 text-right">Nominal Profit</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -1,6 +1,6 @@
 <template>
 
-<div class="flex flex-col md:flex-row md:items-end gap-1">
+  <div class="flex flex-col md:flex-row md:items-end gap-1 mb-3">
     <div>
       <label class="mb-1 block text-xs">Dari :</label>
       <DatePicker v-model="filter.bulan_dari" view="month" dateFormat="mm/yy" size="small"/>
@@ -18,6 +18,9 @@
   </div>
 
   <div>
+    <div class="mb-2">
+      Pembuatan
+    </div>
     <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
       <Column field="label" header="Bulan">
         <template #body="slotProps">
@@ -33,7 +36,7 @@
       </Column>
       <Column field="chat_ads" header="Chat Ads">
         <template #body="slotProps">
-          -
+          {{ slotProps.data.chat_ads }}
         </template>
       </Column>
       <Column field="order" header="Order">
@@ -43,7 +46,7 @@
       </Column>
       <Column field="persen_order" header="%Order">
         <template #body="slotProps">
-          -
+          {{ slotProps.data.persen_order }}
         </template>
       </Column>
       <Column field="omzet" header="Omzet">
@@ -68,17 +71,17 @@
       </Column>
       <Column field="profit_kotor" header="Profit Kotor /Order">
         <template #body="slotProps">
-          -
+          {{ formatMoney(slotProps.data.profit_kotor_order,'',0) }}
         </template>
       </Column>
       <Column field="profit_kotor" header="Net Profit">
         <template #body="slotProps">
-          -
+          {{ formatMoney(slotProps.data.net_profit,'',0) }}
         </template>
       </Column>
       <Column field="profit_kotor" header="Biaya / Order">
         <template #body="slotProps">
-          -
+          {{ formatMoney(slotProps.data.biaya_per_order,'',0) }}
         </template>
       </Column>
     </DataTable>
