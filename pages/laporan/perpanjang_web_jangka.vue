@@ -26,18 +26,58 @@
 
     <Card class="my-3">
       <template #content>
-        <div class="overflow-x-auto">
-          <div class="mb-3 font-bold">
-            {{ data.bulan }}
-          </div>
-          <table class="table-fixed border-collapse text-sm border w-full">
-            <tbody>
-              <tr v-for="(item,i) in data.info" :key="i" class="odd:bg-slate-50 even:bg-white dark:odd:bg-zinc-800 dark:even:bg-zinc-900">
-                <td class="p-2 border-b text-left">{{ i }}</td>
-                <td class="p-2 border-b text-right">{{ formatMoney(item,'Rp',0) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="grid grid-cols-2 gap-4">
+
+            <div class="overflow-x-auto">
+              <div class="mb-3 font-bold">
+               Profit Pembuatan {{ data.bulan }}
+              </div>
+              <table class="table-fixed border-collapse text-sm border w-full">
+                <tbody>
+                  <tr v-for="(item,i) in data.info_pembuatan" :key="i" class="odd:bg-slate-50 even:bg-white dark:odd:bg-zinc-800 dark:even:bg-zinc-900">
+                    <td class="p-2 border-b text-left">{{ i }}</td>
+                    <td class="p-2 border-b text-right">{{ item }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="my-3 font-bold">
+                Rincian Profit
+              </div>
+              <table class="table-fixed border-collapse text-sm border w-full">
+                <tbody>
+                  <tr v-for="(item,i) in data.info" :key="i" class="odd:bg-slate-50 even:bg-white dark:odd:bg-zinc-800 dark:even:bg-zinc-900">
+                    <td class="p-2 border-b text-left">{{ i }}</td>
+                    <td class="p-2 border-b text-right">{{ formatMoney(item,'Rp',0) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="overflow-x-auto">
+              
+              <div class="mb-3 font-bold">
+                Rincian Jasa
+              </div>
+              <table class="table-fixed border-collapse text-sm border w-full">
+                <thead>
+                  <tr>
+                    <th class="p-2 text-left">Jenis</th>
+                    <th class="p-2 text-left">Total</th>
+                    <th class="p-2 text-right">Jumlah</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item,i) in data.data_order_jenis" :key="i" class="odd:bg-slate-50 even:bg-white dark:odd:bg-zinc-800 dark:even:bg-zinc-900">
+                    <td class="p-2 border-b text-left">{{ i }}</td>
+                    <td class="p-2 border-b text-left">{{ item.total }}</td>
+                    <td class="p-2 border-b text-right">{{ formatMoney(item.profit,'Rp',0) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+
         </div>
       </template>
   </Card>
@@ -57,27 +97,29 @@
             </div>
           </template>
         </Column>
-        <Column field="rincian" header="Rincian" class="hidden">
+        <Column field="rincian" header="Rincian">
           <template #body="slotProps">
             <div class="overflow-x-auto">
               <table class="table-fixed border-collapse text-sm border dark:border-gray-600 w-[50em] shadow hover:shadow-lg bg-zinc-100 dark:bg-zinc-800">
                 <thead>
                   <tr>
-                    <th class="px-2 border-b text-left">Tgl</th>
                     <th class="px-2 border-b text-left">Jenis</th>
                     <th class="px-2 border-b text-left">Total</th>
-                    <th class="px-2 border-b text-right">Biaya</th>
+                    <th class="px-2 border-b text-right">Nominal</th>
                     <th class="px-2 border-b text-right">Profit</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr v-for="(item,i) in slotProps.data.webhost.rekap_biaya.jenis" class="odd:bg-slate-50 dark:odd:bg-slate-800">
-                    <td class="p-2 border-b text-left">{{ item.tanggal }}</td>
+                <tbody v-if="slotProps.data.webhost?.data_jenis">
+                  <tr v-for="(item,i) in slotProps.data.webhost.data_jenis" class="odd:bg-slate-50 dark:odd:bg-slate-800">
                     <td class="p-2 border-b text-left">
                       <div class="max-w-[55em] min-w-[10em] truncate" v-tooltip="i">{{ item.label }}</div>
                     </td>
                     <td class="p-2 border-b text-left">{{ item.total }}</td>
-                    <td class="p-2 border-b text-right">{{ formatMoney(item.biaya,'Rp',0) }}</td>
+                    <td class="p-2 border-b text-right">
+                      <template v-if="item.dibayar">
+                        {{ formatMoney(item.dibayar,'Rp',0) }}
+                      </template>
+                    </td>
                     <td class="p-2 border-b text-right">{{ formatMoney(item.profit,'Rp',0) }}</td>
                   </tr>
                 </tbody>
@@ -87,8 +129,8 @@
         </Column>
         <Column field="webhost.rekap_biaya.total" header="Total Profit">
           <template #body="slotProps">
-            <div class="text-right">
-            {{ formatMoney(slotProps.data.webhost.rekap_biaya.total,'Rp',0) }}
+            <div class="text-right" v-if="slotProps.data.webhost?.total_profit">
+            {{ formatMoney(slotProps.data.webhost.total_profit,'Rp',0) }}
             </div>
           </template>
         </Column>
