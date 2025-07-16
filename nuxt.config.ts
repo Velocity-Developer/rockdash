@@ -1,5 +1,6 @@
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
+
 const MyPreset = definePreset(Aura, {
   semantic: {
       primary: {
@@ -104,6 +105,45 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@pinia/nuxt',
     'dayjs-nuxt',
-    '@nuxt/fonts'
-  ]
+    '@nuxt/fonts',
+    '@vite-pwa/nuxt'
+  ],  
+  appConfig: {
+    //for testing purposes
+    buildDate: new Date().toISOString(),
+  },
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Nama Aplikasi Anda',
+      short_name: 'App',
+      start_url: '/',
+      display: 'standalone',
+      background_color: '#ffffff',
+      theme_color: '#4DBA87',
+      icons: [
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png'
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png'
+        }
+      ]
+    },
+    workbox: {
+      runtimeCaching: [
+        {
+          urlPattern: '/*',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'html-cache'
+          }
+        }
+      ]
+    }
+  }
 })
