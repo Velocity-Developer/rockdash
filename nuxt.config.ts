@@ -115,8 +115,8 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Nama Aplikasi Anda',
-      short_name: 'App',
+      name: 'VDNET',
+      short_name: 'VDNET',
       start_url: '/',
       display: 'standalone',
       background_color: '#ffffff',
@@ -137,7 +137,7 @@ export default defineNuxtConfig({
     workbox: {
       runtimeCaching: [
         {
-          urlPattern: '/*',
+          urlPattern: '/(.*)',
           handler: 'NetworkFirst',
           options: {
             cacheName: 'html-cache'
