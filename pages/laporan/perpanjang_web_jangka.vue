@@ -84,7 +84,7 @@
 
     <Card class="mt-5">
       <template #content>
-      <DataTable :value="data.data" :paginator="true" :rows="10" :rowsPerPageOptions="[50, 100, 250, 500]" responsiveLayout="scroll">
+      <DataTable :value="data.kumulatif.data" :paginator="true" :rows="10" :rowsPerPageOptions="[50, 100, 250, 500]" responsiveLayout="scroll">
         <Column field="webhost.id_webhost" header="#" headerStyle="width:2rem">
           <template #body="slotProps">
             {{ slotProps.index + 1 }}
