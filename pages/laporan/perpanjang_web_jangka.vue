@@ -43,7 +43,7 @@
                 <tbody>
                   <tr v-for="(item,i) in data.info" :key="i" class="odd:bg-slate-50 even:bg-white dark:odd:bg-zinc-800 dark:even:bg-zinc-900">
                     <td class="p-2 border-b text-left">{{ i }}</td>
-                    <td class="p-2 border-b text-right">{{ formatMoney(item,'Rp',0) }}</td>
+                    <td class="p-2 border-b text-right">{{ item }}</td>
                   </tr>
                 </tbody>
               </table>

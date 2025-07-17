@@ -122,46 +122,47 @@ export default defineNuxtConfig({
       start_url: '/',
       display: 'standalone',
       background_color: '#ffffff',
-      theme_color: '#4DBA87',
+      theme_color: '#ffffff',
       icons: [
         {
-          src: '/pwa-192x192.png',
+          src: 'pwa-192x192.png',
           sizes: '192x192',
           type: 'image/png'
         },
         {
-          src: '/pwa-512x512.png',
+          src: 'pwa-512x512.png',
           sizes: '512x512',
           type: 'image/png'
         }
       ]
     },
     workbox: {
-        navigateFallback: '/',
-        runtimeCaching: [
-          {
-            urlPattern: ({ request }) => request.destination === 'document',
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'html-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-              },
+      navigateFallback: '/index.html',
+      globPatterns: ['**/*.{js,css,html,png,jpg,jpeg,svg,ico,woff2}'],
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }) => request.destination === 'document',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'html-cache',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 hari
             },
           },
-          {
-            urlPattern: /\.(?:js|css|woff2|ico|png|jpg|jpeg|svg)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'static-assets',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-              },
+        },
+        {
+          urlPattern: /\.(?:js|css|woff2|ico|png|jpg|jpeg|svg)$/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'static-assets',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 hari
             },
           },
-        ],
+        },
+      ],
     },
   }
 })
