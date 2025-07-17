@@ -146,7 +146,6 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Perpanjang Web BerJangka',
-    development: true
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'

@@ -114,6 +114,8 @@ export default defineNuxtConfig({
   },
   pwa: {
     registerType: 'autoUpdate',
+    // Add client manifest for better offline support
+    includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
     manifest: {
       name: 'VDNET',
       short_name: 'VDNET',
@@ -135,15 +137,31 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
-      runtimeCaching: [
-        {
-          urlPattern: '/(.*)',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'html-cache'
-          }
-        }
-      ]
-    }
+        navigateFallback: '/',
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+            },
+          },
+          {
+            urlPattern: /\.(?:js|css|woff2|ico|png|jpg|jpeg|svg)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-assets',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+            },
+          },
+        ],
+    },
   }
 })

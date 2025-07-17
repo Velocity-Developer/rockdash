@@ -12,7 +12,7 @@
           <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
             <Icon name="lucide:briefcase"/> Total Projects
           </div>
-          <div class="text-end text-xl font-bold">
+          <div class="text-end font-bold">
             {{ totalProjects }}
           </div>
         </template>
@@ -23,7 +23,7 @@
           <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
             <Icon name="lucide:wallet"/> Total Biaya
           </div>
-          <div class="text-end text-xl font-bold">
+          <div class="text-end font-bold">
             {{ formatMoney(totalBiaya) }}
           </div>
         </template>
@@ -34,7 +34,7 @@
           <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
             <Icon name="lucide:mail"/> Email
           </div>
-          <div class="text-end text-xl font-bold">
+          <div class="text-end font-bold">
             {{ data.email }}
           </div>
         </template>
@@ -45,7 +45,7 @@
           <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
             <Icon name="lucide:message-circle"/> WhatsApp
           </div>
-          <div class="text-end text-xl font-bold">
+          <div class="text-end font-bold">
             {{ data.wa }}
           </div>
         </template>
@@ -103,7 +103,7 @@
                   <Badge v-else severity="secondary" :value="slotProps.data.status"></Badge>
                 </template>
               </Column>
-              <Column field="biaya" header="Total Biaya">
+              <Column field="biaya" header="Biaya">
                 <template #body="slotProps">
                     {{ formatMoney(slotProps.data.biaya) }}
                 </template>
@@ -111,6 +111,11 @@
               <Column field="dibayar" header="dibayar">
                 <template #body="slotProps">
                     {{ formatMoney(slotProps.data.dibayar) }}
+                </template>
+              </Column>
+              <Column field="webmaster" header="Webmaster">
+                <template #body="slotProps">
+                    {{ slotProps.data.wm_project?.user?.name }}
                 </template>
               </Column>
             </DataTable>
@@ -148,7 +153,7 @@ const client = useSanctumClient();
 const { data, status, error, refresh } = await useAsyncData(
     'webhost-'+id,
     () => client('/api/webhost/'+id)
-)
+) as any
 
 const fields_info = [
     {key: 'nama_web', label: 'Nama Web', value: data.value.nama_web},
@@ -160,6 +165,7 @@ const fields_info = [
     {key: 'hpads', label: 'HP Ads'},
     {key: 'wa', label: 'WA'},
     {key: 'email', label: 'Email'},
+    {key: 'waktu', label: 'Chat Pertama', value: data.value?.waktu},
 ]
 
 //hitung total dari data.cs_main_projects
