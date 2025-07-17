@@ -3,16 +3,11 @@
   <div class="flex flex-col md:flex-row md:items-end gap-1">
     <div>
       <label class="mb-1 block text-xs">Bulan :</label>
-      <DatePicker v-model="filter.bulan" view="month" dateFormat="mm/yy" size="small"/>
+      <DatePicker v-model="filter.bulan_start" view="month" dateFormat="mm/yy" size="small"/>
     </div>
     <div>
-      <label class="mb-1 block text-xs">Jangka waktu :</label>
-      <Select 
-        v-model="filter.jangka"
-        :options="[{label:'1 Tahun',value:1},{label:'2 Tahun',value:2},{label:'3 Tahun',value:3}]"
-        optionLabel="label" optionValue="value"
-        size="small"
-      />
+      <label class="mb-1 block text-xs">Sampai :</label>      
+      <DatePicker v-model="filter.bulan_end" view="month" dateFormat="mm/yy" size="small"/>
     </div>
     <div>
       <Button @click="getData">
@@ -154,8 +149,8 @@ const route = useRoute()
 const router = useRouter()
 
 const filter = reactive({
-    bulan: route.query.bulan || dayjs().subtract(1, 'month').format(''),
-    jangka: Number(route.query.jangka) || 1,
+    bulan_start: route.query.bulan_start || dayjs().subtract(1, 'month').format(''),
+    bulan_end: route.query.bulan_end || dayjs().format(''),
 } as any)
 function updateRouteParams() {
   router.push({
@@ -169,7 +164,8 @@ const getData = async () => {
   loading.value = true;
 
   //ubah bulan ke format YYYY-MM
-  filter.bulan = dayjs(filter.bulan).utc().local().format('YYYY-MM');
+  filter.bulan_start = dayjs(filter.bulan_start).utc().local().format('YYYY-MM');
+  filter.bulan_end = dayjs(filter.bulan_end).utc().local().format('YYYY-MM');
   updateRouteParams()
 
   try {
