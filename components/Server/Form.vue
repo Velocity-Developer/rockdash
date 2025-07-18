@@ -55,6 +55,7 @@
       </Button>
     </div>
   </form>
+
 </template>
 
 <script setup lang="ts">
@@ -162,6 +163,12 @@ onMounted(() => {
   if(props.data) {
     Object.assign(form, props.data)
   }
+})
+
+watch(() => props.data, (val) => {
+ if(val) {
+   Object.assign(form, val)
+ }
 })
 
 </script>
