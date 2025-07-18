@@ -88,13 +88,13 @@ const client = useSanctumClient();
 const { data, status, error, refresh } = await useAsyncData(
     'roles',
     () => client('/api/roles')
-)
+) as any
 
 const { data: OptionPermissions, refresh: refreshOptionPermissions } = await useAsyncData(
     'option-permissions',
     () => client('/api/option/permissions')
-)
-
+) as any
+ 
 const form = reactive({
     name: '',
     permissions: []
