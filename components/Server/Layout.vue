@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col md:flex-row gap-5">
 
-    <Card class="md:basis-[10em] md:min-h-[80vh] bg-sky-50 dark:bg-sky-800 md:pb-50 overflow-hidden relative">
+    <Card class="md:basis-[10em] md:min-h-[80vh] !bg-sky-50 dark:!bg-sky-800 md:pb-50 overflow-hidden relative">
       <template #content>
         <div>
           <div class="font-bold text-lg md:text-xl mb-4 md:text-center min-h-[2em]">              
