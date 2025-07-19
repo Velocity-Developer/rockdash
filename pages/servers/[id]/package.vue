@@ -11,7 +11,11 @@
       </Button>
     </div>
 
-    <DataTable v-if="data && data.length > 0" :value="data" size="small" class="text-sm" stripedRows scrollable>
+    <DataTable v-if="data && data.length > 0" :value="data"      
+      paginator :rows="20" :rowsPerPageOptions="[20, 50, 100, 500]"
+      size="small" class="text-sm"
+      stripedRows scrollable
+    >
       <Column field="no" header="No">
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
@@ -20,6 +24,15 @@
       <Column field="data" header="Package">
         <template #body="slotProps">
           {{ slotProps.data }}
+        </template>
+      </Column>
+      <Column field="" header="">
+        <template #body="slotProps">
+          <div class="flex justify-end">
+            <Button @click="openDialog(slotProps.data)" size="small">
+              <Icon name="lucide:globe" size="small"/> Lihat
+            </Button>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -34,6 +47,10 @@
 
   </ServerLayout>
 
+  <Dialog v-model:visible="visibleDialog" modal header="Package" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <ServerPackagePreview :packageName="selectedItem" :server="id"/>
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -41,7 +58,6 @@ definePageMeta({
     title: 'Servers',
 })
 const client = useSanctumClient()
-const toast = useToast()
 
 const route = useRoute()
 const id = Number(route.params.id) || 0
@@ -71,4 +87,11 @@ const getData = async () => {
 onMounted(() => {
   getData()
 })
+
+const visibleDialog = ref(false);
+const selectedItem = ref({} as any);
+const openDialog = (item: any) => {
+  selectedItem.value = item
+  visibleDialog.value = true
+}
 </script>

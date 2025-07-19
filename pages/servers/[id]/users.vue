@@ -11,7 +11,11 @@
       </Button>
     </div>
 
-    <DataTable v-if="data && data.length > 0" :value="data" paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]"  size="small" class="text-sm" stripedRows scrollable>
+    <DataTable v-if="data && data.length > 0" :value="data" 
+      paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]"
+      size="small" class="text-sm" 
+      stripedRows scrollable
+    >
       <Column field="no" header="No">
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
