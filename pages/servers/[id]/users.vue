@@ -2,28 +2,28 @@
   
   <ServerLayout :id="id" @data="getServers($event)">
     <div class="mb-5">
-      <h1 class="text-xl">Package : {{ dataServer.name }}</h1>
+      <h1 class="text-xl">Users : {{ dataServer.name }}</h1>
     </div>
-    
+
     <div class="text-end mb-5">
       <Button @click="getData()" size="small" :loading="loading">
         <Icon name="lucide:refresh-cw" :class="{ 'animate-spin': loading }"/> Reload
       </Button>
     </div>
 
-    <DataTable v-if="data && data.length > 0" :value="data" size="small" class="text-sm" stripedRows scrollable>
+    <DataTable v-if="data && data.length > 0" :value="data" paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]"  size="small" class="text-sm" stripedRows scrollable>
       <Column field="no" header="No">
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
         </template>
       </Column>
-      <Column field="data" header="Package">
+      <Column field="" header="User">
         <template #body="slotProps">
           {{ slotProps.data }}
         </template>
       </Column>
     </DataTable>
-
+    
     <div v-if="loading">
       <Skeleton v-for="i in 15" class="h-10 mb-1" />
     </div>
@@ -41,7 +41,6 @@ definePageMeta({
     title: 'Servers',
 })
 const client = useSanctumClient()
-const toast = useToast()
 
 const route = useRoute()
 const id = Number(route.params.id) || 0
@@ -59,7 +58,7 @@ const getData = async () => {
   error.value = ''
 
   try {
-    const res = await client('/api/servers_packages/'+id)
+    const res = await client('/api/servers_users/'+id)
     loading.value = false
     data.value = res
   } catch (e : any) {

@@ -4,7 +4,7 @@
     <Card class="md:basis-[10em] md:min-h-[80vh] bg-sky-50 dark:bg-sky-800 md:pb-50 overflow-hidden relative">
       <template #content>
         <div>
-          <div class="font-bold text-lg md:text-xl mb-4 md:text-center">
+          <div class="font-bold text-lg md:text-xl mb-4 md:text-center min-h-[2em]">              
               {{ data.name }}
           </div>
 
@@ -22,13 +22,13 @@
                   class: [
                       '!rounded-lg',
                       '!bg-white dark:!bg-zinc-800',
-                      'mb-1',
+                      'mb-1 overflow-hidden',
                   ]
               }),
           }"
           >
             <template #item="{ item, props }">
-                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" :class="{ 'bg-sky-200 dark:bg-sky-700': route.path == item.route }" custom>
                     <a v-ripple :href="href" v-bind="props.action" @click="navigate">
                         <span>{{ item.label }}</span>
                     </a>
@@ -38,7 +38,6 @@
                 </a>
             </template>
           </Menu>
-
 
         </div>
         <div class="absolute bottom-[-1em] right-[-1em] z-[1] opacity-10">
@@ -68,7 +67,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['data'])
 const client = useSanctumClient()
-const router = useRouter();
+const route = useRoute()
 
 const loading = ref(false)
 const data = ref({} as any)
@@ -90,16 +89,16 @@ onMounted(() => {
 
 const items = ref([
     {
-        label: 'Profil',
+        label: 'Profile',
         route: '/servers/'+props.id,
     },
     {
-        label: 'Package',
+        label: 'Packages',
         route: '/servers/'+props.id+'/package'
     },
     {
-        label: 'Website',
-        route: '/servers/'+props.id+'/website'
+        label: 'Users',
+        route: '/servers/'+props.id+'/users'
     }
 ]);
 </script>
