@@ -33,7 +33,13 @@
             {{ slotProps.index + data.from }}
           </template>
         </Column>
-        <Column field="name" header="Package"></Column>
+        <Column field="name" header="Package">        
+          <template #body="slotProps">
+            <span @click="openDialog(slotProps.data)" class="cursor-pointer">
+            {{ slotProps.data.name }}
+            </span>
+          </template>
+          </Column>
         <Column field="server.name" header="Server"></Column>
         <Column field="quota" header="Quota"></Column>
         <Column field="email_daily_limit" header="Email"></Column>
@@ -70,10 +76,6 @@
       </div>
     </div>
 
-    <div v-if="loading">
-      <Skeleton v-for="i in 15" class="h-10 mb-1" />
-    </div>
-
     <Message v-if="error" severity="error">
       {{ error }}
     </Message>
@@ -81,8 +83,10 @@
   </ServerLayout>
 
   <Dialog v-model:visible="visibleDialog" modal header="Package" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ServerPackagePreview :packageName="selectedItem" :server="id"/>
+    <ServerPackagePreview :package="selectedItem" :server="id" @update="getData()"/>
   </Dialog>
+
+  <DashLoader :loading="loading"/>
 
 </template>
 
