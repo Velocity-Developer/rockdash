@@ -10,7 +10,7 @@
         <Icon name="lucide:globe" :class="{ 'animate-spin': loading }" /> Sync Package
       </Button>
       <Select v-model="per_page"
-        :options="[20, 50, 100]"
+        :options="[20, 50, 100, 500]"
         @change="getData()" size="small"
       />
       <Button @click="syncData()" size="small" severity="success" :loading="loading" v-tooltip.left="'Sync data package dari server'">
@@ -45,6 +45,11 @@
         <Column field="email_daily_limit" header="Email"></Column>
         <Column field="inode" header="Inode"></Column>
         <Column field="bandwidth" header="Bandwidth"></Column>
+        <Column field="updated_at" header="Last Update">
+          <template #body="slotProps">
+            {{ dayjs(slotProps.data.updated_at).format('YY/MM/DD HH:mm') }}
+          </template>
+        </Column>
         <Column field="" header="">
           <template #body="slotProps">
             <div class="flex justify-end">
@@ -83,7 +88,7 @@
   </ServerLayout>
 
   <Dialog v-model:visible="visibleDialog" modal header="Package" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ServerPackagePreview :package="selectedItem" :server="id" @update="getData()"/>
+    <ServerPackagePreview :package="selectedItem" :server="id" @update="getData()" @delete="visibleDialog = false"/>
   </Dialog>
 
   <DashLoader :loading="loading"/>
@@ -95,6 +100,9 @@ definePageMeta({
     title: 'Servers',
 })
 const client = useSanctumClient()
+import { useDayjs } from '#dayjs'
+const dayjs = useDayjs()
+const toast = useToast();
 
 const route = useRoute()
 const id = Number(route.params.id) || 0
@@ -180,6 +188,15 @@ const syncPackageData = async () => {
       error.value = e.data?.message
     }
   }
+
+  //jika selesai, reset checkboxItems, buat toast
+  checkboxItems.value = [];
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: 'Data berhasil disinkronkan',
+    life: 3000
+  });
 
   loading.value = false
 }

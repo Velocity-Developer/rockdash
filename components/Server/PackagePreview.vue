@@ -18,11 +18,11 @@
       </div>
     </div>
     <div class="flex justify-end item-center gap-1 mt-4">
-      <Button severity="danger">
+      <Button severity="danger" @click="confirmDelete()" :loading="loading">
         <Icon name="lucide:trash-2"/> Hapus
       </Button>
-      <Button @click="syncData()" v-tooltip="'Sinkronkan data dari server'">
-        <Icon name="lucide:globe"/> Sync
+      <Button @click="syncData()" :loading="loading" v-tooltip="'Sinkronkan data dari server'">
+        <Icon name="lucide:globe" :class="{ 'animate-spin': loading }"/> Sync
       </Button>
     </div>
   </div>
@@ -86,6 +86,51 @@ const syncData = async () => {
     const er = useSanctumError(error)
     loading.value = false
   }
+}
+
+const toast = useToast();
+const confirm = useConfirm();
+const confirmDelete = () => {    
+    confirm.require({
+        message: 'Anda yakin hapus package ini?',
+        header: 'Hapus Package',
+        accept: async () => {
+            try {              
+              const re = await client(`/api/server_packages/${props.package.id}`, {
+                  method: 'DELETE',
+              })
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Package server berhasil dihapus',
+                life: 3000
+              });
+              emit('update')
+              emit('delete')
+            } catch (error) {
+                const er = useSanctumError(error)                 
+                toast.add({
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+                    life: 3000
+                });
+            }
+        },
+        rejectProps: {
+            label: 'Batal',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
 }
 </script>
 
