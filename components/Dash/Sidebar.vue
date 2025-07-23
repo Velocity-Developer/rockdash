@@ -1,7 +1,7 @@
 <template>
   <nav class="group h-full fixed top-0 start-0 bg-white dark:bg-zinc-800 z-[999] border-r border-border dark:border-zinc-900 px-2 transition-all duration-500 ease-in-out" :class="{ 'md:w-[5rem] w-[14rem] hover:shadow': useConfig.miniSidebar, 'w-[14rem]': !useConfig.miniSidebar }">
     
-    <div class="py-4 px-2 text-center">
+    <div class="py-2 px-2 text-center">
       <nuxtLink to="/">
         <img v-if="useConfig.config.app_logo" :src="useConfig.config.app_logo" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
         <img v-else src="~/public/vd.webp" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
@@ -11,7 +11,7 @@
       </nuxtLink>
     </div>
     
-    <ScrollPanel style="width: 100%; height: calc(93vh - 70px)" class="px-2">
+    <ScrollPanel style="width: 100%; height: calc(94vh - 70px)" class="px-2">
         
         <div v-if="AppMenus.length > 0">
             <PanelMenu
