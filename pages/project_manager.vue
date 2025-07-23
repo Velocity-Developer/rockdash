@@ -1,57 +1,63 @@
 <template>
 
-  <div class="pt-10">
-    <DataTable :value="data.data" size="small" class="text-sm" stripedRows scrollHeight="70vh" scrollable>
-       <Column header="#" headerStyle="width:3rem">
-        <template #body="slotProps">
-            {{ slotProps.index + 1 }}
-        </template>
-      </Column>
-      <Column field="jenis" header="Jenis">
-        <template #body="slotProps">
-          <div>{{ slotProps.data.jenis }}</div>
-          <div class="text-xs text-primary">{{ slotProps.data.webhost?.paket?.paket }}</div>
-        </template>
-      </Column>
-      <Column field="webhost.nama_web" header="Web"></Column>
-      <Column field="tgl_masuk" header="Masuk Tgl">        
-        <template #body="slotProps">
-            {{ formatTanggal(slotProps.data.tgl_masuk) }}
-        </template>
-      </Column>
-      <Column field="tgl_deadline" header="Deadline Tgl">       
-        <template #body="slotProps">
-            {{ formatTanggal(slotProps.data.tgl_deadline) }}
-        </template>
-      </Column>
-      <Column field="webmaster" header="Webmaster">       
-        <template #body="slotProps">
-            {{ slotProps.data.wm_project?.user?.name }}
-        </template>
-      </Column>
-      <Column field="pm_project.konfirm_revisi_1" header="KF 1"></Column>
-      <Column field="pm_project.fr1" header="KF 1"></Column>
-    </DataTable>
-    <div class="flex justify-between items-center text-xs mt-3">
-        <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}
-        </div>
+  <div class="py-5">
 
-        <Paginator
-            :rows="data.per_page"
-            :totalRecords="data.total"
-            @page="onPaginate"
-            :pt="{
-                root: (event: any) => {
-                    const itemForPage =  data.per_page;
-                    const currentPage =  filters.page - 1;
-                    event.state.d_first = itemForPage * currentPage;
-                },
-            }"
-        >
-        </Paginator>
-      </div>
   </div>
+
+  <Card>
+    <template #content>
+      <DataTable :value="data.data" size="small" class="text-xs" stripedRows scrollHeight="70vh" scrollable>
+        <Column header="#" headerStyle="width:3rem">
+          <template #body="slotProps">
+              {{ slotProps.index + 1 }}
+          </template>
+        </Column>
+        <Column field="jenis" header="Jenis">
+          <template #body="slotProps">
+            <div>{{ slotProps.data.jenis }}</div>
+            <div class="text-xs text-primary">{{ slotProps.data.webhost?.paket?.paket }}</div>
+          </template>
+        </Column>
+        <Column field="webhost.nama_web" header="Web"></Column>
+        <Column field="tgl_masuk" header="Masuk Tgl">        
+          <template #body="slotProps">
+              {{ formatTanggal(slotProps.data.tgl_masuk) }}
+          </template>
+        </Column>
+        <Column field="tgl_deadline" header="Deadline Tgl">       
+          <template #body="slotProps">
+              {{ formatTanggal(slotProps.data.tgl_deadline) }}
+          </template>
+        </Column>
+        <Column field="webmaster" header="Webmaster">       
+          <template #body="slotProps">
+              {{ slotProps.data.wm_project?.user?.name }}
+          </template>
+        </Column>
+        <Column field="pm_project.konfirm_revisi_1" header="KF 1"></Column>
+        <Column field="pm_project.fr1" header="KF 1"></Column>
+      </DataTable>
+      <div class="flex justify-between items-center text-xs mt-3">
+          <div>
+            {{ data.from }} - {{ data.to }} dari {{ data.total }}
+          </div>
+
+          <Paginator
+              :rows="data.per_page"
+              :totalRecords="data.total"
+              @page="onPaginate"
+              :pt="{
+                  root: (event: any) => {
+                      const itemForPage =  data.per_page;
+                      const currentPage =  filters.page - 1;
+                      event.state.d_first = itemForPage * currentPage;
+                  },
+              }"
+          >
+          </Paginator>
+        </div>
+      </template>
+  </Card>
 
 </template>
 

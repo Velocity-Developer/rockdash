@@ -17,7 +17,8 @@
     </div>
   </div>
 
-  <div>
+  <Card>
+    <template #content>
     <div class="mb-2">
       Pembuatan
     </div>
@@ -85,8 +86,9 @@
         </template>
       </Column>
     </DataTable>
-
-  </div>
+    
+    </template>
+  </Card>
 
     <Dialog v-model:visible="dialogPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <DataTable :value="selectedPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>

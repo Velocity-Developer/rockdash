@@ -34,139 +34,146 @@
         </div>
       </div>
 
-      <div class="bg-primary-50 dark:bg-zinc-700 border border-primary-200 dark:border-primary-600 text-xs w-auto inline-block p-4 rounded-lg mb-3">
-        Pembuatan Bulan Ini: <span class="font-bold">{{ prediksi.total }}</span>
-        <br>
-        Prediksi Pembuatan Bulan ini: <span class="font-bold">{{ prediksi.prediksi }}</span>
-      </div>
+      <Card>
+        <template #content>
 
-      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
-        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-        <Column header="#" headerStyle="width:3rem">
-          <template #body="slotProps">
-              {{ slotProps.index + 1 }}
-          </template>
-        </Column>
-        <Column field="webhost.nama_web" header="Nama Web">
-          <template #body="slotProps">
-            <div class="group relative py-1">
-              <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline block">
-                {{ slotProps.data.webhost.nama_web }}
-              </NuxtLink>
-              <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
-                <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
-                  <Icon name="lucide:pencil" /> Edit
-                </Button>
-                <Button @click="confirmDelete(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" severity="danger" size="small">
-                  <Icon name="lucide:trash-2" /> Hapus
-                </Button>
-               </div>
+          <Message class="w-[14rem] mb-2" severity="info">
+            <div class="text-xs">
+              Pembuatan Bulan Ini: <span class="font-bold">{{ prediksi.total }}</span>
+              <br>
+              Prediksi Pembuatan Bulan ini: <span class="font-bold">{{ prediksi.prediksi }}</span>
             </div>
-          </template>
-        </Column>
-        <Column field="jenis" header="Jenis"></Column>
-        <Column field="webhost.paket.paket" header="Paket"></Column>
-        <Column field="deskripsi" header="Deskripsi">
-          <template #body="slotProps">
-            <div class="max-w-[200px] whitespace-normal">
-              {{ slotProps.data.deskripsi }}
-            </div>
-          </template>
-        </Column>
-        <Column field="trf" header="Trf">
-          <template #body="slotProps">
-              {{ formatMoney(slotProps.data.trf) }}
-          </template>
-        </Column>
-        <Column field="tgl_masuk" sortable header="Masuk Tgl">        
-          <template #body="slotProps">
-              {{ formatTanggal(slotProps.data.tgl_masuk) }}
-          </template>
-        </Column>
-        <Column field="tgl_deadline" sortable header="Deadline Tgl">       
-          <template #body="slotProps">
-              {{ formatTanggal(slotProps.data.tgl_deadline) }}
-          </template>
-        </Column>
-        <Column field="biaya" header="Total Biaya">
-          <template #body="slotProps">
-              {{ formatMoney(slotProps.data.biaya) }}
-          </template>
-        </Column>
-        <Column field="dibayar" header="Dibayar">
-          <template #body="slotProps">
-              {{ formatMoney(slotProps.data.dibayar) }}
-          </template>
-        </Column>
-        <Column field="lunas" sortable header="Kurang">
-          <template #body="slotProps">
-              {{ slotProps.data.lunas }}
-          </template>
-        </Column>
-        <Column field="saldo" header="Saldo"></Column>
-        <Column field="webhost.hp" header="HP">
-          <template #body="slotProps">
-            <div class="whitespace-normal">
-              {{ split_comma(slotProps.data.webhost.hp) }}
-            </div>
-          </template>
-        </Column>
-        <Column field="webhost.telegram" header="Telegram"></Column>
-        <Column field="webhost.hpads" sortable header="HP Ads"></Column>
-        <Column field="webhost.wa" header="WA">
-          <template #body="slotProps">
-            <div class="whitespace-normal">
-              {{ split_comma(slotProps.data.webhost.wa) }}
-            </div>
-          </template>
-        </Column>
-        <Column field="webhost.email" header="Email">
-          <template #body="slotProps">
-            <div class="whitespace-normal">
-              {{ split_comma(slotProps.data.webhost.email) }}
-            </div>
-          </template>
-        </Column>
-        <Column field="dikerjakan_oleh" header="Dikerjakan">
-          <template #body="slotProps">
-            <template v-for="item in slotProps.data.karyawans">
-              <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
-            </template>
-          </template>
-        </Column>
-        <Column field="act" header="">
-          <template #body="slotProps">
-            <div class="flex item-center gap-1 justify-end">
-              <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
-                <Icon name="lucide:pencil" />
-              </Button>
-              <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
-                <Icon name="lucide:trash-2" />
-              </Button>
-            </div>
-          </template>
-        </Column>
-      </DataTable>
+          </Message>
 
-      <div class="flex justify-between items-center text-xs mt-3">
-        <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}
-        </div>
+          <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
+            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+            <Column header="#" headerStyle="width:3rem">
+              <template #body="slotProps">
+                  {{ slotProps.index + 1 }}
+              </template>
+            </Column>
+            <Column field="webhost.nama_web" header="Nama Web">
+              <template #body="slotProps">
+                <div class="group relative py-1">
+                  <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline block">
+                    {{ slotProps.data.webhost.nama_web }}
+                  </NuxtLink>
+                  <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
+                    <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
+                      <Icon name="lucide:pencil" /> Edit
+                    </Button>
+                    <Button @click="confirmDelete(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" severity="danger" size="small">
+                      <Icon name="lucide:trash-2" /> Hapus
+                    </Button>
+                  </div>
+                </div>
+              </template>
+            </Column>
+            <Column field="jenis" header="Jenis"></Column>
+            <Column field="webhost.paket.paket" header="Paket"></Column>
+            <Column field="deskripsi" header="Deskripsi">
+              <template #body="slotProps">
+                <div class="max-w-[200px] whitespace-normal">
+                  {{ slotProps.data.deskripsi }}
+                </div>
+              </template>
+            </Column>
+            <Column field="trf" header="Trf">
+              <template #body="slotProps">
+                  {{ formatMoney(slotProps.data.trf) }}
+              </template>
+            </Column>
+            <Column field="tgl_masuk" sortable header="Masuk Tgl">        
+              <template #body="slotProps">
+                  {{ formatTanggal(slotProps.data.tgl_masuk) }}
+              </template>
+            </Column>
+            <Column field="tgl_deadline" sortable header="Deadline Tgl">       
+              <template #body="slotProps">
+                  {{ formatTanggal(slotProps.data.tgl_deadline) }}
+              </template>
+            </Column>
+            <Column field="biaya" header="Total Biaya">
+              <template #body="slotProps">
+                  {{ formatMoney(slotProps.data.biaya) }}
+              </template>
+            </Column>
+            <Column field="dibayar" header="Dibayar">
+              <template #body="slotProps">
+                  {{ formatMoney(slotProps.data.dibayar) }}
+              </template>
+            </Column>
+            <Column field="lunas" sortable header="Kurang">
+              <template #body="slotProps">
+                  {{ slotProps.data.lunas }}
+              </template>
+            </Column>
+            <Column field="saldo" header="Saldo" class="hidden xl:table-cell"></Column>
+            <Column field="webhost.hp" header="HP">
+              <template #body="slotProps">
+                <div class="whitespace-normal">
+                  {{ split_comma(slotProps.data.webhost.hp) }}
+                </div>
+              </template>
+            </Column>
+            <Column field="webhost.telegram" header="Telegram" class="hidden xl:table-cell"></Column>
+            <Column field="webhost.hpads" sortable header="HP Ads"></Column>
+            <Column field="webhost.wa" header="WA">
+              <template #body="slotProps">
+                <div class="whitespace-normal">
+                  {{ split_comma(slotProps.data.webhost.wa) }}
+                </div>
+              </template>
+            </Column>
+            <Column field="webhost.email" header="Email">
+              <template #body="slotProps">
+                <div class="whitespace-normal">
+                  {{ split_comma(slotProps.data.webhost.email) }}
+                </div>
+              </template>
+            </Column>
+            <Column field="dikerjakan_oleh" header="Dikerjakan">
+              <template #body="slotProps">
+                <template v-for="item in slotProps.data.karyawans">
+                  <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
+                </template>
+              </template>
+            </Column>
+            <Column field="act" header="">
+              <template #body="slotProps">
+                <div class="flex item-center gap-1 justify-end">
+                  <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
+                    <Icon name="lucide:pencil" />
+                  </Button>
+                  <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
+                    <Icon name="lucide:trash-2" />
+                  </Button>
+                </div>
+              </template>
+            </Column>
+          </DataTable>
 
-        <Paginator
-            :rows="data.per_page"
-            :totalRecords="data.total"
-            @page="onPaginate"
-            :pt="{
-                root: (event: any) => {
-                    const itemForPage =  data.per_page;
-                    const currentPage =  page - 1;
-                    event.state.d_first = itemForPage * currentPage;
-                },
-            }"
-        >
-        </Paginator>
-      </div>
+          <div class="flex justify-between items-center text-xs mt-3">
+            <div>
+              {{ data.from }} - {{ data.to }} dari {{ data.total }}
+            </div>
+
+            <Paginator
+                :rows="data.per_page"
+                :totalRecords="data.total"
+                @page="onPaginate"
+                :pt="{
+                    root: (event: any) => {
+                        const itemForPage =  data.per_page;
+                        const currentPage =  page - 1;
+                        event.state.d_first = itemForPage * currentPage;
+                    },
+                }"
+            >
+            </Paginator>
+          </div>
+        </template>
+      </Card>
 
       <div class="mt-3">
         <Button v-if="selectedRowsNamaWeb" @click="copyToClipboard()" size="small">
@@ -352,13 +359,12 @@ const prediksi = ref({
 
 //onmounted, tunggu 3 detik.
 onMounted(() => {
-  setTimeout(() => {
+  setTimeout( async () => {
       
     //fetch dapatkan data prediksi dari api
     try {
-      const res = client('/api/billing_prediksi_bulanini') as any
-      prediksi.value.total = res.total;
-      prediksi.value.prediksi = res.prediksi;
+      const res = await client('/api/billing_prediksi_bulanini') as any
+      prediksi.value = res;
     } catch (error) {
       console.log(error);
     }

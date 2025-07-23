@@ -8,9 +8,9 @@
           <DashSidebar/>
         </div>
       </div>
-      <div class="body-wrapper w-full bg-white dark:bg-zinc-900">
+      <div class="body-wrapper w-full bg-gray-50 dark:bg-black">
         <DashHeader />
-        <div class="container mx-auto px-6 py-4 relative">
+        <div class="mx-auto px-4 py-4 relative">
           
             <div v-if="$route.meta.title" class="md:hidden mb-5">
               <h1 class="text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">

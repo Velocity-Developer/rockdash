@@ -1,63 +1,59 @@
 <template>
   
+  <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
+    <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
+      <div>
+        <div class="mb-1">Per Page : </div>            
+        <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px]" />
+      </div>
+      <div class="hidden md:block">
+          <div>Tgl Masuk</div>
+          <div class="flex items-center justify-end gap-2 mt-1">
+            <DatePicker v-model="filters.tgl_masuk_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px]"/>
+            <DatePicker v-model="filters.tgl_masuk_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px]"/>
+          </div>
+      </div>
+      <div>
+        <Button type="submit" size="small">
+          Go
+        </Button>
+      </div>
+    </form>
+
+    <div class="flex justify-end items-center gap-1">
+      <Button @click="exportCSV()" severity="warn" size="small">
+        <Icon name="lucide:file-spreadsheet" /> Export CSV
+      </Button>
+      <Button @click="visibleDrawerFilter = true" size="small">
+        <Icon name="lucide:filter" /> Filter
+        <span
+        class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
+        v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
+        ></span>
+      </Button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto mb-4">
+    <div class="flex gap-4">
+
+      <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-900 rounded bg-primary-50 dark:bg-primary-900">
+        <div class="mb-1 text-xs">Total Transaksi</div>
+        {{ formatMoney(totalTrf) }}
+      </div>
+      
+      <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-900 rounded bg-primary-50 dark:bg-primary-900">
+        <div class="mb-1 text-xs">Total Dibayar</div>
+        {{ formatMoney(totalDibayar) }}
+      </div>
+
+    </div>
+  </div>
+  
   <Card>
     <template #content>
       
-      <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
-        <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
-          <div>
-            <div class="mb-1">Per Page : </div>            
-            <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px]" />
-          </div>
-          <div class="hidden md:block">
-              <div>Tgl Masuk</div>
-              <div class="flex items-center justify-end gap-2 mt-1">
-                <DatePicker v-model="filters.tgl_masuk_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px]"/>
-                <DatePicker v-model="filters.tgl_masuk_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px]"/>
-              </div>
-          </div>
-          <div>
-            <Button type="submit" size="small">
-              Go
-            </Button>
-          </div>
-        </form>
-
-        <div class="flex justify-end items-center gap-1">
-          <Button @click="exportCSV()" severity="warn" size="small">
-            <Icon name="lucide:file-spreadsheet" /> Export CSV
-          </Button>
-          <Button @click="visibleDrawerFilter = true" size="small">
-            <Icon name="lucide:filter" /> Filter
-            <span
-            class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
-            v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
-            ></span>
-          </Button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto mb-4">
-        <div class="flex gap-4">
-
-          <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
-            <div class="mb-1 text-sm">Total Transaksi</div>
-            <div class="md:text-xl font-bold text-end">
-              {{ formatMoney(totalTrf) }}
-            </div>
-          </div>
-          
-          <div class="min-w-[160px] md:min-w-[200px] py-2 px-4 border border-primary-300 dark:border-primary-600 rounded bg-primary-50 dark:bg-primary-900">
-            <div class="mb-1 text-sm">Total Dibayar</div>
-            <div class="md:text-xl font-bold text-end">
-              {{ formatMoney(totalDibayar) }}
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-sm" ref="dt" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollable>
+      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" ref="dt" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollHeight="75vh" scrollable>
         <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
               {{ slotProps.index + 1 }}
@@ -229,7 +225,7 @@ const { data, status, error, refresh } = await useAsyncData(
     () => client('/api/transaksi_iklan_google',{
         params: filters
     })
-)
+) as any
 const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1;
     updateRouteParams()

@@ -1,7 +1,7 @@
 <template>
 
   <div class="flex items-center justify-end gap-1 mb-3">
-    <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="yy-mm" />
+    <DatePicker v-model="filters.bulan" showIcon view="month" placeholder="Bulan" size="small" dateFormat="yy-mm" class="w-[9rem]"/>
     <SelectButton 
       v-model="filters.jenis_project" 
       :options="[{label:'Semua',value:0},{label:'Biasa',value:10},{label:'Custom',value:12}]"
@@ -13,7 +13,7 @@
   <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mt-5">
 
     <div class="md:col-span-2">
-      <Card class="bg-emerald-50 dark:bg-zinc-800">
+      <Card>
         <template #content>
           <LaporanNilaiChart :datachart="data.users" class="mx-auto"/>
         </template>
@@ -62,7 +62,7 @@
   </div>
 
 
-  <Tabs value="1" class="shadow rounded bg-zinc-100 mt-5">
+  <Tabs value="1" class="shadow rounded-lg overflow-hidden bg-zinc-100 mt-5">
       <TabList>
           <Tab v-for="tab in data.users" :key="tab.id" :value="tab.id">
             <div class="flex items-center text-xs font-normal">          

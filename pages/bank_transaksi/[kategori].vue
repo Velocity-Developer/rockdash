@@ -35,7 +35,7 @@
   <div class="overflow-x-auto mb-5 pb-2">
     <div class="flex gap-4">
 
-      <div @click="dialogFormSaldo = true" class="min-w-[200px] group relative cursor-pointer py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary rounded">
+      <div @click="dialogFormSaldo = true" class="min-w-[200px] group relative cursor-pointer py-2 px-3 bg-primary-50 dark:bg-primary-800 border border-primary dark:border-primary-800 rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:wallet"/>
           Saldo Bawaan : {{ dataSaldo?.bulan }}
@@ -49,7 +49,7 @@
           Atur Saldo Bawaan
         </div>
       </div>
-      <div class="min-w-[200px] py-2 px-3 bg-sky-100 dark:bg-sky-800 border border-sky-500 rounded">
+      <div class="min-w-[200px] py-2 px-3 bg-sky-100 dark:bg-sky-800 border border-sky-500 dark:border-sky-800 rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:hard-drive-download"/>
           Total Masuk
@@ -59,7 +59,7 @@
           {{ formatMoney(data?.total_masuk,filters.bank) }}
         </div>
       </div>
-      <div class="min-w-[200px] py-2 px-3 bg-red-50 dark:bg-red-900 border border-red-600 rounded">
+      <div class="min-w-[200px] py-2 px-3 bg-red-50 dark:bg-red-900 border border-red-600 dark:border-red-800 rounded">
         <div class="text-xs mb-2 flex items-center gap-1">
           <Icon name="lucide:hard-drive-upload"/>
           Total Keluar
@@ -73,7 +73,7 @@
     </div>
   </div>
 
-  <DataTable :value="data.data" size="small" class="text-sm" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollHeight="90vh" scrollable>
+  <DataTable :value="data.data" size="small" class="text-xs" sortField="nomor" :sortOrder="-1" paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 500]" selectionMode="multiple" stripedRows scrollHeight="90vh" scrollable>
     <Column header="#" headerStyle="width:3rem" class="align-top">
       <template #body="slotProps">
           {{ slotProps.index + 1 }}
@@ -132,20 +132,20 @@
         <ul v-if="slotProps.data.cs_main_project || slotProps.data.transaksi_keluar" class="list-decimal ps-4">
           <li v-for="item in slotProps.data.cs_main_project" class="text-xs">
             <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
-              <div v-if="itembank.jenis_transaksi == 'masuk'" v-tooltip="'Masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'masuk'" v-tooltip="'Masuk'" class="bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-100 border-l-4 border-sky-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
-              <div v-if="itembank.jenis_transaksi == 'keluar'" v-tooltip="'Keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'keluar'" v-tooltip="'Keluar'" class="bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-100 border-l-4 border-red-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
             </div>
           </li>
           <li v-for="item in slotProps.data.transaksi_keluar" class="text-xs">
             <div v-if="item.bank" v-for="itembank in item.bank" class="mt-1">
-              <div v-if="itembank.jenis_transaksi == 'masuk'" v-tooltip="'Masuk'" class="bg-sky-100 text-sky-600 border-l-4 border-sky-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'masuk'" v-tooltip="'Masuk'" class="bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-100 border-l-4 border-sky-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
-              <div v-if="itembank.jenis_transaksi == 'keluar'" v-tooltip="'Keluar'" class="bg-red-100 text-red-600 border-l-4 border-red-600 rounded p-1 hover:shadow">
+              <div v-if="itembank.jenis_transaksi == 'keluar'" v-tooltip="'Keluar'" class="bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-100 border-l-4 border-red-600 rounded p-1 hover:shadow">
                 {{ getBankLabel(itembank.bank) }} <div class="font-bold whitespace-nowrap"> {{ formatMoney(itembank.nominal,itembank.bank) }} </div>
               </div>
             </div>
@@ -161,14 +161,14 @@
         </div>
       </template>
     </Column>
-    <Column field="masuk" header="Masuk" class="whitespace-nowrap text-sky-500 dark:text-sky-600">
+    <Column field="masuk" header="Masuk" class="whitespace-nowrap text-sky-500 dark:text-sky-400">
       <template #body="slotProps">
         <template v-if="slotProps.data.jenis_transaksi == 'masuk'">
           {{ formatMoney(slotProps.data.nominal,slotProps.data.bank) }}
         </template>
       </template>
     </Column>
-    <Column field="keluar" header="Keluar" class="whitespace-nowrap text-red-500 dark:text-red-600">
+    <Column field="keluar" header="Keluar" class="whitespace-nowrap text-red-500 dark:text-red-400">
       <template #body="slotProps">
         <template v-if="slotProps.data.jenis_transaksi == 'keluar'">
           {{ formatMoney(slotProps.data.nominal,slotProps.data.bank) }}

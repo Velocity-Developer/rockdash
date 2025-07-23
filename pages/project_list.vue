@@ -41,159 +41,164 @@
 
   </div>
 
-  <DataTable 
-    :value="data.data" 
-    size="small" 
-    class="text-xs" 
-    stripedRows scrollHeight="75vh" 
-    scrollable
-    :rowClass="getRowClass"
-  >
-      <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
-      <Column header="No" headerStyle="width:3rem">
-        <template #body="slotProps">
-            {{ slotProps.index + data.from }}
-        </template>
-      </Column>
-      <Column field="nama_web" header="Nama Web">
-        <template #body="slotProps">
-          <a v-if="slotProps.data.webhost" :href="'https://'+slotProps.data.webhost.nama_web" target="_blank" class="group hover:underline relative inline-block pr-4">
-            {{ slotProps.data.webhost.nama_web }} 
-            <Icon name="lucide:external-link" class="absolute end-0 top-0 hidden group-hover:inline-block"/>
-          </a>
-        </template>
-      </Column>
-      <Column field="jenis" header="Jenis" class="hidden 2xl:table-cell">      
-        <template #body="slotProps">
-          <div>{{ slotProps.data.jenis }}</div>
-        </template>
-      </Column>
-      <Column field="paket" header="Paket">      
-        <template #body="slotProps">
-          <div class="2xl:hidden">{{ slotProps.data.jenis }}</div>
-          <div class="text-xs text-primary" v-if="slotProps.data.webhost?.paket">
-            {{ slotProps.data.webhost.paket.paket }}
-          </div>
-        </template>
-      </Column>
-      <Column field="deskripsi" header="Deskripsi">
-        <template #body="slotProps">
-          <div class="max-w-[150px] break-all whitespace-normal">
-            {{ slotProps.data.deskripsi }}
-          </div>
-        </template>
-      </Column>
-      <Column field="tgl_deadline" sortable header="Deadline">       
-        <template #body="slotProps">
-            {{ formatTanggal(slotProps.data.tgl_deadline) }}
-        </template>
-      </Column>
-      <Column field="catatan" header="Catatan">
-        <template #body="slotProps">
-          <div class="max-w-[180px] break-all whitespace-normal pr-1">
-            {{ slotProps.data.wm_project?.catatan }}
-          </div>          
-        </template>
-      </Column>
-      <Column field="webmaster" header="Webmaster" class="hidden 2xl:table-cell">       
-        <template #body="slotProps">
-          <template v-if="slotProps.data.wm_project">
-            <span v-if="slotProps.data.wm_project.user" class="truncate block w-[70px]">
-              {{slotProps.data.wm_project.user.name}}
-            </span>
-            <span v-else>
-              {{slotProps.data.wm_project.webmaster}}
-            </span>
-          </template>
-        </template>
-      </Column>
-      <Column field="status" header="">       
-        <template #body="slotProps">
+  <Card>
+    <template #content>
 
-          <div v-if="slotProps.data.wm_project" class="flex gap-0 justify-end items-center">
-
-            <Button variant="text" rounded class="!p-0 transition-all	hover:scale-125 relative z-1 hover:z-10" @click="openDialog('edit',slotProps.data)">
-              <Avatar 
-                v-if="slotProps.data.wm_project.user && slotProps.data.wm_project.user.avatar_url"
-                :image="slotProps.data.wm_project.user.avatar_url" 
-                class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
-                shape="circle" 
-                size="small"
-                v-tooltip.left="slotProps.data.wm_project.user.name"                        
-                :pt="{
-                  image: (options) => ({
-                      class: [
-                          '!object-cover',
-                      ]
-                  })
-                }"
-               />
-               <Avatar 
-                v-else-if="slotProps.data.wm_project.webmaster && !slotProps.data.wm_project.user"
-                :label="firstChara(slotProps.data.wm_project.webmaster)" 
-                class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
-                shape="circle"
-                size="small"
-                v-tooltip.left="slotProps.data.wm_project.webmaster"                        
-                :pt="{
-                  image: (options) => ({
-                      class: [
-                          '!object-cover',
-                      ]
-                  })
-                }"
-                />
-            </Button>
-
-            <!-- Icon status Pengerjaan -->
-            <span class="transition-all relative z-1 hover:z-10" @click="openDialog('edit',slotProps.data)">
-              <Button class="!p-1 border border-white dark:border-gray-600" severity="success" rounded v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
-                <Icon name="lucide:circle-check-big" size="1.15rem" />
-              </Button>
-              <Button 
-                class="!p-1 border border-white dark:border-gray-600" 
-                severity="contrast" rounded 
-                v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " 
-                v-tooltip.left="slotProps.data.wm_project.status_project ? slotProps.data.wm_project.status_project : 'Koreksi'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-binoculars-icon lucide-binoculars"><path d="M10 10h4"/><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M20 21a2 2 0 0 0 2-2v-3.851c0-1.39-2-2.962-2-4.829V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2z"/><path d="M 22 16 L 2 16"/><path d="M4 21a2 2 0 0 1-2-2v-3.851c0-1.39 2-2.962 2-4.829V8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2z"/><path d="M9 7V4a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3"/></svg>
-              </Button>
-              <Button class="!p-1 border border-white dark:border-gray-600" severity="danger" rounded v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords-icon lucide-swords"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>
-              </Button>
-              <Button v-else class="!p-1 border border-white dark:border-gray-600" size="small">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings2-icon lucide-settings-2"><path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
-              </Button>
-            </span>
-
-          </div>
-          <div v-else class="text-end">
-            <Button size="small" class="text-xs py-1" @click="openDialog('add',slotProps.data)">
-              Ambil
-            </Button>
-          </div>
-
-        </template>
-      </Column>
-  </DataTable>
-  <div class="flex justify-between items-center text-xs mt-3">
-    <div>
-      {{ data.from }} - {{ data.to }} dari {{ data.total }}
-    </div>
-
-    <Paginator
-        :rows="data.per_page"
-        :totalRecords="data.total"
-        @page="onPaginate"
-        :pt="{
-            root: (event: any) => {
-                const itemForPage =  data.per_page;
-                const currentPage =  filters.page - 1;
-                event.state.d_first = itemForPage * currentPage;
-            },
-        }"
+    <DataTable 
+      :value="data.data" 
+      size="small" 
+      class="text-xs" 
+      stripedRows scrollHeight="75vh" 
+      scrollable
+      :rowClass="getRowClass"
     >
-    </Paginator>
-  </div>
+        <!-- <Column selectionMode="multiple" headerStyle="width: 3rem"></Column> -->
+        <Column header="No" headerStyle="width:3rem">
+          <template #body="slotProps">
+              {{ slotProps.index + data.from }}
+          </template>
+        </Column>
+        <Column field="nama_web" header="Nama Web">
+          <template #body="slotProps">
+            <a v-if="slotProps.data.webhost" :href="'https://'+slotProps.data.webhost.nama_web" target="_blank" class="group hover:underline relative inline-block pr-4">
+              {{ slotProps.data.webhost.nama_web }} 
+              <Icon name="lucide:external-link" class="absolute end-0 top-0 hidden group-hover:inline-block"/>
+            </a>
+          </template>
+        </Column>
+        <Column field="jenis" header="Jenis" class="hidden 2xl:table-cell">      
+          <template #body="slotProps">
+            <div>{{ slotProps.data.jenis }}</div>
+          </template>
+        </Column>
+        <Column field="paket" header="Paket">      
+          <template #body="slotProps">
+            <div class="2xl:hidden">{{ slotProps.data.jenis }}</div>
+            <div class="text-xs text-primary" v-if="slotProps.data.webhost?.paket">
+              {{ slotProps.data.webhost.paket.paket }}
+            </div>
+          </template>
+        </Column>
+        <Column field="deskripsi" header="Deskripsi">
+          <template #body="slotProps">
+            <div class="max-w-[150px] break-all whitespace-normal">
+              {{ slotProps.data.deskripsi }}
+            </div>
+          </template>
+        </Column>
+        <Column field="tgl_deadline" sortable header="Deadline">       
+          <template #body="slotProps">
+              {{ formatTanggal(slotProps.data.tgl_deadline) }}
+          </template>
+        </Column>
+        <Column field="catatan" header="Catatan">
+          <template #body="slotProps">
+            <div class="max-w-[180px] break-all whitespace-normal pr-1">
+              {{ slotProps.data.wm_project?.catatan }}
+            </div>          
+          </template>
+        </Column>
+        <Column field="webmaster" header="Webmaster" class="hidden 2xl:table-cell">       
+          <template #body="slotProps">
+            <template v-if="slotProps.data.wm_project">
+              <span v-if="slotProps.data.wm_project.user" class="truncate block w-[70px]">
+                {{slotProps.data.wm_project.user.name}}
+              </span>
+              <span v-else>
+                {{slotProps.data.wm_project.webmaster}}
+              </span>
+            </template>
+          </template>
+        </Column>
+        <Column field="status" header="">       
+          <template #body="slotProps">
+
+            <div v-if="slotProps.data.wm_project" class="flex gap-0 justify-end items-center">
+
+              <Button variant="text" rounded class="!p-0 transition-all	hover:scale-125 relative z-1 hover:z-10" @click="openDialog('edit',slotProps.data)">
+                <Avatar 
+                  v-if="slotProps.data.wm_project.user && slotProps.data.wm_project.user.avatar_url"
+                  :image="slotProps.data.wm_project.user.avatar_url" 
+                  class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
+                  shape="circle" 
+                  size="small"
+                  v-tooltip.left="slotProps.data.wm_project.user.name"                        
+                  :pt="{
+                    image: (options) => ({
+                        class: [
+                            '!object-cover',
+                        ]
+                    })
+                  }"
+                />
+                <Avatar 
+                  v-else-if="slotProps.data.wm_project.webmaster && !slotProps.data.wm_project.user"
+                  :label="firstChara(slotProps.data.wm_project.webmaster)" 
+                  class="w-[1.75rem] h-[1.75rem] border border-white dark:border-gray-600" 
+                  shape="circle"
+                  size="small"
+                  v-tooltip.left="slotProps.data.wm_project.webmaster"                        
+                  :pt="{
+                    image: (options) => ({
+                        class: [
+                            '!object-cover',
+                        ]
+                    })
+                  }"
+                  />
+              </Button>
+
+              <!-- Icon status Pengerjaan -->
+              <span class="transition-all relative z-1 hover:z-10" @click="openDialog('edit',slotProps.data)">
+                <Button class="!p-1 border border-white dark:border-gray-600" severity="success" rounded v-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'selesai' " v-tooltip.left="'Selesai'">
+                  <Icon name="lucide:circle-check-big" size="1.15rem" />
+                </Button>
+                <Button 
+                  class="!p-1 border border-white dark:border-gray-600" 
+                  severity="contrast" rounded 
+                  v-else-if="slotProps.data.wm_project.date_mulai && slotProps.data.wm_project.date_selesai && slotProps.data.wm_project.status_multi == 'pending' " 
+                  v-tooltip.left="slotProps.data.wm_project.status_project ? slotProps.data.wm_project.status_project : 'Koreksi'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-binoculars-icon lucide-binoculars"><path d="M10 10h4"/><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M20 21a2 2 0 0 0 2-2v-3.851c0-1.39-2-2.962-2-4.829V8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2z"/><path d="M 22 16 L 2 16"/><path d="M4 21a2 2 0 0 1-2-2v-3.851c0-1.39 2-2.962 2-4.829V8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2z"/><path d="M9 7V4a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v3"/></svg>
+                </Button>
+                <Button class="!p-1 border border-white dark:border-gray-600" severity="danger" rounded v-else-if="slotProps.data.wm_project.date_mulai && !slotProps.data.wm_project.date_selesai" v-tooltip.left="'Pengerjaan'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords-icon lucide-swords"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/></svg>
+                </Button>
+                <Button v-else class="!p-1 border border-white dark:border-gray-600" size="small">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings2-icon lucide-settings-2"><path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+                </Button>
+              </span>
+
+            </div>
+            <div v-else class="text-end">
+              <Button size="small" class="text-xs py-1" @click="openDialog('add',slotProps.data)">
+                Ambil
+              </Button>
+            </div>
+
+          </template>
+        </Column>
+    </DataTable>
+    <div class="flex justify-between items-center text-xs mt-3">
+      <div>
+        {{ data.from }} - {{ data.to }} dari {{ data.total }}
+      </div>
+
+      <Paginator
+          :rows="data.per_page"
+          :totalRecords="data.total"
+          @page="onPaginate"
+          :pt="{
+              root: (event: any) => {
+                  const itemForPage =  data.per_page;
+                  const currentPage =  filters.page - 1;
+                  event.state.d_first = itemForPage * currentPage;
+              },
+          }"
+      >
+      </Paginator>
+    </div>
+    </template>
+  </Card>
 
       
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Ambil':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">

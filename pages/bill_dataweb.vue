@@ -31,52 +31,57 @@
     </div>
   </div>
 
-  <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollHeight="70vh" scrollable>
-    <Column header="#" headerStyle="width:3rem">
-        <template #body="slotProps">
-            {{ slotProps.index + 1 }}
-        </template>
-    </Column>
-    <Column field="nama_web" header="Nama Web" frozen>
-      <template #body="slotProps">
-        <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline">
-          {{ slotProps.data.nama_web }}
-        </NuxtLink>
-      </template>
-    </Column>
-    <Column field="paket" header="Paket">
-      <template #body="slotProps">
-        {{ slotProps.data.paket?.paket }}
-      </template>
-    </Column>
-    <Column field="tgl_mulai" header="Masuk Tanggal" sortable></Column>
-    <Column field="saldo" header="Saldo"></Column>
-    <Column field="hp" header="HP"></Column>
-    <Column field="telegram" header="Telegram"></Column>
-    <Column field="hpads" header="HP Ads"></Column>
-    <Column field="wa" header="WA"></Column>
-    <Column field="email" header="Email"></Column>
-  </DataTable>
-  
-  <div class="flex justify-between items-center text-xs mt-3">
-        <div>
-          {{ data.from }} - {{ data.to }} dari {{ data.total }}          
-        </div>
+  <Card>
+    <template #content>
 
-        <Paginator
-            :rows="data.per_page"
-            :totalRecords="data.total"
-            @page="onPaginate"
-            :pt="{
-                root: (event: any) => {
-                    const itemForPage =  data.per_page;
-                    const currentPage =  page - 1;
-                    event.state.d_first = itemForPage * currentPage;
-                },
-            }"
-        >
-        </Paginator>
+    <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollHeight="70vh" scrollable>
+      <Column header="#" headerStyle="width:3rem">
+          <template #body="slotProps">
+              {{ slotProps.index + 1 }}
+          </template>
+      </Column>
+      <Column field="nama_web" header="Nama Web" frozen>
+        <template #body="slotProps">
+          <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline">
+            {{ slotProps.data.nama_web }}
+          </NuxtLink>
+        </template>
+      </Column>
+      <Column field="paket" header="Paket">
+        <template #body="slotProps">
+          {{ slotProps.data.paket?.paket }}
+        </template>
+      </Column>
+      <Column field="tgl_mulai" header="Masuk Tanggal" sortable></Column>
+      <Column field="saldo" header="Saldo"></Column>
+      <Column field="hp" header="HP"></Column>
+      <Column field="telegram" header="Telegram"></Column>
+      <Column field="hpads" header="HP Ads"></Column>
+      <Column field="wa" header="WA"></Column>
+      <Column field="email" header="Email"></Column>
+    </DataTable>
+    
+    <div class="flex justify-between items-center text-xs mt-3">
+      <div>
+        {{ data.from }} - {{ data.to }} dari {{ data.total }}          
       </div>
+
+      <Paginator
+          :rows="data.per_page"
+          :totalRecords="data.total"
+          @page="onPaginate"
+          :pt="{
+              root: (event: any) => {
+                  const itemForPage =  data.per_page;
+                  const currentPage =  page - 1;
+                  event.state.d_first = itemForPage * currentPage;
+              },
+          }"
+      >
+      </Paginator>
+    </div>
+    </template>
+  </Card>
 
 
   <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
@@ -117,6 +122,7 @@
       </div>
     </form>
   </Drawer>
+
   <DashLoader :loading="isLoadingDash"/>
 
 </template>
@@ -164,7 +170,7 @@ const { data, status, error, refresh } = await useAsyncData(
     () => client('/api/bill_dataweb',{
         params: filters
     })
-)
+) as any
 const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1;
     updateRouteParams()
