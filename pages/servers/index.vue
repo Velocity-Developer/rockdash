@@ -28,7 +28,6 @@
           <Icon v-else name="lucide:x" size="small" class="text-red-600"/>
         </template>
       </Column>
-      <Column field="options" header="Options"></Column>
       <Column field="opt" header="">
         <template #body="slotProps">
           <div class="flex justify-end items-center gap-1">
