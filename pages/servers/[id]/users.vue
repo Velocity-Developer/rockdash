@@ -6,7 +6,7 @@
     </div>
 
     <div class="flex justify-end gap-1 mb-5">
-      <Button v-if="checkboxItems && checkboxItems.length > 0" size="small" severity="warn" :loading="loading" v-tooltip.left="'Sync data masing-masing package'">
+      <Button v-if="checkboxItems && checkboxItems.length > 0" @click="syncPackageData()" size="small" severity="warn" :loading="loading" v-tooltip.left="'Sync data masing-masing package'">
         <Icon name="lucide:globe" :class="{ 'animate-spin': loading }" /> Sync Package
       </Button>
       <Select v-model="per_page"
@@ -25,7 +25,9 @@
       <DataTable v-if="data.data && data.data.length > 0" :value="data.data"
         size="small" class="text-sm" 
         stripedRows scrollable
+        v-model:selection="checkboxItems"
       >
+        <Column selectionMode="multiple" headerStyle="width: 1rem"></Column>
         <Column field="no" header="No">
           <template #body="slotProps">
             {{ slotProps.index + data.from }}
@@ -161,4 +163,37 @@ const syncData = async () => {
 }
 
 const checkboxItems = ref();
+
+const syncPackageData = async () => {
+  loading.value = true
+  error.value = ''
+
+  //kumpulkan id dari checkboxItems
+  const ids = checkboxItems.value.map((item: any) => item.id);
+
+  //proses satu-persatu bergantian
+  for (const id of ids) {
+    try {
+      const res = await client('/api/servers_sync_user_detail/'+id)
+      loading.value = false
+      getData()
+    } catch (e : any) {
+      const er = useSanctumError(e)
+      loading.value = false
+      error.value = e.data?.message
+    }
+  }
+  
+  //jika selesai, reset checkboxItems, buat toast
+  checkboxItems.value = [];
+  toast.add({
+    severity: 'success',
+    summary: 'Success',
+    detail: 'Data berhasil disinkronkan',
+    life: 3000
+  });
+
+  loading.value = false
+}
+
 </script>
