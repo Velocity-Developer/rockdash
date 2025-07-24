@@ -105,64 +105,10 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@pinia/nuxt',
     'dayjs-nuxt',
-    '@nuxt/fonts',
-    '@vite-pwa/nuxt'
+    '@nuxt/fonts'
   ],  
   appConfig: {
     //for testing purposes
     buildDate: new Date().toISOString(),
-  },
-  pwa: {
-    registerType: 'autoUpdate',
-    // Add client manifest for better offline support
-    includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
-    manifest: {
-      name: 'VDNET',
-      short_name: 'VDNET',
-      start_url: '/',
-      display: 'standalone',
-      background_color: '#ffffff',
-      theme_color: '#ffffff',
-      icons: [
-        {
-          src: 'pwa-192x192.png',
-          sizes: '192x192',
-          type: 'image/png'
-        },
-        {
-          src: 'pwa-512x512.png',
-          sizes: '512x512',
-          type: 'image/png'
-        }
-      ]
-    },
-    workbox: {
-      navigateFallback: '/index.html',
-      globPatterns: ['**/*.{js,css,html,png,jpg,jpeg,svg,ico,woff2}'],
-      runtimeCaching: [
-        {
-          urlPattern: ({ request }) => request.destination === 'document',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'html-cache',
-            expiration: {
-              maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 hari
-            },
-          },
-        },
-        {
-          urlPattern: /\.(?:js|css|woff2|ico|png|jpg|jpeg|svg)$/,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'static-assets',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 hari
-            },
-          },
-        },
-      ],
-    },
   }
 })
