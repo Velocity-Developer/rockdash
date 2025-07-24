@@ -81,7 +81,7 @@
   </ServerLayout>
 
   <Dialog v-model:visible="visibleDialog" modal header="Package" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ServerUserPreview :user="selectedItem" :server="id" @update="getData()" @delete="visibleDialog = false"/>
+    <ServerUserPreview :userServer="selectedItem" :server="id" @update="getData()" @delete="visibleDialog = false"/>
   </Dialog>
 
   <DashLoader :loading="loading"/>
