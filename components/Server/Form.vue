@@ -1,6 +1,5 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
-    
+  <form @submit.prevent="handleSubmit" class="flex flex-col gap-4" autocomplete="off">
     <div v-for="item in fields" :key="item.key" class="flex flex-col md:flex-row border-b dark:border-zinc-800 py-1">
         <div class="md:basis-1/4 mb-1">
           <label :for="item.key">{{ item.label }}</label>
@@ -29,14 +28,47 @@
           :required="item.required"
           />
 
+          <div v-else-if="item.key === 'password'" class="flex flex-col gap-3">
+            <!-- Toggle selalu muncul, baik untuk edit maupun create -->
+            <div class="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
+              <ToggleSwitch 
+                v-model="editPassword" 
+                inputId="edit-password" />
+              <label for="edit-password" class="text-sm cursor-pointer font-medium">
+                {{ props.action === 'edit' ? 'Ubah Password' : 'Set Password' }}
+              </label>
+              <small v-if="props.action === 'edit'" class="text-gray-500 ml-2">
+                (Aktifkan untuk mengubah password)
+              </small>
+            </div>
+            
+            <transition name="slide-down">
+              <InputText 
+                v-if="editPassword"
+                v-model="form[item.key]" 
+                :id="`pwd-${randomId}`" 
+                :name="`pwd-${randomId}`"
+                type="password" 
+                class="w-full" 
+                :placeholder="editPassword ? 'Masukkan password baru' : item.label" 
+                :required="item.required && editPassword"
+                autocomplete="new-password"
+                :data-lpignore="true"
+                :data-1p-ignore="true"
+                :data-bwignore="true"/>
+            </transition>
+          </div>
+
           <InputText 
-          v-else
+          v-else-if="item.type !== 'password'"
           v-model="form[item.key]" 
           :id="item.key" 
+          :name="item.key"
           :type="item.type" 
           class="w-full" 
           :placeholder="item.label" 
-          :required="item.required"/>
+          :required="item.required"
+          autocomplete="new-password"/>
 
         </div>
     </div>
@@ -95,21 +127,32 @@ const fields = [
   { key: 'port', label: 'Port', type: 'text', required: true },
   { key: 'is_active', label: 'Active', type: 'switch', required: true },
   { key: 'username', label: 'Username', type: 'text', required: false },
-  { key: 'password', label: 'Password', type: 'password', required: false },
+  { key: 'password', label: 'Password', type: 'password', required: false, autocomplete: 'new-password' },
 ] as any
 
 const loadingSubmit = ref(false)
 const errorSubmit = ref([] as any)
+const randomId = ref(Math.random().toString(36).substring(7))
+// For edit mode: toggle should be OFF (false) by default
+// For create mode: toggle should be ON (true) by default
+const editPassword = ref(props.action !== 'edit')
+
 const handleSubmit = async () => {
   loadingSubmit.value = true
   errorSubmit.value = []
+
+  // Prepare form data - only include password if editing password
+  const submitData = { ...form }
+  if (!editPassword.value) {
+    delete submitData.password
+  }
 
   //jika edit
   if(props.action == 'edit' && form.id) {
     try {
       const res = await client(`/api/servers/${form.id}`, {
         method: 'PUT',
-        body: form
+        body: submitData
       })
       toast.add({      
         severity: 'success',
@@ -133,7 +176,7 @@ const handleSubmit = async () => {
     try {
       const res = await client('/api/servers', {
         method: 'POST',
-        body: form
+        body: submitData
       })
       toast.add({      
         severity: 'success',
@@ -169,4 +212,28 @@ watch(() => props.data, (val) => {
  }
 })
 
+// Reset password field when toggle is turned off
+watch(editPassword, (newVal) => {
+  if (!newVal) {
+    form.password = ''
+  }
+})
+
 </script>
+
+<style scoped>
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>
