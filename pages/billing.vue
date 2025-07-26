@@ -3,28 +3,28 @@
       <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
         <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
           <div>
-            <div class="mb-1">Per Page : </div>            
-            <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px]" />
+            <div class="mb-1 opacity-50">Per Page : </div>            
+            <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
           </div>
           <div class="hidden md:block">
-              <div>Tgl Masuk</div>
+              <div class="mb-1 opacity-50">Tgl Masuk</div>
               <div class="flex items-center justify-end gap-2 mt-1">
-                <DatePicker v-model="filters.tgl_masuk_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px]"/>
-                <DatePicker v-model="filters.tgl_masuk_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px]"/>
+                <DatePicker v-model="filters.tgl_masuk_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px] shadow rounded"/>
+                <DatePicker v-model="filters.tgl_masuk_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px] shadow rounded"/>
               </div>
           </div>
           <div>
-            <Button type="submit" size="small">
+            <Button type="submit" size="small" severity="info" class="shadow-md">
               Go
             </Button>
           </div>
         </form>
 
         <div class="flex justify-end items-center gap-2">
-          <Button @click="openDialog('add')" size="small">
+          <Button @click="openDialog('add')" size="small" class="shadow-md">
             <Icon name="lucide:plus-circle" /> Tambah
           </Button>
-          <Button @click="visibleDrawerFilter = true" size="small">
+          <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
             <Icon name="lucide:filter" /> Filter
             <span
             class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
@@ -37,7 +37,7 @@
       <Card>
         <template #content>
 
-          <Message class="w-[14rem] mb-2" severity="info">
+          <Message class="w-[14rem] mb-2 shadow hover:shadow-md" severity="info">
             <div class="text-xs">
               Pembuatan Bulan Ini: <span class="font-bold">{{ prediksi.total }}</span>
               <br>
@@ -108,7 +108,7 @@
                   {{ slotProps.data.lunas }}
               </template>
             </Column>
-            <Column field="saldo" header="Saldo" class="hidden xl:table-cell"></Column>
+            <Column field="saldo" header="Saldo" class="hidden 2xl:table-cell"></Column>
             <Column field="webhost.hp" header="HP">
               <template #body="slotProps">
                 <div class="whitespace-normal">
@@ -116,7 +116,7 @@
                 </div>
               </template>
             </Column>
-            <Column field="webhost.telegram" header="Telegram" class="hidden xl:table-cell"></Column>
+            <Column field="webhost.telegram" header="Telegram" class="hidden 2xl:table-cell"></Column>
             <Column field="webhost.hpads" sortable header="HP Ads"></Column>
             <Column field="webhost.wa" header="WA">
               <template #body="slotProps">
@@ -134,9 +134,9 @@
             </Column>
             <Column field="dikerjakan_oleh" header="Dikerjakan">
               <template #body="slotProps">
-                <template v-for="item in slotProps.data.karyawans">
+                <div class="whitespace-normal max-w-[5rem] truncate" v-for="item in slotProps.data.karyawans">
                   <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
-                </template>
+                </div>
               </template>
             </Column>
             <Column field="act" header="">
@@ -211,10 +211,10 @@
       </ScrollPanel>
       
       <div>
-        <Button type="submit" class="w-full">
+        <Button type="submit" class="w-full shadow">
           <Icon name="lucide:filter" /> Filter
         </Button>
-        <Button @click="resetFilters()" severity="contrast" class="w-full mt-3">
+        <Button @click="resetFilters()" severity="contrast" class="w-full mt-3 shadow">
           <Icon name="lucide:x" /> Reset
         </Button>
       </div>
@@ -304,8 +304,8 @@ const filterSubmit = async () => {
     updateRouteParams()
 }
 const fieldsFilter = [
-  { key: 'tgl_masuk_start', label: 'Tanggal Masuk', type: 'date' },
-  { key: 'tgl_masuk_end', label: 'Tanggal Masuk', type: 'date' },
+  { key: 'tgl_masuk_start', label: 'Tanggal dari', type: 'date' },
+  { key: 'tgl_masuk_end', label: 'Tanggal sampai', type: 'date' },
   { key: 'nama_web', label: 'Nama Web', type: 'text' },
   { key: 'paket', label: 'Paket', type: 'text' },
   { key: 'jenis', label: 'Jenis', type: 'text' },

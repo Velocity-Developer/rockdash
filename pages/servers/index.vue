@@ -9,39 +9,41 @@
     </Button>
   </div>
 
-  <div v-if="dataTable.data" class="mt-5">
-    <DataTable :value="dataTable.data" size="small" class="text-sm" stripedRows scrollable>
-      <Column field="name" header="Name">
-        <template #body="slotProps">
-          <NuxtLink :to="'/servers/'+slotProps.data.id" class="cursor-pointer">
-            {{ slotProps.data.name }}
-          </NuxtLink>
-        </template>
-      </Column>
-      <Column field="type" header="Type"></Column>
-      <Column field="ip_address" header="IP Address"></Column>
-      <Column field="hostname" header="Hostname"></Column>
-      <Column field="port" header="Port"></Column>
-      <Column field="is_active" header="Active">
-        <template #body="slotProps">
-          <Icon v-if="slotProps.data.is_active" name="lucide:check" size="small" class="text-green-600"/>
-          <Icon v-else name="lucide:x" size="small" class="text-red-600"/>
-        </template>
-      </Column>
-      <Column field="opt" header="">
-        <template #body="slotProps">
-          <div class="flex justify-end items-center gap-1">
-            <Button @click="openDialog('edit',slotProps.data)" severity="secondary" size="small">
-              <Icon name="lucide:pen" size="small"/>
-            </Button>
-            <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
-              <Icon name="lucide:trash-2" size="small"/>
-            </Button>
-          </div>
-        </template>
-      </Column>
-    </DataTable>
-  </div>
+  <Card v-if="dataTable.data" class="mt-5">
+    <template #content>
+      <DataTable :value="dataTable.data" size="small" class="text-sm" stripedRows scrollable>
+        <Column field="name" header="Name">
+          <template #body="slotProps">
+            <NuxtLink :to="'/servers/'+slotProps.data.id" class="cursor-pointer">
+              {{ slotProps.data.name }}
+            </NuxtLink>
+          </template>
+        </Column>
+        <Column field="type" header="Type"></Column>
+        <Column field="ip_address" header="IP Address"></Column>
+        <Column field="hostname" header="Hostname"></Column>
+        <Column field="port" header="Port"></Column>
+        <Column field="is_active" header="Active">
+          <template #body="slotProps">
+            <Icon v-if="slotProps.data.is_active" name="lucide:check" size="small" class="text-green-600"/>
+            <Icon v-else name="lucide:x" size="small" class="text-red-600"/>
+          </template>
+        </Column>
+        <Column field="opt" header="">
+          <template #body="slotProps">
+            <div class="flex justify-end items-center gap-1">
+              <Button @click="openDialog('edit',slotProps.data)" severity="secondary" size="small">
+                <Icon name="lucide:pen" size="small"/>
+              </Button>
+              <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
+                <Icon name="lucide:trash-2" size="small"/>
+              </Button>
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+    </template>
+  </Card>
 
   <Dialog v-model:visible="visibleDialog" :header="selectedItem ? 'Edit Server' : 'Add Server'" :style="{ width: '40rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
     <ServerForm :action="dialogAction" :data="selectedItem" @update="getData()"/>
