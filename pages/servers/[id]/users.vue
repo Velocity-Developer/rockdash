@@ -40,7 +40,7 @@
         </Column>
         <Column field="domain" header="domain"></Column>
         <Column field="package" header="Package"></Column>
-        <Column field="quotalim" header="Quota"></Column>
+        <Column field="quotaLim" header="Quota"></Column>
         <Column field="updated_at" header="Last Update">
           <template #body="slotProps">
             {{ dayjs(slotProps.data.updated_at).format('YY/MM/DD HH:mm') }}
