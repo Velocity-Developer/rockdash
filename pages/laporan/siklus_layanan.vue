@@ -28,7 +28,7 @@
           <tr v-if="data.data" v-for="item in data.data" :key="item.jenis" class="border border-b">
             <td class="px-3 py-2 text-left">
               <span class="cursor-pointer hover:underline" @click="openDialog(item)">
-              {{ item.jenis }}
+              {{ item.label }}
               </span>
             </td>
             <td class="px-3 py-2 text-left">{{ item.total }}</td>
@@ -40,25 +40,65 @@
     </template>
   </Card>
 
+  <Card class="my-4">
+    <template #content>
+      <table class="w-full">
+        <thead>
+          <tr class="border border-b">
+            <th class="px-3 py-2 text-left">Jenis</th>
+            <th class="px-3 py-2 text-left">Total</th>
+            <th class="px-3 py-2 text-right">Nominal</th>
+          </tr>
+        </thead>
+        <tbody><tr v-if="data.meta" v-for="item in data.meta" :key="item.jenis" class="border border-b">
+            <td class="px-3 py-2 text-left">
+              {{ item.label }}
+            </td>
+            <td class="px-3 py-2 text-left">{{ item.total }}</td>
+            <td class="px-3 py-2 text-right">{{ formatMoney(item.nominal,'Rp',0) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
+  </Card>
+
+
   <Dialog v-model:visible="visibleDialog" modal header="" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <div v-if="dataDialog">
-      <pre>
-      {{ dataDialog.webhosts }}
-      </pre>
+   
+    <div v-if="dataDialog && dataDialog.webhosts">
       <DataTable 
-      :value="dataDialog.projects" 
-      size="small" 
-      class="text-xs" 
-      stripedRows scrollHeight="75vh" 
-      scrollable
-    >
-    <Column field="nama_web" header="Nama Web">
-      <template #body="slotProps">
-        {{ slotProps.data.nama_web }}
-      </template>
-    </Column>
-    </DataTable>
+        :value="dataDialog.webhosts" 
+        size="small" 
+        class="text-sm" 
+        stripedRows scrollHeight="72vh" 
+        scrollable
+      >
+        <Column header="No" headerStyle="width:3rem">
+          <template #body="slotProps">
+            {{ slotProps.index + 1 }}
+          </template>
+        </Column>
+        <Column field="nama_web" header="Nama Web">
+          <template #body="slotProps">
+            {{ slotProps.data.nama_web }}
+          </template>
+        </Column>
+        <Column field="project" header="Riwayat">
+          <template #body="slotProps">
+            <table>
+              <tbody>
+                <tr v-for="(item,index) in slotProps.data.cs_main_project" :key="index">
+                  <td class="px-3 py-2 text-left">{{ item.jenis }}</td>
+                  <td class="px-3 py-2 text-left border-x">{{ item.tgl_masuk }}</td>
+                  <td class="px-3 py-2 text-right">{{ formatMoney(item.dibayar,'',0) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+        </Column>
+      </DataTable>
     </div>
+
   </Dialog>
 
 </template>
@@ -111,9 +151,14 @@ onMounted(()=>{
 
 const visibleDialog = ref(false);
 const dataDialog = ref({} as any);
-const openDialog = async (data = {}) => {
+const openDialog = async (data = {} as any) => {
   visibleDialog.value = true;
   dataDialog.value = data;
+
+  // dataDialog.value.webhosts = dataDialog.value.webhosts.map((item: any, index: number) => {
+  //   item.no = index + 1;
+  //   return item;
+  // });
 }
 
 </script>
