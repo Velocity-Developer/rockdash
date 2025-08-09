@@ -40,30 +40,7 @@
     </template>
   </Card>
 
-  <Card class="my-4">
-    <template #content>
-      <table class="w-full">
-        <thead>
-          <tr class="border border-b">
-            <th class="px-3 py-2 text-left">Jenis</th>
-            <th class="px-3 py-2 text-left">Total</th>
-            <th class="px-3 py-2 text-right">Nominal</th>
-          </tr>
-        </thead>
-        <tbody><tr v-if="data.meta" v-for="item in data.meta" :key="item.jenis" class="border border-b">
-            <td class="px-3 py-2 text-left">
-              {{ item.label }}
-            </td>
-            <td class="px-3 py-2 text-left">{{ item.total }}</td>
-            <td class="px-3 py-2 text-right">{{ formatMoney(item.nominal,'Rp',0) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
-  </Card>
-
-
-  <Dialog v-model:visible="visibleDialog" modal header="" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDialog" modal header="" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
    
     <div v-if="dataDialog && dataDialog.webhosts">
       <DataTable 
@@ -72,6 +49,7 @@
         class="text-sm" 
         stripedRows scrollHeight="72vh" 
         scrollable
+        paginator :rows="25" :rowsPerPageOptions="[25, 50, 100, 250, 500]" 
       >
         <Column header="No" headerStyle="width:3rem">
           <template #body="slotProps">
@@ -85,10 +63,10 @@
         </Column>
         <Column field="project" header="Riwayat">
           <template #body="slotProps">
-            <table>
+            <table class="w-full">
               <tbody>
-                <tr v-for="(item,index) in slotProps.data.cs_main_project" :key="index">
-                  <td class="px-3 py-2 text-left">{{ item.jenis }}</td>
+                <tr v-for="(item,index) in slotProps.data.cs_main_projects" :key="index">
+                  <td class="px-3 py-2 text-left w-[20rem]">{{ item.jenis }}</td>
                   <td class="px-3 py-2 text-left border-x">{{ item.tgl_masuk }}</td>
                   <td class="px-3 py-2 text-right">{{ formatMoney(item.dibayar,'',0) }}</td>
                 </tr>
@@ -154,11 +132,6 @@ const dataDialog = ref({} as any);
 const openDialog = async (data = {} as any) => {
   visibleDialog.value = true;
   dataDialog.value = data;
-
-  // dataDialog.value.webhosts = dataDialog.value.webhosts.map((item: any, index: number) => {
-  //   item.no = index + 1;
-  //   return item;
-  // });
 }
 
 </script>
