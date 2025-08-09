@@ -27,7 +27,7 @@
         <tbody>
           <tr v-if="data.data" v-for="item in data.data" :key="item.jenis" class="border border-b">
             <td class="px-3 py-2 text-left">
-              <span class="cursor-pointer hover:underline" @click="openDialog(item)">
+              <span class="cursor-pointer hover:underline" @click="openDialog(item,item.label)">
               {{ item.label }}
               </span>
             </td>
@@ -40,7 +40,7 @@
     </template>
   </Card>
 
-  <Dialog v-model:visible="visibleDialog" modal header="" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDialog" modal :header="titleDialog" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
    
     <div v-if="dataDialog && dataDialog.webhosts">
       <DataTable 
@@ -66,9 +66,9 @@
             <table class="w-full">
               <tbody>
                 <tr v-for="(item,index) in slotProps.data.cs_main_projects" :key="index">
-                  <td class="px-3 py-2 text-left w-[20rem]">{{ item.jenis }}</td>
-                  <td class="px-3 py-2 text-left border-x">{{ item.tgl_masuk }}</td>
-                  <td class="px-3 py-2 text-right">{{ formatMoney(item.dibayar,'',0) }}</td>
+                  <td class="px-3 py-2 text-left w-[20rem] border-b">{{ item.jenis }}</td>
+                  <td class="px-3 py-2 text-left w-[8rem] border-x border-b">{{ item.tgl_masuk }}</td>
+                  <td class="px-3 py-2 text-right border-b">{{ formatMoney(item.dibayar,'',0) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -129,9 +129,11 @@ onMounted(()=>{
 
 const visibleDialog = ref(false);
 const dataDialog = ref({} as any);
-const openDialog = async (data = {} as any) => {
+const titleDialog = ref('');
+const openDialog = async (data = {} as any,title = '') => {
   visibleDialog.value = true;
   dataDialog.value = data;
+  titleDialog.value = title;
 }
 
 </script>
