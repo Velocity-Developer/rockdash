@@ -216,7 +216,7 @@ const getData = async () => {
   if (idUser) {
     loading.value = true;
     try {
-      const res = await client('/api/users/'+idUser);
+      const res = await client('/api/users/'+idUser) as any
       form.name = res.name
       form.username = res.username
       form.email = res.email
