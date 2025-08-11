@@ -67,8 +67,6 @@
 </template>
 
 <script setup lang="ts">
-import { Select } from '#components';
-
 definePageMeta({
     title: 'Kategori Jurnal',
     description: 'Daftar Kategori Jurnal',
