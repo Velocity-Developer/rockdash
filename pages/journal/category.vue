@@ -1,65 +1,65 @@
 <template>
+  <div class="md:max-w-[50rem] md:mx-auto">
+    <div class="flex justify-end items-center gap-2 mb-2">
+      <Select 
+        v-model="filters.role" 
+        :options="opsiRoles" 
+        optionLabel="label" 
+        optionValue="value" 
+        placeholder="Semua Role" 
+        :loading="loadingRole"
+        size="small"
+        @change="getData"
+      />
+      <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+        <Icon name="lucide:plus" />
+        Tambah
+      </Button>
+      <Button @click="getData()" size="small" :loading="loading">
+        <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
+        Refresh
+      </Button>
+    </div>
 
-  <Card class="md:max-w-[50rem] md: mx-auto">
-    <template #content>
-      
-      <div class="flex justify-end items-center gap-2 mb-2">
-        <Select 
-          v-model="filters.role" 
-          :options="opsiRoles" 
-          optionLabel="label" 
-          optionValue="value" 
-          placeholder="Semua Role" 
-          :loading="loadingRole"
-          size="small"
-          @change="getData"
-        />
-        <Button @click="openFormDialog('add','')" size="small" :loading="loading">
-          <Icon name="lucide:plus" />
-          Tambah
-        </Button>
-        <Button @click="getData()" size="small" :loading="loading">
-          <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
-          Refresh
-        </Button>
-      </div>
-      
+    <Card>
+      <template #content>           
 
-      <div>
-        <DataTable :value="data.data" class="text-sm">
-          <Column field="name" header="Name">
-            <template #body="slotProps">
-              <div class="flex items-center gap-2">
-                <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700 inline-block">
-                  {{slotProps.data.icon}}
-                </span>
-                <span class="inline-block">
-                  {{slotProps.data.name}}
-                </span>
-              </div>
-            </template>
-          </Column>
-          <Column field="description" header="Desc" />
-          <Column field="role" header="Role" />
-          <Column field="action" header="">
-            <template #body="slotProps">
-              <div class="flex justify-end items-center gap-1">
-                <Button @click="openFormDialog('edit',slotProps.data)" size="small" severity="info">
-                  <Icon name="lucide:edit" />
-                </Button>
-                <Button @click="deleteItem(slotProps.data.id)" size="small" severity="danger">
-                  <Icon name="lucide:trash-2" />
-                </Button>
-              </div>
-            </template>
-          </Column>
-        </DataTable>
-      </div>
-    </template>
-  </Card>
+        <div>
+          <DataTable :value="data.data" class="text-sm">
+            <Column field="name" header="Name">
+              <template #body="slotProps">
+                <div class="flex items-center gap-2">
+                  <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-full bg-gradient-to-bl from-indigo-200 to-indigo-400 dark:from-indigo-700 dark:to-indigo-900 inline-block">
+                    {{slotProps.data.icon}}
+                  </span>
+                  <span class="inline-block">
+                    {{slotProps.data.name}}
+                  </span>
+                </div>
+              </template>
+            </Column>
+            <Column field="description" header="Desc" />
+            <Column field="role" header="Role" />
+            <Column field="action" header="">
+              <template #body="slotProps">
+                <div class="flex justify-end items-center gap-1">
+                  <Button @click="openFormDialog('edit',slotProps.data)" size="small" severity="info">
+                    <Icon name="lucide:edit" />
+                  </Button>
+                  <Button @click="deleteItem(slotProps.data.id)" size="small" severity="danger">
+                    <Icon name="lucide:trash-2" />
+                  </Button>
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+      </template>
+    </Card>
+  </div>
 
   <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Kategori Jurnal' : 'Edit Kategori Jurnal'" :style="{ width: '25rem' }">
-    <JournalCategoryForm :action="actionFormDialog" :item="selectedItem" @update="getData"/>
+    <JournalFormCategory :action="actionFormDialog" :item="selectedItem" @update="getData"/>
   </Dialog>
 
   <DashLoader :loading="loading" />
