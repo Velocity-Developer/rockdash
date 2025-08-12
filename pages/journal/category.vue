@@ -10,6 +10,7 @@
         :loading="loadingRole"
         size="small"
         @change="getData"
+        showClear
       />
       <Button @click="openFormDialog('add','')" size="small" :loading="loading">
         <Icon name="lucide:plus" />
@@ -53,6 +54,19 @@
               </template>
             </Column>
           </DataTable>
+          <Paginator
+              :rows="data.per_page"
+              :totalRecords="data.total"
+              @page="onPaginate"
+              :pt="{
+                  root: (event: any) => {
+                      const itemForPage =  data.per_page;
+                      const currentPage =  filters.page - 1;
+                      event.state.d_first = itemForPage * currentPage;
+                  },
+              }"
+          >
+          </Paginator>
         </div>
       </template>
     </Card>
@@ -78,6 +92,7 @@ const toast = useToast();
 
 const filters = reactive({
   role: '',
+  page: route.query.page ? Number(route.query.page) : 1,
 })
 
 const opsiRoles = ref([] as any)
@@ -89,7 +104,7 @@ const getDataOptionRoles = async () => {
     //tambah opsi role
     opsiRoles.value = [{
       label: 'Semua',
-      value: '',
+      value: ' ',
     },...res]
   } catch (error) {
     console.log(error);
@@ -111,6 +126,10 @@ const getData = async () => {
     }
     loading.value = false;
 }
+const onPaginate = (event: { page: number }) => {
+    filters.page = event.page + 1;
+    getData()
+};
 onMounted(() => {
     getData();
     getDataOptionRoles()

@@ -21,8 +21,8 @@ const statuses = {
     label: 'Completed',
     severity: 'success'
   },
-  canceled: {
-    label: 'Canceled',
+  cancelled: {
+    label: 'Cancelled',
     severity: 'danger'
   }
 } as any
