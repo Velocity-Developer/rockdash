@@ -15,7 +15,7 @@
   flex justify-center flex-col gap-4 w-full" >
       
       <img v-if="appLogo" :src="appLogo" class="h-[50px] mx-auto mb-5"/>
-      <img v-else src="~/public/vd.webp" class="h-[50px] mx-auto mb-5"/>
+      <img v-else src="/vd.webp" class="h-[50px] mx-auto mb-5"/>
 
       <IftaLabel>
           <InputText id="username" v-model="credentials.username" class="w-full" variant="filled"/>

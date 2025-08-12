@@ -40,7 +40,7 @@
 
       </div>
       <div class="lg:col-span-3 md:col-span-5 sm:col-span-12 col-span-12 text-end">
-        <img src="~/public/charts.webp" alt="Image" class="w-full max-w-[180px] mx-auto md:ml-auto md:mr-0 md:mt-[-1em]" />
+        <img src="/charts.webp" alt="Image" class="w-full max-w-[180px] mx-auto md:ml-auto md:mr-0 md:mt-[-1em]" />
       </div>
 
     </div>
@@ -61,7 +61,7 @@ setTimeout( async () => {
 
   //ambil data dari api
   try {
-    const res = await client('/api/dashboard/welcome')
+    const res = await client('/api/dashboard/welcome') as any
     projectThisMonth.value = res.total_project_bulanini
     performThisMonth.value = res.perform
   } catch(eror){

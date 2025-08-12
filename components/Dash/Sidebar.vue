@@ -4,10 +4,10 @@
     <div class="py-2 px-2 text-center">
       <nuxtLink to="/">
         <img v-if="useConfig.config.app_logo" :src="useConfig.config.app_logo" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
-        <img v-else src="~/public/vd.webp" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
+        <img v-else src="/vd.webp" class="max-h-[40px] w-auto mx-auto" :class="{ 'md:hidden block': useConfig.miniSidebar, 'block': !useConfig.miniSidebar }"/>
         
         <img v-if="useConfig.config.app_logo_small" :src="useConfig.config.app_logo_small" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
-        <img v-else src="~/public/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
+        <img v-else src="/vdi.webp" class="w-[2rem] mx-auto hidden" :class="{ 'md:block': useConfig.miniSidebar}"/>
       </nuxtLink>
     </div>
     
