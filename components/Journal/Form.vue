@@ -10,7 +10,7 @@
       
       <div class="mb-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Webhost</div>
-        <InputText v-model="form.webhost_id" class="w-full" />
+        <FormSelectWebhost v-model="form.webhost_id" />
         <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
       </div>
       <div class="mb-3">
@@ -148,7 +148,7 @@ const form = reactive({
   status: 'ongoing',
   priority: 'medium',
   user_id: '',
-  webhost_id: '',
+  webhost_id: null,
   cs_main_project_id: '',
   journal_category_id: '',
   id: ''
@@ -163,14 +163,13 @@ onMounted(() => {
     form.status = props.item.status
     form.priority = props.item.priority
     form.user_id = props.item.user_id
-    form.webhost_id = props.item.webhost_id
-    form.cs_main_project_id = props.item.cs_main_project_id
-    form.journal_category_id = props.item.journal_category_id
+    form.webhost_id = props.item.webhost_id ? props.item.webhost_id : null
+    form.cs_main_project_id = props.item.cs_main_project_id ? props.item.cs_main_project_id : null
+    form.journal_category_id = props.item.journal_category_id ? props.item.journal_category_id : null
     form.id = props.item.id
   }
   getCategories()
 })
-
 const errors = ref('' as any)
 const loading = ref(false);
 const handleSubmit = async () => {
