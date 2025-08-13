@@ -8,14 +8,17 @@
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
       </div>
       
-      <div class="mb-3 md:col-span-2">
+      <div class="mb-3">
         <div class="block text-sm font-medium opacity-70">Webhost</div>
         <FormSelectWebhost v-model="form.webhost_id" />
         <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
       </div>
-      <div class="mb-3">
+      <div class="mb-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Project</div>
-        <InputText v-model="form.cs_main_project_id" class="w-full" />
+        <FormSelectCsMainProject 
+          v-model="form.cs_main_project_id" 
+          :webhost-id="form.webhost_id" 
+        />
         <Message v-if="errors.cs_main_project_id" severity="error" size="small" class="mt-1" closable>{{ errors.cs_main_project_id[0] }}</Message>
       </div>
 
@@ -62,7 +65,7 @@
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
           <template #option="slotProps">
               <div class="flex items-center gap-2">
-                <span v-if="slotProps.option.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700 inline-block">
+                <span v-if="slotProps.option.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700">
                   {{slotProps.option.icon}}
                 </span>
                 <div>{{ slotProps.option.name }}</div>

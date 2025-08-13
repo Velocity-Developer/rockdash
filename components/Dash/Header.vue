@@ -1,5 +1,5 @@
 <template>
-  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="shadow-sm sticky top-0 z-[5] bg-white dark:bg-zinc-900 fixed w-full">
+  <header :class="['header', { 'scrolled shadow': isScrolled }]" class="shadow-sm sticky top-0 z-[5] bg-white dark:bg-zinc-900 w-full">
 
     <nav class="px-2 border-gray-700 rounded-none bg-transparent dark:bg-transparent py-3 sm:px-6">
       <div class="mx-auto flex flex-wrap items-center justify-between">
