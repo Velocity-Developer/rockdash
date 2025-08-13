@@ -47,6 +47,7 @@
             </div>
           </template>
         </Select>
+        <FormSelectUser v-model="form.user_id" />
         <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
       </div>
       <div class="mb-3">
