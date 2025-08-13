@@ -24,6 +24,14 @@ const statuses = {
   cancelled: {
     label: 'Cancelled',
     severity: 'danger'
+  },
+  archived: {
+    label: 'Archived',
+    severity: 'warning'
+  },
+  draft: {
+    label: 'Draft',
+    severity: 'primary'
   }
 } as any
 

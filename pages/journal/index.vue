@@ -1,12 +1,23 @@
 <template>
+  
   <div class="flex justify-end items-center gap-2 mb-2">
-    <Button @click="openFormDialog('add','')" size="small" :loading="loading">
-      <Icon name="lucide:plus" />
-      Tambah
-    </Button>
+    <Select v-model="filters.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" size="small" required>
+      <template #option="slotProps">
+        <div class="flex items-center">
+            <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
+            <div>{{ slotProps.option.label }}</div>
+        </div>
+      </template>
+    </Select>
+    <DatePicker v-model="filters.date_start" size="small"/>
+    <DatePicker v-model="filters.date_end" size="small"/>
     <Button @click="getData()" size="small" :loading="loading">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
       Refresh
+    </Button>
+    <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+      <Icon name="lucide:plus" />
+      Tambah
     </Button>
   </div>
 
@@ -16,7 +27,7 @@
           :value="data.data" 
           size="small" class="text-sm" 
           selectionMode="multiple" 
-          stripedRows scrollable scrollHeight="50vh"
+          stripedRows scrollable scrollHeight="70vh"
         >
           <Column field="title" header="Judul">
             <template #body="slotProps">
@@ -26,6 +37,16 @@
           <Column field="description" header="Deskripsi">
             <template #body="slotProps">
               {{ slotProps.data.description }}
+            </template>
+          </Column>
+          <Column field="web" header="Web">
+            <template #body="slotProps">
+              <span class="block" v-if="slotProps.data.webhost">
+                {{ slotProps.data.webhost?.nama_web }}
+              </span>
+              <Badge v-if="slotProps.data.cs_main_project" size="small">
+                {{ slotProps.data.cs_main_project?.jenis }}
+              </Badge>
             </template>
           </Column>
           <Column field="start" header="Waktu">
@@ -48,7 +69,7 @@
           <Column field="act" header="">
             <template #body="slotProps">
               <AvatarGroup>
-                <Avatar :image="slotProps.data.user?.avatar_url" shape="circle" v-tooltip.left="slotProps.data.user?.name"/>
+                <Avatar :image="slotProps.data.user?.avatar_url" shape="circle" v-tooltip.left="slotProps.data.user?.name" class="hover:relative"/>
                 <Avatar :label="slotProps.data.journal_category.icon" v-tooltip.left="slotProps.data.journal_category.name" class="bg-indigo-300 hover:animate-pulse" shape="circle" />
                 <Avatar shape="circle" class="cursor-pointer bg-sky-300" v-tooltip.left="'Edit'" @click="openFormDialog('edit',slotProps.data)">
                   <Icon name="lucide:pen" mode="svg"/>
@@ -57,11 +78,30 @@
             </template>
           </Column>
       </DataTable>
+      <div class="flex justify-between items-center text-xs mt-3">
+          <div>
+            {{ data.from }} - {{ data.to }} dari {{ data.total }}
+          </div>
+
+          <Paginator
+              :rows="data.per_page"
+              :totalRecords="data.total"
+              @page="onPaginate"
+              :pt="{
+                  root: (event: any) => {
+                      const itemForPage =  data.per_page;
+                      const currentPage =  filters.page - 1;
+                      event.state.d_first = itemForPage * currentPage;
+                  },
+              }"
+          >
+          </Paginator>
+        </div>
     </template>
   </Card>
 
-  <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '40rem' }">
-    <JournalForm :action="actionFormDialog" :item="selectedItem" @update="getData"/>
+  <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '50rem' }">
+    <JournalForm :action="actionFormDialog" :item="selectedItem" @update="getData" @delete="deletedJournal"/>
   </Dialog>
 
   <DashLoader :loading="loading" />
@@ -72,15 +112,22 @@ definePageMeta({
     title: 'Jurnal',
     description: 'Daftar Jurnal',
 })
+import { useDayjs } from '#dayjs'
+const dayjs = useDayjs()
 const client = useSanctumClient();
 const route = useRoute();
-const confirm = useConfirm();
-const toast = useToast();
 
 const filters = reactive({
-  bulan: '',
+  date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
+  date_end: dayjs().format('YYYY-MM-DD'),
   user_id: '',
-})
+  page: route.query.page ? Number(route.query.page) : 1,
+}) as any
+
+const { data: opsiUsers } = await useAsyncData(
+  'opsi-users', 
+  () => client('/api/data_opsi/users'),
+) as any
 
 const loading = ref(false);
 const data = ref({} as any);
@@ -96,6 +143,10 @@ const getData = async () => {
     }
     loading.value = false;
 }
+const onPaginate = (event: { page: number }) => {
+    filters.page = event.page + 1;
+    getData()
+};
 onMounted(() => {
     getData()
 })
@@ -111,5 +162,11 @@ const openFormDialog = (action:string,item:any) => {
   } else {
     selectedItem.value = {};
   }
+}
+
+const deletedJournal = () => {
+  getData()
+  visibleFormDialog.value = false;
+  selectedItem.value = {};
 }
 </script>

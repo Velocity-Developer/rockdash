@@ -1,15 +1,27 @@
 <template>
   <form @submit.prevent="handleSubmit">
-    <div class="grid grid-cols-1 gap-1">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
 
-      <div class="mb-3">
+      <div class="md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Judul</div>
         <InputText v-model="form.title" class="w-full"/>
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
       </div>
+      
+      <div class="mb-3 md:col-span-2">
+        <div class="block text-sm font-medium opacity-70">Webhost</div>
+        <InputText v-model="form.webhost_id" class="w-full" />
+        <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
+      </div>
       <div class="mb-3">
+        <div class="block text-sm font-medium opacity-70">Project</div>
+        <InputText v-model="form.cs_main_project_id" class="w-full" />
+        <Message v-if="errors.cs_main_project_id" severity="error" size="small" class="mt-1" closable>{{ errors.cs_main_project_id[0] }}</Message>
+      </div>
+
+      <div class="md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Deskripsi</div>
-        <Textarea v-model="form.description" class="w-full" rows="3"></Textarea>
+        <Textarea v-model="form.description" class="w-full" rows="10"></Textarea>
         <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
       </div>
       <div class="mb-3">
@@ -23,6 +35,18 @@
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
       <div class="mb-3">
+        <div class="block text-sm font-medium opacity-70">User</div>
+        <Select v-model="form.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full" required>
+          <template #option="slotProps">
+            <div class="flex items-center">
+                <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
+                <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+        <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
+      </div>
+      <div class="mb-3">
         <div class="block text-sm font-medium opacity-70">Status</div>
         <Select 
           v-model="form.status" 
@@ -32,6 +56,7 @@
         />
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
+      
       <div class="mb-3">
         <div class="block text-sm font-medium opacity-70">Kategori</div>
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
@@ -48,7 +73,7 @@
       </div>
       <div class="mb-3">
         <div class="block text-sm font-medium opacity-70">Prioritas</div>
-        <Select 
+        <SelectButton 
           v-model="form.priority" 
           :options="[{ label: 'Low', value: 'low' }, { label: 'Medium', value: 'medium' }, { label: 'High', value: 'high' }]" 
           optionLabel="label" optionValue="value" 
@@ -58,12 +83,17 @@
         <Message v-if="errors.priority" severity="error" size="small" class="mt-1" closable>{{ errors.priority[0] }}</Message>
       </div>
 
-      <div class="flex flex-col gap-1 items-end">
-        <Button :loading="loading" type="submit">
-          <Icon name="lucide:loader-circle" v-if="loading" class="animate-spin" />
-          <Icon name="lucide:save" v-else/>          
-          {{ props.action === 'add' ? 'Tambah' : 'Update' }}
-        </Button>
+      <div class="col-span-3 mt-5">
+        <div class="flex gap-1 justify-end items-end">
+          <Button :loading="loading" type="button" severity="danger" @click="handleDelete">
+            <Icon name="lucide:trash-2"/>  Hapus
+          </Button>
+          <Button :loading="loading" type="submit">
+            <Icon name="lucide:loader-circle" v-if="loading" class="animate-spin" />
+            <Icon name="lucide:save" v-else/>          
+            {{ props.action === 'add' ? 'Tambah' : 'Update' }}
+          </Button>
+        </div>
       </div>
 
     </div>
@@ -84,11 +114,17 @@ const props = defineProps({
 })
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
-const emit = defineEmits(['update']);
+const emit = defineEmits(['update','delete']);
 const client = useSanctumClient();
 const toast = useToast();
+const confirm = useConfirm();
 const dateNow = new Date();
 const useConfig = useConfigStore()
+
+const { data: opsiUsers } = await useAsyncData(
+  'opsi-users', 
+  () => client('/api/data_opsi/users'),
+) as any
 
 const opsiCategories = ref([] as any)
 const getCategories = async () => {
@@ -200,4 +236,47 @@ const handleSubmit = async () => {
   }
   loading.value = false;
 }
+
+//confirm handleDelete
+const handleDelete = async () => {
+  confirm.require({
+        message: 'Anda yakin hapus jurnal ini?',
+        header: 'Hapus Jurnal',
+        accept: async () => {
+            try {              
+              const re = await client(`/api/journal/${form.id}`, {
+                  method: 'DELETE',
+              })
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Jurnal berhasil dihapus',
+                life: 3000
+              });
+              emit('delete')
+            } catch (error) {
+                const er = useSanctumError(error)                 
+                toast.add({
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus jurnal',
+                    life: 3000
+                });
+            }
+        },
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+} 
 </script>
