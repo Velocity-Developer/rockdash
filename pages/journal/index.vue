@@ -31,7 +31,9 @@
         >
           <Column field="title" header="Judul">
             <template #body="slotProps">
+              <span @click="openPreviewDialog(slotProps.data)">
               {{ slotProps.data.title }}
+              </span>
             </template>
           </Column>
           <Column field="description" header="Deskripsi">
@@ -70,7 +72,7 @@
             <template #body="slotProps">
               <AvatarGroup>
                 <Avatar :image="slotProps.data.user?.avatar_url" shape="circle" v-tooltip.left="slotProps.data.user?.name" class="hover:relative"/>
-                <Avatar :label="slotProps.data.journal_category.icon" v-tooltip.left="slotProps.data.journal_category.name" class="bg-indigo-300 hover:animate-pulse" shape="circle" />
+                <Avatar @click="openPreviewDialog(slotProps.data)" :label="slotProps.data.journal_category.icon" v-tooltip.left="slotProps.data.journal_category.name" class="bg-indigo-300 hover:animate-pulse" shape="circle" />
                 <Avatar shape="circle" class="cursor-pointer bg-sky-300" v-tooltip.left="'Edit'" @click="openFormDialog('edit',slotProps.data)">
                   <Icon name="lucide:pen" mode="svg"/>
                 </Avatar>
@@ -100,8 +102,24 @@
     </template>
   </Card>
 
+  <!-- Form Dialog -->
   <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '50rem' }">
     <JournalForm :action="actionFormDialog" :item="selectedItem" @update="getData" @delete="deletedJournal"/>
+  </Dialog>
+
+  <!-- Preview Dialog -->
+  <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <JournalPreview :journal="selectedPreviewItem" />
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <Button @click="openFormDialog('edit', selectedPreviewItem)" size="small">
+          <Icon name="lucide:pen" /> Edit
+        </Button>
+        <Button @click="visiblePreviewDialog = false" size="small">
+          Tutup
+        </Button>
+      </div>
+    </template>
   </Dialog>
 
   <DashLoader :loading="loading" />
@@ -151,6 +169,7 @@ onMounted(() => {
     getData()
 })
 
+// Form Dialog
 const visibleFormDialog = ref(false);
 const actionFormDialog = ref('add');
 const selectedItem = ref({} as any);
@@ -162,6 +181,16 @@ const openFormDialog = (action:string,item:any) => {
   } else {
     selectedItem.value = {};
   }
+  // Tutup preview dialog jika sedang terbuka
+  visiblePreviewDialog.value = false;
+}
+
+// Preview Dialog
+const visiblePreviewDialog = ref(false);
+const selectedPreviewItem = ref({} as any);
+const openPreviewDialog = (item: any) => {
+  visiblePreviewDialog.value = true;
+  selectedPreviewItem.value = item;
 }
 
 const deletedJournal = () => {
