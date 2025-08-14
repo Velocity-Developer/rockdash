@@ -20,10 +20,62 @@
       Tambah
     </Button>
   </div>
+  
+  <div class="mb-5">
+      <DataView :value="data.data" :pt="{
+        content: {
+          class: '!bg-transparent'
+        }
+      }">
+        <template #list="slotProps">
+          <div class="flex flex-col gap-3">
+              <Card v-for="(item, index) in slotProps.items" :key="index">
+                <template #content>
+                  <div class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                      <div class="flex items-center gap-2">
+                        <span class="w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-2 rounded-full">
+                          {{ item.journal_category?.icon }}
+                        </span>
+                        <Badge class="bg-indigo-200 text-indigo-800" size="small">{{ item.journal_category?.name }}</Badge>
+                      </div>                      
+                      <Badge size="small">
+                        {{ item.status }}
+                      </Badge>
+                    </div>
+                    <div class="font-bold hover:underline cursor-pointer" @click="openPreviewDialog(item)">
+                      {{ item.title }}
+                    </div>
+                    <div class="text-sm">{{ item.description }}</div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2">
+                          <Avatar :image="item.user?.avatar_url" shape="circle" size="small" class="w-5 h-5" />
+                          <div class="text-sm font-medium">{{ item.user?.name }}</div>
+                        </div>
+                        <div class="text-sm flex items-center gap-1">
+                          <Icon name="lucide:clock"/>
+                          <div>{{ formatDate(item.start,'DD/MM/YY HH:mm') }}</div>
+                          <div v-if="item.end" class="text-sm"> - {{ formatDate(item.end,'DD/MM/YY HH:mm') }}</div>
+                        </div>
+                        <div class="text-sm flex items-center gap-1">
+                          <Icon name="lucide:globe"/>
+                          <span>{{ item.webhost?.nama_web }}</span>
+                        </div>
+                    </div>
+
+                  </div>
+                </template>
+              </Card>
+          </div>
+        </template>
+      </DataView>
+  </div>
 
   <Card>
     <template #content>
-      <DataTable 
+
+      <!-- <DataTable 
           :value="data.data" 
           size="small" class="text-sm" 
           selectionMode="multiple" 
@@ -79,8 +131,8 @@
               </AvatarGroup>              
             </template>
           </Column>
-      </DataTable>
-      <div class="flex justify-between items-center text-xs mt-3">
+      </DataTable> -->
+      <div class="flex justify-between items-center text-xs">
           <div>
             {{ data.from }} - {{ data.to }} dari {{ data.total }}
           </div>
