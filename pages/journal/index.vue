@@ -55,7 +55,7 @@
                <Icon name="lucide:clock" />
                <span class="text-xs whitespace-nowrap">{{ formatDate(slotProps.data.start,'DD/MM/YY HH:mm') }}</span>
               </div>
-              <div class="text-teal-500 flex items-center gap-1">
+              <div v-if="slotProps.data.end" class="text-teal-500 flex items-center gap-1">
                 <Icon name="lucide:circle-check" />
                 <span class="text-xs whitespace-nowrap">{{ formatDate(slotProps.data.end,'DD/MM/YY HH:mm') }}</span>
               </div>
