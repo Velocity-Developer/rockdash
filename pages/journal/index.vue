@@ -9,8 +9,8 @@
         </div>
       </template>
     </Select>
-    <DatePicker v-model="filters.date_start" size="small"/>
-    <DatePicker v-model="filters.date_end" size="small"/>
+    <DatePicker dateFormat="yy-mm-dd" v-model="filters.date_start" size="small" />
+    <DatePicker dateFormat="yy-mm-dd" v-model="filters.date_end" size="small" />
     <Button @click="getData()" size="small" :loading="loading">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
       Refresh
@@ -151,6 +151,15 @@ const loading = ref(false);
 const data = ref({} as any);
 const getData = async () => {
     loading.value = true;
+
+    //ubah format date
+    if(filters.date_start) {
+      filters.date_start = dayjs(filters.date_start).local().format('YYYY-MM-DD')
+    }
+    if(filters.date_end) {
+      filters.date_end = dayjs(filters.date_end).local().format('YYYY-MM-DD')
+    }
+
     try {
       const res = await client('/api/journal',{
         params: filters,
