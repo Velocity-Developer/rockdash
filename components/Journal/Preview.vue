@@ -13,7 +13,12 @@
                     />
                     <div>
                     <h3 class="font-semibold text-lg">{{ journal.title }}</h3>
-                    <p class="text-sm opacity-50">oleh {{ journal.user?.name }}</p>
+                    <p class="text-sm opacity-50">
+                        oleh {{ journal.user?.name }}
+                        <Badge class="ml-1" v-if="journal.user?.user_roles" severity="contrast">
+                            {{ journal.user.user_roles[0] }}
+                        </Badge>
+                    </p>
                     </div>
                 </div>
                 <div class="text-right">
@@ -30,12 +35,10 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card>
         <template #content>
-          <div class="flex items-center gap-3">
-            <Avatar 
-              :label="journal.journal_category?.icon" 
-              class="bg-indigo-100 text-indigo-600 dark:bg-indigo-500" 
-              shape="circle"
-            />
+          <div class="flex items-center gap-3">          
+            <div class="w-10 h-10 p-2 flex items-center justify-center bg-indigo-100 dark:bg-indigo-500 rounded-lg">
+              {{ journal.journal_category?.icon }}
+            </div>
             <div>
               <div class="text-sm opacity-50">Kategori</div>
               <div class="font-medium">{{ journal.journal_category?.name }}</div>
@@ -46,12 +49,10 @@
 
       <Card v-if="journal.webhost || journal.cs_main_project">
         <template #content>
-          <div class="flex items-center gap-3">
-            <Avatar 
-              label="🌐" 
-              class="bg-sky-100 text-sky-600 dark:bg-sky-500" 
-              shape="circle"
-            />
+          <div class="flex items-center gap-3">            
+            <div class="w-10 h-10 p-2 flex items-center justify-center bg-teal-100 dark:bg-teal-500 rounded-lg">
+              <Icon name="lucide:globe" class="text-teal-600 dark:text-white" />
+            </div>
             <div>
               <div class="text-sm opacity-50">Web</div>
               <div class="font-medium">
@@ -82,26 +83,26 @@
             </div>
           </div>
 
-          <div v-if="journal.end" class="flex items-center gap-3">
+          <div class="flex items-center gap-3">
             <div class="w-10 h-10 p-2 flex items-center justify-center bg-green-100 dark:bg-green-500 rounded-lg">
               <Icon name="lucide:check-circle" class="text-green-600 dark:text-white" />
             </div>
             <div>
               <div class="text-sm opacity-50">Selesai</div>
               <div class="text-sm">
-                {{ formatDate(journal.end, 'DD MMM YYYY HH:mm') }}
+                {{ journal.end ? formatDate(journal.end, 'DD MMM YYYY HH:mm') : '-' }}
               </div>
             </div>
           </div>
 
-          <div v-if="journal.start && journal.end" class="col-span-2 md:col-span-1 flex items-center gap-3">
+          <div class="col-span-2 md:col-span-1 flex items-center gap-3">
             <div class="w-10 h-10 p-2 flex items-center justify-center bg-amber-100 dark:bg-amber-500 rounded-lg">
               <Icon name="lucide:clock" class="text-amber-600 dark:text-white" />
             </div>
             <div>
               <div class="text-sm opacity-50">Durasi</div>
               <div class="text-sm">
-                {{ calculateDuration(journal.start, journal.end) }}
+                {{ journal.start && journal.end?calculateDuration(journal.start, journal.end):'-' }}
               </div>
             </div>
           </div>
@@ -115,7 +116,6 @@
         <div class="flex items-center gap-2 mb-4">
           <div class="w-10 h-10 p-2 flex items-center justify-center bg-zinc-100 dark:bg-zinc-500 rounded-lg">
               <Icon name="lucide:file-text" class="text-zinc-600 dark:text-white" />
-
             </div>
           <span class="font-medium">Deskripsi</span>
         </div>
@@ -144,6 +144,7 @@ interface Journal {
     id: string | number;
     name: string;
     avatar_url?: string;
+    user_roles?: string[];
   };
   journal_category?: {
     id: string | number;
