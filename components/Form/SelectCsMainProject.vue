@@ -10,7 +10,7 @@
         :class="{ '!text-gray-400': !selectedCsMainProject }"
       >
         <span v-if="selectedCsMainProject">{{ selectedCsMainProject.jenis }} - {{ selectedCsMainProject.webhost?.nama_web }}</span>
-        <span v-else>Pilih CS Main Project...</span>
+        <span v-else>Pilih Project...</span>
         <Icon name="lucide:chevron-down" class="ml-auto" />
       </Button>
       
@@ -31,8 +31,8 @@
     <Dialog 
       v-model:visible="showDialog" 
       modal 
-      header="Pilih CS Main Project" 
-      :style="{ width: '50rem' }"
+      header="Pilih Project" 
+      :style="{ width: '40rem' }"
       :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     >
       <div class="p-4">
@@ -80,13 +80,19 @@
         <!-- Pesan jika tidak ada hasil -->
         <div v-else-if="form.search && !isLoading" class="text-center py-8 text-gray-500">
           <Icon name="lucide:search-x" class="text-4xl mb-2" />
-          <p>Tidak ada CS Main Project yang ditemukan</p>
+          <p>Tidak ada Project yang ditemukan</p>
         </div>
 
         <!-- Pesan awal -->
-        <div v-else-if="!form.search" class="text-center py-8 text-gray-500">
+        <div v-else-if="!form.search && !webhostId" class="text-center py-8 text-gray-500">
           <Icon name="lucide:search" class="text-4xl mb-2" />
-          <p>Ketik minimal 3 karakter untuk mencari CS Main Project</p>
+          <p>Ketik minimal 3 karakter untuk mencari Project</p>
+        </div>
+
+        <!-- Loading state untuk auto-load -->
+        <div v-else-if="isLoading && webhostId" class="text-center py-8 text-gray-500">
+          <Icon name="lucide:loader-circle" class="text-4xl mb-2 animate-spin" />
+          <p>Memuat daftar project...</p>
         </div>
       </div>
 
@@ -108,7 +114,6 @@
     </Dialog>
   </div>
 </template>
-
 <script setup lang="ts">
 interface CsMainProject {
   id: string | number;
