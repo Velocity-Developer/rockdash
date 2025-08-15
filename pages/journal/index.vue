@@ -1,6 +1,7 @@
 <template>
   
-  <div class="flex justify-end items-center gap-2 mb-2">
+  <!-- Filter untuk desktop -->
+  <div class="hidden md:flex justify-end items-center gap-2 mb-2">
     <Select v-model="filters.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" size="small" required>
       <template #option="slotProps">
         <div class="flex items-center">
@@ -20,119 +21,30 @@
       Tambah
     </Button>
   </div>
+
+  <!-- Filter untuk mobile dengan drawer -->
+  <div class="flex md:hidden justify-between items-center gap-2 mb-2">
+    <Button @click="visibleFilterDrawer = true" size="small" outlined>
+      <Icon name="lucide:filter" />
+      Filter
+    </Button>
+    <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+      <Icon name="lucide:plus" />
+      Tambah
+    </Button>
+  </div>
   
   <div class="mb-5">
-      <DataView :value="data.data" :pt="{
-        content: {
-          class: '!bg-transparent'
-        }
-      }">
-        <template #list="slotProps">
-          <div class="flex flex-col gap-3">
-              <Card v-for="(item, index) in slotProps.items" :key="index">
-                <template #content>
-                  <div class="flex flex-col gap-3">
-                    <div class="flex justify-between items-center">
-                      <div class="flex items-center gap-2">
-                        <span class="w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-2 rounded-full">
-                          {{ item.journal_category?.icon }}
-                        </span>
-                        <Badge class="bg-indigo-200 text-indigo-800" size="small">{{ item.journal_category?.name }}</Badge>
-                      </div>                      
-                      <Badge size="small">
-                        {{ item.status }}
-                      </Badge>
-                    </div>
-                    <div class="font-bold hover:underline cursor-pointer" @click="openPreviewDialog(item)">
-                      {{ item.title }}
-                    </div>
-                    <div class="text-sm">{{ item.description }}</div>
-
-                    <div class="flex items-center gap-2">
-                        <div class="flex items-center gap-2">
-                          <Avatar :image="item.user?.avatar_url" shape="circle" size="small" class="w-5 h-5" />
-                          <div class="text-sm font-medium">{{ item.user?.name }}</div>
-                        </div>
-                        <div class="text-sm flex items-center gap-1">
-                          <Icon name="lucide:clock"/>
-                          <div>{{ formatDate(item.start,'DD/MM/YY HH:mm') }}</div>
-                          <div v-if="item.end" class="text-sm"> - {{ formatDate(item.end,'DD/MM/YY HH:mm') }}</div>
-                        </div>
-                        <div class="text-sm flex items-center gap-1">
-                          <Icon name="lucide:globe"/>
-                          <span>{{ item.webhost?.nama_web }}</span>
-                        </div>
-                    </div>
-
-                  </div>
-                </template>
-              </Card>
-          </div>
-        </template>
-      </DataView>
+      <JournalDataView :data="data.data" @openPreviewDialog="openPreviewDialog" />      
   </div>
 
-  <Card>
+  <Card :pt="{
+    body: {
+      class: 'md:py-0'
+    }
+  }">
     <template #content>
-
-      <!-- <DataTable 
-          :value="data.data" 
-          size="small" class="text-sm" 
-          selectionMode="multiple" 
-          stripedRows scrollable scrollHeight="70vh"
-        >
-          <Column field="title" header="Judul">
-            <template #body="slotProps">
-              <span @click="openPreviewDialog(slotProps.data)">
-              {{ slotProps.data.title }}
-              </span>
-            </template>
-          </Column>
-          <Column field="description" header="Deskripsi">
-            <template #body="slotProps">
-              {{ slotProps.data.description }}
-            </template>
-          </Column>
-          <Column field="web" header="Web">
-            <template #body="slotProps">
-              <span class="block" v-if="slotProps.data.webhost">
-                {{ slotProps.data.webhost?.nama_web }}
-              </span>
-              <Badge v-if="slotProps.data.cs_main_project" size="small">
-                {{ slotProps.data.cs_main_project?.jenis }}
-              </Badge>
-            </template>
-          </Column>
-          <Column field="start" header="Waktu">
-            <template #body="slotProps">
-              <div class="flex items-center gap-1">
-               <Icon name="lucide:clock" />
-               <span class="text-xs whitespace-nowrap">{{ formatDate(slotProps.data.start,'DD/MM/YY HH:mm') }}</span>
-              </div>
-              <div v-if="slotProps.data.end" class="text-teal-500 flex items-center gap-1">
-                <Icon name="lucide:circle-check" />
-                <span class="text-xs whitespace-nowrap">{{ formatDate(slotProps.data.end,'DD/MM/YY HH:mm') }}</span>
-              </div>
-            </template>
-          </Column>
-          <Column field="status" header="Status">
-            <template #body="slotProps">
-              <JournalBadgeStatus :status="slotProps.data.status" />
-            </template>
-          </Column>
-          <Column field="act" header="">
-            <template #body="slotProps">
-              <AvatarGroup>
-                <Avatar :image="slotProps.data.user?.avatar_url" shape="circle" v-tooltip.left="slotProps.data.user?.name" class="hover:relative"/>
-                <Avatar @click="openPreviewDialog(slotProps.data)" :label="slotProps.data.journal_category.icon" v-tooltip.left="slotProps.data.journal_category.name" class="bg-indigo-300 hover:animate-pulse" shape="circle" />
-                <Avatar shape="circle" class="cursor-pointer bg-sky-300" v-tooltip.left="'Edit'" @click="openFormDialog('edit',slotProps.data)">
-                  <Icon name="lucide:pen" mode="svg"/>
-                </Avatar>
-              </AvatarGroup>              
-            </template>
-          </Column>
-      </DataTable> -->
-      <div class="flex justify-between items-center text-xs">
+      <div class="flex flex-col md:flex-row justify-center md:justify-between md:items-center text-xs">
           <div>
             {{ data.from }} - {{ data.to }} dari {{ data.total }}
           </div>
@@ -173,6 +85,43 @@
       </div>
     </template>
   </Dialog>
+
+  <!-- Filter Drawer untuk Mobile -->
+  <Drawer v-model:visible="visibleFilterDrawer" header="Filter Jurnal" position="right" class="!w-80">
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-2">User</label>
+        <Select v-model="filters.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full">
+          <template #option="slotProps">
+            <div class="flex items-center">
+                <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
+                <div>{{ slotProps.option.label }}</div>
+            </div>
+          </template>
+        </Select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-2">Tanggal Mulai</label>
+        <DatePicker dateFormat="yy-mm-dd" v-model="filters.date_start" class="w-full" />
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium mb-2">Tanggal Selesai</label>
+        <DatePicker dateFormat="yy-mm-dd" v-model="filters.date_end" class="w-full" />
+      </div>
+      
+      <div class="flex gap-2 mt-4">
+        <Button @click="getData(); visibleFilterDrawer = false" class="flex-1" :loading="loading">
+          <Icon name="lucide:search" />
+          Terapkan Filter
+        </Button>
+        <Button @click="getData()" outlined :loading="loading">
+          <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
+        </Button>
+      </div>
+    </div>
+  </Drawer>
 
   <DashLoader :loading="loading" />
 </template>
@@ -259,4 +208,6 @@ const deletedJournal = () => {
   visibleFormDialog.value = false;
   selectedItem.value = {};
 }
+// Filter Drawer
+const visibleFilterDrawer = ref(false);
 </script>
