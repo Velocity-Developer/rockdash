@@ -54,7 +54,7 @@
   
   <div class="mb-5">
       <JournalDataView v-if="viewMode === 'list'" :data="data.data" @openPreviewDialog="openPreviewDialog" />
-      <JournalCalendarView v-else :data="data.data" @openPreviewDialog="openPreviewDialog" />      
+      <JournalCalendarView v-else :data="data.data" :start="filters.date_start" :end="filters.date_end" @openPreviewDialog="openPreviewDialog" />      
   </div>
 
   <Card
