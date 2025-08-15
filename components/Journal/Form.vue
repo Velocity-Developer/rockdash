@@ -150,7 +150,7 @@ const form = reactive({
   end: '',
   status: 'ongoing',
   priority: 'medium',
-  user_id: '',
+  user_id: useConfig.config?.user?.id,
   webhost_id: null,
   cs_main_project_id: '',
   journal_category_id: '',

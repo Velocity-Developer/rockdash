@@ -16,7 +16,7 @@
       </thead>
       <tbody>
         <tr v-for="journal in props.data" :key="(journal as { id: string | number }).id">
-          <td v-for="day in dates" class="border-x border-gray-100 dark:border-gray-800 p-2 min-w-20 text-normal">
+          <td v-for="day in dates" class="border-x border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 min-w-20 text-normal">
 
             <div
               v-if="JournalInDate(journal, day) != 'out'"

@@ -21,7 +21,7 @@
       </Select>
       <DatePicker dateFormat="yy-mm-dd" v-model="filters.date_start" size="small" />
       <DatePicker dateFormat="yy-mm-dd" v-model="filters.date_end" size="small" />
-      <Button @click="getData()" size="small" :loading="loading">
+      <Button @click="getData()" size="small" :loading="loading" severity="info">
         <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
         Refresh
       </Button>
@@ -156,11 +156,12 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const client = useSanctumClient();
 const route = useRoute();
+const useConfig = useConfigStore()
 
 const filters = reactive({
   date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
   date_end: dayjs().format('YYYY-MM-DD'),
-  user_id: '',
+  user_id: useConfig.config?.user?.id,
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
 }) as any
@@ -264,4 +265,12 @@ onMounted(() => {
   initializeViewMode();
   getData();
 });
+
+//watch user_id
+watch(() => useConfig.config?.user?.id, (newVal) => {
+  if(newVal) {
+    filters.user_id = newVal
+    getData()
+  }
+})
 </script>
