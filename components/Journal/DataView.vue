@@ -50,8 +50,8 @@
 <script setup lang="ts">
 const props = defineProps({
   data: {
-    type: Object,
-    default: () => ({})
+    type: Array,
+    default: () => ([])
   }
 })
 const emit = defineEmits(['openPreviewDialog'])
