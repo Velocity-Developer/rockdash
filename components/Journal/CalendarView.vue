@@ -27,34 +27,34 @@
         <div 
           v-for="(day, index) in calendarDays" 
           :key="index"
-          class="min-h-[120px] border-r border-b border-gray-200 last:border-r-0 p-1 bg-white hover:bg-gray-50"
+          class="min-h-[140px] border-r border-b border-gray-200 last:border-r-0 p-2 bg-white hover:bg-gray-50 flex flex-col"
           :class="{
             'bg-gray-50 text-gray-400': !day.isCurrentMonth,
             'bg-blue-50': day.isToday
           }"
         >
           <!-- Date Number -->
-          <div class="text-sm font-medium mb-1" :class="{ 'text-blue-600': day.isToday }">
+          <div class="text-sm font-medium mb-2 flex-shrink-0" :class="{ 'text-blue-600': day.isToday }">
             {{ day.date }}
           </div>
 
           <!-- Journal Events -->
-          <div class="space-y-1">
+          <div class="flex-1 flex flex-col gap-1">
             <div 
               v-for="journal in day.journals" 
               :key="(journal as { id: string | number }).id"
-              class="text-xs p-1 rounded cursor-pointer truncate"
-              :class="getJournalColor((journal as { journal_category?: { name: string } })?.journal_category?.name ?? '')"
+              class="text-xs p-2 cursor-pointer shadow-sm transition-all hover:shadow-md flex-shrink-0"
+              :class="[getJournalColor((journal as { journal_category?: { name: string } })?.journal_category?.name ?? ''), getJournalSpanClass(journal, day.fullDate)]"
               @click="openPreviewDialog(journal)"
-              :title="(journal as { title: string }).title"
+              :title="getJournalTooltip(journal, day.fullDate)"
             >
-              <div class="flex items-center gap-1">
-                <span class="text-xs">{{ (journal as { journal_category?: { icon: string } }).journal_category?.icon }}</span>
-                <span class="truncate">{{ (journal as { title: string }).title }}</span>
+              <div class="flex items-center gap-1 mb-1">
+                <span class="text-xs flex-shrink-0">{{ (journal as { journal_category?: { icon: string } }).journal_category?.icon }}</span>
+                <span class="truncate font-medium">{{ (journal as { title: string }).title }}</span>
+                <span v-if="isJournalOngoing(journal)" class="text-xs ml-1 flex-shrink-0">🔄</span>
               </div>
-              <div class="text-xs opacity-75">
-                {{ formatTime((journal as { start: string }).start) }}
-                <span v-if="(journal as { end: string }).end"> - {{ formatTime((journal as { end: string }).end) }}</span>
+              <div class="text-xs opacity-80 font-medium">
+                {{ getJournalTimeDisplay(journal, day.fullDate) }}
               </div>
             </div>
           </div>
@@ -66,9 +66,7 @@
 
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
-
 const dayjs = useDayjs()
-
 const props = defineProps({
   data: {
     type: Array,
@@ -111,22 +109,28 @@ const calendarDays = computed(() => {
 
 const getJournalsForDate = (date: string) => {
   return props.data.filter((journal: any) => {
-    const journalDate = dayjs(journal.start).format('YYYY-MM-DD')
-    return journalDate === date
+    const startDate = dayjs(journal.start).format('YYYY-MM-DD')
+    const endDate = journal.end ? dayjs(journal.end).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+    
+    // Check if the date falls within the journal's date range
+    return (dayjs(date).isAfter(startDate) || dayjs(date).isSame(startDate)) && (dayjs(date).isBefore(endDate) || dayjs(date).isSame(endDate))
+  }).sort((a: any, b: any) => {
+    // Sort by start time (earliest first)
+    return dayjs(a.start).isBefore(dayjs(b.start)) ? -1 : 1
   })
 }
 
 const getJournalColor = (categoryName: string) => {
   const colors = {
-    'Development': 'bg-blue-200 text-blue-800',
-    'Meeting': 'bg-green-200 text-green-800',
-    'Bug Fix': 'bg-red-200 text-red-800',
-    'Research': 'bg-purple-200 text-purple-800',
-    'Testing': 'bg-yellow-200 text-yellow-800',
-    'Documentation': 'bg-gray-200 text-gray-800',
-    'Review': 'bg-indigo-200 text-indigo-800'
+    'Development': 'bg-blue-100 text-blue-900 border-blue-300',
+    'Meeting': 'bg-green-100 text-green-900 border-green-300',
+    'Bug Fix': 'bg-red-100 text-red-900 border-red-300',
+    'Research': 'bg-purple-100 text-purple-900 border-purple-300',
+    'Testing': 'bg-yellow-100 text-yellow-900 border-yellow-300',
+    'Documentation': 'bg-gray-100 text-gray-900 border-gray-300',
+    'Review': 'bg-indigo-100 text-indigo-900 border-indigo-300'
   }
-  return colors[categoryName as keyof typeof colors] || 'bg-gray-200 text-gray-800'
+  return colors[categoryName as keyof typeof colors] || 'bg-gray-100 text-gray-900'
 }
 
 const formatTime = (datetime: string) => {
@@ -143,6 +147,47 @@ const nextMonth = () => {
 
 const openPreviewDialog = (journal: any) => {
   emit('openPreviewDialog', journal)
+}
+
+const getJournalSpanClass = (journal: any, currentDate: string) => {
+  const startDate = dayjs(journal.start).format('YYYY-MM-DD')
+  const endDate = journal.end ? dayjs(journal.end).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+  
+  if (startDate === endDate) return ''
+  
+  if (currentDate === startDate) return 'border-l-2 border-y-2 border-blue-500 rounded-l-md mr-[-10px]'
+  if (currentDate === endDate) return 'border-r-2 border-y-2 border-blue-500 rounded-r-md ml-[-10px]'
+  return 'border-y-2 border-blue-500 mx-[-10px]'
+}
+
+const isJournalOngoing = (journal: any) => {
+  return !journal.end
+}
+
+const getJournalTooltip = (journal: any, currentDate: string) => {
+  const startDate = dayjs(journal.start).format('YYYY-MM-DD')
+  const endDate = journal.end ? dayjs(journal.end).format('YYYY-MM-DD') : 'Ongoing'
+  
+  if (startDate === currentDate) {
+    return `${journal.title} (Start: ${formatTime(journal.start)}${journal.end ? ' - End: ' + endDate : ' - Ongoing'})`
+  }
+  
+  return `${journal.title} (${startDate} - ${endDate})`
+}
+
+const getJournalTimeDisplay = (journal: any, currentDate: string) => {
+  const startDate = dayjs(journal.start).format('YYYY-MM-DD')
+  const endDate = journal.end ? dayjs(journal.end).format('YYYY-MM-DD') : null
+  
+  if (currentDate === startDate) {
+    return formatTime(journal.start) + (journal.end && endDate === startDate ? ` - ${formatTime(journal.end)}` : '')
+  }
+  
+  if (endDate && currentDate === endDate) {
+    return `End: ${formatTime(journal.end)}`
+  }
+  
+  return 'Continuing...'
 }
 </script>
 
