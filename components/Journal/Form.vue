@@ -1,19 +1,19 @@
 <template>
   <form @submit.prevent="handleSubmit">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+    <div class="grid grid-cols-6 gap-2">
 
-      <div class="md:col-span-3">
+      <div class="col-span-6">
         <div class="block text-sm font-medium opacity-70">Judul</div>
         <InputText v-model="form.title" class="w-full"/>
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
       </div>
       
-      <div class="mb-3">
+      <div class="mb-3 col-span-6 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Webhost</div>
         <FormSelectWebhost v-model="form.webhost_id" />
         <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
       </div>
-      <div class="mb-3 md:col-span-2">
+      <div class="mb-3 col-span-6 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Project</div>
         <FormSelectCsMainProject 
           v-model="form.cs_main_project_id" 
@@ -22,22 +22,22 @@
         <Message v-if="errors.cs_main_project_id" severity="error" size="small" class="mt-1" closable>{{ errors.cs_main_project_id[0] }}</Message>
       </div>
 
-      <div class="md:col-span-3">
+      <div class="col-span-6">
         <div class="block text-sm font-medium opacity-70">Deskripsi</div>
         <Textarea v-model="form.description" class="w-full" rows="10"></Textarea>
         <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
       </div>
-      <div class="mb-3">
+      <div class="col-span-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Mulai</div>
         <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" />
         <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
       </div>
-      <div class="mb-3">
+      <div class="col-span-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Selesai</div>
         <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" />
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
-      <div class="mb-3">
+      <div class="col-span-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">User</div>
         <Select v-model="form.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full" required>
           <template #option="slotProps">
@@ -49,7 +49,7 @@
         </Select>
         <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
       </div>
-      <div class="mb-3">
+      <div class="col-span-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Status</div>
         <Select 
           v-model="form.status" 
@@ -60,7 +60,7 @@
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
       
-      <div class="mb-3">
+      <div class="col-span-6 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Kategori</div>
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
           <template #option="slotProps">
@@ -74,7 +74,7 @@
         </Select>
         <Message v-if="errors.journal_category_id" severity="error" size="small" class="mt-1" closable>{{ errors.journal_category_id[0] }}</Message>
       </div>
-      <div class="mb-3">
+      <div class="col-span-6 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Prioritas</div>
         <SelectButton 
           v-model="form.priority" 
@@ -86,7 +86,7 @@
         <Message v-if="errors.priority" severity="error" size="small" class="mt-1" closable>{{ errors.priority[0] }}</Message>
       </div>
 
-      <div class="col-span-3 mt-5">
+      <div class="col-span-6 mt-5">
         <div class="flex gap-1 justify-end items-end">
           <Button :loading="loading" type="button" severity="danger" @click="handleDelete">
             <Icon name="lucide:trash-2"/>  Hapus

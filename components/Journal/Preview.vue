@@ -3,29 +3,20 @@
     <!-- Header Info -->
     <Card>
         <template #content>
-            <div class="flex items-start justify-between">
-                <div class="flex items-center gap-3">
-                    <Avatar 
-                    :image="journal.user?.avatar_url" 
-                    shape="circle" 
-                    size="large"
-                    class="border-2 border-gray-200"
-                    />
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                <div class="flex items-start md:items-center gap-3">                  
+                    <div class="w-10 h-10 md:w-15 md:h-15 text-xl md:text-4xl p-2 flex items-center justify-center bg-indigo-100 dark:bg-indigo-500 rounded-lg">
+                      {{ journal.journal_category?.icon }}
+                    </div>
                     <div>
-                    <h3 class="font-semibold text-lg">{{ journal.title }}</h3>
-                    <p class="text-sm opacity-50">
-                        oleh {{ journal.user?.name }}
-                        <Badge class="ml-1" v-if="journal.user?.user_roles" severity="contrast">
-                            {{ journal.user.user_roles[0] }}
-                        </Badge>
-                    </p>
+                      <h3 class="font-semibold text-lg">{{ journal.title }}</h3>
+                      <p class="text-sm opacity-50">                        
+                          {{ journal.journal_category?.name }}
+                      </p>
                     </div>
                 </div>
                 <div class="text-right">
                     <JournalBadgeStatus :status="journal.status" />
-                    <div class="text-xs opacity-50 mt-1">
-                    {{ formatDate(journal.created_at, 'DD MMM YYYY HH:mm') }}
-                    </div>
                 </div>
             </div>
         </template>
@@ -36,12 +27,20 @@
       <Card>
         <template #content>
           <div class="flex items-center gap-3">          
-            <div class="w-10 h-10 p-2 flex items-center justify-center bg-indigo-100 dark:bg-indigo-500 rounded-lg">
-              {{ journal.journal_category?.icon }}
-            </div>
+            <Avatar 
+              :image="journal.user?.avatar_url" 
+              shape="circle" 
+              size="medium"
+              class="border-2 border-gray-200"
+              />
             <div>
-              <div class="text-sm opacity-50">Kategori</div>
-              <div class="font-medium">{{ journal.journal_category?.name }}</div>
+              <div class="text-sm opacity-50">Oleh</div>
+              <div class="font-medium">
+                {{ journal.user?.name }}                
+                <Badge class="ml-1" v-if="journal.user?.user_roles" severity="contrast">
+                    {{ journal.user.user_roles[0] }}
+                </Badge>
+              </div>
             </div>
           </div>
         </template>

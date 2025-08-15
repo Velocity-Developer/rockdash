@@ -93,7 +93,7 @@
   </Dialog>
 
   <!-- Preview Dialog -->
-  <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
     <JournalPreview :journal="selectedPreviewItem" />
     <template #footer>
       <div class="flex justify-end gap-2">
