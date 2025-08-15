@@ -38,6 +38,17 @@
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
       <div class="col-span-3 md:col-span-2">
+        <div class="block text-sm font-medium opacity-70">Status</div>
+        <Select 
+          v-model="form.status" 
+          :options="[{ label: 'Proses', value: 'ongoing' },{ label: 'Selesai', value: 'completed' },{ label: 'Batal', value: 'cancelled' }]" 
+          optionLabel="label" optionValue="value" placeholder="Semua Status"
+          class="w-full"
+        />
+        <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
+      </div>
+
+      <div class="col-span-3 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">User</div>
         <Select v-model="form.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full" required>
           <template #option="slotProps">
@@ -50,14 +61,9 @@
         <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
       </div>
       <div class="col-span-3 md:col-span-2">
-        <div class="block text-sm font-medium opacity-70">Status</div>
-        <Select 
-          v-model="form.status" 
-          :options="[{ label: 'Proses', value: 'ongoing' },{ label: 'Selesai', value: 'completed' },{ label: 'Batal', value: 'cancelled' }]" 
-          optionLabel="label" optionValue="value" placeholder="Semua Status"
-          class="w-full"
-        />
-        <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
+        <div class="block text-sm font-medium opacity-70">Role</div>
+        <Select v-model="form.role" :options="opsiRoles" showClear filter optionValue="value" optionLabel="label" class="w-full" required />
+        <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
       </div>
       
       <div class="col-span-6 md:col-span-2">
@@ -68,7 +74,10 @@
                 <span v-if="slotProps.option.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700">
                   {{slotProps.option.icon}}
                 </span>
-                <div>{{ slotProps.option.name }}</div>
+                <div>
+                  {{ slotProps.option.name }}
+                  <div class="text-xs opacity-50">{{ slotProps.option.role }}</div>
+                </div>
               </div>
           </template>
         </Select>
@@ -128,13 +137,17 @@ const { data: opsiUsers } = await useAsyncData(
   'opsi-users', 
   () => client('/api/data_opsi/users'),
 ) as any
+const { data: opsiRoles } = await useAsyncData(
+  'opsi-roles', 
+  () => client('/api/option/roles'),
+) as any
 
 const opsiCategories = ref([] as any)
 const getCategories = async () => {
   try {
     const res = await client('/api/journal_category',{
         params: {
-          roles: useConfig.config?.role
+          role: form.role
         },
     }) as any
     opsiCategories.value = res.data
@@ -154,7 +167,8 @@ const form = reactive({
   webhost_id: null,
   cs_main_project_id: '',
   journal_category_id: '',
-  id: ''
+  id: '',
+  role: useConfig.config?.role
 }) as any
 
 onMounted(() => {  
