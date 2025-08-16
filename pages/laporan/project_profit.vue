@@ -30,7 +30,7 @@
             <th class="align-top py-2 px-3 text-left">Website</th>
             <th class="align-top py-2 px-3 text-left">Jenis</th>
             <th class="align-top py-2 px-3 text-left">Jumlah</th>
-            <th class="align-top py-2 px-3 text-left text-right">Profit</th>
+            <th class="align-top py-2 px-3 text-right">Profit</th>
           </tr>
         </thead>
         <tbody>

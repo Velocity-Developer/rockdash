@@ -30,7 +30,7 @@
             <Column field="name" header="Name">
               <template #body="slotProps">
                 <div class="flex items-center gap-2">
-                  <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-full bg-gradient-to-bl from-indigo-200 to-indigo-400 dark:from-indigo-700 dark:to-indigo-900 inline-block">
+                  <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-full bg-gradient-to-bl from-indigo-200 to-indigo-400 dark:from-indigo-700 dark:to-indigo-900">
                     {{slotProps.data.icon}}
                   </span>
                   <span class="inline-block">
