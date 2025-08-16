@@ -52,6 +52,24 @@
     </Button>
   </div>
   
+  <div v-if="data?.categoryStats" class="overflow-x-auto overflow-y-hidden mb-5">
+    <div class="flex items-center gap-3 my-1">
+      <Card v-for="item in data?.categoryStats" :key="item.category_id" class="min-w-[240px]">
+        <template #content>
+          <div class="flex items-start gap-2">
+            <div class="w-8 h-8 text-3xl flex items-center justify-center whitespace-nowrap bg-indigo-100 rounded-full mr-3">
+              {{ item.icon }}
+            </div>
+            <div>
+              <div class="text-2xl font-bold">{{ item.jumlah }}</div>
+              <div class="text-xs font-medium">{{ item.nama }}</div>
+            </div>
+          </div>
+        </template>
+      </Card>
+    </div>
+  </div>
+
   <div class="mb-5">
       <JournalDataView v-if="viewMode === 'list'" :data="data.data" @openPreviewDialog="openPreviewDialog" />
       <JournalCalendarView v-else :data="data.data" :start="filters.date_start" :end="filters.date_end" @openPreviewDialog="openPreviewDialog" />      
@@ -196,6 +214,28 @@ const getData = async () => {
         params: filters,
       }) as any
       data.value = res;
+      
+      // Menghitung dan mengelompokkan data berdasarkan journal_category.name
+      if (data.value.data && Array.isArray(data.value.data)) {
+        const categoryStats = data.value.data.reduce((acc: any, journal: any) => {
+          const categoryName = journal.journal_category?.name || 'Uncategorized'
+          const categoryIcon = journal.journal_category?.icon || '📝'
+          
+          if (!acc[categoryName]) {
+            acc[categoryName] = {
+              nama: categoryName,
+              jumlah: 0,
+              icon: categoryIcon
+            }
+          }
+          
+          acc[categoryName].jumlah++
+          return acc
+        }, {})
+        
+        // Simpan hasil pengelompokan ke data.value untuk akses global
+        data.value.categoryStats = categoryStats
+      }
     } catch (error) {
       console.log(error);
     }
