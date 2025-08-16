@@ -1,10 +1,11 @@
 <template>
 
-  <div class="overflow-x-auto my-5">
-    <table>
-      <thead>
+  <div class="overflow-auto h-[80vh]  my-5">
+    <table class="w-full">
+
+      <thead class="sticky top-0 z-20 bg-indigo-100 dark:bg-indigo-700">
         <tr>
-          <th v-for="day in dates" class="border p-2 min-w-20 font-normal border-indigo-200 dark:border-indigo-600 bg-indigo-100 dark:bg-indigo-700">
+          <th v-for="day in dates" class="border p-2 min-w-20 font-normal border-indigo-200 dark:border-indigo-600">
             <div class="text-lg font-bold">
               {{ dayjs(day).format('D') }}
             </div>
@@ -21,7 +22,7 @@
             <div
               v-if="JournalInDate(journal, day) != 'out'"
               @click="openPreviewDialog(journal)"
-              class="shadow-sm py-1 px-2 cursor-pointer relative z-1"
+              class="shadow-sm py-1 px-2 cursor-pointer relative z-1 h-[2em] min-w-[7rem]"
               :class="[
                 {'opacity-0': JournalInDate(journal, day) == 'out'},
                 {'rounded-l-lg mr-[-10px]': JournalInDate(journal, day) == 'start_date'},
@@ -31,18 +32,30 @@
                 getBgClass((journal as { id: string | number }).id)         
               ]"
             >
-
               <div
+              class="flex items-center gap-1"
               :class="[
-                {'opacity-0 hover:opacity-70': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date' },
+                {'opacity-0': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date' },
+                {'absolute top-0 bottom-0 left-0 px-2 z-10': JournalInDate(journal, day) == 'start_date'},
+                {'!w-[7rem]': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date'}
               ]"
+              v-tooltip.top="(journal as { title: string }).title"
               >
-                <div class="truncate w-[10rem]">
-                    {{ (journal as { title: string }).title }}
+                <div>
+                   {{ (journal as { journal_category: { icon: string } }).journal_category.icon }}
                 </div>
-                <div class="text-xs">
-                  {{ dayjs((journal as { start: string }).start).format('DD HH:mm') }} - 
-                  {{ dayjs((journal as { end: string }).end).format('HH:mm') }}
+                <div
+                  class="truncate"
+                  :class="[
+                    // {'w-[12rem]': JournalTotalDays(journal) > 1 && JournalInDate(journal, day) == 'start_date'},
+                    {'w-[7rem]': JournalTotalDays(journal) <= 1 },
+                    {'w-[7rem]': JournalTotalDays(journal) < 1 && JournalInDate(journal, day) == 'middle_date'},
+                  ]"
+                  :style="JournalTotalDays(journal) > 1 && JournalInDate(journal, day) == 'start_date' 
+                  ? { width: (JournalTotalDays(journal) * 6) + 'rem' } 
+                  : {}"
+                >
+                    {{ (journal as { title: string }).title }}
                 </div>
               </div>
 
@@ -135,7 +148,8 @@ const getBgClass = (index: any) => {
     "bg-blue-200 dark:bg-blue-800",
     "bg-amber-200 dark:bg-amber-800",
     "bg-teal-200 dark:bg-teal-800",
-    "bg-indigo-200 dark:bg-indigo-800"
+    "bg-indigo-200 dark:bg-indigo-800",
+    "bg-orange-200 dark:bg-orange-800"
   ];
 
   return bgColors[index % bgColors.length];
