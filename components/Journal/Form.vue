@@ -106,7 +106,7 @@
       </div>
 
       <!-- Journal Detail Support -->
-       <div v-if="form.role == 'support' || form.detail_support" class="col-span-6 bg-indigo-50 dark:bg-indigo-950 dark:border-indigo-900 border border-indigo-300 p-4 rounded-lg my-3">
+       <div v-if="isDetailSupport" class="col-span-6 bg-indigo-50 dark:bg-indigo-950 dark:border-indigo-900 border border-indigo-300 p-4 rounded-lg my-3">
         <div class="font-medium flex items-center gap-1 text-indigo-600 dark:text-indigo-100 mb-3">
           <span class="text-2xl">
             🤝
@@ -219,14 +219,32 @@ const form = reactive({
   journal_category_id: '',
   id: '',
   role: useConfig.config?.role,
-  detail_support: {
+  detail_support: useConfig.config?.role === 'support' ? {
     hp: '',
     wa: '',
-    email:'',
-    bayar:'',
-    tanggal_bayar:''
-  }
+    email: '',
+    biaya: '',
+    tanggal_bayar: ''
+  } : null
 }) as any
+
+// Watcher untuk role changes
+watch(() => form.role, (newRole) => {
+  if (newRole === 'support') {
+    // Pastikan detail_support diinisialisasi ketika role berubah menjadi support
+    if (!form.detail_support) {
+      form.detail_support = {
+        hp: '',
+        wa: '',
+        email: '',
+        biaya: '',
+        tanggal_bayar: ''
+      }
+    }
+  }
+  // Update categories berdasarkan role baru
+  getCategories()
+})
 
 onMounted( async () => {  
   if(props.action === 'edit') {
@@ -235,6 +253,26 @@ onMounted( async () => {
     try {
       const res = await client('/api/journal/' + props.item.id) as any
       Object.assign(form, res)
+      
+      // Pastikan detail_support diinisialisasi dengan benar
+      if (!form.detail_support) {
+        form.detail_support = {
+          hp: '',
+          wa: '',
+          email: '',
+          biaya: '',
+          tanggal_bayar: ''
+        }
+      } else {
+        // Pastikan semua field ada
+        form.detail_support = {
+          hp: form.detail_support.hp || '',
+          wa: form.detail_support.wa || '',
+          email: form.detail_support.email || '',
+          biaya: form.detail_support.biaya || '',
+          tanggal_bayar: form.detail_support.tanggal_bayar || ''
+        }
+      }
     } catch (error) {
       console.log(error);
     }
@@ -256,11 +294,11 @@ const handleSubmit = async () => {
   }
 
   //if detail_support .tanggal_bayar is not empty, then format it to yyyy-mm-dd
-  if(form.detail_support.tanggal_bayar) {
+  if(form.detail_support && form.detail_support.tanggal_bayar && form.detail_support.tanggal_bayar !== '') {
     form.detail_support.tanggal_bayar = dayjs(form.detail_support.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss')
+  } else if(form.detail_support && form.detail_support.tanggal_bayar === '') {
+    form.detail_support.tanggal_bayar = null
   }
-
-
 
   if(props.action === 'add') {
     try {
@@ -356,4 +394,18 @@ const handleDelete = async () => {
         }
     });
 } 
+
+const isDetailSupport = computed(() => {
+  //jika role = support maka true
+  if(form.role === 'support') {
+    return true
+  }
+  //jika role != support dan isi detail_support ada maka true
+  else if(form.role !== 'support' && form.detail_support !== null && form.detail_support.hp) {
+    return true
+  } else {
+    return false
+  }
+})
+
 </script>
