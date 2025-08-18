@@ -124,6 +124,69 @@
       </template>
     </Card>
 
+    <!-- Detail Support -->
+    <Card v-if="journal.detail_support">
+      <template #content>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-10 h-10 p-2 flex items-center justify-center bg-purple-100 dark:bg-purple-500 rounded-lg">
+              <Icon name="lucide:headphones" class="text-purple-600 dark:text-white" />
+            </div>
+          <span class="font-medium">Detail Support</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-if="journal.detail_support.hp" class="flex items-center gap-3">
+            <div class="w-8 h-8 p-1.5 flex items-center justify-center bg-blue-100 dark:bg-blue-500 rounded-lg">
+              <Icon name="lucide:phone" class="text-blue-600 dark:text-white text-sm" />
+            </div>
+            <div>
+              <div class="text-xs opacity-50">No. HP</div>
+              <div class="text-sm font-medium">{{ journal.detail_support.hp }}</div>
+            </div>
+          </div>
+          
+          <div v-if="journal.detail_support.wa" class="flex items-center gap-3">
+            <div class="w-8 h-8 p-1.5 flex items-center justify-center bg-green-100 dark:bg-green-500 rounded-lg">
+              <Icon name="lucide:message-circle" class="text-green-600 dark:text-white text-sm" />
+            </div>
+            <div>
+              <div class="text-xs opacity-50">WhatsApp</div>
+              <div class="text-sm font-medium">{{ journal.detail_support.wa }}</div>
+            </div>
+          </div>
+          
+          <div v-if="journal.detail_support.email" class="flex items-center gap-3">
+            <div class="w-8 h-8 p-1.5 flex items-center justify-center bg-red-100 dark:bg-red-500 rounded-lg">
+              <Icon name="lucide:mail" class="text-red-600 dark:text-white text-sm" />
+            </div>
+            <div>
+              <div class="text-xs opacity-50">Email</div>
+              <div class="text-sm font-medium">{{ journal.detail_support.email }}</div>
+            </div>
+          </div>
+          
+          <div v-if="journal.detail_support.biaya" class="flex items-center gap-3">
+            <div class="w-8 h-8 p-1.5 flex items-center justify-center bg-yellow-100 dark:bg-yellow-500 rounded-lg">
+              <Icon name="lucide:dollar-sign" class="text-yellow-600 dark:text-white text-sm" />
+            </div>
+            <div>
+              <div class="text-xs opacity-50">Biaya</div>
+              <div class="text-sm font-medium">{{ formatCurrency(journal.detail_support.biaya) }}</div>
+            </div>
+          </div>
+          
+          <div v-if="journal.detail_support.tanggal_bayar" class="flex items-center gap-3">
+            <div class="w-8 h-8 p-1.5 flex items-center justify-center bg-indigo-100 dark:bg-indigo-500 rounded-lg">
+              <Icon name="lucide:calendar-check" class="text-indigo-600 dark:text-white text-sm" />
+            </div>
+            <div>
+              <div class="text-xs opacity-50">Tanggal Bayar</div>
+              <div class="text-sm font-medium">{{ formatDate(journal.detail_support.tanggal_bayar, 'DD MMM YYYY') }}</div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </Card>
+
   </div>
 </template>
 
@@ -158,6 +221,15 @@ interface Journal {
     id: string | number;
     jenis: string;
   };
+  detail_support?: {
+    id: string | number;
+    journal_id: string | number;
+    hp?: string;
+    wa?: string;
+    email?: string;
+    biaya?: string | number;
+    tanggal_bayar?: string;
+  };
 }
 
 interface Props {
@@ -190,5 +262,17 @@ const calculateDuration = (start: string, end: string) => {
   } else {
     return `${minutes} menit`;
   }
+};
+
+// Function untuk format currency
+const formatCurrency = (amount: string | number) => {
+  if (!amount) return '';
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(numAmount);
 };
 </script>
