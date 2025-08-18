@@ -2,9 +2,37 @@
   <form @submit.prevent="handleSubmit">
     <div class="grid grid-cols-6 gap-2">
 
+      <div class="col-span-6 bg-sky-50 dark:bg-sky-950 dark:border-sky-900 border border-sky-300 p-4 rounded-lg mb-3">
+        <div class="font-medium flex items-center gap-1 text-sky-600 dark:text-sky-100 mb-3">
+          <Icon name="lucide:user-circle" />
+          User
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <div class="col-span-2 md:col-span-1">
+              <div class="block text-sm font-medium opacity-70">User</div>
+              <Select v-model="form.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full" required>
+                <template #option="slotProps">
+                  <div class="flex items-center">
+                      <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
+                      <div>{{ slotProps.option.label }}</div>
+                  </div>
+                </template>
+              </Select>
+              <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
+            </div>
+            <div class="col-span-2 md:col-span-1">
+              <div class="block text-sm font-medium opacity-70">Tim</div>
+              <Select v-model="form.role" :options="opsiRoles" showClear filter optionValue="value" optionLabel="label" class="w-full" required />
+              <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
+            </div>
+        </div>
+      </div>
+
+      
+      
       <div class="col-span-6">
         <div class="block text-sm font-medium opacity-70">Judul</div>
-        <InputText v-model="form.title" class="w-full"/>
+        <InputText v-model="form.title" class="w-full" required/>
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
       </div>
       
@@ -24,20 +52,20 @@
 
       <div class="col-span-6">
         <div class="block text-sm font-medium opacity-70">Deskripsi</div>
-        <Textarea v-model="form.description" class="w-full" rows="10"></Textarea>
+        <Textarea v-model="form.description" class="w-full" rows="6"></Textarea>
         <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
       </div>
-      <div class="col-span-3 md:col-span-2">
+      <div class="col-span-3 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Mulai</div>
-        <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" />
+        <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" showIcon/>
         <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
       </div>
-      <div class="col-span-3 md:col-span-2">
+      <div class="col-span-3 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Selesai</div>
-        <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" />
+        <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" showIcon/>
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
-      <div class="col-span-3 md:col-span-2">
+      <div class="col-span-6 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Status</div>
         <Select 
           v-model="form.status" 
@@ -48,24 +76,6 @@
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
 
-      <div class="col-span-3 md:col-span-2">
-        <div class="block text-sm font-medium opacity-70">User</div>
-        <Select v-model="form.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full" required>
-          <template #option="slotProps">
-            <div class="flex items-center">
-                <img :alt="slotProps.option.label" :src="slotProps.option.avatar" class="w-8 h-8 rounded-full mr-2 object-cover" />
-                <div>{{ slotProps.option.label }}</div>
-            </div>
-          </template>
-        </Select>
-        <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
-      </div>
-      <div class="col-span-3 md:col-span-2">
-        <div class="block text-sm font-medium opacity-70">Role</div>
-        <Select v-model="form.role" :options="opsiRoles" showClear filter optionValue="value" optionLabel="label" class="w-full" required />
-        <Message v-if="errors.user_id" severity="error" size="small" class="mt-1" closable>{{ errors.user_id[0] }}</Message>
-      </div>
-      
       <div class="col-span-6 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Kategori</div>
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
@@ -94,6 +104,46 @@
         />
         <Message v-if="errors.priority" severity="error" size="small" class="mt-1" closable>{{ errors.priority[0] }}</Message>
       </div>
+
+      <!-- Journal Detail Support -->
+       <div v-if="form.role == 'support' || form.detail_support" class="col-span-6 bg-indigo-50 dark:bg-indigo-950 dark:border-indigo-900 border border-indigo-300 p-4 rounded-lg my-3">
+        <div class="font-medium flex items-center gap-1 text-indigo-600 dark:text-indigo-100 mb-3">
+          <span class="text-2xl">
+            🤝
+          </span>
+          Info Support
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+
+          <div class="col-span-1">
+            <div class="block text-sm font-medium opacity-70">No.HP</div>
+            <InputText v-model="form.detail_support.hp" class="w-full"/>
+            <Message v-if="errors.detail_support?.hp" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.hp[0] }}</Message>
+          </div>
+          <div class="col-span-1">
+            <div class="block text-sm font-medium opacity-70">WhatsApp</div>
+            <InputText v-model="form.detail_support.wa" class="w-full"/>
+            <Message v-if="errors.detail_support?.wa" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.wa[0] }}</Message>
+          </div>
+          <div class="col-span-1">
+            <div class="block text-sm font-medium opacity-70">Email</div>
+            <InputText v-model="form.detail_support.email" type="email" class="w-full"/>
+            <Message v-if="errors.detail_support?.email" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.email[0] }}</Message>
+          </div>
+          <div class="col-span-1">
+            <div class="block text-sm font-medium opacity-70">Biaya</div>
+            <InputNumber :minFractionDigits="0" v-model="form.detail_support.biaya" type="number" class="w-full"/>
+            <Message v-if="errors.detail_support?.biaya" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.biaya[0] }}</Message>
+          </div>
+          <div class="col-span-1">
+            <div class="block text-sm font-medium opacity-70">Tanggal Bayar</div>
+            <DatePicker v-model="form.detail_support.tanggal_bayar" class="w-full" showTime hourFormat="24" showIcon/>
+            <Message v-if="errors.detail_support?.tanggal_bayar" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.tanggal_bayar[0] }}</Message>
+          </div>
+
+        </div>
+      </div>
+      <!-- END Journal Detail Support -->
 
       <div class="col-span-6 mt-5">
         <div class="flex gap-1 justify-end items-end">
@@ -168,22 +218,26 @@ const form = reactive({
   cs_main_project_id: '',
   journal_category_id: '',
   id: '',
-  role: useConfig.config?.role
+  role: useConfig.config?.role,
+  detail_support: {
+    hp: '',
+    wa: '',
+    email:'',
+    bayar:'',
+    tanggal_bayar:''
+  }
 }) as any
 
-onMounted(() => {  
+onMounted( async () => {  
   if(props.action === 'edit') {
-    form.title = props.item.title
-    form.description = props.item.description
-    form.start = props.item.start
-    form.end = props.item.end
-    form.status = props.item.status
-    form.priority = props.item.priority
-    form.user_id = props.item.user_id
-    form.webhost_id = props.item.webhost_id ? props.item.webhost_id : null
-    form.cs_main_project_id = props.item.cs_main_project_id ? props.item.cs_main_project_id : null
-    form.journal_category_id = props.item.journal_category_id ? props.item.journal_category_id : null
-    form.id = props.item.id
+
+    //get detail journal
+    try {
+      const res = await client('/api/journal/' + props.item.id) as any
+      Object.assign(form, res)
+    } catch (error) {
+      console.log(error);
+    }
   }
   getCategories()
 })
@@ -200,6 +254,13 @@ const handleSubmit = async () => {
   } else {
     form.end = null
   }
+
+  //if detail_support .tanggal_bayar is not empty, then format it to yyyy-mm-dd
+  if(form.detail_support.tanggal_bayar) {
+    form.detail_support.tanggal_bayar = dayjs(form.detail_support.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss')
+  }
+
+
 
   if(props.action === 'add') {
     try {

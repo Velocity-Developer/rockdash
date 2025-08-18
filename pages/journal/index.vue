@@ -182,6 +182,7 @@ const filters = reactive({
   user_id: useConfig.config?.user?.id,
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
+  order: 'asc',
 }) as any
 
 const { data: opsiUsers } = await useAsyncData(
@@ -205,8 +206,10 @@ const getData = async () => {
     //if isCalendarView = 'calendar' , pagination = false
     if(isCalendarView.value) {
         filters.pagination = false
+        filters.order = 'asc'
     } else {
         filters.pagination = true
+        filters.order = 'desc'
     }
 
     try {
