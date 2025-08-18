@@ -214,27 +214,7 @@ const getData = async () => {
       }) as any
       data.value = res;
       
-      // Menghitung dan mengelompokkan data berdasarkan journal_category.name
-      if (data.value.data && Array.isArray(data.value.data)) {
-        const categoryStats = data.value.data.reduce((acc: any, journal: any) => {
-          const categoryName = journal.journal_category?.name || 'Uncategorized'
-          const categoryIcon = journal.journal_category?.icon || '📝'
-          
-          if (!acc[categoryName]) {
-            acc[categoryName] = {
-              nama: categoryName,
-              jumlah: 0,
-              icon: categoryIcon
-            }
-          }
-          
-          acc[categoryName].jumlah++
-          return acc
-        }, {})
-        
-        // Simpan hasil pengelompokan ke data.value untuk akses global
-        data.value.categoryStats = categoryStats
-      }
+      // categoryStats sekarang sudah dihitung di backend
     } catch (error) {
       console.log(error);
     }
