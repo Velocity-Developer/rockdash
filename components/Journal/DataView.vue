@@ -39,6 +39,36 @@
                         </div>
                     </div>
 
+                    <!-- Detail Support -->
+                    <div v-if="item.detail_support" class="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <div class="flex items-center gap-2 mb-2">
+                        <Icon name="lucide:headphones" class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <span class="text-xs font-medium text-purple-700 dark:text-purple-300">Detail Support</span>
+                      </div>
+                      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                        <div v-if="item.detail_support.hp" class="flex items-center gap-1">
+                          <Icon name="lucide:phone" class="w-3 h-3 text-blue-500" />
+                          <span class="truncate">{{ item.detail_support.hp }}</span>
+                        </div>
+                        <div v-if="item.detail_support.wa" class="flex items-center gap-1">
+                          <Icon name="lucide:message-circle" class="w-3 h-3 text-green-500" />
+                          <span class="truncate">{{ item.detail_support.wa }}</span>
+                        </div>
+                        <div v-if="item.detail_support.email" class="flex items-center gap-1">
+                          <Icon name="lucide:mail" class="w-3 h-3 text-red-500" />
+                          <span class="truncate">{{ item.detail_support.email }}</span>
+                        </div>
+                        <div v-if="item.detail_support.biaya" class="flex items-center gap-1">
+                          <Icon name="lucide:dollar-sign" class="w-3 h-3 text-yellow-500" />
+                          <span class="truncate">{{ formatCurrency(item.detail_support.biaya) }}</span>
+                        </div>
+                        <div v-if="item.detail_support.tanggal_bayar" class="flex items-center gap-1">
+                          <Icon name="lucide:calendar-check" class="w-3 h-3 text-indigo-500" />
+                          <span class="truncate">{{ formatDate(item.detail_support.tanggal_bayar, 'DD/MM/YY') }}</span>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </template>
               </Card>
@@ -58,6 +88,18 @@ const emit = defineEmits(['openPreviewDialog'])
 
 const openPreviewDialog = (item: any) => {
   emit('openPreviewDialog', item)
+}
+
+// Function untuk format currency
+const formatCurrency = (amount: string | number) => {
+  if (!amount) return ''
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(numAmount)
 }
 </script>
 
