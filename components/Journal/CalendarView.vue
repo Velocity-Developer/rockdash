@@ -1,72 +1,74 @@
 <template>
+  <Card>
+    <template #content>
+      <div class="overflow-auto max-h-[80vh]">
+        <table class="w-full">
 
-  <div class="overflow-auto h-[80vh]  my-5">
-    <table class="w-full">
-
-      <thead class="sticky top-0 z-20 bg-indigo-100 dark:bg-indigo-700">
-        <tr>
-          <th v-for="day in dates" class="border p-2 min-w-20 font-normal border-indigo-200 dark:border-indigo-600">
-            <div class="text-lg font-bold">
-              {{ dayjs(day).format('D') }}
-            </div>
-            <div class="font-normal text-xs flex justify-center items-center">
-              {{ dayjs(day).format('dddd') }} / {{ dayjs(day).format('MMM') }}
-            </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="journal in props.data" :key="(journal as { id: string | number }).id">
-          <td v-for="day in dates" class="border-x border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 min-w-20 text-normal">
-
-            <div
-              v-if="JournalInDate(journal, day) != 'out'"
-              @click="openPreviewDialog(journal)"
-              class="shadow-sm py-1 px-2 cursor-pointer relative z-1 h-[2em] min-w-[7rem]"
-              :class="[
-                {'opacity-0': JournalInDate(journal, day) == 'out'},
-                {'rounded-l-lg mr-[-10px]': JournalInDate(journal, day) == 'start_date'},
-                {'rounded-r-lg ml-[-10px]': JournalInDate(journal, day) == 'end_date'},
-                {'mx-[-10px]': JournalInDate(journal, day) == 'middle_date'},
-                {'rounded-lg': JournalInDate(journal, day) == 'one_day'},
-                getBgClass((journal as { id: string | number }).id)         
-              ]"
-            >
-              <div
-              class="flex items-center gap-1"
-              :class="[
-                {'opacity-0': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date' },
-                {'absolute top-0 bottom-0 left-0 px-2 z-10': JournalInDate(journal, day) == 'start_date'},
-                {'!w-[7rem]': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date'}
-              ]"
-              v-tooltip.top="(journal as { title: string }).title"
-              >
-                <div>
-                   {{ (journal as { journal_category: { icon: string } }).journal_category.icon }}
+          <thead class="sticky top-0 z-20 bg-indigo-100 dark:bg-indigo-700">
+            <tr>
+              <th v-for="day in dates" class="border p-2 w-28 min-w-28 font-normal border-indigo-200 dark:border-indigo-600 whitespace-nowrap">
+                <div class="text-lg font-bold whitespace-nowrap">
+                  {{ dayjs(day).format('D') }}
                 </div>
+                <div class="font-normal text-xs flex justify-center items-center whitespace-nowrap">
+                  {{ dayjs(day).format('dddd') }} / {{ dayjs(day).format('MMM') }}
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="journal in props.data" :key="(journal as { id: string | number }).id">
+              <td v-for="day in dates" class="border-x border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-2 w-28 min-w-28 text-normal">
+
                 <div
-                  class="truncate"
+                  v-if="JournalInDate(journal, day) != 'out'"
+                  @click="openPreviewDialog(journal)"
+                  class="shadow-sm py-1 px-2 cursor-pointer relative z-1 h-[2em] min-w-[7rem]"
                   :class="[
-                    // {'w-[12rem]': JournalTotalDays(journal) > 1 && JournalInDate(journal, day) == 'start_date'},
-                    {'w-[7rem]': JournalTotalDays(journal) <= 1 },
-                    {'w-[7rem]': JournalTotalDays(journal) < 1 && JournalInDate(journal, day) == 'middle_date'},
+                    {'opacity-0': JournalInDate(journal, day) == 'out'},
+                    {'rounded-l-lg mr-[-10px]': JournalInDate(journal, day) == 'start_date'},
+                    {'rounded-r-lg ml-[-10px]': JournalInDate(journal, day) == 'end_date'},
+                    {'mx-[-10px]': JournalInDate(journal, day) == 'middle_date'},
+                    {'rounded-lg': JournalInDate(journal, day) == 'one_day'},
+                    getBgClass((journal as { id: string | number }).id)         
                   ]"
-                  :style="JournalTotalDays(journal) > 1 && JournalInDate(journal, day) == 'start_date' 
-                  ? { width: (JournalTotalDays(journal) * 6) + 'rem' } 
-                  : {}"
                 >
-                    {{ (journal as { title: string }).title }}
+                  <div
+                  class="flex items-center gap-1"
+                  :class="[
+                    {'opacity-0': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date' },
+                    {'absolute top-0 bottom-0 left-0 px-2 z-10': JournalInDate(journal, day) == 'start_date'},
+                    {'!w-[7rem]': JournalInDate(journal, day) == 'middle_date' || JournalInDate(journal, day) == 'end_date'}
+                  ]"
+                  v-tooltip.top="(journal as { title: string }).title"
+                  >
+                    <div>
+                      {{ (journal as { journal_category: { icon: string } }).journal_category.icon }}
+                    </div>
+                    <div
+                      class="truncate"
+                      :class="[
+                        // {'w-[12rem]': JournalVisibleDays(journal) > 1 && JournalInDate(journal, day) == 'start_date'},
+                        {'w-[7rem]': JournalVisibleDays(journal) <= 1 },
+                        {'w-[7rem]': JournalVisibleDays(journal) < 1 && JournalInDate(journal, day) == 'middle_date'},
+                      ]"
+                      :style="JournalVisibleDays(journal) > 1 && JournalInDate(journal, day) == 'start_date' 
+                      ? { width: (JournalVisibleDays(journal) * 6) + 'rem' } 
+                      : {}"
+                    >
+                        {{ (journal as { title: string }).title }}
+                    </div>
+                  </div>
+
                 </div>
-              </div>
 
-            </div>
-
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>    
+    </template>
+  </Card>
 
 </template>
 
@@ -136,6 +138,23 @@ const JournalTotalDays = (journal: any) => {
   const diffDays = end.diff(start, "day") + 1;
 
   return diffDays;
+};
+
+// hitung hari yang visible dalam calendar view
+const JournalVisibleDays = (journal: any) => {
+  const journalStart = dayjs(journal.start).local();
+  const journalEnd = journal.end ? dayjs(journal.end).local() : dayjs().local();
+  const calendarStart = dayjs(props.start).local();
+  const calendarEnd = dayjs(props.end).local();
+
+  // tentukan start dan end yang benar-benar visible
+  const visibleStart = journalStart.isAfter(calendarStart) ? journalStart : calendarStart;
+  const visibleEnd = journalEnd.isBefore(calendarEnd) ? journalEnd : calendarEnd;
+
+  // hitung selisih hari visible (termasuk start)
+  const visibleDays = visibleEnd.diff(visibleStart, "day") + 1;
+
+  return Math.max(1, visibleDays); // minimal 1 hari
 };
 
 // Fungsi untuk ambil warna berdasarkan index
