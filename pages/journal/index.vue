@@ -4,10 +4,7 @@
   <div class="hidden md:flex justify-between items-center gap-2 mb-2">
     <!-- View Toggle -->
     <div class="flex items-center gap-2">
-      <ToggleSwitch v-model="isCalendarView" @change="toggleView" />
-      <Icon name="lucide:calendar" v-if="viewMode === 'calendar'"/>
-      <Icon name="lucide:list" v-if="viewMode === 'list'"/>
-      <span class="text-sm font-medium">{{ viewMode === 'calendar' ? 'Kalender' : 'Daftar' }}</span>
+      <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" @change="toggleView" />
     </div>
     
     <div class="flex items-center gap-2">
@@ -41,9 +38,7 @@
       </Button>
       <!-- View Toggle Mobile -->
       <div class="flex items-center gap-1">
-        <Icon name="lucide:list" :class="{ 'text-blue-600': viewMode === 'list' }" class="w-4 h-4" />
-        <ToggleSwitch v-model="isCalendarView" @change="toggleView" />
-        <Icon name="lucide:calendar" :class="{ 'text-blue-600': viewMode === 'calendar' }" class="w-4 h-4" />
+        <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" @change="toggleView" size="small" />
       </div>
     </div>
     <Button @click="openFormDialog('add','')" size="small" :loading="loading">
@@ -72,7 +67,8 @@
 
   <div class="mb-5">
       <JournalDataView v-if="viewMode === 'list'" :data="data.data" @openPreviewDialog="openPreviewDialog" />
-      <JournalCalendarView v-else :data="data.data" :start="filters.date_start" :end="filters.date_end" @openPreviewDialog="openPreviewDialog" />      
+      <JournalCalendarView v-else-if="viewMode === 'calendar'" :data="data.data" :start="filters.date_start" :end="filters.date_end" @openPreviewDialog="openPreviewDialog" />
+      <JournalDataTable v-else-if="viewMode === 'table'" :data="data.data" @openPreviewDialog="openPreviewDialog" />      
   </div>
 
   <Card
@@ -203,8 +199,8 @@ const getData = async () => {
       filters.date_end = dayjs(filters.date_end).local().format('YYYY-MM-DD')
     }
 
-    //if isCalendarView = 'calendar' , pagination = false
-    if(isCalendarView.value) {
+    //if viewMode = 'calendar' , pagination = false
+    if(viewMode.value === 'calendar') {
         filters.pagination = false
         filters.order = 'asc'
     } else {
@@ -283,15 +279,19 @@ const deletedJournal = () => {
 const visibleFilterDrawer = ref(false);
 
 // View Mode Toggle
-const isCalendarView = ref(false);
-const viewMode = computed(() => isCalendarView.value ? 'calendar' : 'list');
+const viewMode = ref('list');
+const viewOptions = [
+  { label: 'Daftar', value: 'list', icon: 'lucide:list' },
+  { label: 'Kalender', value: 'calendar', icon: 'lucide:calendar' },
+  { label: 'Tabel', value: 'table', icon: 'lucide:table' }
+];
 
 // Initialize view mode from localStorage
 const initializeViewMode = () => {
   if (process.client) {
     const savedView = localStorage.getItem('view_journal');
-    if (savedView) {
-      isCalendarView.value = savedView === 'calendar';
+    if (savedView && ['list', 'calendar', 'table'].includes(savedView)) {
+      viewMode.value = savedView;
     }
   }
 };
