@@ -4,10 +4,12 @@
   <div class="hidden md:flex justify-between items-center gap-2 mb-2">
     <!-- View Toggle -->
     <div class="flex items-center gap-2">
-      <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" @change="toggleView" />
+      <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" @change="toggleView" size="small"/>
     </div>
     
     <div class="flex items-center gap-2">
+      <Select v-model="filters.role" :options="opsiRoles" showClear optionValue="value" optionLabel="label" size="small" placeholder="Pilih Role">
+      </Select>
       <Select v-model="filters.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" size="small" required>
         <template #option="slotProps">
           <div class="flex items-center">
@@ -30,7 +32,7 @@
   </div>
 
   <!-- Filter untuk mobile dengan drawer -->
-  <div class="flex md:hidden justify-between items-center gap-2 mb-2">
+  <div class="flex flex-col md:hidden gap-2 mb-2">
     <div class="flex items-center gap-2">
       <Button @click="visibleFilterDrawer = true" size="small" outlined>
         <Icon name="lucide:filter" />
@@ -125,6 +127,12 @@
   <Drawer v-model:visible="visibleFilterDrawer" header="Filter Jurnal" position="right" class="!w-80">
     <div class="flex flex-col gap-4">
       <div>
+        <label class="block text-sm font-medium mb-2">Role</label>
+        <Select v-model="filters.role" :options="opsiRoles" showClear optionValue="value" optionLabel="label" class="w-full" placeholder="Pilih Role">
+        </Select>
+      </div>
+      
+      <div>
         <label class="block text-sm font-medium mb-2">User</label>
         <Select v-model="filters.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" class="w-full">
           <template #option="slotProps">
@@ -175,6 +183,7 @@ const useConfig = useConfigStore()
 const filters = reactive({
   date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
   date_end: dayjs().format('YYYY-MM-DD'),
+  role: '',
   user_id: useConfig.config?.user?.id,
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
@@ -184,6 +193,11 @@ const filters = reactive({
 const { data: opsiUsers } = await useAsyncData(
   'opsi-users', 
   () => client('/api/data_opsi/users'),
+) as any
+
+const { data: opsiRoles } = await useAsyncData(
+  'opsi-roles', 
+  () => client('/api/option/roles'),
 ) as any
 
 const loading = ref(false);
