@@ -198,9 +198,13 @@
     </form>
   </Drawer>
 
-  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Invoice':'Edit Invoice'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <!-- Form component akan dibuat nanti -->
-    <div>Form Invoice akan ditampilkan di sini</div>
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Invoice':'Edit Invoice'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <InvoiceForm 
+      :action="actionDialog as 'add' | 'edit'"
+      :model-value="dataDialog" 
+      @update="refresh()" 
+      @close="visibleDialog = false"
+    />
   </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
