@@ -22,6 +22,9 @@ const fmtDMY = (v?: string) => {
 }
 
 const total = computed(() => {
+  if (data.value && typeof data.value.total !== 'undefined' && data.value.total !== null) {
+    return Number(data.value.total)
+  }
   const items = data.value?.items || []
   return items.reduce((sum: number, it: any) => sum + (Number(it.harga) || 0), 0)
 })
@@ -29,7 +32,7 @@ const total = computed(() => {
 const paidAmount = computed(() => (data.value?.status === 'paid' ? total.value : 0))
 const dueAmount = computed(() => Math.max(total.value - paidAmount.value, 0))
 const dueDate = computed(() => {
-  const t = data.value?.tanggal
+  const t = data.value?.jatuh_tempo || data.value?.tanggal
   if (!t || t === '0000-00-00') return '-'
   return dayjs(t).add(3, 'day').format('DD/MM/YYYY')
 })
