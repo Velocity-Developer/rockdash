@@ -50,6 +50,9 @@
                     {{ slotProps.data.nomor }}
                   </NuxtLink>
                   <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
+                    <Button @click="printInvoice(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" size="small">
+                      <Icon name="lucide:printer" /> Print
+                    </Button>
                     <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
                       <Icon name="lucide:pencil" /> Edit
                     </Button>
@@ -408,6 +411,12 @@ const confirmDelete = (id: any) => {
             //callback to execute when user rejects to delete
         }
     });
+}
+
+// Open print page in new tab/window
+function printInvoice(id: any) {
+  const url = `/print/invoice?id=${id}`
+  window.open(url, '_blank')
 }
 </script>
 
