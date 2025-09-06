@@ -21,7 +21,7 @@ const toast = useToast();
 // State untuk form
 const form = reactive({
   id: '',
-  unit: '',
+  unit: 'vd',
   nama: '',
   webhost_id: null as string | number | null,
   note: '',
@@ -40,6 +40,12 @@ const statusOptions = [
   { label: 'Pending', value: 'pending' },
   { label: 'Paid', value: 'paid' },
   { label: 'Canceled', value: 'canceled' }
+];
+
+// Unit options
+const unitOptions = [
+  { label: 'Velocity Developer', value: 'vd' },
+  { label: 'Velocity Cyber Media', value: 'vcm' },
 ];
 
 // Inisialisasi form berdasarkan action
@@ -178,11 +184,14 @@ function closeForm() {
       <!-- Unit -->
       <div>
         <label class="block text-sm font-medium mb-1">Unit</label>
-        <InputText 
-          v-model="form.unit" 
-          class="w-full" 
-          :class="{'p-invalid': errorSubmit.unit}" 
-          placeholder="Masukkan unit"
+        <Dropdown
+          v-model="form.unit"
+          :options="unitOptions"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+          :class="{'p-invalid': errorSubmit.unit}"
+          placeholder="Pilih unit"
         />
         <small v-if="errorSubmit.unit" class="p-error block mt-1">{{ errorSubmit.unit[0] }}</small>
       </div>
