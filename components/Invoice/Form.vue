@@ -48,6 +48,12 @@ const unitOptions = [
   { label: 'Velocity Cyber Media', value: 'vcm' },
 ];
 
+//get opsi jenis
+const { data: dataOpsiJenis} = await useAsyncData(
+    'data_opsi-jenis_project',
+    () => client('/api/data_opsi/jenis_project')
+) as any
+
 // Inisialisasi form berdasarkan action
 watchEffect(() => {
   if (props.action === 'edit' && props.modelValue) {
@@ -180,125 +186,142 @@ function closeForm() {
 
 <template>
   <form @submit.prevent="submitForm" class="p-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <!-- Unit -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Unit</label>
-        <Dropdown
-          v-model="form.unit"
-          :options="unitOptions"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-          :class="{'p-invalid': errorSubmit.unit}"
-          placeholder="Pilih unit"
-        />
-        <small v-if="errorSubmit.unit" class="p-error block mt-1">{{ errorSubmit.unit[0] }}</small>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-start">
+
+      <!-- Info Klien -->
+      <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center gap-2 text-md font-bold mb-3">
+          <Icon name="lucide:circle-user" class="text-indigo-700"/> Info Klien
+        </div>
+        <!-- Nama -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Nama Customer</label>
+          <InputText 
+            v-model="form.nama" 
+            class="w-full" 
+            :class="{'p-invalid': errorSubmit.nama}" 
+            placeholder="Masukkan nama customer"
+          />
+          <small v-if="errorSubmit.nama" class="p-error block mt-1">{{ errorSubmit.nama[0] }}</small>
+        </div>
+        <!-- Webhost -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Website</label>
+          <SelectWebhost 
+            v-model="form.webhost_id" 
+            :class="{'p-invalid': errorSubmit.webhost_id}"
+          />
+          <small v-if="errorSubmit.webhost_id" class="p-error block mt-1">{{ errorSubmit.webhost_id[0] }}</small>
+        </div>
+        <!-- Tanggal Bayar -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Tanggal Bayar</label>
+          <DatePicker 
+            v-model="form.tanggal_bayar" 
+            dateFormat="dd/mm/yy" 
+            class="w-full" 
+            :class="{'p-invalid': errorSubmit.tanggal_bayar}" 
+            placeholder="Pilih tanggal bayar"
+          />
+          <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
+        </div>
+       
       </div>
-      
-      <!-- Nama -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Nama</label>
-        <InputText 
-          v-model="form.nama" 
-          class="w-full" 
-          :class="{'p-invalid': errorSubmit.nama}" 
-          placeholder="Masukkan nama"
-        />
-        <small v-if="errorSubmit.nama" class="p-error block mt-1">{{ errorSubmit.nama[0] }}</small>
+
+      <!-- Info Invoice -->
+      <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center gap-2 text-md font-bold mb-3">
+          <Icon name="lucide:file-text" class="text-indigo-700"/> Info Invoice
+        </div>
+         <!-- Unit -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Unit</label>
+          <Dropdown
+            v-model="form.unit"
+            :options="unitOptions"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+            :class="{'p-invalid': errorSubmit.unit}"
+            placeholder="Pilih unit"
+          />
+          <small v-if="errorSubmit.unit" class="p-error block mt-1">{{ errorSubmit.unit[0] }}</small>
+        </div>
+        <!-- Status -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Status</label>
+          <Dropdown 
+            v-model="form.status" 
+            :options="statusOptions" 
+            optionLabel="label" 
+            optionValue="value" 
+            class="w-full" 
+            :class="{'p-invalid': errorSubmit.status}" 
+            placeholder="Pilih status"
+          />
+          <small v-if="errorSubmit.status" class="p-error block mt-1">{{ errorSubmit.status[0] }}</small>
+        </div>
+        
+        <!-- Tanggal -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Tanggal</label>
+          <DatePicker 
+            v-model="form.tanggal" 
+            dateFormat="dd/mm/yy" 
+            class="w-full" 
+            :class="{'p-invalid': errorSubmit.tanggal}" 
+            placeholder="Pilih tanggal"
+          />
+          <small v-if="errorSubmit.tanggal" class="p-error block mt-1">{{ errorSubmit.tanggal[0] }}</small>
+        </div>
+                
       </div>
-      
-      <!-- Webhost -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Webhost</label>
-        <SelectWebhost 
-          v-model="form.webhost_id" 
-          :class="{'p-invalid': errorSubmit.webhost_id}"
-        />
-        <small v-if="errorSubmit.webhost_id" class="p-error block mt-1">{{ errorSubmit.webhost_id[0] }}</small>
-      </div>
-      
-      <!-- Status -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Status</label>
-        <Dropdown 
-          v-model="form.status" 
-          :options="statusOptions" 
-          optionLabel="label" 
-          optionValue="value" 
-          class="w-full" 
-          :class="{'p-invalid': errorSubmit.status}" 
-          placeholder="Pilih status"
-        />
-        <small v-if="errorSubmit.status" class="p-error block mt-1">{{ errorSubmit.status[0] }}</small>
-      </div>
-      
-      <!-- Tanggal -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Tanggal</label>
-        <DatePicker 
-          v-model="form.tanggal" 
-          dateFormat="dd/mm/yy" 
-          class="w-full" 
-          :class="{'p-invalid': errorSubmit.tanggal}" 
-          placeholder="Pilih tanggal"
-        />
-        <small v-if="errorSubmit.tanggal" class="p-error block mt-1">{{ errorSubmit.tanggal[0] }}</small>
-      </div>
-      
-      <!-- Tanggal Bayar -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Tanggal Bayar</label>
-        <DatePicker 
-          v-model="form.tanggal_bayar" 
-          dateFormat="dd/mm/yy" 
-          class="w-full" 
-          :class="{'p-invalid': errorSubmit.tanggal_bayar}" 
-          placeholder="Pilih tanggal bayar"
-        />
-        <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
-      </div>
+
     </div>
-    
-    <!-- Catatan -->
-    <div class="mb-4">
-      <label class="block text-sm font-medium mb-1">Catatan</label>
-      <Textarea 
-        v-model="form.note" 
-        class="w-full" 
-        :class="{'p-invalid': errorSubmit.note}" 
-        placeholder="Masukkan catatan"
-        rows="3"
-      />
-      <small v-if="errorSubmit.note" class="p-error block mt-1">{{ errorSubmit.note[0] }}</small>
-    </div>
-    
+  
+        
     <!-- Items -->
-    <div class="mb-4">
+    <div class="mb-4 bg-gray-50 border border-gray-300 rounded-lg p-3">
       <div class="flex justify-between items-center mb-2">
-        <h3 class="text-lg font-medium">Items</h3>
-        <Button @click="addItem" type="button" icon="pi pi-plus" size="small" label="Tambah Item" />
+        <div class="flex items-center gap-2 text-md font-bold mb-3">
+          <Icon name="lucide:scroll-text" class="text-indigo-700"/> Items
+        </div>
+        <Button @click="addItem" type="button" size="small" severity="info">
+          <Icon name="lucide:plus"/> Item
+        </Button>
       </div>
       
       <small v-if="errorSubmit.items" class="p-error block mb-2">{{ errorSubmit.items[0] }}</small>
       
-      <div v-for="(item, index) in form.items" :key="index" class="border rounded-lg p-3 mb-3">
+      <div v-for="(item, index) in form.items" :key="index" class="border bg-white shadow rounded-lg p-3 mb-3">
         <div class="flex justify-between items-center mb-2">
-          <h4 class="font-medium">Item #{{ index + 1 }}</h4>
+          <h4 class="font-medium">#{{ index + 1 }}</h4>
           <Button 
             @click="removeItem(index)" 
-            type="button" 
-            icon="pi pi-trash" 
-            severity="danger" 
-            text 
+            type="button"
+            severity="danger" text
             :disabled="form.items.length === 1"
-          />
+          >
+            <Icon name="lucide:trash-2"/>
+          </Button>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <!-- Jenis Item -->
+          <div>
+            <Select
+              v-model="item.jenis"
+              :options="dataOpsiJenis"
+              class="w-full"
+              :class="{'p-invalid': errorSubmit[`items.${index}.jenis`]}"
+              placeholder="Pilih jenis item"
+            />
+            <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
+          </div>
+
           <!-- Nama Item -->
           <div>
-            <label class="block text-sm font-medium mb-1">Nama Item</label>
             <InputText 
               v-model="item.nama" 
               class="w-full" 
@@ -306,23 +329,10 @@ function closeForm() {
               placeholder="Nama item"
             />
             <small v-if="errorSubmit[`items.${index}.nama`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
-          </div>
-          
-          <!-- Jenis Item -->
-          <div>
-            <label class="block text-sm font-medium mb-1">Jenis</label>
-            <InputText 
-              v-model="item.jenis" 
-              class="w-full" 
-              :class="{'p-invalid': errorSubmit[`items.${index}.jenis`]}" 
-              placeholder="Jenis item"
-            />
-            <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
-          </div>
+          </div>                    
           
           <!-- Harga Item -->
           <div>
-            <label class="block text-sm font-medium mb-1">Harga</label>
             <InputNumber 
               v-model="item.harga" 
               class="w-full" 
@@ -343,6 +353,19 @@ function closeForm() {
       <div class="text-sm font-medium">Total:</div>
       <div class="text-xl font-bold">{{ new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(calculateTotal()) }}</div>
     </div>
+
+     <!-- Catatan -->
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">Catatan</label>
+        <Textarea 
+          v-model="form.note" 
+          class="w-full" 
+          :class="{'p-invalid': errorSubmit.note}" 
+          placeholder="Masukkan catatan"
+          rows="3"
+        />
+        <small v-if="errorSubmit.note" class="p-error block mt-1">{{ errorSubmit.note[0] }}</small>
+      </div>
     
     <!-- Buttons -->
     <div class="flex justify-end gap-2">
