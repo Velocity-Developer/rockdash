@@ -1,9 +1,10 @@
 <script setup lang="ts">
-definePageMeta({
-  title: 'Print Invoice',
-  layout: false,
-})
+definePageMeta({ title: 'Print Invoice', layout: false })
 
+import { useDayjs } from '#dayjs'
+import { formatMoney as money } from '~/utils/formatMoney'
+
+const dayjs = useDayjs()
 const route = useRoute()
 const client = useSanctumClient()
 
@@ -14,20 +15,9 @@ const { data, pending, error } = await useAsyncData(
   { watch: [id] }
 ) as any
 
-function formatTanggal(value?: string) {
-  if (!value || value === '0000-00-00') return '-'
-  const [y, m, d] = value.split('-')
-  const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']
-  return `${d} ${bulan[Number(m) - 1]} ${y}`
-}
-
-function formatMoney(value?: number) {
-  if (value === null || value === undefined || value === 0) return '-'
-  const formatted = new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(Number(value))
-  return `Rp ${formatted}`
+const fmtDMY = (v?: string) => {
+  if (!v || v === '0000-00-00') return '-'
+  return dayjs(v).format('DD/MM/YYYY')
 }
 
 const total = computed(() => {
@@ -35,18 +25,23 @@ const total = computed(() => {
   return items.reduce((sum: number, it: any) => sum + (Number(it.harga) || 0), 0)
 })
 
-function handlePrint() {
-  window.print()
-}
+const paidAmount = computed(() => (data.value?.status === 'paid' ? total.value : 0))
+const dueAmount = computed(() => Math.max(total.value - paidAmount.value, 0))
+const dueDate = computed(() => {
+  const t = data.value?.tanggal
+  if (!t || t === '0000-00-00') return '-'
+  return dayjs(t).add(3, 'day').format('DD/MM/YYYY')
+})
 
-function goBack() {
-  history.back()
-}
+function formatMoney(v?: number) { return money(Number(v || 0)) }
+
+function handlePrint() { window.print() }
+function goBack() { history.back() }
 </script>
 
 <template>
-  <div class="min-h-screen bg-white text-black p-6 md:p-10">
-    <div class="max-w-4xl mx-auto">
+  <div class="min-h-screen bg-white text-black p-4 md:p-8">
+    <div class="max-w-[900px] mx-auto">
       <div class="flex items-center justify-between mb-6 print:hidden">
         <div class="text-sm opacity-70">Print Invoice</div>
         <div class="flex gap-2">
@@ -59,9 +54,7 @@ function goBack() {
         ID invoice tidak ditemukan di query (?id=)
       </div>
 
-      <div v-else-if="pending" class="text-center py-20 text-gray-500">
-        Memuat data invoice...
-      </div>
+      <div v-else-if="pending" class="text-center py-20 text-gray-500">Memuat data invoice…</div>
 
       <div v-else-if="error" class="text-center py-20 text-red-500">
         Gagal memuat data invoice
@@ -71,76 +64,128 @@ function goBack() {
         Data tidak tersedia
       </div>
 
-      <div v-else class="border border-gray-200 rounded-md p-6 print:border-0">
-        <div class="flex items-start justify-between">
-          <div>
-            <h1 class="text-2xl font-semibold">INVOICE</h1>
-            <div class="text-sm mt-1">Nomor: <span class="font-mono">{{ data.nomor }}</span></div>
-            <div class="text-sm">Tanggal: {{ formatTanggal(data.tanggal) }}</div>
+      <div v-else class="border border-gray-400">
+        <!-- Header row -->
+        <div class="grid grid-cols-12">
+          <div class="col-span-7 p-3 flex items-center gap-3">
+            <img src="/vd.webp" alt="Logo" class="h-12 object-contain" />
           </div>
-          <div class="text-right">
-            <div class="text-sm">Status:</div>
-            <div class="px-2 py-1 rounded text-xs inline-block"
-                 :class="{
-                   'bg-green-100 text-green-700': data.status==='paid',
-                   'bg-yellow-100 text-yellow-700': data.status==='pending',
-                   'bg-red-100 text-red-700': data.status==='canceled'
-                 }">
-              {{ (data.status || '').toUpperCase() }}
-            </div>
+          <div class="col-span-5">
+            <table class="w-full border-l border-gray-400">
+              <tbody>
+                <tr class="bg-blue-300/80">
+                  <td class="p-2 border-b border-gray-400 text-sm w-1/2">Nomor Invoice:</td>
+                  <td class="p-2 border-b border-gray-400 text-sm text-right font-semibold">{{ data.nomor }}</td>
+                </tr>
+                <tr class="bg-blue-300/80">
+                  <td class="p-2 border-b border-gray-400 text-sm">Jatuh Tempo:</td>
+                  <td class="p-2 border-b border-gray-400 text-sm text-right">{{ dueDate }}</td>
+                </tr>
+                <tr class="bg-blue-300/80">
+                  <td class="p-2 text-sm">Tanggal Invoice:</td>
+                  <td class="p-2 text-sm text-right">{{ fmtDMY(data.tanggal) }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div>
-            <div class="text-xs uppercase tracking-wide text-gray-500">Ditagihkan Kepada</div>
-            <div class="mt-1">
+        <!-- Bill to / from -->
+        <div class="grid grid-cols-12 border-t border-gray-400">
+          <div class="col-span-6 p-3">
+            <div class="font-semibold mb-1">Tagihan kepada:</div>
+            <div class="text-sm leading-5">
               <div class="font-medium">{{ data.nama }}</div>
-              <div class="text-sm text-gray-600">Unit: {{ data.unit }}</div>
-              <div class="text-sm text-gray-600" v-if="data.webhost">Webhost: {{ data.webhost?.nama_web }}</div>
+              <div>Unit: {{ data.unit }}</div>
+              <div v-if="data.webhost">Webhost: {{ data.webhost?.nama_web }}</div>
             </div>
           </div>
-          <div>
-            <div class="text-xs uppercase tracking-wide text-gray-500">Informasi Pembayaran</div>
-            <div class="mt-1 text-sm text-gray-700">
-              <div>Tanggal Bayar: {{ formatTanggal(data.tanggal_bayar) }}</div>
-              <div>Metode: -</div>
+          <div class="col-span-6 p-3 border-l border-gray-400">
+            <div class="font-semibold mb-1">Tagihan dari :</div>
+            <div class="text-sm leading-5">
+              <div class="font-medium">Velocity Developer Indonesia</div>
+              <div>Kebonagung RT 04 / RW 01 Jarum, Bayat,</div>
+              <div>Klaten, Jawa Tengah</div>
+              <div class="mt-1">Bantuanvdc@gmail.com</div>
             </div>
           </div>
         </div>
 
-        <div class="mt-6">
+        <!-- Items table -->
+        <div class="border-t border-gray-400">
           <table class="w-full border-collapse">
             <thead>
-              <tr class="bg-gray-100">
-                <th class="text-left p-3 text-sm font-medium border border-gray-200">Item</th>
-                <th class="text-left p-3 text-sm font-medium border border-gray-200">Jenis</th>
-                <th class="text-right p-3 text-sm font-medium border border-gray-200">Harga</th>
+              <tr class="bg-blue-300/80">
+                <th class="border border-gray-400 p-2 text-left w-10 text-sm">No</th>
+                <th class="border border-gray-400 p-2 text-left text-sm">Nama Pekerjaan</th>
+                <th class="border border-gray-400 p-2 text-left w-16 text-sm">&nbsp;</th>
+                <th class="border border-gray-400 p-2 text-right w-40 text-sm">Harga</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, idx) in data.items" :key="idx" class="hover:bg-gray-50">
-                <td class="p-3 border border-gray-200">
-                  <div class="font-medium">{{ item.nama }}</div>
-                </td>
-                <td class="p-3 border border-gray-200 text-sm text-gray-600">{{ item.jenis }}</td>
-                <td class="p-3 border border-gray-200 text-right">{{ formatMoney(item.harga) }}</td>
+              <tr v-for="(item, idx) in data.items" :key="idx">
+                <td class="border border-gray-400 p-2 text-sm">{{ idx + 1 }}</td>
+                <td class="border border-gray-400 p-2">{{ item.nama }}</td>
+                <td class="border border-gray-400 p-2 text-sm">Rp</td>
+                <td class="border border-gray-400 p-2 text-right">{{ formatMoney(item.harga) }}</td>
               </tr>
-              <tr>
-                <td colspan="2" class="p-3 border border-gray-200 text-right font-semibold">Total</td>
-                <td class="p-3 border border-gray-200 text-right font-semibold">{{ formatMoney(total) }}</td>
+              <tr v-for="pad in Math.max(0, 4 - (data.items?.length || 0))" :key="'pad'+pad">
+                <td class="border border-gray-400 p-4">&nbsp;</td>
+                <td class="border border-gray-400 p-4">&nbsp;</td>
+                <td class="border border-gray-400 p-4">&nbsp;</td>
+                <td class="border border-gray-400 p-4">&nbsp;</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div v-if="data.note" class="mt-6">
-          <div class="text-xs uppercase tracking-wide text-gray-500">Catatan</div>
-          <div class="mt-1 whitespace-pre-line text-sm">{{ data.note }}</div>
-        </div>
+        <!-- Summary area -->
+        <div class="grid grid-cols-12">
+          <div class="col-span-7 p-4 text-sm">
+            <div class="mb-6">
+              <span class="align-top">dibayar tanggal:</span>
+              <span class="ml-2 px-10 py-1 bg-blue-300/70 inline-block">{{ fmtDMY(data.tanggal_bayar) }}</span>
+            </div>
 
-        <div class="mt-10 text-sm text-gray-500">
-          Terima kasih.
+            <div class="mt-8">
+              <div class="font-semibold mb-1">Pembayaran ditransfer ke :</div>
+              <div>CV. Velocity Developer Indonesia</div>
+              <div>BCA : 0301545796</div>
+            </div>
+
+            <div class="mt-10">
+              <div class="font-semibold">Terms & Conditions:</div>
+              <a href="https://velocitydeveloper.com/syarat-dan-ketentuan/" class="text-blue-700 underline">velocitydeveloper.com/syarat-dan-ketentuan/</a>
+            </div>
+          </div>
+          <div class="col-span-5 p-4 border-l border-gray-400">
+            <table class="w-full border border-gray-400">
+              <tbody>
+                <tr>
+                  <td class="p-2 text-sm border-b border-gray-400">Sub Total</td>
+                  <td class="p-2 text-right border-b border-gray-400">{{ formatMoney(total) }}</td>
+                </tr>
+                <tr class="bg-blue-300/70">
+                  <td class="p-2 font-semibold border-b border-gray-400">TOTAL</td>
+                  <td class="p-2 text-right font-semibold border-b border-gray-400">{{ formatMoney(total) }}</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-sm border-b border-gray-400">Dibayar</td>
+                  <td class="p-2 text-right border-b border-gray-400">{{ formatMoney(paidAmount) }}</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-sm">Terhutang</td>
+                  <td class="p-2 text-right">{{ formatMoney(dueAmount) }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="mt-6">
+              <div class="bg-blue-400 text-white font-semibold text-center py-2">
+                {{ data.status === 'paid' ? 'LUNAS' : 'BELUM LUNAS' }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -148,7 +193,5 @@ function goBack() {
 </template>
 
 <style scoped>
-@media print {
-  .print\:hidden { display: none !important; }
-}
+@media print { .print\:hidden { display: none !important; } }
 </style>
