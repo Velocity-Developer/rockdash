@@ -22,7 +22,8 @@ const toast = useToast();
 const form = reactive({
   id: '',
   unit: 'vd',
-  nama: '',
+  nama_klien: '',
+  alamat_klien: '',
   webhost_id: null as string | number | null,
   note: '',
   status: 'pending',
@@ -60,7 +61,8 @@ watchEffect(() => {
     // Isi form dengan data yang ada
     form.id = props.modelValue.id;
     form.unit = props.modelValue.unit;
-    form.nama = props.modelValue.nama;
+    form.nama_klien = props.modelValue.nama_klien;
+    form.alamat_klien = props.modelValue.alamat_klien;
     form.webhost_id = props.modelValue.webhost_id;
     form.note = props.modelValue.note;
     form.status = props.modelValue.status;
@@ -72,8 +74,9 @@ watchEffect(() => {
   } else {
     // Reset form untuk tambah data baru
     form.id = '';
-    form.unit = '';
-    form.nama = '';
+    form.unit = 'vd';
+    form.nama_klien = '';
+    form.alamat_klien = '';
     form.webhost_id = null;
     form.note = '';
     form.status = 'pending';
@@ -117,7 +120,7 @@ async function submitForm() {
   try {
     // Validasi form
     if (!form.unit) throw { bag: { unit: ['Unit harus diisi'] } };
-    if (!form.nama) throw { bag: { nama: ['Nama harus diisi'] } };
+    if (!form.nama_klien) throw { bag: { nama_klien: ['Nama klien harus diisi'] } };
     if (!form.webhost_id) throw { bag: { webhost_id: ['Webhost harus dipilih'] } };
     if (!form.status) throw { bag: { status: ['Status harus dipilih'] } };
     if (!form.tanggal) throw { bag: { tanggal: ['Tanggal harus diisi'] } };
@@ -194,16 +197,27 @@ function closeForm() {
         <div class="flex items-center gap-2 text-md font-bold mb-3">
           <Icon name="lucide:circle-user" class="text-indigo-700"/> Info Klien
         </div>
-        <!-- Nama -->
+        <!-- Nama Klien -->
         <div>
-          <label class="block text-sm font-medium mb-1">Nama Customer</label>
+          <label class="block text-sm font-medium mb-1">Nama Klien</label>
           <InputText 
-            v-model="form.nama" 
+            v-model="form.nama_klien" 
             class="w-full" 
-            :class="{'p-invalid': errorSubmit.nama}" 
-            placeholder="Masukkan nama customer"
+            :class="{'p-invalid': errorSubmit.nama_klien}" 
+            placeholder="Masukkan nama klien"
           />
-          <small v-if="errorSubmit.nama" class="p-error block mt-1">{{ errorSubmit.nama[0] }}</small>
+          <small v-if="errorSubmit.nama_klien" class="p-error block mt-1">{{ errorSubmit.nama_klien[0] }}</small>
+        </div>
+        <!-- Alamat Klien -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Alamat Klien</label>
+          <Textarea 
+            v-model="form.alamat_klien" 
+            class="w-full" 
+            autoResize
+            rows="2"
+            placeholder="Masukkan alamat klien"
+          />
         </div>
         <!-- Webhost -->
         <div>

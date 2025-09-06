@@ -109,8 +109,9 @@ watch(
           <div class="col-span-6 p-3">
             <div class="font-semibold mb-1">Tagihan kepada:</div>
             <div class="text-sm leading-5">
-              <div class="font-medium">{{ data.nama }}</div>
-              <div>Unit: {{ data.unit }}</div>
+              <div class="font-medium">{{ data.nama_klien }}</div>
+              <div class="whitespace-pre-line">{{ data.alamat_klien }}</div>
+              <div class="mt-1">Unit: {{ data.unit }}</div>
               <div v-if="data.webhost">Webhost: {{ data.webhost?.nama_web }}</div>
             </div>
           </div>

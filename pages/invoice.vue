@@ -64,10 +64,10 @@
               </template>
             </Column>
             <Column field="unit" header="Unit"></Column>
-            <Column field="nama" header="Nama">
+            <Column field="nama_klien" header="Nama Klien">
               <template #body="slotProps">
                 <div class="max-w-[200px] whitespace-normal">
-                  {{ slotProps.data.nama }}
+                  {{ slotProps.data.nama_klien }}
                 </div>
               </template>
             </Column>
@@ -233,7 +233,7 @@ const filters = reactive({
     tanggal_end: route.query.tanggal_end || '',
     nomor: route.query.nomor || '',
     unit: route.query.unit || '',
-    nama: route.query.nama || '',
+    nama_klien: route.query.nama_klien || '',
     status: route.query.status || '',
     order_by: 'tanggal',
     order: 'desc',
@@ -310,7 +310,7 @@ const fieldsFilter = [
   { key: 'tanggal_end', label: 'Tanggal sampai', type: 'date' },
   { key: 'nomor', label: 'Nomor Invoice', type: 'text' },
   { key: 'unit', label: 'Unit', type: 'text' },
-  { key: 'nama', label: 'Nama', type: 'text' },
+  { key: 'nama_klien', label: 'Nama Klien', type: 'text' },
   { key: 'status', label: 'Status', type: 'dropdown' },
 ]
 
