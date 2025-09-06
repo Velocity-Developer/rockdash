@@ -415,8 +415,22 @@ const confirmDelete = (id: any) => {
 
 // Open print page in new tab/window
 function printInvoice(id: any) {
-  const url = `/print/invoice?id=${id}`
-  window.open(url, '_blank')
+  const url = `/print/invoice?id=${id}&print=true`
+  const features = [
+    'popup=yes',
+    'noopener',
+    'noreferrer',
+    'scrollbars=yes',
+    'resizable=yes',
+    'width=900',
+    'height=1000'
+  ].join(',')
+  const win = window.open(url, `print_invoice_${id}`, features)
+  if (win) {
+    win.focus()
+  } else {
+    alert('Popup diblokir oleh browser. Izinkan popup lalu coba lagi.')
+  }
 }
 </script>
 

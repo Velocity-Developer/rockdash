@@ -9,6 +9,7 @@ const route = useRoute()
 const client = useSanctumClient()
 
 const id = computed(() => (route.query.id as string) || '')
+const autoPrint = computed(() => String(route.query.print || '') === 'true')
 
 const { data, pending, error } = await useAsyncData(
   () => (id.value ? client<any>(`/api/invoice/${id.value}`).then(res => res) : Promise.resolve('')),
@@ -37,6 +38,19 @@ function formatMoney(v?: number) { return money(Number(v || 0)) }
 
 function handlePrint() { window.print() }
 function goBack() { history.back() }
+
+// Auto print when ?print=true and data is loaded
+const printed = ref(false)
+watch(
+  () => ({ ready: !!data.value, auto: autoPrint.value }),
+  (s) => {
+    if (s.ready && s.auto && !printed.value) {
+      printed.value = true
+      setTimeout(() => window.print(), 200)
+    }
+  },
+  { immediate: true, deep: true }
+)
 </script>
 
 <template>
