@@ -21,6 +21,7 @@ const toast = useToast();
 // State untuk form
 const form = reactive({
   id: '',
+  nomor:'',
   unit: 'vdi',
   nama_klien: '',
   alamat_klien: '',
@@ -31,7 +32,7 @@ const form = reactive({
   jatuh_tempo: null as any | null,
   tanggal_bayar: null as any | null,
   subtotal: 0 as number,
-  pajak: '' as string,
+  pajak: 0 as number,
   nominal_pajak: 0 as number,
   total: 0 as number,
   items: [] as any[]
@@ -65,6 +66,7 @@ watchEffect(() => {
   if (props.action === 'edit' && props.modelValue) {
     // Isi form dengan data yang ada
     form.id = props.modelValue.id;
+    form.nomor = props.modelValue.nomor;
     form.unit = props.modelValue.unit;
     form.nama_klien = props.modelValue.nama_klien;
     form.alamat_klien = props.modelValue.alamat_klien;
@@ -75,7 +77,7 @@ watchEffect(() => {
     form.jatuh_tempo = props.modelValue.jatuh_tempo;
     form.tanggal_bayar = props.modelValue.tanggal_bayar;
     form.subtotal = Number(props.modelValue.subtotal || 0);
-    form.pajak = props.modelValue.pajak || '';
+    form.pajak = Number(props.modelValue.pajak || 0);
     form.nominal_pajak = Number(props.modelValue.nominal_pajak || 0);
     form.total = Number(props.modelValue.total || 0);
     
@@ -94,7 +96,7 @@ watchEffect(() => {
     form.jatuh_tempo = null;
     form.tanggal_bayar = null;
     form.subtotal = 0;
-    form.pajak = '';
+    form.pajak = 2.5;
     form.nominal_pajak = 0;
     form.total = 0;
     form.items = [createEmptyItem()];
@@ -285,6 +287,11 @@ function formatIDR(v?: number | string) {
           <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Select status" />
           <small v-if="errorSubmit.status" class="p-error block mt-1">{{ errorSubmit.status[0] }}</small>
         </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
+          <DatePicker v-model="form.tanggal_bayar" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
+          <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
+        </div>
       </div>
     </div>
 
@@ -340,7 +347,11 @@ function formatIDR(v?: number | string) {
         <div class="grid grid-cols-2 gap-2 text-sm">
           <div class="font-semibold">Subtotal:</div>
           <div class="text-right">{{ formatIDR(form.subtotal) }}</div>
-          <div class="font-semibold">Tax:</div>
+          <div class="font-semibold">Pajak:</div>
+          <div class="text-right">
+            <InputNumber v-model="form.pajak" class="w-[100px] overflow-hidden rounded-md border-none" fluid suffix="%" :class="{ 'p-invalid': errorSubmit.pajak }" size="small" placeholder="0.00"/>
+          </div>
+          <div class="font-semibold">Nominal Pajak:</div>
           <div class="text-right">{{ formatIDR(form.nominal_pajak) }}</div>
           <div class="col-span-2 border border-b-blue-300"></div>
           <div class="font-semibold">Total:</div>
