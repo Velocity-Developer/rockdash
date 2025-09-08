@@ -132,11 +132,13 @@ function calculateTotal() {
 
 // Keep subtotal and total in sync with items and nominal_pajak
 watch(
-  () => [form.items, form.nominal_pajak],
+  () => [form.items, form.pajak],
   () => {
     const sub = calculateTotal();
     form.subtotal = sub;
-    const pajakNom = Number(form.nominal_pajak || 0);
+    const percent = toNumberLocale(form.pajak);
+    const pajakNom = sub * (percent / 100);
+    form.nominal_pajak = pajakNom;
     form.total = sub + pajakNom;
   },
   { deep: true }
@@ -166,6 +168,7 @@ async function submitForm() {
     // Format tanggal
     const formData = {
       ...form,
+      pajak: String(form.pajak ?? ''),
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
       tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD') : null,
@@ -224,6 +227,19 @@ const nomorPreview = computed(() => (props.modelValue && props.modelValue.nomor)
 // Format IDR helper
 function formatIDR(v?: number | string) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(Number(v || 0));
+}
+
+// Safely parse numbers with comma decimal
+function toNumberLocale(v: any): number {
+  if (v == null || v === '') return 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  if (typeof v === 'string') {
+    // remove thousand separators and normalize decimal comma
+    const normalized = v.replace(/\./g, '').replace(',', '.');
+    const n = parseFloat(normalized);
+    return isNaN(n) ? 0 : n;
+  }
+  try { return Number(v) || 0 } catch { return 0 }
 }
 
 </script>
@@ -349,7 +365,19 @@ function formatIDR(v?: number | string) {
           <div class="text-right">{{ formatIDR(form.subtotal) }}</div>
           <div class="font-semibold">Pajak:</div>
           <div class="text-right">
-            <InputNumber v-model="form.pajak" class="w-[100px] overflow-hidden rounded-md border-none" fluid suffix="%" :class="{ 'p-invalid': errorSubmit.pajak }" size="small" placeholder="0.00"/>
+            <InputNumber
+              v-model="form.pajak"
+              class="w-[120px] overflow-hidden rounded-md border-none"
+              fluid
+              mode="decimal"
+              locale="id-ID"
+              :minFractionDigits="0"
+              :maxFractionDigits="2"
+              suffix="%"
+              :class="{ 'p-invalid': errorSubmit.pajak }"
+              size="small"
+              placeholder="0,00"
+            />
           </div>
           <div class="font-semibold">Nominal Pajak:</div>
           <div class="text-right">{{ formatIDR(form.nominal_pajak) }}</div>
