@@ -130,18 +130,26 @@ function calculateTotal() {
   return form.items.reduce((sum, item) => sum + (Number(item.harga) || 0), 0);
 }
 
-// Keep subtotal and total in sync with items and nominal_pajak
+// Keep subtotal in sync with items
 watch(
-  () => [form.items, form.pajak],
+  () => form.items,
   () => {
-    const sub = calculateTotal();
-    form.subtotal = sub;
+    form.subtotal = calculateTotal();
+  },
+  { deep: true }
+)
+
+// Derive nominal_pajak and total from subtotal and pajak
+watch(
+  () => [form.subtotal, form.pajak],
+  () => {
+    const sub = Number(form.subtotal || 0);
     const percent = toNumberLocale(form.pajak);
     const pajakNom = sub * (percent / 100);
     form.nominal_pajak = pajakNom;
     form.total = sub + pajakNom;
   },
-  { deep: true }
+  { deep: true, immediate: true }
 )
 
 // Fungsi untuk submit form
