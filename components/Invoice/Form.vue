@@ -340,8 +340,8 @@ function toNumberLocale(v: any): number {
               <small v-if="errorSubmit[`items.${index}.webhost_id`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.webhost_id`][0] }}</small>
             </div>
             <div class="md:col-span-2">
-              <label class="block text-xs font-medium mb-1">Service</label>
-              <Select v-model="item.jenis" :options="dataOpsiJenis" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Select Service" />
+              <label class="block text-xs font-medium mb-1">Jenis</label>
+              <Select v-model="item.jenis" :options="dataOpsiJenis" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
               <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
             </div>
             <div class="md:col-span-4">
