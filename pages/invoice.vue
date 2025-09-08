@@ -71,11 +71,18 @@
                 </div>
               </template>
             </Column>
-            <Column field="webhost.nama_web" header="Webhost">
+            <Column header="Webhost">
               <template #body="slotProps">
-                <NuxtLink v-if="slotProps.data.webhost" :to="'/webhost/'+slotProps.data.webhost_id" class="hover:underline block">
-                  {{ slotProps.data.webhost?.nama_web }}
-                </NuxtLink>
+                <template v-if="slotProps.data.items && slotProps.data.items.length">
+                  <NuxtLink 
+                    v-if="slotProps.data.items[0].webhost" 
+                    :to="'/webhost/'+slotProps.data.items[0].webhost_id" 
+                    class="hover:underline block"
+                  >
+                    {{ slotProps.data.items[0].webhost?.nama_web }}
+                  </NuxtLink>
+                  <span v-else>-</span>
+                </template>
                 <span v-else>-</span>
               </template>
             </Column>

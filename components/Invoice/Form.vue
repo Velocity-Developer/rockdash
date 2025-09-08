@@ -25,7 +25,6 @@ const form = reactive({
   nama_klien: '',
   alamat_klien: '',
   telepon_klien: '',
-  webhost_id: null as string | number | null,
   note: '',
   status: 'pending',
   tanggal: null as any | null,
@@ -70,7 +69,6 @@ watchEffect(() => {
     form.nama_klien = props.modelValue.nama_klien;
     form.alamat_klien = props.modelValue.alamat_klien;
     form.telepon_klien = props.modelValue.telepon_klien;
-    form.webhost_id = props.modelValue.webhost_id;
     form.note = props.modelValue.note;
     form.status = props.modelValue.status;
     form.tanggal = props.modelValue.tanggal;
@@ -90,7 +88,6 @@ watchEffect(() => {
     form.nama_klien = '';
     form.alamat_klien = '';
     form.telepon_klien = '';
-    form.webhost_id = null;
     form.note = '';
     form.status = 'pending';
     form.tanggal = dayjs().format('YYYY-MM-DD');
@@ -108,6 +105,7 @@ watchEffect(() => {
 function createEmptyItem() {
   return {
     id: null,
+    webhost_id: null,
     nama: '',
     jenis: '',
     harga: 0
@@ -151,7 +149,7 @@ async function submitForm() {
     // Validasi form
     if (!form.unit) throw { bag: { unit: ['Unit harus diisi'] } };
     if (!form.nama_klien) throw { bag: { nama_klien: ['Nama klien harus diisi'] } };
-    if (!form.webhost_id) throw { bag: { webhost_id: ['Webhost harus dipilih'] } };
+    // Validasi webhost per item
     if (!form.status) throw { bag: { status: ['Status harus dipilih'] } };
     if (!form.tanggal) throw { bag: { tanggal: ['Tanggal harus diisi'] } };
     
@@ -160,6 +158,7 @@ async function submitForm() {
     
     for (let i = 0; i < form.items.length; i++) {
       const item = form.items[i];
+      if (!item.webhost_id) throw { bag: { [`items.${i}.webhost_id`]: ['Webhost harus dipilih'] } };
       if (!item.nama) throw { bag: { [`items.${i}.nama`]: ['Nama item harus diisi'] } };
       if (!item.jenis) throw { bag: { [`items.${i}.jenis`]: ['Jenis item harus diisi'] } };
       if (!item.harga) throw { bag: { [`items.${i}.harga`]: ['Harga item harus diisi'] } };
@@ -265,14 +264,7 @@ function closeForm() {
           <small v-if="errorSubmit.telepon_klien" class="p-error block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
         </div>
         <!-- Webhost -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Website</label>
-          <SelectWebhost 
-            v-model="form.webhost_id" 
-            :class="{'p-invalid': errorSubmit.webhost_id}"
-          />
-          <small v-if="errorSubmit.webhost_id" class="p-error block mt-1">{{ errorSubmit.webhost_id[0] }}</small>
-        </div>
+        
         <!-- Tanggal Bayar -->
         <div>
           <label class="block text-sm font-medium mb-1">Tanggal Bayar</label>
@@ -366,7 +358,17 @@ function closeForm() {
           </Button>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <!-- Webhost -->
+          <div>
+            <SelectWebhost
+              v-model="item.webhost_id"
+              class="w-full"
+              :class="{'p-invalid': errorSubmit[`items.${index}.webhost_id`]}"
+            />
+            <small v-if="errorSubmit[`items.${index}.webhost_id`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.webhost_id`][0] }}</small>
+          </div>
+
           <!-- Jenis Item -->
           <div>
             <Select

@@ -115,7 +115,7 @@ watch(
               <div class="font-medium">{{ data.nama_klien }}</div>
               <div class="whitespace-pre-line">{{ data.alamat_klien }}</div>
               <div class="mt-1">Unit: {{ data.unit }}</div>
-              <div v-if="data.webhost">Webhost: {{ data.webhost?.nama_web }}</div>
+              <div v-if="data.items && data.items[0] && data.items[0].webhost">Webhost: {{ data.items[0].webhost?.nama_web }}</div>
             </div>
           </div>
           <div class="col-span-6 p-3 border-l border-gray-400">
