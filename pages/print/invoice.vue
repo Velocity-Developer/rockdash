@@ -3,6 +3,7 @@ definePageMeta({ title: 'Print Invoice', layout: false })
 
 import { useDayjs } from '#dayjs'
 import { formatMoney as money } from '~/utils/formatMoney'
+import printJS from 'print-js'
 
 const dayjs = useDayjs()
 const route = useRoute()
@@ -41,7 +42,13 @@ const dueDate = computed(() => {
 
 function formatMoney(v?: number) { return money(Number(v || 0)) }
 
-function handlePrint() { window.print() }
+function handlePrint() { 
+  printJS({
+    printable: 'page-print',
+    type: 'html',
+    targetStyles: ['*']
+  }) 
+}
 function goBack() { history.back() }
 
 // Auto print when ?print=true and data is loaded
@@ -51,7 +58,13 @@ watch(
   (s) => {
     if (s.ready && s.auto && !printed.value) {
       printed.value = true
-      setTimeout(() => window.print(), 200)
+      setTimeout(() => {
+        printJS({
+          printable: 'page-print',
+          type: 'html',
+          targetStyles: ['*']
+        })
+      }, 200)
     }
   },
   { immediate: true, deep: true }
@@ -84,7 +97,7 @@ watch(
         Data tidak tersedia
       </div>
 
-      <div v-else class="border border-gray-200 shadow bg-white">
+      <div v-else class="border border-gray-200 shadow bg-white" id="page-print">
         <!-- Header row -->
         <div class="grid grid-cols-12 bg-blue-100 p-2">
           <div class="col-span-7 p-3 flex items-center gap-3">
