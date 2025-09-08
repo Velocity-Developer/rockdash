@@ -24,11 +24,17 @@ const form = reactive({
   unit: 'vd',
   nama_klien: '',
   alamat_klien: '',
+  telepon_klien: '',
   webhost_id: null as string | number | null,
   note: '',
   status: 'pending',
   tanggal: null as any | null,
+  jatuh_tempo: null as any | null,
   tanggal_bayar: null as any | null,
+  subtotal: 0 as number,
+  pajak: '' as string,
+  nominal_pajak: 0 as number,
+  total: 0 as number,
   items: [] as any[]
 });
 
@@ -63,11 +69,17 @@ watchEffect(() => {
     form.unit = props.modelValue.unit;
     form.nama_klien = props.modelValue.nama_klien;
     form.alamat_klien = props.modelValue.alamat_klien;
+    form.telepon_klien = props.modelValue.telepon_klien;
     form.webhost_id = props.modelValue.webhost_id;
     form.note = props.modelValue.note;
     form.status = props.modelValue.status;
     form.tanggal = props.modelValue.tanggal;
+    form.jatuh_tempo = props.modelValue.jatuh_tempo;
     form.tanggal_bayar = props.modelValue.tanggal_bayar;
+    form.subtotal = Number(props.modelValue.subtotal || 0);
+    form.pajak = props.modelValue.pajak || '';
+    form.nominal_pajak = Number(props.modelValue.nominal_pajak || 0);
+    form.total = Number(props.modelValue.total || 0);
     
     // Clone items untuk menghindari referensi langsung
     form.items = props.modelValue.items ? [...props.modelValue.items] : [];
@@ -77,11 +89,17 @@ watchEffect(() => {
     form.unit = 'vd';
     form.nama_klien = '';
     form.alamat_klien = '';
+    form.telepon_klien = '';
     form.webhost_id = null;
     form.note = '';
     form.status = 'pending';
     form.tanggal = dayjs().format('YYYY-MM-DD');
+    form.jatuh_tempo = null;
     form.tanggal_bayar = null;
+    form.subtotal = 0;
+    form.pajak = '';
+    form.nominal_pajak = 0;
+    form.total = 0;
     form.items = [createEmptyItem()];
   }
 });
@@ -112,6 +130,18 @@ function calculateTotal() {
   return form.items.reduce((sum, item) => sum + (Number(item.harga) || 0), 0);
 }
 
+// Keep subtotal and total in sync with items and nominal_pajak
+watch(
+  () => [form.items, form.nominal_pajak],
+  () => {
+    const sub = calculateTotal();
+    form.subtotal = sub;
+    const pajakNom = Number(form.nominal_pajak || 0);
+    form.total = sub + pajakNom;
+  },
+  { deep: true }
+)
+
 // Fungsi untuk submit form
 async function submitForm() {
   loadingSubmit.value = true;
@@ -139,7 +169,11 @@ async function submitForm() {
     const formData = {
       ...form,
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD') : null,
-      tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD') : null
+      jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
+      tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD') : null,
+      subtotal: Number(form.subtotal || 0),
+      nominal_pajak: Number(form.nominal_pajak || 0),
+      total: Number(form.total || 0),
     };
     
     // Kirim data ke API
@@ -218,6 +252,17 @@ function closeForm() {
             rows="2"
             placeholder="Masukkan alamat klien"
           />
+        </div>
+        <!-- Telepon Klien -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Telepon Klien</label>
+          <InputText 
+            v-model="form.telepon_klien" 
+            class="w-full" 
+            :class="{'p-invalid': errorSubmit.telepon_klien}" 
+            placeholder="Masukkan telepon klien"
+          />
+          <small v-if="errorSubmit.telepon_klien" class="p-error block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
         </div>
         <!-- Webhost -->
         <div>
