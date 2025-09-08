@@ -158,9 +158,6 @@ async function submitForm() {
     
     for (let i = 0; i < form.items.length; i++) {
       const item = form.items[i];
-      if (!item.webhost_id) throw { bag: { [`items.${i}.webhost_id`]: ['Webhost harus dipilih'] } };
-      if (!item.nama) throw { bag: { [`items.${i}.nama`]: ['Nama item harus diisi'] } };
-      if (!item.jenis) throw { bag: { [`items.${i}.jenis`]: ['Jenis item harus diisi'] } };
       if (!item.harga) throw { bag: { [`items.${i}.harga`]: ['Harga item harus diisi'] } };
     }
     
