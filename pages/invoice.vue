@@ -175,7 +175,7 @@
             :placeholder="item.label" 
           />
 
-          <Dropdown
+          <Select
             v-else-if="item.key == 'status'"
             v-model="filters[item.key]"
             :options="statusOptions"
