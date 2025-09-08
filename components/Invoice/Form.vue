@@ -24,6 +24,7 @@ const form = reactive({
   nomor:'',
   unit: 'vdi',
   nama_klien: '',
+  email_klien: '',
   alamat_klien: '',
   telepon_klien: '',
   note: '',
@@ -69,6 +70,7 @@ watchEffect(() => {
     form.nomor = props.modelValue.nomor;
     form.unit = props.modelValue.unit;
     form.nama_klien = props.modelValue.nama_klien;
+    form.email_klien = props.modelValue.email_klien;
     form.alamat_klien = props.modelValue.alamat_klien;
     form.telepon_klien = props.modelValue.telepon_klien;
     form.note = props.modelValue.note;
@@ -88,6 +90,7 @@ watchEffect(() => {
     form.id = '';
     form.unit = 'vd';
     form.nama_klien = '';
+    form.email_klien = '';
     form.alamat_klien = '';
     form.telepon_klien = '';
     form.note = '';
@@ -260,7 +263,7 @@ function toNumberLocale(v: any): number {
       <div class="flex items-center gap-2 text-md font-bold mb-3">
         <Icon name="lucide:user-round" class="text-indigo-700" /> Informasi Klien
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         <div>
           <label class="block text-sm font-medium mb-1">Nama</label>
           <InputText v-model="form.nama_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.nama_klien }" placeholder="Masukkan nama klien" />
@@ -270,6 +273,11 @@ function toNumberLocale(v: any): number {
           <label class="block text-sm font-medium mb-1">Telepon</label>
           <InputText v-model="form.telepon_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.telepon_klien }" placeholder="No hp klien" />
           <small v-if="errorSubmit.telepon_klien" class="p-error block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Email</label>
+          <InputText v-model="form.email_klien" type="email" class="w-full" :class="{ 'p-invalid': errorSubmit.email_klien }" placeholder="Email klien" />
+          <small v-if="errorSubmit.email_klien" class="p-error block mt-1">{{ errorSubmit.email_klien[0] }}</small>
         </div>
       </div>
       <div class="grid grid-cols-1 gap-2 mt-3">
