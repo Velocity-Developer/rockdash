@@ -50,6 +50,9 @@
                     {{ slotProps.data.nomor }}
                   </NuxtLink>
                   <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
+                    <Button @click="openPreview(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" size="small">
+                      <Icon name="lucide:eye" /> Preview
+                    </Button>
                     <Button @click="printInvoice(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" size="small">
                       <Icon name="lucide:printer" /> Print
                     </Button>
@@ -192,6 +195,10 @@
       @update="refresh()" 
       @close="visibleDialog = false"
     />
+  </Dialog>
+
+  <Dialog v-model:visible="visibleDialogPreview" modal header="Preview Invoice" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <InvoicePreview v-if="previewId" :id="previewId" />
   </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
@@ -351,6 +358,14 @@ const openDialog = async (action: string, data = {}) => {
   visibleDialog.value = true;
   actionDialog.value = action;
   dataDialog.value = data;
+}
+
+// Preview dialog state
+const visibleDialogPreview = ref(false);
+const previewId = ref<number | null>(null);
+function openPreview(id: number) {
+  previewId.value = id;
+  visibleDialogPreview.value = true;
 }
 
 const toast = useToast();
