@@ -72,9 +72,11 @@ watch(
 </script>
 
 <template>
+
   <div style="min-height: 100vh; background-color: #f3f4f6; color: black; padding: 16px;">
-    
+     
     <div style="max-width: 900px; margin: 0 auto;">
+
       <div class="no-print" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
         <div style="font-size: 14px; opacity: 0.7;">Print Invoice</div>
         <div style="display: flex; gap: 8px;">
@@ -98,8 +100,61 @@ watch(
       </div>
 
       <div v-else style="border: 1px solid #e5e7eb; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); background-color: white;">
-        <div id="page-print">
-        <!-- Header row -->          
+                
+        <div id="page-print" style="background-color: #f00000;border: 1px solid #f4f4f4;">
+          <table style="width: 100%;table-layout: fixed;font-size: 12px;">
+            <tbody>
+              <tr style="background-color: #dbeafe;">
+                <td style="padding:10px 20px; text-align: center;">
+                  <img v-if="unit === 'vcm'" src="/logo-vcm.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
+                  <img v-else src="/logo-vdi.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
+                </td>
+                <td style="padding:10px 20px;text-align:right;font-size: 14px;">
+                  <table style="width: 100%;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 1px 4px; width: 50%;">Nomor Invoice:</td>
+                        <td style="padding: 1px 4px; text-align: right; font-weight: 600;">VD{{ data.nomor }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 1px 4px;">Jatuh Tempo:</td>
+                        <td style="padding: 1px 4px; text-align: right;">{{ dueDate }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 1px 4px;">Tanggal Invoice:</td>
+                        <td style="padding: 1px 4px; text-align: right;">{{ fmtDMY(data.tanggal) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr style="background-color: #ffffff;">
+                <td style="padding: 20px;vertical-align: top;">
+                  <div><strong>Tagihan kepada :</strong></div>
+                  <div>
+                    {{ data.customer.nama }}
+                  </div>
+                  <div>
+                    {{ data.customer.alamat }}
+                  </div>
+                </td>
+                <td style="padding: 20px;text-align:right;width:42%">
+                  <div><strong>Tagihan dari :</strong></div>
+                  <div>
+                    Velocity Developer Indonesia <br>
+                    Kebonagung RT 04 / RW 01 Jarum, Bayat, <br>
+                    Klaten, Jawa Tengah <br>
+                    Bantuanvdc@gmail.com
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="page-prints" style="background-color: #ffffff;">
+        <!-- Header row -->       
+                       
           <table class="header-table print-header" style="width: 100%; background-color: #dbeafe; padding: 8px;">
             <tr>
               <td style="width: 58%; padding: 12px; vertical-align: middle;">
@@ -110,16 +165,16 @@ watch(
                 <table style="width: 100%;">
                   <tbody>
                     <tr>
-                      <td style="padding: 4px; font-size: 14px; width: 50%;">Nomor Invoice:</td>
-                      <td style="padding: 4px; font-size: 14px; text-align: right; font-weight: 600;">VD{{ data.nomor }}</td>
+                      <td style="padding: 2px; font-size: 14px; width: 50%;">Nomor Invoice:</td>
+                      <td style="padding: 2px; font-size: 14px; text-align: right; font-weight: 600;">VD{{ data.nomor }}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 4px; font-size: 14px;">Jatuh Tempo:</td>
-                      <td style="padding: 4px; font-size: 14px; text-align: right;">{{ dueDate }}</td>
+                      <td style="padding: 2px; font-size: 14px;">Jatuh Tempo:</td>
+                      <td style="padding: 2px; font-size: 14px; text-align: right;">{{ dueDate }}</td>
                     </tr>
                     <tr>
-                      <td style="padding: 4px; font-size: 14px;">Tanggal Invoice:</td>
-                      <td style="padding: 4px; font-size: 14px; text-align: right;">{{ fmtDMY(data.tanggal) }}</td>
+                      <td style="padding: 2px; font-size: 14px;">Tanggal Invoice:</td>
+                      <td style="padding: 2px; font-size: 14px; text-align: right;">{{ fmtDMY(data.tanggal) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -253,16 +308,10 @@ watch(
 @media print {
   .no-print { display: none !important; }
   
-  /* Reset margins and padding for print */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    color-adjust: exact !important;
-  }
-  
   /* Page setup with minimal margins */
   @page {
     size: A4;
-    margin: 5mm;
+    margin: 1mm;
   }
   
   body {
@@ -302,15 +351,7 @@ watch(
   .print-header img {
     height: 30px !important;
   }
-  
-  .print-header table {
-    font-size: 9px !important;
-  }
-  
-  .print-header td {
-    padding: 1px 3px !important;
-  }
-  
+    
   /* Bill to/from section - reduced spacing */
   .print-billing {
     margin: 0 6px !important;
@@ -326,26 +367,7 @@ watch(
     font-size: 9px !important;
     line-height: 1.2 !important;
   }
-  
-  /* Items table - compact */
-  .print-table {
-    margin: 0 6px !important;
-  }
-  
-  .print-table table {
-    font-size: 9px !important;
-  }
-  
-  .print-table th {
-    padding: 2px 4px !important;
-    font-size: 9px !important;
-  }
-  
-  .print-table td {
-    padding: 2px 4px !important;
-    font-size: 9px !important;
-  }
-  
+    
   /* Summary section - optimized spacing */
   .print-summary {
     margin: 0 !important;
@@ -370,9 +392,6 @@ watch(
     font-size: 9px !important;
   }
   
-  .print-summary-table td {
-    padding: 1px 4px !important;
-  }
   
   /* Status badge */
   .print-status {
