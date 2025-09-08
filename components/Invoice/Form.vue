@@ -407,7 +407,10 @@ function toNumberLocale(v: any): number {
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-2">
       <Button @click="closeForm" type="button" severity="secondary" outlined>Batal</Button>
-      <Button type="submit" :loading="loadingSubmit">Buat Invoice</Button>
+      <Button type="submit" :loading="loadingSubmit">
+        <span v-if="props.action === 'edit' && props.modelValue">Update Invoice</span>
+        <span v-else>Buat Invoice</span>
+      </Button>
     </div>
   </form>
 </template>
