@@ -108,6 +108,7 @@ function createEmptyItem() {
   return {
     id: null,
     webhost_id: null,
+    website: null,
     nama: '',
     jenis: '',
     harga: 0
@@ -335,9 +336,9 @@ function toNumberLocale(v: any): number {
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <div class="md:col-span-3">
               <label class="block text-xs font-medium mb-1">Website</label>
-            <InputText v-model="item.webhost_id" class="w-full"/>
+              <InputText v-model="item.website" class="w-full"/>
               <!-- <SelectWebhost v-model="item.webhost_id" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.webhost_id`] }" /> -->
-              <small v-if="errorSubmit[`items.${index}.webhost_id`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.webhost_id`][0] }}</small>
+              <small v-if="errorSubmit[`items.${index}.website`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.webhost_id`][0] }}</small>
             </div>
             <div class="md:col-span-2">
               <label class="block text-xs font-medium mb-1">Jenis</label>
