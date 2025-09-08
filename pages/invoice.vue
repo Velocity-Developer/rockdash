@@ -108,13 +108,6 @@
                   {{ formatMoney(calculateTotal(slotProps.data.items)) }}
               </template>
             </Column>
-            <Column field="note" header="Catatan">
-              <template #body="slotProps">
-                <div class="max-w-[200px] whitespace-normal">
-                  {{ slotProps.data.note }}
-                </div>
-              </template>
-            </Column>
             <Column field="act" header="">
               <template #body="slotProps">
                 <div class="flex item-center gap-1 justify-end">

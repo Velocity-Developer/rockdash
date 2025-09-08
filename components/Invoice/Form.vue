@@ -27,6 +27,7 @@ const form = reactive({
   email_klien: '',
   alamat_klien: '',
   telepon_klien: '',
+  customer_id: null as number | null,
   note: '',
   status: 'belum',
   tanggal: null as any | null,
@@ -62,6 +63,53 @@ const { data: dataOpsiJenis} = await useAsyncData(
     () => client('/api/data_opsi/jenis_project')
 ) as any
 
+// Customer picker state
+const customerOptions = ref<any[]>([]);
+const selectedCustomerId = ref<number | null>(null);
+const showCustomerPicker = ref(false);
+const isSearchingCustomer = ref(false);
+let customerSearchTimer: any = null;
+
+// Cari customer dari backend
+async function searchCustomers() {
+  const hasName = !!form.nama_klien && String(form.nama_klien).trim().length > 1;
+  const contact = form.telepon_klien || form.email_klien;
+  const hasContact = !!contact && String(contact).trim().length > 2;
+  if (!hasName || !hasContact) {
+    showCustomerPicker.value = false;
+    customerOptions.value = [];
+    return;
+  }
+  try {
+    isSearchingCustomer.value = true;
+    showCustomerPicker.value = true;
+    const q = String(contact || form.nama_klien);
+    const res: any = await client('/api/customer', { params: { q, per_page: 10 } });
+    const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
+    const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
+    customerOptions.value = list.map((c: any) => ({
+      id: c.id,
+      label: `${c.nama}${c.email ? ' · ' + c.email : ''}${c.hp ? ' · ' + c.hp : ''}`,
+      value: c.id,
+      raw: c,
+    }));
+  } catch (e) {
+    customerOptions.value = [];
+  } finally {
+    isSearchingCustomer.value = false;
+  }
+}
+
+// Trigger search when name and (phone/email) present with debounce
+watch(
+  () => [form.nama_klien, form.telepon_klien, form.email_klien],
+  () => {
+    if (customerSearchTimer) clearTimeout(customerSearchTimer);
+    customerSearchTimer = setTimeout(searchCustomers, 400);
+  },
+  { deep: true }
+)
+
 // Inisialisasi form berdasarkan action
 watchEffect(() => {
   if (props.action === 'edit' && props.modelValue) {
@@ -73,6 +121,8 @@ watchEffect(() => {
     form.email_klien = props.modelValue.email_klien;
     form.alamat_klien = props.modelValue.alamat_klien;
     form.telepon_klien = props.modelValue.telepon_klien;
+    form.customer_id = props.modelValue.customer_id ?? null;
+    selectedCustomerId.value = form.customer_id;
     form.note = props.modelValue.note;
     form.status = props.modelValue.status;
     form.tanggal = props.modelValue.tanggal;
@@ -93,6 +143,7 @@ watchEffect(() => {
     form.email_klien = '';
     form.alamat_klien = '';
     form.telepon_klien = '';
+    form.customer_id = null;
     form.note = '';
     form.status = 'pending';
     form.tanggal = dayjs().format('YYYY-MM-DD');
@@ -177,9 +228,29 @@ async function submitForm() {
       if (!item.harga) throw { bag: { [`items.${i}.harga`]: ['Harga item harus diisi'] } };
     }
     
-    // Format tanggal
-    const formData = {
-      ...form,
+    // Pastikan customer_id: pilih yang ada, jika tidak, buat customer baru
+    let customerId = selectedCustomerId.value || form.customer_id;
+    if (!customerId) {
+      // buat customer baru
+      const cust: any = await client('/api/customer', {
+        method: 'POST',
+        body: {
+          nama: form.nama_klien,
+          email: form.email_klien || null,
+          hp: form.telepon_klien || null,
+          alamat: form.alamat_klien || null,
+        }
+      });
+      customerId = cust?.id ?? cust?.data?.id ?? null;
+      if (!customerId) throw { bag: { customer_id: ['Gagal membuat customer'] } };
+    }
+
+    // Format tanggal & bentuk payload invoice
+    const formData: any = {
+      unit: form.unit,
+      customer_id: customerId,
+      note: form.note,
+      status: form.status,
       pajak: String(form.pajak ?? ''),
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
@@ -187,6 +258,7 @@ async function submitForm() {
       subtotal: Number(form.subtotal || 0),
       nominal_pajak: Number(form.nominal_pajak || 0),
       total: Number(form.total || 0),
+      items: form.items.map((it: any) => ({ id: it.id, webhost_id: it.webhost_id, nama: it.nama, jenis: it.jenis, harga: Number(it.harga || 0) })),
     };
     
     // Kirim data ke API
@@ -286,6 +358,27 @@ function toNumberLocale(v: any): number {
           <Textarea v-model="form.alamat_klien" class="w-full" autoResize rows="2" placeholder="Masukkan alamat klien" />
         </div>
       </div>
+
+      <!-- Picker Customer -->
+      <div v-if="showCustomerPicker" class="mt-3 p-3 border rounded-md bg-indigo-50 border-indigo-300 dark:bg-indigo-950 dark:border-indigo-800">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-medium">Pilih Customer</div>
+          <div class="text-xs" v-if="isSearchingCustomer">mencari...</div>
+        </div>
+        <div v-if="customerOptions.length">
+          <Select
+            v-model="selectedCustomerId"
+            :options="customerOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Pilih customer yang cocok"
+            class="w-full" showClear 
+          />
+          <small class="block mt-1 text-xs opacity-70">Atau biarkan kosong untuk membuat customer baru.</small>
+        </div>
+        <div v-else class="text-sm opacity-70">Tidak ditemukan customer cocok. Customer baru akan dibuat saat simpan.</div>
+        <small v-if="errorSubmit.customer_id" class="p-error block mt-1">{{ errorSubmit.customer_id[0] }}</small>
+      </div>
     </div>
 
     <!-- Invoice Details -->
@@ -300,7 +393,7 @@ function toNumberLocale(v: any): number {
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Tanggal</label>
-          <DatePicker v-model="form.tanggal" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }" />
+          <DatePicker v-model="form.tanggal" showTime hourFormat="24" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }" />
           <small v-if="errorSubmit.tanggal" class="p-error block mt-1">{{ errorSubmit.tanggal[0] }}</small>
         </div>
         <div>
@@ -322,7 +415,7 @@ function toNumberLocale(v: any): number {
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
-          <DatePicker v-model="form.tanggal_bayar" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
+          <DatePicker v-model="form.tanggal_bayar" showTime hourFormat="24" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
           <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
         </div>
       </div>
