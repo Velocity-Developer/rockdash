@@ -63,44 +63,28 @@
                 </div>
               </template>
             </Column>
-            <Column field="unit" header="Unit"></Column>
+            <Column field="unit" header="Unit">
+              <template #body="slotProps">
+                <span class="uppercase">{{ slotProps.data.unit }}</span>
+              </template>
+            </Column>
             <Column field="nama_klien" header="Nama Klien">
               <template #body="slotProps">
                 <div class="max-w-[200px] whitespace-normal">
-                  {{ slotProps.data.nama_klien }}
+                  {{ slotProps.data.customer?.nama }}
                 </div>
               </template>
-            </Column>
-            <Column header="Webhost">
-              <template #body="slotProps">
-                <template v-if="slotProps.data.items && slotProps.data.items.length">
-                  <NuxtLink 
-                    v-if="slotProps.data.items[0].webhost" 
-                    :to="'/webhost/'+slotProps.data.items[0].webhost_id" 
-                    class="hover:underline block"
-                  >
-                    {{ slotProps.data.items[0].webhost?.nama_web }}
-                  </NuxtLink>
-                  <span v-else>-</span>
-                </template>
-                <span v-else>-</span>
-              </template>
-            </Column>
+            </Column>           
             <Column field="status" header="Status" sortable>
               <template #body="slotProps">
-                <Tag :severity="getStatusSeverity(slotProps.data.status)">
+                <Tag class="!text-xs" :severity="getStatusSeverity(slotProps.data.status)">
                   {{ slotProps.data.status }}
                 </Tag>
               </template>
             </Column>
             <Column field="tanggal" sortable header="Tanggal">        
               <template #body="slotProps">
-                  {{ formatTanggal(slotProps.data.tanggal) }}
-              </template>
-            </Column>
-            <Column field="tanggal_bayar" sortable header="Tanggal Bayar">       
-              <template #body="slotProps">
-                  {{ slotProps.data.tanggal_bayar ? formatTanggal(slotProps.data.tanggal_bayar) : '-' }}
+                  {{ slotProps.data.tanggal }}
               </template>
             </Column>
             <Column field="total" header="Total">
