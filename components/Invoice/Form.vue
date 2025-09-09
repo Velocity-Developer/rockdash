@@ -70,6 +70,53 @@ const showCustomerPicker = ref(false);
 const isSearchingCustomer = ref(false);
 let customerSearchTimer: any = null;
 
+// All customers for edit mode
+const allCustomers = ref<any[]>([]);
+const loadingAllCustomers = ref(false);
+
+// Load all customers for edit mode
+async function loadAllCustomers() {
+  if (props.action !== 'edit') return;
+  try {
+    loadingAllCustomers.value = true;
+    const res: any = await client('/api/customer', { params: { per_page: 1000 } });
+    const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
+    const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
+    allCustomers.value = list.map((c: any) => ({
+      id: c.id,
+      label: `${c.nama}${c.email ? ' · ' + c.email : ''}${c.hp ? ' · ' + c.hp : ''}`,
+      value: c.id,
+      raw: c,
+    }));
+    
+    // Jika ada customer_id, ambil data customer dan isi form
+    if (form.customer_id) {
+      await loadCustomerData(form.customer_id);
+    }
+  } catch (e) {
+    allCustomers.value = [];
+  } finally {
+    loadingAllCustomers.value = false;
+  }
+}
+
+// Load specific customer data by ID
+async function loadCustomerData(customerId: number) {
+  try {
+    const res: any = await client(`/api/customer/${customerId}`);
+    const customer = res?.data ?? res;
+    if (customer) {
+      // Isi form dengan data customer
+      form.nama_klien = customer.nama || form.nama_klien;
+      form.email_klien = customer.email || form.email_klien;
+      form.telepon_klien = customer.hp || form.telepon_klien;
+      form.alamat_klien = customer.alamat || form.alamat_klien;
+    }
+  } catch (e) {
+    console.error('Error loading customer data:', e);
+  }
+}
+
 // Cari customer dari backend
 async function searchCustomers() {
   const hasName = !!form.nama_klien && String(form.nama_klien).trim().length > 1;
@@ -110,9 +157,22 @@ watch(
   { deep: true }
 )
 
+// Watch selectedCustomerId to update form.customer_id
+watch(selectedCustomerId, async (newValue) => {
+  form.customer_id = newValue;
+  
+  // Jika memilih customer, load data customer tersebut
+  if (newValue && props.action === 'edit') {
+    await loadCustomerData(newValue);
+  }
+})
+
 // Inisialisasi form berdasarkan action
 watchEffect(() => {
   if (props.action === 'edit' && props.modelValue) {
+    // Load all customers for edit mode
+    loadAllCustomers();
+    
     // Isi form dengan data yang ada
     form.id = props.modelValue.id;
     form.nomor = props.modelValue.nomor;
