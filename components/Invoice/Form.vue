@@ -434,7 +434,7 @@ async function submitForm() {
       pajak: String(form.pajak ?? ''),
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD HH:mm:ss') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
-      tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD') : null,
+      tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss') : null,
       subtotal: Number(form.subtotal || 0),
       nominal_pajak: Number(form.nominal_pajak || 0),
       total: Number(form.total || 0),
