@@ -74,6 +74,13 @@ let customerSearchTimer: any = null;
 const allCustomers = ref<any[]>([]);
 const loadingAllCustomers = ref(false);
 
+// Webhost search state
+const webhostSearchResults = ref<any[]>([]);
+const showWebhostDialog = ref(false);
+const isSearchingWebhost = ref(false);
+const currentItemIndex = ref<number | null>(null);
+let webhostSearchTimer: any = null;
+
 // Load all customers for edit mode
 async function loadAllCustomers() {
   if (props.action !== 'edit') return;
@@ -115,6 +122,66 @@ async function loadCustomerData(customerId: number) {
   } catch (e) {
     console.error('Error loading customer data:', e);
   }
+}
+
+// Search webhost by website name
+async function searchWebhost(websiteName: string, itemIndex: number) {
+  if (!websiteName || websiteName.trim().length < 2) {
+    webhostSearchResults.value = [];
+    showWebhostDialog.value = false;
+    return;
+  }
+  
+  try {
+    isSearchingWebhost.value = true;
+    currentItemIndex.value = itemIndex;
+    const res: any = await client('/api/webhost', { 
+      params: { 
+        q: websiteName.trim(),
+        per_page: 10 
+      } 
+    });
+    const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
+    const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
+    
+    webhostSearchResults.value = list.map((w: any) => ({
+      id: w.id,
+      nama: w.nama,
+      domain: w.domain,
+      customer: w.customer?.nama || 'N/A',
+      label: `${w.nama} (${w.domain})`,
+      value: w.id,
+      raw: w,
+    }));
+    
+    if (webhostSearchResults.value.length > 0) {
+      showWebhostDialog.value = true;
+    }
+  } catch (e) {
+    console.error('Error searching webhost:', e);
+    webhostSearchResults.value = [];
+  } finally {
+    isSearchingWebhost.value = false;
+  }
+}
+
+// Handle website input with debounce
+function onWebsiteInput(value: string, itemIndex: number) {
+  if (webhostSearchTimer) clearTimeout(webhostSearchTimer);
+  webhostSearchTimer = setTimeout(() => {
+    searchWebhost(value, itemIndex);
+  }, 500);
+}
+
+// Select webhost from search results
+function selectWebhost(webhost: any) {
+  if (currentItemIndex.value !== null) {
+    const item = form.items[currentItemIndex.value];
+    item.webhost_id = webhost.id;
+    item.website = webhost.nama;
+  }
+  showWebhostDialog.value = false;
+  currentItemIndex.value = null;
 }
 
 // Cari customer dari backend
@@ -419,6 +486,23 @@ function toNumberLocale(v: any): number {
         </div>
       </div>
 
+      <!-- Customer ID Select for Edit Mode -->
+      <div v-if="props.action === 'edit'" class="mt-3">
+        <label class="block text-sm font-medium mb-1">Customer ID</label>
+        <Select
+          v-model="selectedCustomerId"
+          :options="allCustomers"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Pilih customer"
+          class="w-full"
+          :class="{ 'p-invalid': errorSubmit.customer_id }"
+          :loading="loadingAllCustomers"
+          showClear
+        />
+        <small v-if="errorSubmit.customer_id" class="p-error block mt-1">{{ errorSubmit.customer_id[0] }}</small>
+      </div>
+
       <!-- Picker Customer -->
       <div v-if="showCustomerPicker" class="mt-3 p-3 border rounded-md bg-indigo-50 border-indigo-300 dark:bg-indigo-950 dark:border-indigo-800">
         <div class="flex items-center justify-between mb-2">
@@ -495,23 +579,27 @@ function toNumberLocale(v: any): number {
 
         <div v-for="(item, index) in form.items" :key="index" class="bg-white dark:bg-zinc-700 rounded-lg border dark:border-zinc-800 p-3 mb-3">
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            <div class="md:col-span-3">
+            <!-- <div class="md:col-span-3">
               <label class="block text-xs font-medium mb-1">Website</label>
-              <InputText v-model="item.website" class="w-full"/>
-              <!-- <SelectWebhost v-model="item.webhost_id" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.webhost_id`] }" /> -->
-              <small v-if="errorSubmit[`items.${index}.website`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.webhost_id`][0] }}</small>
-            </div>
-            <div class="md:col-span-2">
+              <InputText 
+                v-model="item.website" 
+                class="w-full" 
+                @input="(e) => onWebsiteInput((e?.target as HTMLInputElement)?.value ?? '', index)"
+                placeholder="Ketik nama website..."
+              />
+              <small v-if="errorSubmit[`items.${index}.website`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.website`][0] }}</small>
+            </div> -->
+            <div class="md:col-span-3">
               <label class="block text-xs font-medium mb-1">Jenis</label>
               <Select v-model="item.jenis" :options="dataOpsiJenis" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
               <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
             </div>
-            <div class="md:col-span-4">
+            <div class="md:col-span-5">
               <label class="block text-xs font-medium mb-1">Nama Item</label>
               <InputText v-model="item.nama" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.nama`] }" placeholder="Nama/keterangan" />
               <small v-if="errorSubmit[`items.${index}.nama`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-3">
               <label class="block text-xs font-medium mb-1">Harga</label>
               <InputNumber v-model="item.harga" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.harga`] }" placeholder="0.00" mode="currency" currency="IDR" locale="id-ID" />
               <small v-if="errorSubmit[`items.${index}.harga`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.harga`][0] }}</small>
@@ -574,6 +662,50 @@ function toNumberLocale(v: any): number {
       </Button>
     </div>
   </form>
+
+  <!-- Webhost Search Dialog -->
+  <Dialog 
+    v-model:visible="showWebhostDialog" 
+    modal 
+    header="Pilih Webhost" 
+    :style="{ width: '50rem' }"
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
+    <div class="mb-3">
+      <div class="flex items-center gap-2 mb-2">
+        <Icon name="lucide:search" class="text-gray-500" />
+        <span class="text-sm text-gray-600">Hasil pencarian webhost:</span>
+        <div v-if="isSearchingWebhost" class="text-xs text-blue-600">mencari...</div>
+      </div>
+    </div>
+    
+    <div v-if="webhostSearchResults.length > 0" class="space-y-2">
+      <div 
+        v-for="webhost in webhostSearchResults" 
+        :key="webhost.id"
+        class="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        @click="selectWebhost(webhost)"
+      >
+        <div class="font-medium">{{ webhost.nama }}</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400">{{ webhost.domain }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-500">Customer: {{ webhost.customer }}</div>
+      </div>
+    </div>
+    
+    <div v-else-if="!isSearchingWebhost" class="text-center py-4 text-gray-500">
+      Tidak ditemukan webhost yang cocok
+    </div>
+    
+    <template #footer>
+      <Button 
+        @click="showWebhostDialog = false" 
+        severity="secondary" 
+        text
+      >
+        Tutup
+      </Button>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped></style>
