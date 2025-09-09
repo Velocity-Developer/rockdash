@@ -486,23 +486,6 @@ function toNumberLocale(v: any): number {
         </div>
       </div>
 
-      <!-- Customer ID Select for Edit Mode -->
-      <div v-if="props.action === 'edit'" class="mt-3">
-        <label class="block text-sm font-medium mb-1">Customer ID</label>
-        <Select
-          v-model="selectedCustomerId"
-          :options="allCustomers"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Pilih customer"
-          class="w-full"
-          :class="{ 'p-invalid': errorSubmit.customer_id }"
-          :loading="loadingAllCustomers"
-          showClear
-        />
-        <small v-if="errorSubmit.customer_id" class="p-error block mt-1">{{ errorSubmit.customer_id[0] }}</small>
-      </div>
-
       <!-- Picker Customer -->
       <div v-if="showCustomerPicker" class="mt-3 p-3 border rounded-md bg-indigo-50 border-indigo-300 dark:bg-indigo-950 dark:border-indigo-800">
         <div class="flex items-center justify-between mb-2">
