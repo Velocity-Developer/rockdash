@@ -46,23 +46,9 @@
             <Column field="nomor" header="Nomor Invoice" sortable>
               <template #body="slotProps">
                 <div class="group relative py-1">
-                  <NuxtLink :to="'/invoice/'+slotProps.data.id" class="hover:underline block">
+                  <span @click="openPreview(slotProps.data.id)" class="hover:underline cursor-pointer">
                     {{ slotProps.data.nomor }}
-                  </NuxtLink>
-                  <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
-                    <Button @click="openPreview(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" size="small">
-                      <Icon name="lucide:eye" /> Preview
-                    </Button>
-                    <Button @click="printInvoice(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" size="small">
-                      <Icon name="lucide:printer" /> Print
-                    </Button>
-                    <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
-                      <Icon name="lucide:pencil" /> Edit
-                    </Button>
-                    <Button @click="confirmDelete(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" severity="danger" size="small">
-                      <Icon name="lucide:trash-2" /> Hapus
-                    </Button>
-                  </div>
+                  </span>
                 </div>
               </template>
             </Column>
@@ -98,6 +84,9 @@
             <Column field="act" header="">
               <template #body="slotProps">
                 <div class="flex item-center gap-1 justify-end">
+                  <Button @click="printInvoice(slotProps.data.id)" severity="contrast" size="small">
+                    <Icon name="lucide:printer" />
+                  </Button>
                   <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
                     <Icon name="lucide:pencil" />
                   </Button>

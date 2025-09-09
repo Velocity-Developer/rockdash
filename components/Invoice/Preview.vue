@@ -29,8 +29,8 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
       <!-- Header -->
       <div class="flex items-start justify-between gap-4">
         <div>
-          <div class="text-xl font-semibold">Invoice {{ data.nomor }}</div>
-          <div class="text-xs opacity-70">Status: <Tag :severity="data.status==='paid'?'success':(data.status==='canceled'?'danger':'warning')">{{ data.status }}</Tag></div>
+          <div class="text-xl font-semibold">VD {{ data.nomor }}</div>
+          <div class="text-xs opacity-70">Status: <Tag :severity="data.status==='lunas'?'success':(data.status==='batal'?'danger':'warning')">{{ data.status }}</Tag></div>
         </div>
         <div class="text-right text-sm">
           <div>Tanggal: <b>{{ fmtDMY(data.tanggal) }}</b></div>
@@ -54,20 +54,24 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
       <div class="rounded border">
         <table class="w-full border-collapse text-sm">
           <thead>
-            <tr class="bg-gray-50">
+            <tr class="bg-gray-50 dark:bg-gray-900">
               <th class="text-left p-2 border">#</th>
-              <th class="text-left p-2 border">Website</th>
-              <th class="text-left p-2 border">Jenis</th>
-              <th class="text-left p-2 border">Nama</th>
+              <th class="text-left p-2 border">Item</th>
               <th class="text-right p-2 border">Harga</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(it, i) in data.items" :key="i">
               <td class="p-2 border">{{ i + 1 }}</td>
-              <td class="p-2 border">{{ it.webhost?.nama_web || '-' }}</td>
-              <td class="p-2 border">{{ it.jenis }}</td>
-              <td class="p-2 border">{{ it.nama }}</td>
+              <td class="p-2 border">
+                <template v-if="it.webhost?.nama_web">
+                  {{ it.webhost?.nama_web }}
+                </template>                
+                <template v-if="it.jenis">
+                  {{ it.jenis }}
+                </template>
+                {{ it.nama }}
+              </td>
               <td class="p-2 border text-right">{{ formatMoney(it.harga) }}</td>
             </tr>
             <tr v-if="!data.items || !data.items.length">
@@ -83,9 +87,9 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
           <div class="font-medium">Subtotal</div>
           <div class="md:col-span-2 text-right">{{ formatMoney(subtotal) }}</div>
           <div class="font-medium">Pajak</div>
-          <div class="md:col-span-2 text-right">{{ formatMoney(nominalPajak) }}</div>
+          <div class="md:col-span-2 text-right">{{ formatMoney(nominalPajak) }} ({{ data.pajak }}%)</div>
           <div class="font-semibold text-blue-700">Total</div>
-          <div class="md:col-span-2 text-right font-semibold text-blue-700">{{ formatMoney(total) }}</div>
+          <div class="md:col-span-2 text-xl text-right font-semibold text-blue-700 dark:text-blue-500">{{ formatMoney(total) }}</div>
         </div>
       </div>
 
