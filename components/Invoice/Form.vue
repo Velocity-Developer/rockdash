@@ -81,6 +81,13 @@ const isSearchingWebhost = ref(false);
 const currentItemIndex = ref<number | null>(null);
 let webhostSearchTimer: any = null;
 
+// Webhost picker dialog state
+const showWebhostPickerDialog = ref(false);
+const webhostPickerResults = ref<any[]>([]);
+const isLoadingWebhostPicker = ref(false);
+const webhostPickerSearch = ref('');
+const currentWebhostItemIndex = ref<number | null>(null);
+
 // Load all customers for edit mode
 async function loadAllCustomers() {
   if (props.action !== 'edit') return;
@@ -135,22 +142,15 @@ async function searchWebhost(websiteName: string, itemIndex: number) {
   try {
     isSearchingWebhost.value = true;
     currentItemIndex.value = itemIndex;
-    const res: any = await client('/api/webhost', { 
-      params: { 
-        q: websiteName.trim(),
-        per_page: 10 
-      } 
-    });
+    const res: any = await client('/api/webhost_search/'+websiteName.trim());
     const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
     const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
     
     webhostSearchResults.value = list.map((w: any) => ({
-      id: w.id,
-      nama: w.nama,
-      domain: w.domain,
-      customer: w.customer?.nama || 'N/A',
-      label: `${w.nama} (${w.domain})`,
-      value: w.id,
+      id: w.id_webhost,
+      nama: w.nama_web,
+      label: `${w.nama_web}`,
+      value: w.id_webhost,
       raw: w,
     }));
     
@@ -182,6 +182,50 @@ function selectWebhost(webhost: any) {
   }
   showWebhostDialog.value = false;
   currentItemIndex.value = null;
+}
+
+// Open webhost picker dialog
+function openWebhostDialog(itemIndex: number) {
+  currentWebhostItemIndex.value = itemIndex;
+  webhostPickerSearch.value = '';
+  webhostPickerResults.value = [];
+  showWebhostPickerDialog.value = true;
+  // Load initial webhost data
+  searchWebhostPicker('');
+}
+
+// Search webhost for picker dialog
+async function searchWebhostPicker(query: string) {
+  try {
+    isLoadingWebhostPicker.value = true;
+    const res: any = await client('/api/webhost_search/'+query.trim());
+    const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
+    const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
+    
+    webhostPickerResults.value = list.map((w: any) => ({
+      id: w.id_webhost,
+      nama: w.nama_web,
+      label: `${w.nama_web}`,
+      value: w.id_webhost,
+      raw: w,
+    }));
+  } catch (e) {
+    console.error('Error searching webhost:', e);
+    webhostPickerResults.value = [];
+  } finally {
+    isLoadingWebhostPicker.value = false;
+  }
+}
+
+// Select webhost from picker dialog
+function selectWebhostFromPicker(webhost: any) {
+  if (currentWebhostItemIndex.value !== null) {
+    const item = form.items[currentWebhostItemIndex.value];
+    item.webhost_id = webhost.id;
+    item.website = webhost.nama;
+  }
+  showWebhostPickerDialog.value = false;
+  currentWebhostItemIndex.value = null;
 }
 
 // Cari customer dari backend
@@ -232,6 +276,15 @@ watch(selectedCustomerId, async (newValue) => {
   if (newValue && props.action === 'edit') {
     await loadCustomerData(newValue);
   }
+})
+
+// Watch webhost picker search with debounce
+let webhostPickerSearchTimer: any = null;
+watch(webhostPickerSearch, (newValue) => {
+  if (webhostPickerSearchTimer) clearTimeout(webhostPickerSearchTimer);
+  webhostPickerSearchTimer = setTimeout(() => {
+    searchWebhostPicker(newValue);
+  }, 400);
 })
 
 // Inisialisasi form berdasarkan action
@@ -572,9 +625,21 @@ function toNumberLocale(v: any): number {
               />
               <small v-if="errorSubmit[`items.${index}.website`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.website`][0] }}</small>
             </div> -->
-            <div class="md:col-span-3">
+            <div class="md:col-span-4">
               <label class="block text-xs font-medium mb-1">Jenis</label>
-              <Select v-model="item.jenis" :options="dataOpsiJenis" showClear class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
+              <div class="flex gap-2">
+                <Select v-model="item.jenis" :options="dataOpsiJenis" showClear class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
+                <Button 
+                  v-if="item.jenis" 
+                  @click="openWebhostDialog(index)"
+                  type="button" 
+                  severity="info" outlined
+                  size="small"
+                  v-tooltip="'Pilih Webhost'"
+                >
+                <Icon name="lucide:globe" />
+                </Button>
+              </div>
               <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
             </div>
             <div class="md:col-span-5">
@@ -582,13 +647,13 @@ function toNumberLocale(v: any): number {
               <InputText v-model="item.nama" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.nama`] }" placeholder="Nama/keterangan" />
               <small v-if="errorSubmit[`items.${index}.nama`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
             </div>
-            <div class="md:col-span-3">
+            <div class="md:col-span-2">
               <label class="block text-xs font-medium mb-1">Harga</label>
               <InputNumber v-model="item.harga" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.harga`] }" placeholder="0.00" mode="currency" currency="IDR" locale="id-ID" />
               <small v-if="errorSubmit[`items.${index}.harga`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.harga`][0] }}</small>
             </div>
             <div class="md:col-span-1 md:justify-self-end">
-              <Button @click="removeItem(index)" type="button" severity="danger" text :disabled="form.items.length === 1">
+              <Button @click="removeItem(index)" type="button" severity="danger" class="px-1" text :disabled="form.items.length === 1">
                 <Icon name="lucide:trash-2" />
               </Button>
             </div>
@@ -687,6 +752,46 @@ function toNumberLocale(v: any): number {
       >
         Tutup
       </Button>
+    </template>
+  </Dialog>
+
+  <!-- Webhost Picker Dialog -->
+  <Dialog 
+    v-model:visible="showWebhostPickerDialog" 
+    modal 
+    header="Pilih Webhost" 
+    :style="{ width: '60rem' }"
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
+    <div class="mb-4">
+      <InputText 
+        v-model="webhostPickerSearch" 
+        placeholder="Cari webhost berdasarkan nama atau domain..." 
+        class="w-full"
+      />
+    </div>
+    
+    <div v-if="isLoadingWebhostPicker" class="text-center py-4">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      <div class="mt-2">Mencari webhost...</div>
+    </div>
+    <div v-else-if="webhostPickerResults.length" class="max-h-96 overflow-y-auto space-y-2">
+      <div 
+        v-for="webhost in webhostPickerResults" 
+        :key="webhost.id"
+        @click="selectWebhostFromPicker(webhost)"
+        class="p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
+        {{ webhost.nama }}
+      </div>
+    </div>
+    <div v-else class="text-center py-8 text-gray-500">
+      <i class="pi pi-search text-4xl mb-2 block"></i>
+      <div>{{ webhostPickerSearch ? 'Tidak ada webhost ditemukan' : 'Ketik untuk mencari webhost' }}</div>
+    </div>
+    
+    <template #footer>
+      <Button @click="showWebhostPickerDialog = false" label="Tutup" severity="secondary" />
     </template>
   </Dialog>
 </template>
