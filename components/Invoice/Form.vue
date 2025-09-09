@@ -326,7 +326,7 @@ watchEffect(() => {
     form.customer_id = null;
     form.note = '';
     form.status = 'pending';
-    form.tanggal = dayjs().format('YYYY-MM-DD');
+    form.tanggal = dayjs().toDate();
     form.jatuh_tempo = null;
     form.tanggal_bayar = null;
     form.subtotal = 0;
@@ -432,7 +432,7 @@ async function submitForm() {
       note: form.note,
       status: form.status,
       pajak: String(form.pajak ?? ''),
-      tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD') : null,
+      tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD HH:mm:ss') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
       tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD') : null,
       subtotal: Number(form.subtotal || 0),
