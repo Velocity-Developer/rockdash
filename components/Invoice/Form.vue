@@ -615,18 +615,13 @@ function toNumberLocale(v: any): number {
 
         <div v-for="(item, index) in form.items" :key="index" class="bg-white dark:bg-zinc-700 rounded-lg border dark:border-zinc-800 p-3 mb-3">
           <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            <!-- <div class="md:col-span-3">
-              <label class="block text-xs font-medium mb-1">Website</label>
-              <InputText 
-                v-model="item.website" 
-                class="w-full" 
-                @input="(e) => onWebsiteInput((e?.target as HTMLInputElement)?.value ?? '', index)"
-                placeholder="Ketik nama website..."
-              />
-              <small v-if="errorSubmit[`items.${index}.website`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.website`][0] }}</small>
-            </div> -->
             <div class="md:col-span-4">
-              <label class="block text-xs font-medium mb-1">Jenis</label>
+              <label class="block text-xs font-medium mb-1">
+                Jenis                
+                <span v-if="item.webhost_id && item.website" class="opacity-75">
+                  ( {{ item.website }} )
+                </span>
+              </label>
               <div class="flex gap-2">
                 <Select v-model="item.jenis" :options="dataOpsiJenis" showClear class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
                 <Button 
@@ -637,7 +632,7 @@ function toNumberLocale(v: any): number {
                   size="small"
                   v-tooltip="'Pilih Webhost'"
                 >
-                <Icon name="lucide:globe" />
+                  <Icon name="lucide:globe" />
                 </Button>
               </div>
               <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>

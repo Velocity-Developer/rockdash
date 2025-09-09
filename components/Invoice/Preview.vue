@@ -87,13 +87,13 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
           <tbody>
             <tr v-for="(it, i) in data.items" :key="i">
               <td class="p-2 border">{{ i + 1 }}</td>
-              <td class="p-2 border">
-                <template v-if="it.webhost?.nama_web">
-                  {{ it.webhost?.nama_web }}
-                </template>                
-                <template v-if="it.jenis">
-                  {{ it.jenis }}
-                </template>
+              <td class="p-2 border">                
+                <span v-if="it.jenis" class="pr-1">
+                  {{ it.jenis }} 
+                </span>
+                <span v-if="it.webhost?.nama_web" class="pr-1">
+                  {{ it.webhost?.nama_web }} 
+                </span>
                 {{ it.nama }}
               </td>
               <td class="p-2 border text-right">{{ formatMoney(it.harga) }}</td>
