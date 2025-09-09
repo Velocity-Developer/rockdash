@@ -207,7 +207,11 @@ watch(
                     <tbody>
                       <tr>
                         <td style="padding: 8px; font-size: 14px; border-bottom: 1px solid #9ca3af;">Sub Total</td>
-                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{ formatMoney(total) }}</td>
+                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{ formatMoney(data.subtotal) }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px; font-size: 14px; border-bottom: 1px solid #9ca3af;">Pajak</td>
+                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{formatMoney(data.nominal_pajak)}} ({{ data.pajak }}%)</td>
                       </tr>
                       <tr>
                         <td style="padding: 8px; font-weight: 600; border-bottom: 1px solid #9ca3af;">TOTAL</td>
