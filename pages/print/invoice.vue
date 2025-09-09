@@ -225,7 +225,7 @@ watch(
                   </table>
 
                   <div style="margin-top: 24px;">
-                    <div class="print-status" style="background-color: #60a5fa; color: white; font-weight: 600; text-align: center; padding: 8px;" :style="data.status === 'lunas' ? 'background-color: #16a34a; padding: 20px 8px;' : ''">
+                    <div class="print-status" style="background-color: #60a5fa; color: white; font-weight: 600; text-align: center; padding: 8px;" :style="data.status === 'lunas' ? 'background-color: #16a34a; padding: 10px 8px;font-size: 18px' : ''">
                       {{ data.status === 'lunas' ? 'LUNAS' : 'BELUM LUNAS' }}
                     </div>
                   </div>
