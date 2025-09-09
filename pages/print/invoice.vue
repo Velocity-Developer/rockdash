@@ -140,11 +140,17 @@ watch(
                 </td>
                 <td style="padding: 20px;text-align:right;width:42%">
                   <div><strong>Tagihan dari :</strong></div>
-                  <div>
-                    Velocity Developer Indonesia <br>
+                  <div>                    
+                    <template v-if="unit === 'vcm'">
+                      Velocity Cyber Media
+                    </template>
+                    <template v-else>
+                      Velocity Developer Indonesia
+                    </template>
+                    <br>
                     Kebonagung RT 04 / RW 01 Jarum, Bayat, <br>
                     Klaten, Jawa Tengah <br>
-                    Bantuanvdc@gmail.com
+                    bantuanvdc@gmail.com
                   </div>
                 </td>
               </tr>
@@ -178,13 +184,19 @@ watch(
                 </td>
               </tr>
               <tr>
-                <td style="padding:20px;">
-                  <div class="print-payment-date" style="margin-bottom: 24px;">
+                <td style="padding:20px;vertical-align: top;">
+
+                  <div style="padding: 10px;border: 1px solid #9ca3af;margin-bottom: 20px;">
+                    <div style="font-weight: 600;">Note :</div> 
+                    <div style="font-style: italic;opacity:0.75;">{{ data.note }}</div>
+                  </div>
+
+                  <div class="print-payment-date" style="margin-bottom: 20px;">
                     <span style="vertical-align: top;">Dibayar tanggal:</span>
                     <span style="margin-left: 8px; padding: 4px 40px; background-color: rgba(147, 197, 253, 0.7); display: inline-block;">{{ fmtDMY(data.tanggal_bayar) }}</span>
                   </div>
 
-                  <div style="margin-top: 32px;">
+                  <div style="margin-top: 20px;">
                     <div style="font-weight: 600; margin-bottom: 4px;">Pembayaran ditransfer ke :</div>
                     <div v-if="unit === 'vcm'">
                       <div>CV. Velocity Cyber Media</div>
@@ -201,7 +213,7 @@ watch(
                     <a href="https://velocitydeveloper.com/syarat-dan-ketentuan/" style="color: #1d4ed8;">velocitydeveloper.com/syarat-dan-ketentuan/</a>
                   </div>
                 </td>
-                <td style="padding: 20px;position: relative;">
+                <td style="padding: 20px;position: relative;vertical-align: top;">
                   
                   <table class="print-summary-table" style="width: 100%; border: 1px solid #9ca3af;">
                     <tbody>
