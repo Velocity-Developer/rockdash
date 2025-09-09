@@ -66,7 +66,7 @@
             </Column>           
             <Column field="status" header="Status" sortable>
               <template #body="slotProps">
-                <Tag class="!text-xs" :severity="getStatusSeverity(slotProps.data.status)">
+                <Tag class="!text-xs capitalize" :severity="getStatusSeverity(slotProps.data.status)">
                   {{ slotProps.data.status }}
                 </Tag>
               </template>
@@ -226,17 +226,17 @@ const filters = reactive({
 
 // Status options untuk dropdown
 const statusOptions = [
-  { label: 'Pending', value: 'pending' },
-  { label: 'Paid', value: 'paid' },
-  { label: 'Canceled', value: 'canceled' }
+  { label: 'Lunas', value: 'lunas' },
+  { label: 'Belum Lunas', value: 'belum' },
+  { label: 'Batal', value: 'batal' }
 ];
 
 // Fungsi untuk mendapatkan severity berdasarkan status
 function getStatusSeverity(status: string) {
   switch(status) {
-    case 'paid': return 'success';
-    case 'pending': return 'warning';
-    case 'canceled': return 'danger';
+    case 'lunas': return 'success';
+    case 'belum': return 'contrast';
+    case 'batal': return 'danger';
     default: return 'info';
   }
 }
