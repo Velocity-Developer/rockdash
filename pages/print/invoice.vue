@@ -75,7 +75,7 @@ watch(
 
   <div style="min-height: 100vh; background-color: #f3f4f6; color: black; padding: 16px;">
      
-    <div style="max-width: 900px; margin: 0 auto;">
+    <div style="max-width: 210mm; margin: 0 auto;">
 
       <div class="no-print" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
         <div style="font-size: 14px; opacity: 0.7;">Print Invoice</div>
@@ -101,7 +101,7 @@ watch(
 
       <div v-else style="border: 1px solid #e5e7eb; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); background-color: white;">
                 
-        <div id="page-print" style="background-color: #f00000;border: 1px solid #f4f4f4;">
+        <div id="page-print" style="width: 210mm;background-color: #ffffff;border: 2px solid #f4f4f4;">
           <table style="width: 100%;table-layout: fixed;font-size: 12px;">
             <tbody>
               <tr style="background-color: #dbeafe;">
@@ -148,157 +148,102 @@ watch(
                   </div>
                 </td>
               </tr>
+              <tr>
+                <td colspan="2" style="padding: 5px 20px;">
+                   <table style="width: 100%; border-collapse: collapse;">
+                      <thead>
+                        <tr style="background-color: #bfdbfe;">
+                          <th style="border: 1px solid #9ca3af; padding: 8px; text-align: left; width: 40px; font-size: 14px;">No</th>
+                          <th style="border: 1px solid #9ca3af; padding: 8px; text-align: left; font-size: 14px;">Nama Pekerjaan</th>
+                          <th style="border: 1px solid #9ca3af; padding: 8px; text-align: right; width: 160px; font-size: 14px;">Harga</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(item, idx) in data.items" :key="idx">
+                          <td style="border: 1px solid #9ca3af; padding: 8px; font-size: 14px;">{{ idx + 1 }}</td>
+                          <td style="border: 1px solid #9ca3af; padding: 8px;">
+                            <template v-if="item.jenis">{{ item.jenis }}</template>
+                            <template v-if="item.website">{{ item.website }}</template>
+                            {{ item.nama }}
+                          </td>
+                          <td style="border: 1px solid #9ca3af; padding: 8px; text-align: right;">{{ formatMoney(item.harga,'',0) }}</td>
+                        </tr>
+                        <tr v-for="pad in Math.max(0, 3 - (data.items?.length || 0))" :key="'pad'+pad">
+                          <td style="border: 1px solid #9ca3af; padding: 8px;">&nbsp;</td>
+                          <td style="border: 1px solid #9ca3af; padding: 8px;">&nbsp;</td>
+                          <td style="border: 1px solid #9ca3af; padding: 8px;">&nbsp;</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px;">
+                  <div class="print-payment-date" style="margin-bottom: 24px;">
+                    <span style="vertical-align: top;">Dibayar tanggal:</span>
+                    <span style="margin-left: 8px; padding: 4px 40px; background-color: rgba(147, 197, 253, 0.7); display: inline-block;">{{ fmtDMY(data.tanggal_bayar) }}</span>
+                  </div>
+
+                  <div style="margin-top: 32px;">
+                    <div style="font-weight: 600; margin-bottom: 4px;">Pembayaran ditransfer ke :</div>
+                    <div v-if="unit === 'vcm'">
+                      <div>CV. Velocity Cyber Media</div>
+                      <div>BCA : 0301545834</div>
+                    </div>
+                    <div v-else>
+                      <div>CV. Velocity Developer Indonesia</div>
+                      <div>BCA : 0301545796</div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top: 40px;">
+                    <div style="font-weight: 600;">Terms & Conditions:</div>
+                    <a href="https://velocitydeveloper.com/syarat-dan-ketentuan/" style="color: #1d4ed8;">velocitydeveloper.com/syarat-dan-ketentuan/</a>
+                  </div>
+                </td>
+                <td style="padding: 20px;position: relative;">
+                  
+                  <table class="print-summary-table" style="width: 100%; border: 1px solid #9ca3af;">
+                    <tbody>
+                      <tr>
+                        <td style="padding: 8px; font-size: 14px; border-bottom: 1px solid #9ca3af;">Sub Total</td>
+                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{ formatMoney(total) }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px; font-weight: 600; border-bottom: 1px solid #9ca3af;">TOTAL</td>
+                        <td style="padding: 8px; text-align: right; font-weight: 600; border-bottom: 1px solid #9ca3af;">{{ formatMoney(total) }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px; font-size: 14px; border-bottom: 1px solid #9ca3af;">Dibayar</td>
+                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{ formatMoney(paidAmount) }}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px; font-size: 14px;">Terhutang</td>
+                        <td style="padding: 8px; text-align: right;">{{ formatMoney(dueAmount) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div style="margin-top: 24px;">
+                    <div class="print-status" style="background-color: #60a5fa; color: white; font-weight: 600; text-align: center; padding: 8px;" :style="data.status === 'lunas' ? 'background-color: #16a34a; padding: 20px 8px;' : ''">
+                      {{ data.status === 'lunas' ? 'LUNAS' : 'BELUM LUNAS' }}
+                    </div>
+                  </div>
+
+                  <!-- STEMPEL -->
+                  <div v-if="data.status === 'lunas'">
+                    <div class="print-stempel" style="position: absolute; bottom: 0; left: -120px;">                
+                      <img v-if="unit === 'vcm'" src="/stempel-vcm.webp" alt="Logo" style="width: 220px; object-fit: contain;" />
+                      <img v-else src="/stempel-vdi.webp" alt="Logo" style="width: 220px; object-fit: contain;" />
+                    </div>
+                  </div>
+
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
 
-        <div id="page-prints" style="background-color: #ffffff;">
-        <!-- Header row -->       
-                       
-          <table class="header-table print-header" style="width: 100%; background-color: #dbeafe; padding: 8px;">
-            <tr>
-              <td style="width: 58%; padding: 12px; vertical-align: middle;">
-                <img v-if="unit === 'vcm'" src="/logo-vcm.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
-                <img v-else src="/logo-vdi.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
-              </td>
-              <td style="width: 42%; vertical-align: top;">
-                <table style="width: 100%;">
-                  <tbody>
-                    <tr>
-                      <td style="padding: 2px; font-size: 14px; width: 50%;">Nomor Invoice:</td>
-                      <td style="padding: 2px; font-size: 14px; text-align: right; font-weight: 600;">VD{{ data.nomor }}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 2px; font-size: 14px;">Jatuh Tempo:</td>
-                      <td style="padding: 2px; font-size: 14px; text-align: right;">{{ dueDate }}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 2px; font-size: 14px;">Tanggal Invoice:</td>
-                      <td style="padding: 2px; font-size: 14px; text-align: right;">{{ fmtDMY(data.tanggal) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </table>
-
-          <!-- Bill to / from -->
-          <table class="billing-table print-billing" style="width: 100%; margin: 0 20px; padding: 12px 0;">
-            <tr>
-              <td style="width: 58%; padding: 12px 12px 12px 0; vertical-align: top;">
-                <div style="font-weight: 600; margin-bottom: 4px; font-size: 14px;">Tagihan kepada:</div>
-                <div style="font-size: 14px; line-height: 1.25;">
-                  <div style="font-weight: 500;">{{ data.customer.nama }}</div>
-                  <div style="white-space: pre-line; max-width: 250px;">{{ data.customer.alamat }}</div>
-                </div>
-              </td>
-              <td style="width: 42%; padding: 12px 12px 12px 0; vertical-align: top;">
-                <div style="font-weight: 600; margin-bottom: 4px; font-size: 14px;">Tagihan dari :</div>
-                <div style="font-size: 14px; line-height: 1.25;">
-                  <div style="font-weight: 500;">Velocity Developer Indonesia</div>
-                  <div>Kebonagung RT 04 / RW 01 Jarum, Bayat,</div>
-                  <div>Klaten, Jawa Tengah</div>
-                  <div style="margin-top: 4px;">Bantuanvdc@gmail.com</div>
-                </div>
-              </td>
-            </tr>
-          </table>
-
-          <!-- Items table -->
-          <div class="print-table" style="margin: 0 20px; border-top: 1px solid #9ca3af;">
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="background-color: #bfdbfe;">
-                  <th style="border: 1px solid #9ca3af; padding: 8px; text-align: left; width: 40px; font-size: 14px;">No</th>
-                  <th style="border: 1px solid #9ca3af; padding: 8px; text-align: left; font-size: 14px;">Nama Pekerjaan</th>
-                  <th style="border: 1px solid #9ca3af; padding: 8px; text-align: right; width: 160px; font-size: 14px;">Harga</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(item, idx) in data.items" :key="idx">
-                  <td style="border: 1px solid #9ca3af; padding: 8px; font-size: 14px;">{{ idx + 1 }}</td>
-                  <td style="border: 1px solid #9ca3af; padding: 8px;">
-                    <template v-if="item.jenis">{{ item.jenis }}</template>
-                    <template v-if="item.website">{{ item.website }}</template>
-                    {{ item.nama }}
-                  </td>
-                  <td style="border: 1px solid #9ca3af; padding: 8px; text-align: right;">{{ formatMoney(item.harga,'',0) }}</td>
-                </tr>
-                <tr v-for="pad in Math.max(0, 3 - (data.items?.length || 0))" :key="'pad'+pad">
-                  <td style="border: 1px solid #9ca3af; padding: 8px;">&nbsp;</td>
-                  <td style="border: 1px solid #9ca3af; padding: 8px;">&nbsp;</td>
-                  <td style="border: 1px solid #9ca3af; padding: 8px;">&nbsp;</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Summary area -->
-          <table class="summary-table print-summary" style="width: 100%; margin: 0 20px;">
-            <tr>
-              <td class="print-summary-left" style="width: 58%; vertical-align: top; padding: 12px 12px 12px 0;">
-                <div class="print-payment-date" style="margin-bottom: 24px;">
-                  <span style="vertical-align: top;">Dibayar tanggal:</span>
-                  <span style="margin-left: 8px; padding: 4px 40px; background-color: rgba(147, 197, 253, 0.7); display: inline-block;">{{ fmtDMY(data.tanggal_bayar) }}</span>
-                </div>
-
-                <div style="margin-top: 32px;">
-                  <div style="font-weight: 600; margin-bottom: 4px;">Pembayaran ditransfer ke :</div>
-                  <div v-if="unit === 'vcm'">
-                    <div>CV. Velocity Cyber Media</div>
-                    <div>BCA : 0301545834</div>
-                  </div>
-                  <div v-else>
-                    <div>CV. Velocity Developer Indonesia</div>
-                    <div>BCA : 0301545796</div>
-                  </div>
-                </div>
-
-                <div style="margin-top: 40px;">
-                  <div style="font-weight: 600;">Terms & Conditions:</div>
-                  <a href="https://velocitydeveloper.com/syarat-dan-ketentuan/" style="color: #1d4ed8;">velocitydeveloper.com/syarat-dan-ketentuan/</a>
-                </div>
-              </td>
-              <td class="print-summary-right" style="width: 42%; vertical-align: top; padding: 12px 12px 12px 0; position: relative;">
-                <table class="print-summary-table" style="width: 100%; border: 1px solid #9ca3af;">
-                  <tbody>
-                    <tr>
-                      <td style="padding: 8px; font-size: 14px; border-bottom: 1px solid #9ca3af;">Sub Total</td>
-                      <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{ formatMoney(total) }}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 8px; font-weight: 600; border-bottom: 1px solid #9ca3af;">TOTAL</td>
-                      <td style="padding: 8px; text-align: right; font-weight: 600; border-bottom: 1px solid #9ca3af;">{{ formatMoney(total) }}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 8px; font-size: 14px; border-bottom: 1px solid #9ca3af;">Dibayar</td>
-                      <td style="padding: 8px; text-align: right; border-bottom: 1px solid #9ca3af;">{{ formatMoney(paidAmount) }}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 8px; font-size: 14px;">Terhutang</td>
-                      <td style="padding: 8px; text-align: right;">{{ formatMoney(dueAmount) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <div style="margin-top: 24px;">
-                  <div class="print-status" style="background-color: #60a5fa; color: white; font-weight: 600; text-align: center; padding: 8px;" :style="data.status === 'lunas' ? 'background-color: #16a34a; padding: 20px 8px;' : ''">
-                    {{ data.status === 'lunas' ? 'LUNAS' : 'BELUM LUNAS' }}
-                  </div>
-                </div>
-
-                <!-- STEMPEL -->
-                <div v-if="data.status === 'lunas'">
-                  <div class="print-stempel" style="position: absolute; bottom: 0; left: -150px;">                
-                      <img v-if="unit === 'vcm'" src="/stempel-vcm.webp" alt="Logo" style="width: 220px; object-fit: contain;" />
-                      <img v-else src="/stempel-vdi.webp" alt="Logo" style="width: 220px; object-fit: contain;" />
-                  </div>
-                </div>
-
-              </td>
-            </tr>
-          </table>
-        </div>
       </div>
     </div>
   </div>
