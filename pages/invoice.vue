@@ -38,11 +38,11 @@
         <template #content>
           <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
             <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-            <Column header="#" headerStyle="width:3rem">
+            <!-- <Column header="#" headerStyle="width:3rem">
               <template #body="slotProps">
                   {{ slotProps.index + 1 }}
               </template>
-            </Column>
+            </Column> -->
             <Column field="nomor" header="Nomor Invoice" sortable>
               <template #body="slotProps">
                 <div class="group relative py-1">
@@ -50,6 +50,11 @@
                     {{ slotProps.data.nomor }}
                   </span>
                 </div>
+              </template>
+            </Column>
+            <Column field="tanggal" sortable header="Tanggal">        
+              <template #body="slotProps">
+                  {{ formatDate(slotProps.data.tanggal,'YYYY-MM-DD HH:mm') }}
               </template>
             </Column>
             <Column field="unit" header="Unit">
@@ -69,11 +74,6 @@
                 <Tag class="!text-xs capitalize" :severity="getStatusSeverity(slotProps.data.status)">
                   {{ slotProps.data.status }}
                 </Tag>
-              </template>
-            </Column>
-            <Column field="tanggal" sortable header="Tanggal">        
-              <template #body="slotProps">
-                  {{ slotProps.data.tanggal }}
               </template>
             </Column>
             <Column field="total" header="Total">

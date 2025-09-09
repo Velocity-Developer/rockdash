@@ -114,7 +114,7 @@ watch(
                     <tbody>
                       <tr>
                         <td style="padding: 1px 4px; width: 50%;">Nomor Invoice:</td>
-                        <td style="padding: 1px 4px; text-align: right; font-weight: 600;">VD{{ data.nomor }}</td>
+                        <td style="padding: 1px 4px; text-align: right; font-weight: 600;">{{ data.nomor }}</td>
                       </tr>
                       <tr>
                         <td style="padding: 1px 4px;">Jatuh Tempo:</td>
