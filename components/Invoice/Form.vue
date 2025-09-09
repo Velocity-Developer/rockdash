@@ -574,7 +574,7 @@ function toNumberLocale(v: any): number {
             </div> -->
             <div class="md:col-span-3">
               <label class="block text-xs font-medium mb-1">Jenis</label>
-              <Select v-model="item.jenis" :options="dataOpsiJenis" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
+              <Select v-model="item.jenis" :options="dataOpsiJenis" showClear class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
               <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
             </div>
             <div class="md:col-span-5">
