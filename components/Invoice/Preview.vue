@@ -33,8 +33,13 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
       <!-- Header -->
       <div class="flex items-start justify-between gap-4">
         <div>
-          <div class="text-xl font-semibold">VD {{ data.nomor }}</div>
-          <div class="text-xs opacity-70">Status: <Tag :severity="data.status==='lunas'?'success':(data.status==='batal'?'danger':'warning')">{{ data.status }}</Tag></div>
+          <div>
+            <img v-if="data.unit === 'vcm'" src="/logo-vcm.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
+            <img v-else src="/logo-vdi.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
+          </div>
+          <div class="text-xl font-semibold mt-2">VD {{ data.nomor }}</div>
+          <div class="text-xs"><Tag :severity="data.status==='lunas'?'success':(data.status==='batal'?'danger':'warning')">{{ data.status }}</Tag></div>
+
         </div>
         <div class="flex flex-col items-end gap-2">
           <div class="flex gap-2">
