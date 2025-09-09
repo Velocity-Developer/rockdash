@@ -187,7 +187,12 @@
   </Dialog>
 
   <Dialog v-model:visible="visibleDialogPreview" modal header="Preview Invoice" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <InvoicePreview v-if="previewId" :id="previewId" />
+    <InvoicePreview 
+      v-if="previewId" 
+      :id="previewId" 
+      @edit="handleEditFromPreview"
+      @print="handlePrintFromPreview"
+    />
   </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
@@ -419,6 +424,21 @@ function printInvoice(id: any) {
   } else {
     alert('Popup diblokir oleh browser. Izinkan popup lalu coba lagi.')
   }
+}
+
+// Handler untuk edit dari preview
+function handleEditFromPreview(id: string | number) {
+  // Cari data invoice berdasarkan id
+  const invoiceData = data.value?.data?.find((item: any) => item.id == id)
+  if (invoiceData) {
+    visibleDialogPreview.value = false
+    openDialog('edit', invoiceData)
+  }
+}
+
+// Handler untuk print dari preview
+function handlePrintFromPreview(id: string | number) {
+  printInvoice(id)
 }
 </script>
 

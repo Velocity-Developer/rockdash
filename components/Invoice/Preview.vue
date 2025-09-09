@@ -4,6 +4,10 @@ import { formatMoney as money } from '~/utils/formatMoney'
 
 const dayjs = useDayjs()
 const props = defineProps<{ id: string | number | null }>()
+const emit = defineEmits<{
+  edit: [id: string | number]
+  print: [id: string | number]
+}>()
 const client = useSanctumClient()
 
 const { data, status, error, refresh } = await useAsyncData(
@@ -32,10 +36,30 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
           <div class="text-xl font-semibold">VD {{ data.nomor }}</div>
           <div class="text-xs opacity-70">Status: <Tag :severity="data.status==='lunas'?'success':(data.status==='batal'?'danger':'warning')">{{ data.status }}</Tag></div>
         </div>
-        <div class="text-right text-sm">
-          <div>Tanggal: <b>{{ fmtDMY(data.tanggal) }}</b></div>
-          <div>Jatuh Tempo: <b>{{ fmtDMY(data.jatuh_tempo || data.tanggal) }}</b></div>
-          <div v-if="data.tanggal_bayar">Dibayar: <b>{{ fmtDMY(data.tanggal_bayar) }}</b></div>
+        <div class="flex flex-col items-end gap-2">
+          <div class="flex gap-2">
+            <Button 
+              @click="emit('edit', data.id)"
+              severity="secondary"
+              size="small"
+              :disabled="!data?.id"
+            >
+            <Icon name="lucide:edit" /> Edit
+            </Button>
+            <Button 
+              @click="emit('print', data.id)"
+              severity="contrast"
+              size="small"
+              :disabled="!data?.id"
+            >            
+            <Icon name="lucide:printer" /> Print
+            </Button>
+          </div>
+          <div class="text-right text-sm">
+            <div>Tanggal: <b>{{ fmtDMY(data.tanggal) }}</b></div>
+            <div>Jatuh Tempo: <b>{{ fmtDMY(data.jatuh_tempo || data.tanggal) }}</b></div>
+            <div v-if="data.tanggal_bayar">Dibayar: <b>{{ fmtDMY(data.tanggal_bayar) }}</b></div>
+          </div>
         </div>
       </div>
 
