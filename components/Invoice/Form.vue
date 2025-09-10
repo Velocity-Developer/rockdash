@@ -423,7 +423,7 @@ async function submitForm() {
     // Validasi pajak
     if (form.pajak) {
       if (!form.nama_pajak) throw { bag: { nama_pajak: ['Nama pajak harus diisi'] } };
-      if (!form.nominal_pajak || form.nominal_pajak <= 0) throw { bag: { nominal_pajak: ['Nominal pajak harus diisi dan lebih dari 0'] } };
+      if (!form.nominal_pajak && form.nominal_pajak !== 0) throw { bag: { nominal_pajak: ['Nominal pajak harus diisi'] } };
     }
     
     // Pastikan customer_id: pilih yang ada, jika tidak, buat customer baru
