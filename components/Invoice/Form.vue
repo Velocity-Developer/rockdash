@@ -278,9 +278,23 @@ watch(
 watch(selectedCustomerId, async (newValue) => {
   form.customer_id = newValue;
   
-  // Jika memilih customer, load data customer tersebut
-  if (newValue && props.action === 'edit') {
-    await loadCustomerData(newValue);
+  // Jika memilih customer, isi field yang kosong dengan data customer
+  if (newValue) {
+    const selectedCustomer = customerOptions.value.find(c => c.value === newValue);
+    if (selectedCustomer && selectedCustomer.raw) {
+      const customer = selectedCustomer.raw;
+      
+      // Isi field yang kosong dengan data customer
+      if (!form.nama_klien) form.nama_klien = customer.nama || '';
+      if (!form.email_klien) form.email_klien = customer.email || '';
+      if (!form.alamat_klien) form.alamat_klien = customer.alamat || '';
+      if (!form.telepon_klien) form.telepon_klien = customer.hp || '';
+    }
+    
+    // Jika edit mode, load data customer tersebut
+    if (props.action === 'edit') {
+      await loadCustomerData(newValue);
+    }
   }
 })
 
