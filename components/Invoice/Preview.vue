@@ -116,7 +116,11 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
           <div class="font-medium">Subtotal</div>
           <div class="md:col-span-2 text-right">{{ formatMoney(subtotal) }}</div>
           <div class="font-medium">Pajak</div>
-          <div class="md:col-span-2 text-right">{{ formatMoney(nominalPajak) }} ({{ data.pajak }}%)</div>
+          <div class="md:col-span-2 text-right">
+            <template v-if="data.pajak">
+              {{ formatMoney(nominalPajak) }} ({{ data.nama_pajak }})
+            </template>
+          </div>
           <div class="font-semibold text-blue-700">Total</div>
           <div class="md:col-span-2 text-xl text-right font-semibold text-blue-700 dark:text-blue-500">{{ formatMoney(total) }}</div>
         </div>

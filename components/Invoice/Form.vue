@@ -34,7 +34,8 @@ const form = reactive({
   jatuh_tempo: null as any | null,
   tanggal_bayar: null as any | null,
   subtotal: 0 as number,
-  pajak: 0 as number,
+  pajak: false as boolean,
+  nama_pajak: '' as string,
   nominal_pajak: 0 as number,
   total: 0 as number,
   items: [] as any[]
@@ -309,7 +310,8 @@ watchEffect(() => {
     form.jatuh_tempo = props.modelValue.jatuh_tempo;
     form.tanggal_bayar = props.modelValue.tanggal_bayar;
     form.subtotal = Number(props.modelValue.subtotal || 0);
-    form.pajak = Number(props.modelValue.pajak || 0);
+    form.pajak = Boolean(props.modelValue.pajak);
+    form.nama_pajak = props.modelValue.nama_pajak || '';
     form.nominal_pajak = Number(props.modelValue.nominal_pajak || 0);
     form.total = Number(props.modelValue.total || 0);
     
@@ -330,7 +332,8 @@ watchEffect(() => {
     form.jatuh_tempo = null;
     form.tanggal_bayar = null;
     form.subtotal = 0;
-    form.pajak = 11;
+    form.pajak = false;
+    form.nama_pajak = '';
     form.nominal_pajak = 0;
     form.total = 0;
     form.items = [createEmptyItem()];
@@ -374,14 +377,23 @@ watch(
   { deep: true }
 )
 
-// Derive nominal_pajak and total from subtotal and pajak
+// Reset pajak fields when pajak is disabled
 watch(
-  () => [form.subtotal, form.pajak],
+  () => form.pajak,
+  (newValue) => {
+    if (!newValue) {
+      form.nama_pajak = '';
+      form.nominal_pajak = 0;
+    }
+  }
+)
+
+// Derive total from subtotal and nominal_pajak
+watch(
+  () => [form.subtotal, form.nominal_pajak, form.pajak],
   () => {
     const sub = Number(form.subtotal || 0);
-    const percent = toNumberLocale(form.pajak);
-    const pajakNom = sub * (percent / 100);
-    form.nominal_pajak = pajakNom;
+    const pajakNom = form.pajak ? Number(form.nominal_pajak || 0) : 0;
     form.total = sub + pajakNom;
   },
   { deep: true, immediate: true }
@@ -408,6 +420,12 @@ async function submitForm() {
       if (!item.harga) throw { bag: { [`items.${i}.harga`]: ['Harga item harus diisi'] } };
     }
     
+    // Validasi pajak
+    if (form.pajak) {
+      if (!form.nama_pajak) throw { bag: { nama_pajak: ['Nama pajak harus diisi'] } };
+      if (!form.nominal_pajak || form.nominal_pajak <= 0) throw { bag: { nominal_pajak: ['Nominal pajak harus diisi dan lebih dari 0'] } };
+    }
+    
     // Pastikan customer_id: pilih yang ada, jika tidak, buat customer baru
     let customerId = selectedCustomerId.value || form.customer_id;
     if (!customerId) {
@@ -431,7 +449,8 @@ async function submitForm() {
       customer_id: customerId,
       note: form.note,
       status: form.status,
-      pajak: String(form.pajak ?? ''),
+      pajak: form.pajak,
+      nama_pajak: form.nama_pajak || null,
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD HH:mm:ss') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
       tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss') : null,
@@ -466,6 +485,9 @@ async function submitForm() {
     emit('update');
     emit('close');
   } catch (error) {
+
+    console.log('error-submit',error)
+
     const er = useSanctumError(error);
     errorSubmit.value = er.bag;
     
@@ -666,22 +688,34 @@ function toNumberLocale(v: any): number {
           <div class="text-right">{{ formatIDR(form.subtotal) }}</div>
           <div class="font-semibold">Pajak:</div>
           <div class="text-right">
-            <InputNumber
-              v-model="form.pajak"
-              class="w-[120px] overflow-hidden rounded-md border-none"
-              fluid
-              mode="decimal"
-              locale="id-ID"
-              :minFractionDigits="0"
-              :maxFractionDigits="2"
-              suffix="%"
-              :class="{ 'p-invalid': errorSubmit.pajak }"
-              size="small"
-              placeholder="0,00"
-            />
+            <ToggleSwitch v-model="form.pajak" :class="{ 'p-invalid': errorSubmit.pajak }" />
           </div>
-          <div class="font-semibold">Nominal Pajak:</div>
-          <div class="text-right">{{ formatIDR(form.nominal_pajak) }}</div>
+          <template v-if="form.pajak">
+            <div class="font-semibold">Nama Pajak:</div>
+            <div class="text-right">
+              <InputText
+                v-model="form.nama_pajak"
+                class="w-full text-right"
+                :class="{ 'p-invalid': errorSubmit.nama_pajak }"
+                placeholder="PPN, PPh, dll"
+                size="small"
+              />
+            </div>
+            <div class="font-semibold">Nominal Pajak:</div>
+            <div class="text-right">
+              <InputNumber
+                v-model="form.nominal_pajak"
+                class="overflow-hidden rounded-md border-none"
+                fluid
+                mode="currency"
+                currency="IDR"
+                locale="id-ID"
+                :class="{ 'p-invalid': errorSubmit.nominal_pajak }"
+                size="small"
+                placeholder="0"
+              />
+            </div>
+          </template>
           <div class="col-span-2 border border-b-blue-300"></div>
           <div class="font-semibold">Total:</div>
           <div class="text-right font-semibold text-xl">{{ formatIDR(form.total) }}</div>
