@@ -62,7 +62,7 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
           </div>
           <div class="text-right text-sm">
             <div>Tanggal: <b>{{ fmtDMY(data.tanggal) }}</b></div>
-            <div>Jatuh Tempo: <b>{{ fmtDMY(data.jatuh_tempo || data.tanggal) }}</b></div>
+            <div>Jatuh Tempo: <b>{{ fmtDMY(data.jatuh_tempo || '') }}</b></div>
             <div v-if="data.tanggal_bayar">Dibayar: <b>{{ fmtDMY(data.tanggal_bayar) }}</b></div>
           </div>
         </div>
