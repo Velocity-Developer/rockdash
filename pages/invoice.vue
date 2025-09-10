@@ -57,11 +57,6 @@
                   {{ formatDate(slotProps.data.tanggal,'YYYY-MM-DD HH:mm') }}
               </template>
             </Column>
-            <Column field="unit" header="Unit">
-              <template #body="slotProps">
-                <span class="uppercase">{{ slotProps.data.unit }}</span>
-              </template>
-            </Column>
             <Column field="nama_klien" header="Nama Klien">
               <template #body="slotProps">
                 <div class="max-w-[200px] whitespace-normal">
@@ -78,7 +73,7 @@
             </Column>
             <Column field="total" header="Total">
               <template #body="slotProps">
-                  {{ formatMoney(calculateTotal(slotProps.data.items)) }}
+                  {{ formatMoney(slotProps.data.total) }}
               </template>
             </Column>
             <Column field="act" header="">
