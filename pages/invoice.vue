@@ -79,8 +79,8 @@
             <Column field="act" header="">
               <template #body="slotProps">
                 <div class="flex item-center gap-1 justify-end">
-                  <Button @click="printInvoice(slotProps.data.id)" severity="contrast" size="small">
-                    <Icon name="lucide:printer" />
+                  <Button @click="downloadPDF(slotProps.data.url_pdf_download,slotProps.data.nomor)" severity="contrast" size="small">
+                    <Icon name="lucide:download" />
                   </Button>
                   <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
                     <Icon name="lucide:pencil" />
@@ -186,7 +186,6 @@
       v-if="previewId" 
       :id="previewId" 
       @edit="handleEditFromPreview"
-      @print="handlePrintFromPreview"
     />
   </Dialog>
 
@@ -401,24 +400,15 @@ const confirmDelete = (id: any) => {
     });
 }
 
-// Open print page in new tab/window
-function printInvoice(id: any) {
-  const url = `/print/invoice?id=${id}&print=true`
-  const features = [
-    'popup=yes',
-    'noopener',
-    'noreferrer',
-    'scrollbars=yes',
-    'resizable=yes',
-    'width=900',
-    'height=1000'
-  ].join(',')
-  const win = window.open(url, `print_invoice_${id}`, features)
-  if (win) {
-    win.focus()
-  } else {
-    alert('Popup diblokir oleh browser. Izinkan popup lalu coba lagi.')
-  }
+// Download PDF invoice
+function downloadPDF(url: any,nomor: any) {
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `invoice-VD${nomor}.pdf`
+  link.target = '_blank'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 // Handler untuk edit dari preview
@@ -431,9 +421,9 @@ function handleEditFromPreview(id: string | number) {
   }
 }
 
-// Handler untuk print dari preview
-function handlePrintFromPreview(id: string | number) {
-  printInvoice(id)
+// Handler untuk download PDF dari preview
+function handlePrintFromPreview(url: string | number,nomor: string | number) {
+  downloadPDF(url,nomor)
 }
 </script>
 

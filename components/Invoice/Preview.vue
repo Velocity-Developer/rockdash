@@ -6,7 +6,6 @@ const dayjs = useDayjs()
 const props = defineProps<{ id: string | number | null }>()
 const emit = defineEmits<{
   edit: [id: string | number]
-  print: [id: string | number]
 }>()
 const client = useSanctumClient()
 
@@ -22,6 +21,18 @@ const fmtDMY = (v?: string) => (!v || v === '0000-00-00' ? '-' : dayjs(v).format
 const subtotal = computed(() => Number(data.value?.subtotal ?? 0))
 const nominalPajak = computed(() => Number(data.value?.nominal_pajak ?? 0))
 const total = computed(() => Number(data.value?.total ?? (subtotal.value + nominalPajak.value)))
+
+// Download PDF invoice
+function downloadPDF(url: any,nomor: any) {
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `invoice-VD${nomor}.pdf`
+  link.target = '_blank'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
 </script>
 
 <template>
@@ -51,13 +62,13 @@ const total = computed(() => Number(data.value?.total ?? (subtotal.value + nomin
             >
             <Icon name="lucide:edit" /> Edit
             </Button>
-            <Button 
-              @click="emit('print', data.id)"
+            <Button
+              @click="downloadPDF(data.url_pdf_download,data.nomor)"
               severity="contrast"
               size="small"
               :disabled="!data?.id"
             >            
-            <Icon name="lucide:printer" /> Print
+            <Icon name="lucide:download" /> Download
             </Button>
           </div>
           <div class="text-right text-sm">
