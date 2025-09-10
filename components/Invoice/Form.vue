@@ -234,15 +234,20 @@ async function searchCustomers() {
   const hasName = !!form.nama_klien && String(form.nama_klien).trim().length > 1;
   const contact = form.telepon_klien || form.email_klien;
   const hasContact = !!contact && String(contact).trim().length > 2;
-  if (!hasName || !hasContact) {
+  
+  // Tampilkan picker jika ada nama klien (minimal 2 karakter) atau kontak
+  if (!hasName && !hasContact) {
     showCustomerPicker.value = false;
     customerOptions.value = [];
     return;
   }
+  
   try {
     isSearchingCustomer.value = true;
     showCustomerPicker.value = true;
-    const q = String(contact || form.nama_klien);
+    
+    // Prioritaskan pencarian berdasarkan nama klien, fallback ke kontak
+    const q = String(form.nama_klien || contact || '');
     const res: any = await client('/api/customer', { params: { q, per_page: 10 } });
     const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
     const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
