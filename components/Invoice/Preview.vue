@@ -33,6 +33,10 @@ function downloadPDF(url: any,nomor: any) {
   document.body.removeChild(link)
 }
 
+function openPdf(url: any) {
+  if (process.client) window?.open(url, '_blank')
+}
+
 </script>
 
 <template>
@@ -61,6 +65,14 @@ function downloadPDF(url: any,nomor: any) {
               :disabled="!data?.id"
             >
             <Icon name="lucide:edit" /> Edit
+            </Button>
+            <Button
+              @click="openPdf(data.url_pdf_preview)"
+              severity="info"
+              size="small"
+              :disabled="!data?.id"
+            >            
+            <Icon name="lucide:file-text" /> PDF
             </Button>
             <Button
               @click="downloadPDF(data.url_pdf_download,data.nomor)"
