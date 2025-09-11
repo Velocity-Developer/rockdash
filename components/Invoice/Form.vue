@@ -678,7 +678,7 @@ function toNumberLocale(v: any): number {
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Tanggal</label>
-          <DatePicker v-model="form.tanggal" showTime hourFormat="24" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }" />
+          <DatePicker v-model="form.tanggal" showTime hourFormat="24" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }" />
           <small v-if="errorSubmit.tanggal" class="p-error block mt-1">{{ errorSubmit.tanggal[0] }}</small>
         </div>
         <div>
@@ -700,7 +700,7 @@ function toNumberLocale(v: any): number {
         </div>
         <div v-if="form.status === 'lunas'">
           <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
-          <DatePicker v-model="form.tanggal_bayar" showTime hourFormat="24" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
+          <DatePicker v-model="form.tanggal_bayar" showTime hourFormat="24" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
           <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
         </div>
       </div>
