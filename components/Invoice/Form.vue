@@ -270,6 +270,12 @@ function selectCustomer(customer: any) {
   showCustomerPicker.value = false;
 }
 
+// Hapus pilihan customer
+function clearSelectedCustomer() {
+  selectedCustomerId.value = null;
+  form.customer_id = null;
+}
+
 // Tutup dropdown ketika klik di luar
 function handleClickOutside(event: Event) {
   const target = event.target as HTMLElement;
@@ -576,12 +582,28 @@ function toNumberLocale(v: any): number {
     <!-- Client Information -->
     <div>
       <div class="flex items-center gap-2 text-md font-bold mb-3">
-        <Icon name="lucide:user-round" class="text-indigo-700" /> Informasi Klien
+        <Icon name="lucide:user-round" class="text-indigo-700" /> 
+        Informasi Klien
+        <!-- Badge untuk customer yang sudah ada -->
+        <div v-if="form.customer_id" class="flex items-center gap-1">
+          <Badge value="Customer Terdaftar" severity="success" class="text-xs" />
+          <Button 
+            @click="clearSelectedCustomer" 
+            icon="lucide:x" 
+            size="small" 
+            severity="secondary" 
+            text 
+            class="p-1 w-6 h-6" 
+            v-tooltip="'Hapus pilihan customer'"
+          />
+        </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         <div class="relative">
           <label class="block text-sm font-medium mb-1">Nama</label>
-          <InputText v-model="form.nama_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.nama_klien }" placeholder="Masukkan nama klien" />
+          <div class="relative">
+            <InputText v-model="form.nama_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.nama_klien }" placeholder="Masukkan nama klien" />
+          </div>
           
           <!-- Customer Suggestions Dropdown -->
           <div v-if="showCustomerPicker" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-800 dark:border-gray-600">
@@ -600,6 +622,7 @@ function toNumberLocale(v: any): number {
                   <span v-if="customer.raw.email">{{ customer.raw.email }}</span>
                   <span v-if="customer.raw.email && customer.raw.hp"> • </span>
                   <span v-if="customer.raw.hp">{{ customer.raw.hp }}</span>
+                  <span v-if="customer.raw.alamat"> • {{ customer.raw.alamat }}</span>
                 </div>
               </div>
             </div>
