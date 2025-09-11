@@ -435,15 +435,7 @@ watch(
   }
 )
 
-// Reset tanggal_bayar when status is not 'lunas'
-watch(
-  () => form.status,
-  (newValue) => {
-    if (newValue !== 'lunas') {
-      form.tanggal_bayar = null;
-    }
-  }
-)
+
 
 // Derive total from subtotal and nominal_pajak
 watch(
@@ -483,6 +475,11 @@ async function submitForm() {
       if (!form.nominal_pajak && form.nominal_pajak !== 0) throw { bag: { nominal_pajak: ['Nominal pajak harus diisi'] } };
     }
     
+    // Validasi tanggal_bayar untuk status lunas
+    if (form.status === 'lunas' && !form.tanggal_bayar) {
+      throw { bag: { tanggal_bayar: ['Tanggal bayar harus diisi untuk status lunas'] } };
+    }
+    
     // Pastikan customer_id: pilih yang ada, jika tidak, buat customer baru
     let customerId = selectedCustomerId.value || form.customer_id;
     if (!customerId) {
@@ -500,6 +497,11 @@ async function submitForm() {
       if (!customerId) throw { bag: { customer_id: ['Gagal membuat customer'] } };
     }
 
+    // Kosongkan tanggal_bayar jika status bukan lunas
+    if (form.status !== 'lunas') {
+      form.tanggal_bayar = null;
+    }
+    
     // Format tanggal & bentuk payload invoice
     const formData: any = {
       unit: form.unit,
@@ -510,7 +512,7 @@ async function submitForm() {
       nama_pajak: form.nama_pajak || null,
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD HH:mm:ss') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
-      tanggal_bayar: form.status === 'lunas' && form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss') : null,
+      tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss') : null,
       subtotal: Number(form.subtotal || 0),
       nominal_pajak: Number(form.nominal_pajak || 0),
       total: Number(form.total || 0),
@@ -547,7 +549,7 @@ async function submitForm() {
 
     const er = useSanctumError(error);
     errorSubmit.value = er.bag;
-    
+        
     toast.add({
       severity: 'error',
       summary: 'Gagal!',
