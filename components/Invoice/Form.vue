@@ -287,6 +287,8 @@ function handleClickOutside(event: Event) {
 // Setup event listener untuk click outside
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  // Reset error submit saat form dibuka
+  errorSubmit.value = {};
 });
 
 onUnmounted(() => {
@@ -532,6 +534,9 @@ async function submitForm() {
       });
     }
     
+    // Reset error submit
+    errorSubmit.value = {};
+    
     // Tampilkan pesan sukses
     toast.add({
       severity: 'success',
@@ -547,13 +552,13 @@ async function submitForm() {
 
     console.log('error-submit',error)
 
-    const er = useSanctumError(error);
-    errorSubmit.value = er.bag;
+    // const er = useSanctumError(error);
+    errorSubmit.value = (error as any).bag || {};
         
     toast.add({
       severity: 'error',
       summary: 'Gagal!',
-      detail: er.msg || 'Terjadi kesalahan saat menyimpan data',
+      detail: 'Terjadi kesalahan saat menyimpan data',
       life: 3000
     });
   } 
@@ -643,17 +648,17 @@ function toNumberLocale(v: any): number {
             </div>
           </div>
           
-          <small v-if="errorSubmit.nama_klien" class="p-error block mt-1">{{ errorSubmit.nama_klien[0] }}</small>
+          <small v-if="errorSubmit.nama_klien" class="text-red-500 block mt-1">{{ errorSubmit.nama_klien[0] }}</small>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Telepon</label>
           <InputText v-model="form.telepon_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.telepon_klien }" placeholder="No hp klien" />
-          <small v-if="errorSubmit.telepon_klien" class="p-error block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
+          <small v-if="errorSubmit.telepon_klien" class="text-red-500 block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Email</label>
           <InputText v-model="form.email_klien" type="email" class="w-full" :class="{ 'p-invalid': errorSubmit.email_klien }" placeholder="Email klien" />
-          <small v-if="errorSubmit.email_klien" class="p-error block mt-1">{{ errorSubmit.email_klien[0] }}</small>
+          <small v-if="errorSubmit.email_klien" class="text-red-500 block mt-1">{{ errorSubmit.email_klien[0] }}</small>
         </div>
       </div>
       <div class="grid grid-cols-1 gap-2 mt-3">
@@ -679,29 +684,29 @@ function toNumberLocale(v: any): number {
         <div>
           <label class="block text-sm font-medium mb-1">Tanggal</label>
           <DatePicker v-model="form.tanggal" showTime hourFormat="24" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }" />
-          <small v-if="errorSubmit.tanggal" class="p-error block mt-1">{{ errorSubmit.tanggal[0] }}</small>
+          <small v-if="errorSubmit.tanggal" class="text-red-500 block mt-1">{{ errorSubmit.tanggal[0] }}</small>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Jatuh tempo</label>
           <DatePicker v-model="form.jatuh_tempo" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.jatuh_tempo }" />
-          <small v-if="errorSubmit.jatuh_tempo" class="p-error block mt-1">{{ errorSubmit.jatuh_tempo[0] }}</small>
+          <small v-if="errorSubmit.jatuh_tempo" class="text-red-500 block mt-1">{{ errorSubmit.jatuh_tempo[0] }}</small>
         </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
         <div>
           <label class="block text-sm font-medium mb-1">Unit</label>
           <Select v-model="form.unit" :options="unitOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.unit }" placeholder="Select unit" />
-          <small v-if="errorSubmit.unit" class="p-error block mt-1">{{ errorSubmit.unit[0] }}</small>
+          <small v-if="errorSubmit.unit" class="text-red-500 block mt-1">{{ errorSubmit.unit[0] }}</small>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Status</label>
           <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Select status" />
-          <small v-if="errorSubmit.status" class="p-error block mt-1">{{ errorSubmit.status[0] }}</small>
+          <small v-if="errorSubmit.status" class="text-red-500 block mt-1">{{ errorSubmit.status[0] }}</small>
         </div>
         <div v-if="form.status === 'lunas'">
           <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
           <DatePicker v-model="form.tanggal_bayar" showTime hourFormat="24" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
-          <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
+          <small v-if="errorSubmit.tanggal_bayar" class="text-red-500 block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
         </div>
       </div>
     </div>
@@ -740,17 +745,17 @@ function toNumberLocale(v: any): number {
                   <Icon name="lucide:globe" />
                 </Button>
               </div>
-              <small v-if="errorSubmit[`items.${index}.jenis`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
+              <small v-if="errorSubmit[`items.${index}.jenis`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
             </div>
             <div class="md:col-span-5">
               <label class="block text-xs font-medium mb-1">Nama Item</label>
               <InputText v-model="item.nama" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.nama`] }" placeholder="Nama/keterangan" />
-              <small v-if="errorSubmit[`items.${index}.nama`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
+              <small v-if="errorSubmit[`items.${index}.nama`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
             </div>
             <div class="md:col-span-2">
               <label class="block text-xs font-medium mb-1">Harga</label>
               <InputNumber v-model="item.harga" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.harga`] }" placeholder="0.00" mode="currency" currency="IDR" locale="id-ID" />
-              <small v-if="errorSubmit[`items.${index}.harga`]" class="p-error block mt-1">{{ errorSubmit[`items.${index}.harga`][0] }}</small>
+              <small v-if="errorSubmit[`items.${index}.harga`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.harga`][0] }}</small>
             </div>
             <div class="md:col-span-1 md:justify-self-end">
               <Button @click="removeItem(index)" type="button" severity="danger" class="px-1" text :disabled="form.items.length === 1">
@@ -810,8 +815,23 @@ function toNumberLocale(v: any): number {
     <div>
       <label class="block text-sm font-medium mb-1">Notes (Optional)</label>
       <Textarea v-model="form.note" class="w-full" :class="{ 'p-invalid': errorSubmit.note }" placeholder="Add any additional notes or terms..." rows="3" />
-      <small v-if="errorSubmit.note" class="p-error block mt-1">{{ errorSubmit.note[0] }}</small>
+      <small v-if="errorSubmit.note" class="text-red-500 block mt-1">{{ errorSubmit.note[0] }}</small>
     </div>
+
+    <!-- Error Display -->
+    <Message v-if="Object.keys(errorSubmit).length > 0" severity="error" closable>
+      <h4 class="text-red-800 font-medium mb-2">Terdapat kesalahan pada form:</h4>
+      <ul class="text-red-700 text-sm space-y-1">
+        <li v-for="(errors, field) in errorSubmit" :key="field" class="flex items-start">
+          <span class="inline-block w-2 h-2 bg-red-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+          <div>
+            <span class="font-medium capitalize">{{ String(field).replace('_', ' ') }}:</span>
+            <span v-if="Array.isArray(errors)">{{ errors.join(', ') }}</span>
+            <span v-else>{{ errors }}</span>
+          </div>
+        </li>
+      </ul>
+    </Message>
 
     <!-- Actions -->
     <div class="flex justify-end gap-2 pt-2">
