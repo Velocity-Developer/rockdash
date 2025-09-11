@@ -20,7 +20,7 @@ const chartOptions = ref({} as any);
 
 const setChartData = () => {
   const labels = props.datachart?.map((item: { name?: string }) => item.name?.trim()) ?? ['(kosong)'];
-  const datas = props.datachart?.map((item: { total: number }) => item.total) ?? [100];
+  const datas = props.datachart?.map((item: { total_dibayar: number }) => item.total_dibayar) ?? [100];
 
   return {
     labels,

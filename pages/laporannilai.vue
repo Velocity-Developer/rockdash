@@ -52,7 +52,7 @@
               </template>
             </Column>
             <Column field="progress" header="Pengerjaan"></Column>
-            <Column field="selesai" header="Selesai"></Column>
+            <Column field="selesai" header="Selesai" class="text-green-500 dark:text-green-400 font-bold"></Column>
             <Column field="total" header="Total"></Column>
           </DataTable>
         </template>
