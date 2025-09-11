@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 
@@ -229,14 +230,12 @@ function selectWebhostFromPicker(webhost: any) {
   currentWebhostItemIndex.value = null;
 }
 
-// Cari customer dari backend
+// Cari customer dari backend berdasarkan nama
 async function searchCustomers() {
   const hasName = !!form.nama_klien && String(form.nama_klien).trim().length > 1;
-  const contact = form.telepon_klien || form.email_klien;
-  const hasContact = !!contact && String(contact).trim().length > 2;
   
-  // Tampilkan picker jika ada nama klien (minimal 2 karakter) atau kontak
-  if (!hasName && !hasContact) {
+  // Tampilkan picker jika ada nama klien (minimal 2 karakter)
+  if (!hasName) {
     showCustomerPicker.value = false;
     customerOptions.value = [];
     return;
@@ -246,8 +245,8 @@ async function searchCustomers() {
     isSearchingCustomer.value = true;
     showCustomerPicker.value = true;
     
-    // Prioritaskan pencarian berdasarkan nama klien, fallback ke kontak
-    const q = String(form.nama_klien || contact || '');
+    // Pencarian berdasarkan nama klien
+    const q = String(form.nama_klien).trim();
     const res: any = await client('/api/customer', { params: { q, per_page: 10 } });
     const items = res?.data ?? res?.data?.data ?? res?.data ?? res?.items ?? res;
     const list = Array.isArray(items?.data) ? items.data : (Array.isArray(items) ? items : []);
@@ -264,14 +263,37 @@ async function searchCustomers() {
   }
 }
 
-// Trigger search when name and (phone/email) present with debounce
+// Pilih customer dari suggestion
+function selectCustomer(customer: any) {
+  selectedCustomerId.value = customer.value;
+  form.nama_klien = customer.raw.nama;
+  showCustomerPicker.value = false;
+}
+
+// Tutup dropdown ketika klik di luar
+function handleClickOutside(event: Event) {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.relative')) {
+    showCustomerPicker.value = false;
+  }
+}
+
+// Setup event listener untuk click outside
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+// Trigger search when nama_klien changes with debounce
 watch(
-  () => [form.nama_klien, form.telepon_klien, form.email_klien],
+  () => form.nama_klien,
   () => {
     if (customerSearchTimer) clearTimeout(customerSearchTimer);
     customerSearchTimer = setTimeout(searchCustomers, 400);
-  },
-  { deep: true }
+  }
 )
 
 // Watch selectedCustomerId to update form.customer_id
@@ -557,9 +579,35 @@ function toNumberLocale(v: any): number {
         <Icon name="lucide:user-round" class="text-indigo-700" /> Informasi Klien
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div>
+        <div class="relative">
           <label class="block text-sm font-medium mb-1">Nama</label>
           <InputText v-model="form.nama_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.nama_klien }" placeholder="Masukkan nama klien" />
+          
+          <!-- Customer Suggestions Dropdown -->
+          <div v-if="showCustomerPicker" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-800 dark:border-gray-600">
+            <div v-if="isSearchingCustomer" class="p-3 text-sm text-gray-500 dark:text-gray-400">
+              <Icon name="lucide:loader-2" class="animate-spin inline mr-2" />Mencari...
+            </div>
+            <div v-else-if="customerOptions.length">
+              <div 
+                v-for="customer in customerOptions" 
+                :key="customer.id"
+                @click="selectCustomer(customer)"
+                class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+              >
+                <div class="font-medium text-sm">{{ customer.raw.nama }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                  <span v-if="customer.raw.email">{{ customer.raw.email }}</span>
+                  <span v-if="customer.raw.email && customer.raw.hp"> • </span>
+                  <span v-if="customer.raw.hp">{{ customer.raw.hp }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="p-3 text-sm text-gray-500 dark:text-gray-400">
+              Tidak ditemukan customer. Customer baru akan dibuat.
+            </div>
+          </div>
+          
           <small v-if="errorSubmit.nama_klien" class="p-error block mt-1">{{ errorSubmit.nama_klien[0] }}</small>
         </div>
         <div>
@@ -580,26 +628,7 @@ function toNumberLocale(v: any): number {
         </div>
       </div>
 
-      <!-- Picker Customer -->
-      <div v-if="showCustomerPicker" class="mt-3 p-3 border rounded-md bg-indigo-50 border-indigo-300 dark:bg-indigo-950 dark:border-indigo-800">
-        <div class="flex items-center justify-between mb-2">
-          <div class="font-medium">Pilih Customer</div>
-          <div class="text-xs" v-if="isSearchingCustomer">mencari...</div>
-        </div>
-        <div v-if="customerOptions.length">
-          <Select
-            v-model="selectedCustomerId"
-            :options="customerOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Pilih customer yang cocok"
-            class="w-full" showClear 
-          />
-          <small class="block mt-1 text-xs opacity-70">Atau biarkan kosong untuk membuat customer baru.</small>
-        </div>
-        <div v-else class="text-sm opacity-70">Tidak ditemukan customer cocok. Customer baru akan dibuat saat simpan.</div>
-        <small v-if="errorSubmit.customer_id" class="p-error block mt-1">{{ errorSubmit.customer_id[0] }}</small>
-      </div>
+
     </div>
 
     <!-- Invoice Details -->
