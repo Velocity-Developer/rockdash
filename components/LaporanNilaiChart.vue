@@ -11,16 +11,16 @@ const props = defineProps({
   datachart: {
     type: Array,
     required: true,
-    default: () => []
-  }
+    default: () => [] as any
+  } as any
 });
 
-const chartData = ref({});
-const chartOptions = ref({});
+const chartData = ref({} as any);
+const chartOptions = ref({} as any);
 
 const setChartData = () => {
-  const labels = props.datachart?.map(item => item.name?.trim()) ?? ['(kosong)'];
-  const datas = props.datachart?.map(item => item.total) ?? [100];
+  const labels = props.datachart?.map((item: { name?: string }) => item.name?.trim()) ?? ['(kosong)'];
+  const datas = props.datachart?.map((item: { total: number }) => item.total) ?? [100];
 
   return {
     labels,
