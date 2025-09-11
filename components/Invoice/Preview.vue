@@ -34,7 +34,7 @@ function downloadPDF(url: any,nomor: any) {
 }
 
 function openPdf(url: any) {
-  if (process.client) window?.open(url, '_blank')
+  if (import.meta.client) window.open(url, '_blank')
 }
 
 </script>
@@ -52,9 +52,8 @@ function openPdf(url: any) {
             <img v-if="data.unit === 'vcm'" src="/logo-vcm.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
             <img v-else src="/logo-vdi.webp" alt="Logo" style="height: 48px; object-fit: contain;" />
           </div>
-          <div class="text-xl font-semibold mt-2">VD {{ data.nomor }}</div>
+          <div class="text-xl font-semibold mt-4">{{ data.nomor }}</div>
           <div class="text-xs"><Tag :severity="data.status==='lunas'?'success':(data.status==='batal'?'danger':'warning')">{{ data.status }}</Tag></div>
-
         </div>
         <div class="flex flex-col items-end gap-2">
           <div class="flex gap-2">
