@@ -435,6 +435,16 @@ watch(
   }
 )
 
+// Reset tanggal_bayar when status is not 'lunas'
+watch(
+  () => form.status,
+  (newValue) => {
+    if (newValue !== 'lunas') {
+      form.tanggal_bayar = null;
+    }
+  }
+)
+
 // Derive total from subtotal and nominal_pajak
 watch(
   () => [form.subtotal, form.nominal_pajak, form.pajak],
@@ -500,7 +510,7 @@ async function submitForm() {
       nama_pajak: form.nama_pajak || null,
       tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD HH:mm:ss') : null,
       jatuh_tempo: form.jatuh_tempo ? dayjs(form.jatuh_tempo).format('YYYY-MM-DD') : null,
-      tanggal_bayar: form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss') : null,
+      tanggal_bayar: form.status === 'lunas' && form.tanggal_bayar ? dayjs(form.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss') : null,
       subtotal: Number(form.subtotal || 0),
       nominal_pajak: Number(form.nominal_pajak || 0),
       total: Number(form.total || 0),
@@ -686,7 +696,7 @@ function toNumberLocale(v: any): number {
           <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Select status" />
           <small v-if="errorSubmit.status" class="p-error block mt-1">{{ errorSubmit.status[0] }}</small>
         </div>
-        <div>
+        <div v-if="form.status === 'lunas'">
           <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
           <DatePicker v-model="form.tanggal_bayar" showTime hourFormat="24" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
           <small v-if="errorSubmit.tanggal_bayar" class="p-error block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
