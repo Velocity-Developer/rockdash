@@ -150,7 +150,8 @@ function openPdf(url: any) {
 
       <!-- Note -->
       <div v-if="data.note" class="rounded border p-3 text-sm whitespace-pre-line">
-        {{ data.note }}
+        <div>Note</div>
+        <div class="italic opacity-70">{{ data.note }}</div>
       </div>
     </div>
   </div>

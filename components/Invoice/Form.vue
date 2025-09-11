@@ -695,12 +695,12 @@ function toNumberLocale(v: any): number {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
         <div>
           <label class="block text-sm font-medium mb-1">Unit</label>
-          <Select v-model="form.unit" :options="unitOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.unit }" placeholder="Select unit" />
+          <Select v-model="form.unit" :options="unitOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.unit }" placeholder="Pilih unit" />
           <small v-if="errorSubmit.unit" class="text-red-500 block mt-1">{{ errorSubmit.unit[0] }}</small>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Status</label>
-          <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Select status" />
+          <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Pilih status" />
           <small v-if="errorSubmit.status" class="text-red-500 block mt-1">{{ errorSubmit.status[0] }}</small>
         </div>
         <div v-if="form.status === 'lunas'">
@@ -814,7 +814,7 @@ function toNumberLocale(v: any): number {
     <!-- Notes -->
     <div>
       <label class="block text-sm font-medium mb-1">Notes (Optional)</label>
-      <Textarea v-model="form.note" class="w-full" :class="{ 'p-invalid': errorSubmit.note }" placeholder="Add any additional notes or terms..." rows="3" />
+      <Textarea v-model="form.note" class="w-full" :class="{ 'p-invalid': errorSubmit.note }" placeholder="Tambahkan catatan tambahan" rows="3" />
       <small v-if="errorSubmit.note" class="text-red-500 block mt-1">{{ errorSubmit.note[0] }}</small>
     </div>
 
