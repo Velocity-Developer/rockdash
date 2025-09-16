@@ -23,7 +23,7 @@ const { data } = await useAsyncData(
       await new Promise(resolve => setTimeout(resolve, 2000)); // delay 2 detik
       return client('/api/dashboard/chart_tahunini')
     }
-)
+) as any
 
 onMounted(() => {
     chartData.value = setChartData();

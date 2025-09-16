@@ -1,6 +1,9 @@
 <template>
 
-  <div class="flex flex-col md:flex-row gap-5 mb-5">
+  <div v-if="isRoles('webdeveloper')" class="mb-3">    
+    <DashDashboardWelcomeWebdeveloper />
+  </div>
+  <div v-else class="flex flex-col md:flex-row gap-5 mb-5">
     <div class="md:basis-[65%]">
       <DashDashboardWelcome />
     </div>
