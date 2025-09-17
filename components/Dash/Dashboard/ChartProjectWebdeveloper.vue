@@ -4,7 +4,8 @@
       <div class="px-4 py-2">Grafik Project 1 Tahun terakhir</div>
     </template>
     <template #content>
-      <Chart type="pie" :data="chartData" :options="chartOptions" class="h-[30rem]"/>
+      
+      <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]"/>
       
     </template>
   </Card>
