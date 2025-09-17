@@ -205,9 +205,8 @@ const exportToExcel = () => {
   // Add worksheet to workbook
   XLSX.utils.book_append_sheet(wb, ws, 'Siklus Layanan');
 
-  // Generate filename with current date and title
-  const currentDate = dayjs().format('YYYY-MM-DD');
-  const filename = `Siklus_Layanan_${titleDialog.value.replace(/[^a-zA-Z0-9]/g, '_')}_${currentDate}.xlsx`;
+  // Generate filename with filter bulan
+  const filename = `Siklus_Layanan_${titleDialog.value.replace(/[^a-zA-Z0-9]/g, '_')}_${filter.bulan}.xlsx`;
 
   // Save file
   XLSX.writeFile(wb, filename);
