@@ -1,7 +1,9 @@
 <template>
   <Card class="shadow-sm">
     <template #header>
-      <div class="px-4 py-2">Grafik Project 1 Tahun terakhir</div>
+      <div class="px-4 py-2 flex items-center gap-1 font-bold">
+        <Icon name="lucide:chart-bar" /> Grafik Project 1 Tahun terakhir
+      </div>
     </template>
     <template #content>
       

@@ -6,6 +6,9 @@
       <DashDashboardWelcomeWebdeveloper />
     </div>
     <div class="mb-3">    
+      <DashDashboardJurnalWebdeveloper />
+    </div>
+    <div class="mb-3">    
       <DashDashboardChartProjectWebdeveloper />
     </div>
 
