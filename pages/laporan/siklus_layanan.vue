@@ -41,6 +41,22 @@
   </Card>
 
   <Dialog v-model:visible="visibleDialog" modal :header="titleDialog" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    
+    <template #header>
+      <div class="flex justify-between items-center w-full">
+        <span>{{ titleDialog }}</span>
+        <Button 
+          v-if="dataDialog && dataDialog.webhosts" 
+          @click="exportToExcel" 
+          size="small" 
+          severity="danger"
+          class="ml-4"
+        >
+          <Icon name="lucide:download" />
+          Export Excel
+        </Button>
+      </div>
+    </template>
    
     <div v-if="dataDialog && dataDialog.webhosts">
       <DataTable 
@@ -82,6 +98,8 @@
 </template>
 
 <script setup lang="ts">
+import * as XLSX from 'xlsx';
+
 definePageMeta({
     title: 'Laporan Siklus Layanan',
 })
@@ -134,6 +152,65 @@ const openDialog = async (data = {} as any,title = '') => {
   visibleDialog.value = true;
   dataDialog.value = data;
   titleDialog.value = title;
+}
+
+const exportToExcel = () => {
+  if (!dataDialog.value || !dataDialog.value.webhosts) {
+    return;
+  }
+
+  // Prepare data for Excel export
+  const excelData: any[] = [];
+  
+  // Add header row
+  excelData.push(['No', 'Nama Web', 'Jenis Project', 'Tanggal Masuk', 'Nominal']);
+  
+  // Process each webhost and their projects
+  dataDialog.value.webhosts.forEach((webhost: any, webhostIndex: number) => {
+    if (webhost.cs_main_projects && webhost.cs_main_projects.length > 0) {
+      webhost.cs_main_projects.forEach((project: any, projectIndex: number) => {
+        excelData.push([
+          projectIndex === 0 ? webhostIndex + 1 : '', // Show number only on first project
+          projectIndex === 0 ? webhost.nama_web : '', // Show nama_web only on first project
+          project.jenis,
+          project.tgl_masuk,
+          project.dibayar
+        ]);
+      });
+    } else {
+      // If no projects, still show the webhost
+      excelData.push([
+        webhostIndex + 1,
+        webhost.nama_web,
+        '-',
+        '-',
+        '-'
+      ]);
+    }
+  });
+
+  // Create workbook and worksheet
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+  // Set column widths
+  ws['!cols'] = [
+    { wch: 5 },   // No
+    { wch: 30 },  // Nama Web
+    { wch: 25 },  // Jenis Project
+    { wch: 15 },  // Tanggal Masuk
+    { wch: 15 }   // Nominal
+  ];
+
+  // Add worksheet to workbook
+  XLSX.utils.book_append_sheet(wb, ws, 'Siklus Layanan');
+
+  // Generate filename with current date and title
+  const currentDate = dayjs().format('YYYY-MM-DD');
+  const filename = `Siklus_Layanan_${titleDialog.value.replace(/[^a-zA-Z0-9]/g, '_')}_${currentDate}.xlsx`;
+
+  // Save file
+  XLSX.writeFile(wb, filename);
 }
 
 </script>
