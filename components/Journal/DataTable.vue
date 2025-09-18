@@ -2,7 +2,7 @@
   <Card>
     <template #content>
       
-      <DataTable :value="data" stripedRows responsiveLayout="scroll" class="p-datatable-sm">
+      <DataTable :value="data" stripedRows responsiveLayout="scroll" size="small" class="text-sm">
         <Column field="title" header="Judul" :sortable="true">
           <template #body="slotProps">
             <div class="flex flex-col gap-1">
@@ -64,7 +64,7 @@
           </template>
         </Column>
         
-        <Column field="webhost.nama_web" header="Webhost" :sortable="true" style="width: 150px">
+        <Column field="webhost.nama_web" header="Web" :sortable="true" style="width: 150px">
           <template #body="slotProps">
             <div class="flex items-center gap-1 text-xs" v-if="slotProps.data.webhost?.nama_web">
               <Icon name="lucide:globe" class="w-3 h-3"/>

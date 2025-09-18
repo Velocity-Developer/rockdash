@@ -1,13 +1,17 @@
 <template>
   
   <!-- Filter untuk desktop -->
-  <div class="hidden md:flex justify-between items-center gap-2 mb-2">
+  <div class="hidden md:block mb-2">
     <!-- View Toggle -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center justify-end gap-2 mb-1">
       <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" @change="toggleView" size="small"/>
+      <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+        <Icon name="lucide:plus" />
+        Tambah
+      </Button>
     </div>
     
-    <div class="flex items-center gap-2">
+    <div class="flex items-center justify-end gap-2">
       <Select v-model="filters.role" :options="opsiRoles" showClear optionValue="value" optionLabel="label" size="small" placeholder="Pilih Role">
       </Select>
       <Select v-model="filters.user_id" :options="opsiUsers" showClear filter optionValue="value" optionLabel="label" size="small" required>
@@ -23,10 +27,6 @@
       <Button @click="getData()" size="small" :loading="loading" severity="info">
         <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
         Refresh
-      </Button>
-      <Button @click="openFormDialog('add','')" size="small" :loading="loading">
-        <Icon name="lucide:plus" />
-        Tambah
       </Button>
     </div>
   </div>
@@ -116,8 +116,8 @@
         <Button @click="openFormDialog('edit', selectedPreviewItem)" size="small">
           <Icon name="lucide:pen" /> Edit
         </Button>
-        <Button @click="visiblePreviewDialog = false" size="small">
-          Tutup
+        <Button severity="contrast" @click="visiblePreviewDialog = false" size="small">
+          <Icon name="lucide:x" /> Tutup
         </Button>
       </div>
     </template>
@@ -184,7 +184,7 @@ const filters = reactive({
   date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
   date_end: dayjs().format('YYYY-MM-DD'),
   role: '',
-  user_id: useConfig.config?.user?.id,
+  user_id: useConfig.config?.role != 'admin' ? useConfig.config?.user?.id : '',
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
   order: 'asc',
