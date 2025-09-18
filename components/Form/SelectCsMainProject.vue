@@ -6,7 +6,7 @@
       <Button 
         @click="showDialog = true" 
         variant="outlined" 
-        class="flex-1 !justify-start"
+        class="flex-1 !justify-start bg-white dark:bg-gray-950"
         :class="{ '!text-gray-400': !selectedCsMainProject }"
       >
         <span v-if="selectedCsMainProject">{{ selectedCsMainProject.jenis }} - {{ selectedCsMainProject.webhost?.nama_web }}</span>

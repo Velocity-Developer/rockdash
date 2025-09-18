@@ -4,7 +4,7 @@
     <Button 
       @click="showDialog = true" 
       variant="outlined" 
-      class="w-full !justify-start"
+      class="w-full !justify-start bg-white dark:bg-gray-950"
       :class="{ '!text-gray-400': !selectedWebhost }"
     >
       <span v-if="selectedWebhost">{{ selectedWebhost.nama_web }}</span>

@@ -2,9 +2,9 @@
   <form @submit.prevent="handleSubmit">
     <div class="grid grid-cols-6 gap-2">
 
-      <div class="col-span-6 bg-sky-50 dark:bg-sky-950 dark:border-sky-900 border border-sky-300 p-4 rounded-lg mb-3">
-        <div class="font-medium flex items-center gap-1 text-sky-600 dark:text-sky-100 mb-3">
-          <Icon name="lucide:user-circle" />
+      <div class="col-span-6 mb-6 pb-5 border-b border-gray-100 dark:border-gray-700">
+        <div class="font-bold flex items-center gap-1 mb-3">
+          <Icon name="lucide:user-star" class="text-sky-600 dark:text-sky-100 text-xl"/>
           User
         </div>
         <div class="grid grid-cols-2 gap-2">
@@ -28,57 +28,52 @@
         </div>
       </div>
 
-      
-      
-      <div class="col-span-6">
-        <div class="block text-sm font-medium opacity-70">Judul</div>
-        <InputText v-model="form.title" class="w-full" required/>
-        <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
+      <div class="col-span-6 mb-6 pb-5 border-b border-gray-100 dark:border-gray-700">
+        <div class="font-bold flex items-center gap-1 mb-3">
+          <Icon name="lucide:square-user" class=" text-indigo-600 dark:text-indigo-100 text-xl" />
+          Info Klien
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div v-if="isDetailSupport" class="col-span-2 md:col-span-1">
+            <div class="block text-sm font-medium opacity-70">No.HP</div>
+            <InputText v-model="form.detail_support.hp" class="w-full"/>
+            <Message v-if="errors.detail_support?.hp" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.hp[0] }}</Message>
+          </div>
+          <div v-if="isDetailSupport" class="col-span-2 md:col-span-1">
+            <div class="block text-sm font-medium opacity-70">WhatsApp</div>
+            <Select v-model="form.detail_support.wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" placeholder="Pilih WA/Tsel" optionValue="value" class="w-full"/>
+            <Message v-if="errors.detail_support?.wa" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.wa[0] }}</Message>
+          </div>
+          <div class="mb-3 col-span-2 md:col-span-1">
+            <div class="block text-sm font-medium opacity-70">Webhost</div>
+            <FormSelectWebhost v-model="form.webhost_id" />
+            <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
+          </div>
+          <div class="mb-3 col-span-2 md:col-span-1">
+            <div class="block text-sm font-medium opacity-70">Project</div>
+            <FormSelectCsMainProject 
+              v-model="form.cs_main_project_id" 
+              :webhost-id="form.webhost_id" 
+            />
+            <Message v-if="errors.cs_main_project_id" severity="error" size="small" class="mt-1" closable>{{ errors.cs_main_project_id[0] }}</Message>
+          </div>
+        </div>
       </div>
-      
-      <div class="mb-3 col-span-6 md:col-span-3">
-        <div class="block text-sm font-medium opacity-70">Webhost</div>
-        <FormSelectWebhost v-model="form.webhost_id" />
-        <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
-      </div>
-      <div class="mb-3 col-span-6 md:col-span-3">
-        <div class="block text-sm font-medium opacity-70">Project</div>
-        <FormSelectCsMainProject 
-          v-model="form.cs_main_project_id" 
-          :webhost-id="form.webhost_id" 
-        />
-        <Message v-if="errors.cs_main_project_id" severity="error" size="small" class="mt-1" closable>{{ errors.cs_main_project_id[0] }}</Message>
-      </div>
-
-      <div class="col-span-6">
-        <div class="block text-sm font-medium opacity-70">Deskripsi</div>
-        <Textarea v-model="form.description" class="w-full" rows="6"></Textarea>
-        <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
-      </div>
-      <div class="col-span-3 md:col-span-3">
-        <div class="block text-sm font-medium opacity-70">Mulai</div>
-        <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" showIcon/>
-        <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
-      </div>
-      <div class="col-span-3 md:col-span-3">
-        <div class="block text-sm font-medium opacity-70">Selesai</div>
-        <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" showIcon/>
-        <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
-      </div>
-      <div class="col-span-6 md:col-span-2">
-        <div class="block text-sm font-medium opacity-70">Status</div>
-        <Select 
-          v-model="form.status" 
-          :options="[{ label: 'Proses', value: 'ongoing' },{ label: 'Selesai', value: 'completed' },{ label: 'Batal', value: 'cancelled' }]" 
-          optionLabel="label" optionValue="value" placeholder="Semua Status"
-          class="w-full"
-        />
-        <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
-      </div>
-
-      <div class="col-span-6 md:col-span-2">
+            
+      <div class="col-span-6 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Kategori</div>
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
+          <template #value="slotProps">
+            <div class="flex items-center gap-2">
+                <span v-if="kategoriSelectedInfo.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700">
+                  {{ kategoriSelectedInfo.icon }}
+                </span>
+                <div>
+                  {{ kategoriSelectedInfo.name }}
+                  <div class="text-xs opacity-50">{{ kategoriSelectedInfo.role }}</div>
+                </div>
+              </div>
+          </template>
           <template #option="slotProps">
               <div class="flex items-center gap-2">
                 <span v-if="slotProps.option.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700">
@@ -93,7 +88,52 @@
         </Select>
         <Message v-if="errors.journal_category_id" severity="error" size="small" class="mt-1" closable>{{ errors.journal_category_id[0] }}</Message>
       </div>
-      <div class="col-span-6 md:col-span-2">
+      
+      <div class="col-span-6 md:col-span-3">
+        <div class="block text-sm font-medium opacity-70">Status</div>
+        <div class="flex items-center gap-2 justify-between">
+          <span class="text-2xl bg-indigo-100 p-2 rounded">
+            <Icon name="lucide:check" class="text-green-600" v-if="form.status === 'completed'"/>
+            <Icon name="lucide:x" class="text-red-600" v-if="form.status === 'cancelled'"/>
+            <Icon name="lucide:clock" class="text-yellow-600" v-if="form.status === 'ongoing'"/>
+          </span>
+          <SelectButton 
+            v-model="form.status" 
+            :options="[{ label: 'Proses', value: 'ongoing' },{ label: 'Selesai', value: 'completed' },{ label: 'Batal', value: 'cancelled' }]" 
+            optionLabel="label" optionValue="value" placeholder="Semua Status"
+            class="w-full h-[55px]"
+          />
+        </div>
+        <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
+      </div>
+            
+      <div class="col-span-6 mt-6">
+        <div class="block text-sm font-medium opacity-70">Judul</div>
+        <InputText v-model="form.title" class="w-full" required/>
+        <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
+      </div>
+      <div class="col-span-3 md:col-span-3">
+        <div class="block text-sm font-medium opacity-70">
+          Waktu Mulai
+        </div>
+        <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" showIcon/>
+        <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
+      </div>
+      <div class="col-span-3 md:col-span-3">
+        <div class="block text-sm font-medium opacity-70">
+          Waktu Selesai
+        </div>
+        <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" showIcon/>
+        <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
+      </div>
+      
+      <div class="col-span-6">
+        <div class="block text-sm font-medium opacity-70">Deskripsi</div>
+        <Textarea v-model="form.description" class="w-full" rows="6"></Textarea>
+        <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
+      </div>
+      
+      <div v-if="isDetailSupport == false" class="col-span-6 md:col-span-2">
         <div class="block text-sm font-medium opacity-70">Prioritas</div>
         <SelectButton 
           v-model="form.priority" 
@@ -114,17 +154,7 @@
           Info Support
         </div>
         <div class="grid grid-cols-2 gap-3">
-
-          <div class="col-span-1">
-            <div class="block text-sm font-medium opacity-70">No.HP</div>
-            <InputText v-model="form.detail_support.hp" class="w-full"/>
-            <Message v-if="errors.detail_support?.hp" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.hp[0] }}</Message>
-          </div>
-          <div class="col-span-1">
-            <div class="block text-sm font-medium opacity-70">WhatsApp</div>
-            <Select v-model="form.detail_support.wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" optionValue="value" class="w-full"/>
-            <Message v-if="errors.detail_support?.wa" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.wa[0] }}</Message>
-          </div>
+          
           <div class="col-span-1">
             <div class="block text-sm font-medium opacity-70">Email</div>
             <InputText v-model="form.detail_support.email" type="email" class="w-full"/>
@@ -228,6 +258,12 @@ const form = reactive({
   } : null
 }) as any
 
+const kategoriSelectedInfo = ref({} as any)
+//watch form.journal_category_id
+watch(() => form.journal_category_id, (newCategoryId) => {
+  kategoriSelectedInfo.value = opsiCategories.value.find((category: any) => category.id === form.journal_category_id)
+})
+
 // Watcher untuk user_id changes - update role berdasarkan user yang dipilih
 watch(() => form.user_id, (newUserId) => {
   if (props.action === 'add' && newUserId && opsiUsers.value) {
@@ -263,6 +299,11 @@ onMounted( async () => {
     try {
       const res = await client('/api/journal/' + props.item.id) as any
       Object.assign(form, res)
+
+      //jika res.role kosong,maka ambil role dari user
+      if(!res.role) {
+        form.role = res.user.user_roles?.[0] || ''
+      }
       
       // Pastikan detail_support diinisialisasi dengan benar
       if (!form.detail_support) {
