@@ -218,7 +218,7 @@ const form = reactive({
   cs_main_project_id: '',
   journal_category_id: '',
   id: '',
-  role: useConfig.config?.role,
+  role: props.action === 'add' ? useConfig.config?.role : '',
   detail_support: useConfig.config?.role === 'support' ? {
     hp: '',
     wa: '',
@@ -227,6 +227,16 @@ const form = reactive({
     tanggal_bayar: ''
   } : null
 }) as any
+
+// Watcher untuk user_id changes - update role berdasarkan user yang dipilih
+watch(() => form.user_id, (newUserId) => {
+  if (props.action === 'add' && newUserId && opsiUsers.value) {
+    const selectedUser = opsiUsers.value.find((user: any) => user.value === newUserId)
+    if (selectedUser && selectedUser.roles && selectedUser.roles.length > 0) {
+      form.role = selectedUser.roles // Ambil role pertama dari user
+    }
+  }
+})
 
 // Watcher untuk role changes
 watch(() => form.role, (newRole) => {
