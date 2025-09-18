@@ -122,7 +122,7 @@
           </div>
           <div class="col-span-1">
             <div class="block text-sm font-medium opacity-70">WhatsApp</div>
-            <InputText v-model="form.detail_support.wa" class="w-full"/>
+            <Select v-model="form.detail_support.wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" optionValue="value" class="w-full"/>
             <Message v-if="errors.detail_support?.wa" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.wa[0] }}</Message>
           </div>
           <div class="col-span-1">
