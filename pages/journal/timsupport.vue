@@ -25,19 +25,6 @@
               </div>
           </template>
         </Column>
-        <Column field="user.name" header="User" style="width: 60px">
-          <template #body="slotProps">
-            <div class="flex justify-center">
-              <Avatar 
-                :image="slotProps.data.user?.avatar_url" 
-                shape="circle" 
-                size="small" 
-                class="w-8 h-8" 
-                v-tooltip.top="slotProps.data.user?.name"
-              />
-            </div>
-          </template>
-        </Column>
         <Column field="hp" header="Hp" :sortable="false">
           <template #body="slotProps">            
             <template v-if="slotProps.data.detail_support?.hp">
@@ -59,11 +46,41 @@
             </template>
           </template>
         </Column>
-        <Column field="webhost.nama_web" header="Web" :sortable="false">
+        <Column field="start" header="Masuk" :sortable="false">
           <template #body="slotProps">           
-            <template v-if="slotProps.data.webhost?.nama_web">
-              {{ slotProps.data.webhost?.nama_web }}
+            <template v-if="slotProps.data.start">
+              {{ formatDate(slotProps.data.start,'DD/MM/YY HH:mm') }}
             </template>
+          </template>
+        </Column>
+        <Column field="end" header="Selesai" :sortable="false">
+          <template #body="slotProps">           
+            <template v-if="slotProps.data.end">
+              {{ formatDate(slotProps.data.end,'DD/MM/YY HH:mm') }}
+            </template>
+          </template>
+        </Column>
+        <Column field="bayar" header="Bayar" :sortable="false">
+          <template #body="slotProps">           
+              {{ slotProps.data.detail_support?.bayar }}
+          </template>
+        </Column>
+        <Column field="status" header="Status" :sortable="false">
+          <template #body="slotProps">
+              <JournalBadgeStatus :status="slotProps.data.status" />
+          </template>
+        </Column>
+        <Column field="user.name" header="User" style="width: 60px">
+          <template #body="slotProps">
+            <div class="flex justify-center">
+              <Avatar 
+                :image="slotProps.data.user?.avatar_url" 
+                shape="circle" 
+                size="small" 
+                class="w-8 h-8" 
+                v-tooltip.top="slotProps.data.user?.name"
+              />
+            </div>
           </template>
         </Column>
       </DataTable>

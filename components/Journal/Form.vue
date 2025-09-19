@@ -2,7 +2,7 @@
   <form @submit.prevent="handleSubmit">
     <div class="grid grid-cols-6 gap-2">
 
-      <div class="col-span-6 mb-6 pb-5 border-b border-gray-100 dark:border-gray-700">
+      <div class="col-span-6 mb-6 rounded-md p-5 bg-sky-100 dark:bg-sky-950">
         <div class="font-bold flex items-center gap-1 mb-3">
           <Icon name="lucide:user-star" class="text-sky-600 dark:text-sky-100 text-xl"/>
           User
@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      <div class="col-span-6 mb-6 pb-5 border-b border-gray-100 dark:border-gray-700">
+      <div class="col-span-6 mb-6 rounded-md p-5 bg-indigo-100 dark:bg-indigo-950">
         <div class="font-bold flex items-center gap-1 mb-3">
           <Icon name="lucide:square-user" class=" text-indigo-600 dark:text-indigo-100 text-xl" />
           Info Klien
@@ -44,12 +44,18 @@
             <Select v-model="form.detail_support.wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" placeholder="Pilih WA/Tsel" optionValue="value" class="w-full"/>
             <Message v-if="errors.detail_support?.wa" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.wa[0] }}</Message>
           </div>
+          <div v-if="isDetailSupport" class="col-span-2 md:col-span-1">
+            <div class="block text-sm font-medium opacity-70">Email</div>
+            <InputText v-model="form.detail_support.email" type="email" class="w-full"/>
+            <Message v-if="errors.detail_support?.email" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.email[0] }}</Message>
+          </div>
+
           <div class="mb-3 col-span-2 md:col-span-1">
-            <div class="block text-sm font-medium opacity-70">Webhost</div>
+            <div class="block text-sm font-medium opacity-70">Website</div>
             <FormSelectWebhost v-model="form.webhost_id" />
             <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
           </div>
-          <div class="mb-3 col-span-2 md:col-span-1">
+          <div v-if="isDetailSupport == false" class="mb-3 col-span-2 md:col-span-1">
             <div class="block text-sm font-medium opacity-70">Project</div>
             <FormSelectCsMainProject 
               v-model="form.cs_main_project_id" 
@@ -61,10 +67,11 @@
       </div>
             
       <div class="col-span-6 md:col-span-3">
+        {{ kategoriSelectedInfo }}
         <div class="block text-sm font-medium opacity-70">Kategori</div>
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
           <template #value="slotProps">
-            <div class="flex items-center gap-2">
+            <div v-if="slotProps.value" class="flex items-center gap-2">
                 <span v-if="kategoriSelectedInfo.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700">
                   {{ kategoriSelectedInfo.icon }}
                 </span>
@@ -72,7 +79,7 @@
                   {{ kategoriSelectedInfo.name }}
                   <div class="text-xs opacity-50">{{ kategoriSelectedInfo.role }}</div>
                 </div>
-              </div>
+            </div>
           </template>
           <template #option="slotProps">
               <div class="flex items-center gap-2">
@@ -92,17 +99,22 @@
       <div class="col-span-6 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">Status</div>
         <div class="flex items-center gap-2 justify-between">
-          <span class="text-2xl bg-indigo-100 p-2 rounded">
-            <Icon name="lucide:check" class="text-green-600" v-if="form.status === 'completed'"/>
-            <Icon name="lucide:x" class="text-red-600" v-if="form.status === 'cancelled'"/>
-            <Icon name="lucide:clock" class="text-yellow-600" v-if="form.status === 'ongoing'"/>
-          </span>
           <SelectButton 
             v-model="form.status" 
             :options="[{ label: 'Proses', value: 'ongoing' },{ label: 'Selesai', value: 'completed' },{ label: 'Batal', value: 'cancelled' }]" 
             optionLabel="label" optionValue="value" placeholder="Semua Status"
             class="w-full h-[55px]"
           />
+          <span class="text-2xl flex items-center p-2 rounded-full text-white"
+          :class="[
+            { 'bg-green-500': form.status === 'completed' },
+            { 'bg-red-500': form.status === 'cancelled' },
+            { 'bg-amber-500 animate-pulse': form.status === 'ongoing' }
+          ]">
+            <Icon name="lucide:check-line" v-if="form.status === 'completed'"/>
+            <Icon name="lucide:x" v-if="form.status === 'cancelled'"/>
+            <Icon name="lucide:hourglass" v-if="form.status === 'ongoing'"/>
+          </span>
         </div>
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
@@ -113,15 +125,21 @@
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
       </div>
       <div class="col-span-3 md:col-span-3">
-        <div class="block text-sm font-medium opacity-70">
-          Waktu Mulai
+        <div class="block text-sm font-medium opacity-70">          
+          <template v-if="kategoriSelectedInfo && ['Panduan','Konsultasi Update','Pengerjaan Update','Trouble'].includes(kategoriSelectedInfo.name)">
+            Chat
+          </template>
+          <template v-else>Waktu</template> Mulai
         </div>
         <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" showIcon/>
         <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
       </div>
       <div class="col-span-3 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">
-          Waktu Selesai
+          <template v-if="kategoriSelectedInfo && ['Panduan','Konsultasi Update','Pengerjaan Update','Trouble'].includes(kategoriSelectedInfo.name)">
+            Chat
+          </template>
+          <template v-else>Waktu</template> Selesai
         </div>
         <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" showIcon/>
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
@@ -155,11 +173,6 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           
-          <div class="col-span-1">
-            <div class="block text-sm font-medium opacity-70">Email</div>
-            <InputText v-model="form.detail_support.email" type="email" class="w-full"/>
-            <Message v-if="errors.detail_support?.email" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.email[0] }}</Message>
-          </div>
           <div class="col-span-1">
             <div class="block text-sm font-medium opacity-70">Biaya</div>
             <InputNumber :minFractionDigits="0" v-model="form.detail_support.biaya" type="number" class="w-full"/>

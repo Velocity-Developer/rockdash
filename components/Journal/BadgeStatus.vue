@@ -14,19 +14,19 @@ const props = defineProps({
 
 const statuses = {
   ongoing: {
-    label: 'Ongoing',
+    label: 'Proses',
     severity: 'info'
   },
   completed: {
-    label: 'Completed',
+    label: 'Selesai',
     severity: 'success'
   },
   cancelled: {
-    label: 'Cancelled',
+    label: 'Batal',
     severity: 'danger'
   },
   archived: {
-    label: 'Archived',
+    label: 'Arsip',
     severity: 'warning'
   },
   draft: {
