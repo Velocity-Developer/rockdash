@@ -292,10 +292,10 @@ watch(() => form.journal_category_id, (newCategoryId) => {
 
 // Watcher untuk user_id changes - update role berdasarkan user yang dipilih
 watch(() => form.user_id, (newUserId) => {
-  if (props.action === 'add' && newUserId && opsiUsers.value && opsiUsers.value.length > 0) {
+  if (newUserId && opsiUsers.value && opsiUsers.value.length > 0) {
     const selectedUser = opsiUsers.value.find((user: any) => user.value === newUserId)
-    if (selectedUser && selectedUser.roles && selectedUser.roles.length > 0) {
-      form.role = selectedUser.roles[0] // Ambil role pertama dari user
+    if (selectedUser && selectedUser.role ) {
+      form.role = selectedUser.role // Ambil role dari user
     }
   }
 })
