@@ -205,8 +205,14 @@ const selectedItem = ref({} as any);
 const actionFormDialog = ref('add');
 const openFormDialog = (action: string, item: any) => {
   visibleFormDialog.value = true;
-  selectedItem.value = item;
   actionFormDialog.value = action;
+  if(item) {
+    selectedItem.value = item;
+  } else {
+    selectedItem.value = {};
+  }
+  // Tutup preview dialog jika sedang terbuka
+  visiblePreviewDialog.value = false;
 }
 
 const deletedJournal = () => {

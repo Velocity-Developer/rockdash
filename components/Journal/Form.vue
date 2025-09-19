@@ -230,7 +230,11 @@ const useConfig = useConfigStore()
 
 const { data: opsiUsers } = await useAsyncData(
   'opsi-users-formjournal', 
-  () => client('/api/data_opsi/users'),
+  () => client('/api/data_opsi/users',{
+    params: {
+      role: props.action === 'add' && props.defaultRole ? props.defaultRole : ''
+    },
+  }),
   { default: () => [] }
 ) as any
 const { data: opsiRoles } = await useAsyncData(
