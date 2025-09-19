@@ -181,7 +181,7 @@ const route = useRoute();
 const router = useRouter();
 const useConfig = useConfigStore()
 const defaultUser = () => {
-  if(useConfig.config?.role === 'admin'&& !route.query.user_id) {
+  if(useConfig.config?.role === 'admin') {
     return ''
   } else {
     return useConfig.config?.user?.id
@@ -192,7 +192,7 @@ const filters = reactive({
   date_start: route.query.date_start || dayjs().startOf('month').format('YYYY-MM-DD'),  
   date_end: route.query.date_end || dayjs().format('YYYY-MM-DD'),
   role: route.query.role || '',
-  user_id: route.query.user_id || defaultUser,
+  user_id: route.query.user_id || defaultUser(),
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: route.query.page ? true : false,
   order: 'asc',
@@ -321,10 +321,10 @@ onMounted(() => {
   getData();
 });
 
-//watch user_id
+//watch user_id - hanya update jika tidak ada route.query.user_id
 watch(() => useConfig.config?.user?.id, (newVal) => {
-  if(newVal) {
-    filters.user_id = newVal
+  if(newVal && !route.query.user_id) {
+    filters.user_id = defaultUser()
     getData()
   }
 })
