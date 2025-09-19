@@ -36,7 +36,7 @@
             </template>
           </template>
         </Column>
-        <Column field="wa" header="WA" :sortable="false">
+        <Column field="wa" header="WA"  class="hidden md:table-cell">
           <template #body="slotProps">           
             <template v-if="slotProps.data.detail_support?.wa">
               {{ slotProps.data.detail_support?.wa }}
@@ -58,15 +58,30 @@
           </template>
         </Column>
         <Column field="end" header="Selesai" :sortable="false">
-          <template #body="slotProps">           
+          <template #body="slotProps">
             <template v-if="slotProps.data.end">
               {{ formatDate(slotProps.data.end,'DD/MM/YY HH:mm') }}
             </template>
           </template>
         </Column>
-        <Column field="bayar" header="Bayar" :sortable="false">
+        <Column field="description" header="Detail" class="hidden md:table-cell">
+          <template #body="slotProps">         
+            <div class="truncate text-xs w-[150px]" v-tooltip="slotProps.data.description">
+              {{ slotProps.data.description }}
+            </div>  
+          </template>
+        </Column>
+        <Column field="biaya" header="Biaya" :sortable="false">
           <template #body="slotProps">           
-              {{ slotProps.data.detail_support?.bayar }}
+              <template v-if="slotProps.data.detail_support?.biaya">
+                {{ formatMoney(slotProps.data.detail_support?.biaya,'Rp',0) }}
+                <div class="text-xs text-green-500" v-if="slotProps.data.detail_support?.tanggal_bayar" v-tooltip="'Sudah dibayar'">
+                  <Icon name="lucide:circle-check" class="opacity-50"/> {{ formatDate(slotProps.data.detail_support?.tanggal_bayar,'DD/MM/YY HH:mm') }}
+                </div>
+              </template>
+              <template v-else>
+                <Icon name="lucide:circle-x" class="opacity-50"/>
+              </template>
           </template>
         </Column>
         <Column field="status" header="Status" :sortable="false">
