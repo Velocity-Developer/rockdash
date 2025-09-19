@@ -118,11 +118,12 @@
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
             
-      <div class="col-span-6 mt-6">
+      <div v-if="isDetailSupport == false" class="col-span-6 mt-6">
         <div class="block text-sm font-medium opacity-70">Judul</div>
         <InputText v-model="form.title" class="w-full" required/>
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
       </div>
+
       <div class="col-span-3 md:col-span-3">
         <div class="block text-sm font-medium opacity-70">          
           <template v-if="kategoriSelectedInfo && ['Panduan','Konsultasi Update','Pengerjaan Update','Trouble'].includes(kategoriSelectedInfo.name)">
@@ -162,13 +163,11 @@
         <Message v-if="errors.priority" severity="error" size="small" class="mt-1" closable>{{ errors.priority[0] }}</Message>
       </div>
 
-      <!-- Journal Detail Support -->
-       <div v-if="isDetailSupport" class="col-span-6 bg-indigo-50 dark:bg-indigo-950 dark:border-indigo-900 border border-indigo-300 p-4 rounded-lg my-3">
-        <div class="font-medium flex items-center gap-1 text-indigo-600 dark:text-indigo-100 mb-3">
-          <span class="text-2xl">
-            🤝
-          </span>
-          Info Support
+      <!-- Journal Detail Support Biaya -->
+       <div v-if="isDetailSupport && kategoriSelectedInfo && ['Konsultasi Update','Trouble'].includes(kategoriSelectedInfo.name)" class="col-span-6 mb-6 rounded-md p-5 bg-emerald-50 dark:bg-emerald-950">
+        <div class="font-bold flex items-center gap-1 mb-3">
+          <Icon name="lucide:wallet" class=" text-emerald-600 dark:text-emerald-100 text-xl" />
+          Biaya Support
         </div>
         <div class="grid grid-cols-2 gap-3">
           
@@ -276,6 +275,11 @@ const kategoriSelectedInfo = ref({} as any)
 //watch form.journal_category_id
 watch(() => form.journal_category_id, (newCategoryId) => {
   kategoriSelectedInfo.value = opsiCategories.value.find((category: any) => category.id === form.journal_category_id)
+
+  //jika form.role = support, isi title dengan kategoriSelectedInfo.value.name + nama webhost
+  if(form.role == 'support' && kategoriSelectedInfo.value) {
+    form.title = 'Support '+kategoriSelectedInfo.value.name 
+  }
 })
 
 // Watcher untuk user_id changes - update role berdasarkan user yang dipilih
