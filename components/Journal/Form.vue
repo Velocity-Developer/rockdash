@@ -67,11 +67,10 @@
       </div>
             
       <div class="col-span-6 md:col-span-3">
-        {{ kategoriSelectedInfo }}
         <div class="block text-sm font-medium opacity-70">Kategori</div>
         <Select v-model="form.journal_category_id" :options="opsiCategories" optionLabel="name" optionValue="id" placeholder="Semua Kategori" class="w-full">
           <template #value="slotProps">
-            <div v-if="slotProps.value" class="flex items-center gap-2">
+            <div v-if="slotProps.value && kategoriSelectedInfo" class="flex items-center gap-2">
                 <span v-if="kategoriSelectedInfo.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-md bg-indigo-400 dark:bg-indigo-700">
                   {{ kategoriSelectedInfo.icon }}
                 </span>
@@ -227,12 +226,14 @@ const dateNow = new Date();
 const useConfig = useConfigStore()
 
 const { data: opsiUsers } = await useAsyncData(
-  'opsi-users', 
+  'opsi-users-formjournal', 
   () => client('/api/data_opsi/users'),
+  { default: () => [] }
 ) as any
 const { data: opsiRoles } = await useAsyncData(
-  'opsi-roles', 
+  'opsi-roles-formjournal', 
   () => client('/api/option/roles'),
+  { default: () => [] }
 ) as any
 
 const opsiCategories = ref([] as any)
@@ -279,10 +280,10 @@ watch(() => form.journal_category_id, (newCategoryId) => {
 
 // Watcher untuk user_id changes - update role berdasarkan user yang dipilih
 watch(() => form.user_id, (newUserId) => {
-  if (props.action === 'add' && newUserId && opsiUsers.value) {
+  if (props.action === 'add' && newUserId && opsiUsers.value && opsiUsers.value.length > 0) {
     const selectedUser = opsiUsers.value.find((user: any) => user.value === newUserId)
     if (selectedUser && selectedUser.roles && selectedUser.roles.length > 0) {
-      form.role = selectedUser.roles // Ambil role pertama dari user
+      form.role = selectedUser.roles[0] // Ambil role pertama dari user
     }
   }
 })
@@ -311,15 +312,37 @@ onMounted( async () => {
     //get detail journal
     try {
       const res = await client('/api/journal/' + props.item.id) as any
-      Object.assign(form, res)
+      
+      // Assign specific fields instead of using Object.assign
+      form.id = res.id
+      form.title = res.title || ''
+      form.description = res.description || ''
+      form.start = res.start ? new Date(res.start) : new Date()
+      form.end = res.end ? new Date(res.end) : ''
+      form.status = res.status || 'ongoing'
+      form.priority = res.priority || 'medium'
+      form.user_id = res.user_id
+      form.webhost_id = res.webhost_id
+      form.cs_main_project_id = res.cs_main_project_id
+      form.journal_category_id = res.journal_category_id
 
       //jika res.role kosong,maka ambil role dari user
       if(!res.role) {
         form.role = res.user.user_roles?.[0] || ''
+      } else {
+        form.role = res.role
       }
       
-      // Pastikan detail_support diinisialisasi dengan benar
-      if (!form.detail_support) {
+      // Handle detail_support
+      if (res.detail_support) {
+        form.detail_support = {
+          hp: res.detail_support.hp || '',
+          wa: res.detail_support.wa || '',
+          email: res.detail_support.email || '',
+          biaya: res.detail_support.biaya || '',
+          tanggal_bayar: res.detail_support.tanggal_bayar || ''
+        }
+      } else if (form.role === 'support') {
         form.detail_support = {
           hp: '',
           wa: '',
@@ -327,21 +350,23 @@ onMounted( async () => {
           biaya: '',
           tanggal_bayar: ''
         }
-      } else {
-        // Pastikan semua field ada
-        form.detail_support = {
-          hp: form.detail_support.hp || '',
-          wa: form.detail_support.wa || '',
-          email: form.detail_support.email || '',
-          biaya: form.detail_support.biaya || '',
-          tanggal_bayar: form.detail_support.tanggal_bayar || ''
-        }
       }
+
+      // Load categories first, then set kategoriSelectedInfo
+      await getCategories()
+      
+      // Set kategoriSelectedInfo after categories are loaded
+      if (form.journal_category_id) {
+        kategoriSelectedInfo.value = opsiCategories.value.find((category: any) => category.id === form.journal_category_id)
+      }
+      
     } catch (error) {
       console.log(error);
     }
+  } else {
+    // For add mode, just load categories
+    await getCategories()
   }
-  getCategories()
 })
 const errors = ref('' as any)
 const loading = ref(false);
