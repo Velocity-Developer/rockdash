@@ -27,7 +27,7 @@ const statuses = {
   },
   archived: {
     label: 'Arsip',
-    severity: 'warning'
+    severity: 'contrast'
   },
   draft: {
     label: 'Draft',
