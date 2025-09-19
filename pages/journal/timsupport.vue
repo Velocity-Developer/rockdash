@@ -18,7 +18,7 @@
          <Column field="journal_category" header="Kategori" :sortable="false">
           <template #body="slotProps">
             <div class="flex items-start gap-2">
-                <span v-tooltip="slotProps.data.journal_category?.name" class="w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-1 rounded-full">
+                <span v-tooltip="slotProps.data.journal_category?.name" class="w-5 h-5 flex items-center justify-center bg-indigo-200 dark:bg-indigo-800 text-sm p-1 rounded-full">
                   {{ slotProps.data.journal_category?.icon }}
                 </span>
                 <div>
