@@ -178,17 +178,32 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const client = useSanctumClient();
 const route = useRoute();
+const router = useRouter();
 const useConfig = useConfigStore()
+const defaultUser = () => {
+  if(useConfig.config?.role === 'admin'&& !route.query.user_id) {
+    return ''
+  } else {
+    return useConfig.config?.user?.id
+  }
+}
 
 const filters = reactive({
-  date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
-  date_end: dayjs().format('YYYY-MM-DD'),
-  role: '',
-  user_id: useConfig.config?.role != 'admin' ? useConfig.config?.user?.id : '',
+  date_start: route.query.date_start || dayjs().startOf('month').format('YYYY-MM-DD'),  
+  date_end: route.query.date_end || dayjs().format('YYYY-MM-DD'),
+  role: route.query.role || '',
+  user_id: route.query.user_id || defaultUser,
   page: route.query.page ? Number(route.query.page) : 1,
-  pagination: true,
+  pagination: route.query.page ? true : false,
   order: 'asc',
 }) as any
+
+// Fungsi untuk mengubah params filters menjadi query URL route
+function updateRouteParams() {
+  router.push({
+    query: { ...filters },
+  });
+}
 
 const { data: opsiUsers } = await useAsyncData(
   'opsi-users', 
@@ -233,6 +248,9 @@ const getData = async () => {
       console.log(error);
     }
     loading.value = false;
+
+    // Update route params setelah data diambil
+    updateRouteParams();
 }
 const onPaginate = (event: { page: number }) => {
     filters.page = event.page + 1;
