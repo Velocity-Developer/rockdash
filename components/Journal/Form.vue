@@ -206,6 +206,10 @@
 
 <script setup lang="ts">
 const props = defineProps({
+  defaultRole: {
+    type: String,
+    default: ''
+  },
   action: {
     type: String,
     default: 'add'
@@ -261,8 +265,8 @@ const form = reactive({
   cs_main_project_id: '',
   journal_category_id: '',
   id: '',
-  role: props.action === 'add' ? useConfig.config?.role : '',
-  detail_support: useConfig.config?.role === 'support' ? {
+  role: props.action === 'add' ? (props.defaultRole || useConfig.config?.role) : '',
+  detail_support: (props.defaultRole === 'support' || useConfig.config?.role === 'support') ? {
     hp: '',
     wa: '',
     email: '',

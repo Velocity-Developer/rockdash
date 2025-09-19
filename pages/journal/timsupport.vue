@@ -1,9 +1,13 @@
 <template>
       
-  <div>
+  <div class="flex justify-end items-center gap-1">
     <Button @click="getData()" size="small" :loading="loading" severity="info">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
       Refresh
+    </Button>
+    <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+      <Icon name="lucide:plus" />
+      Tambah
     </Button>
   </div>
   
@@ -110,23 +114,29 @@
 
   <!-- Form Dialog -->
   <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '50rem' }">
-    <JournalForm :action="actionFormDialog" :item="selectedItem" @update="getData" @delete="deletedJournal"/>
+    <JournalForm 
+      :action="actionFormDialog" 
+      :item="selectedItem" 
+      @update="getData" 
+      @delete="deletedJournal"
+      defaultRole="support"
+    />
   </Dialog>
 
   <!-- Preview Dialog -->
-  <!-- <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+  <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
     <JournalPreview :journal="selectedPreviewItem" />
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button @click="openFormDialog('edit', selectedPreviewItem)" size="small">
           <Icon name="lucide:pen" /> Edit
         </Button>
-        <Button @click="visiblePreviewDialog = false" size="small">
-          Tutup
+        <Button severity="contrast" @click="visiblePreviewDialog = false" size="small">
+          <Icon name="lucide:x" /> Tutup
         </Button>
       </div>
     </template>
-  </Dialog> -->
+  </Dialog>
   
   <DashLoader :loading="loading" />
 </template>
