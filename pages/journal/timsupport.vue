@@ -2,36 +2,56 @@
       
   <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 mb-4">
     <!-- Filter Kategori -->
-    <div class="flex flex-col gap-1">
-      <label class="text-sm font-medium opacity-50">
-        Filter Kategori:
-      </label>
-      <Select 
-        v-model="filters.journal_category_id" 
-        :options="categories" 
-        optionLabel="name" 
-        optionValue="id" 
-        placeholder="Semua Kategori"
-        :loading="loadingCategories"
-        @change="getData()"
-        :clearable="true"
-        size="small"
-      >
-        <template #option="slotProps">
-          <div class="flex items-center gap-2">
-            <span class="text-sm">{{ slotProps.option.icon }}</span>
-            <span>{{ slotProps.option.name }}</span>
-          </div>
-        </template>
-        <template #value="slotProps">
-          <div v-if="slotProps.value" class="flex items-center gap-2">
-            <span class="text-sm">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
-            <span>{{ categories.find(c => c.id === slotProps.value)?.name }}</span>
-          </div>
-          <span v-else class="text-gray-500">Semua Kategori</span>
-        </template>
-      </Select>
+    <div class="flex flex-col md:flex-row gap-1">
+      <div>
+        <label class="text-sm font-medium block opacity-50">
+          Kategori:
+        </label>
+        <Select 
+          v-model="filters.journal_category_id" 
+          :options="categories" 
+          optionLabel="name" 
+          optionValue="id" 
+          placeholder="Semua Kategori"
+          :loading="loadingCategories"
+          @change="getData()"
+          :clearable="true"
+          size="small"
+        >
+          <template #option="slotProps">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">{{ slotProps.option.icon }}</span>
+              <span>{{ slotProps.option.name }}</span>
+            </div>
+          </template>
+          <template #value="slotProps">
+            <div v-if="slotProps.value" class="flex items-center gap-2">
+              <span class="text-sm">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
+              <span>{{ categories.find(c => c.id === slotProps.value)?.name }}</span>
+            </div>
+            <span v-else class="text-gray-500">Semua Kategori</span>
+          </template>
+        </Select>
+      </div>
+      
+      <!-- Filter Status -->
+      <div>
+        <label class="text-sm block font-medium opacity-50">
+          Status:
+        </label>
+        <Select 
+          v-model="filters.status" 
+          :options="statusOptions" 
+          optionLabel="label" 
+          optionValue="value" 
+          placeholder="Semua Status"
+          @change="getData()"
+          :clearable="true"
+          size="small"
+        />
+      </div>
     </div>
+
 
     <!-- Action Buttons -->
     <div class="flex justify-end items-center gap-1">
@@ -207,7 +227,8 @@ const filters = reactive({
   date_end: '',
   role: 'support',
   user_id: '',
-  journal_category_id: '',
+  journal_category_id: null,
+  status: null,
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
   order: 'desc',
@@ -217,6 +238,16 @@ const loading = ref(false);
 const data = ref({} as any);
 const categories = ref([] as any[]);
 const loadingCategories = ref(false);
+
+// Status options
+const statusOptions = [
+  { label: 'Semua Status', value: null },
+  { label: 'Proses', value: 'ongoing' },
+  { label: 'Selesai', value: 'completed' },
+  { label: 'Batal', value: 'cancelled' },
+  { label: 'Arsip', value: 'archived' },
+  { label: 'Draft', value: 'draft' }
+]
 
 // Fungsi untuk mengambil daftar kategori dengan role support
 const getCategories = async () => {
