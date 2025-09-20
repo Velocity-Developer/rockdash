@@ -105,8 +105,74 @@ export default defineNuxtConfig({
     '@nuxt/icon',
     '@pinia/nuxt',
     'dayjs-nuxt',
-    '@nuxt/fonts'
-  ],  
+    '@nuxt/fonts',
+    '@vite-pwa/nuxt'
+  ],
+  pwa: {
+    registerType: 'autoUpdate',
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,webp}'],
+      navigateFallbackDenylist: [/^\/_/, /^\/api/, /\.(?:png|jpg|jpeg|svg|webp|ico)$/],
+      runtimeCaching: [
+        {
+          urlPattern: /\.(?:png|jpg|jpeg|svg|webp|ico)$/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'images',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+            },
+          },
+        },
+      ],
+    },
+    client: {
+      installPrompt: true,
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallbackAllowlist: [/^\/(?!.*\.(png|jpg|jpeg|svg|webp|ico|css|js)$).*$/],
+      type: 'module',
+    },
+    manifest: {
+      name: 'RockDash',
+      short_name: 'RockDash',
+      description: 'Dashboard aplikasi untuk manajemen project dan data',
+      theme_color: '#14b8a6',
+      background_color: '#ffffff',
+      display: 'standalone',
+      orientation: 'portrait',
+      scope: '/',
+      start_url: '/',
+      icons: [
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+        {
+          src: '/pwa-180x180.png',
+          sizes: '180x180',
+          type: 'image/png',
+          purpose: 'apple-touch-icon',
+        },
+      ],
+    },
+  },
   appConfig: {
     //for testing purposes
     buildDate: new Date().toISOString(),
