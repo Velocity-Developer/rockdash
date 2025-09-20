@@ -15,7 +15,7 @@
           placeholder="Semua Kategori"
           :loading="loadingCategories"
           @change="getData()"
-          :clearable="true"
+          showClear
           size="small"
         >
           <template #option="slotProps">
@@ -46,9 +46,51 @@
           optionValue="value" 
           placeholder="Semua Status"
           @change="getData()"
-          :clearable="true"
+          showClear
           size="small"
         />
+      </div>
+      
+      <!-- Filter User -->
+      <div>
+        <label class="text-sm block font-medium opacity-50">
+          User:
+        </label>
+        <Select 
+          v-model="filters.user_id" 
+          :options="users" 
+          optionLabel="name" 
+          optionValue="id" 
+          placeholder="Semua User"
+          :loading="loadingUsers"
+          @change="getData()"
+          :clearable="true"
+          size="small"
+        >
+          <template #option="slotProps">
+            <div class="flex items-center gap-2">
+              <Avatar 
+                :image="slotProps.option.avatar_url" 
+                shape="circle" 
+                size="small" 
+                class="w-6 h-6"
+              />
+              <span>{{ slotProps.option.name }}</span>
+            </div>
+          </template>
+          <template #value="slotProps">
+            <div v-if="slotProps.value" class="flex items-center gap-2">
+              <Avatar 
+                :image="users.find(u => u.id === slotProps.value)?.avatar_url" 
+                shape="circle" 
+                size="small" 
+                class="w-6 h-6"
+              />
+              <span>{{ users.find(u => u.id === slotProps.value)?.name }}</span>
+            </div>
+            <span v-else class="text-gray-500">Semua User</span>
+          </template>
+        </Select>
       </div>
     </div>
 
@@ -238,6 +280,8 @@ const loading = ref(false);
 const data = ref({} as any);
 const categories = ref([] as any[]);
 const loadingCategories = ref(false);
+const users = ref([] as any[]);
+const loadingUsers = ref(false);
 
 // Status options
 const statusOptions = [
@@ -264,6 +308,23 @@ const getCategories = async () => {
     console.log('Error fetching categories:', error);
   }
   loadingCategories.value = false;
+}
+
+// Fungsi untuk mengambil daftar user dengan role support
+const getUsers = async () => {
+  loadingUsers.value = true;
+  try {
+    const res = await client('/api/users', {
+      params: {
+        role: 'support',
+        per_page: 100 // Ambil semua user support
+      }
+    }) as any;
+    users.value = res.data || [];
+  } catch (error) {
+    console.log('Error fetching users:', error);
+  }
+  loadingUsers.value = false;
 }
 
 const getData = async () => {
@@ -326,6 +387,7 @@ const deletedJournal = () => {
 // Initialize on component mount
 onMounted(() => {
   getCategories();
+  getUsers();
   getData();
 });
 </script>
