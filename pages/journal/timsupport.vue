@@ -1,6 +1,23 @@
 <template>
-      
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 mb-4">
+  
+  <!-- Mobile header: filter + actions -->
+  <div class="flex md:hidden justify-end gap-2 mb-2">
+    <Button @click="visibleFilterDrawer = true" size="small" outlined>
+      <Icon name="lucide:filter" />
+      Filter
+    </Button>
+    <Button @click="getData()" size="small" :loading="loading" severity="info">
+      <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
+      Refresh
+    </Button>
+    <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+      <Icon name="lucide:plus" />
+      Tambah
+    </Button>
+  </div>
+
+  <!-- Desktop filters -->
+  <div class="hidden md:flex md:flex-row justify-between items-end gap-2 mb-4">
     <!-- Filter Kategori -->
     <div class="flex flex-col md:flex-row gap-1">
       <div>
@@ -250,6 +267,103 @@
     </template>
   </Dialog>
   
+  <!-- Filter Drawer untuk Mobile -->
+  <Drawer v-model:visible="visibleFilterDrawer" header="Filter Jurnal Support" position="right" class="!w-80">
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-2">Kategori</label>
+        <Select 
+          v-model="filters.journal_category_id" 
+          :options="categories" 
+          optionLabel="name" 
+          optionValue="id" 
+          placeholder="Semua Kategori"
+          :loading="loadingCategories"
+          showClear
+          size="small"
+          class="w-full"
+        >
+          <template #option="slotProps">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">{{ slotProps.option.icon }}</span>
+              <span>{{ slotProps.option.name }}</span>
+            </div>
+          </template>
+          <template #value="slotProps">
+            <div v-if="slotProps.value" class="flex items-center gap-2">
+              <span class="text-sm">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
+              <span>{{ categories.find(c => c.id === slotProps.value)?.name }}</span>
+            </div>
+            <span v-else class="text-gray-500">Semua Kategori</span>
+          </template>
+        </Select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2">Status</label>
+        <Select 
+          v-model="filters.status" 
+          :options="statusOptions" 
+          optionLabel="label" 
+          optionValue="value" 
+          placeholder="Semua Status"
+          showClear
+          size="small"
+          class="w-full"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-2">User</label>
+        <Select 
+          v-model="filters.user_id" 
+          :options="users" 
+          optionLabel="name" 
+          optionValue="id" 
+          placeholder="Semua User"
+          :loading="loadingUsers"
+          showClear
+          size="small"
+          class="w-full"
+        >
+          <template #option="slotProps">
+            <div class="flex items-center gap-2">
+              <Avatar 
+                :image="slotProps.option.avatar_url" 
+                shape="circle" 
+                size="small" 
+                class="w-6 h-6"
+              />
+              <span>{{ slotProps.option.name }}</span>
+            </div>
+          </template>
+          <template #value="slotProps">
+            <div v-if="slotProps.value" class="flex items-center gap-2">
+              <Avatar 
+                :image="users.find(u => u.id === slotProps.value)?.avatar_url" 
+                shape="circle" 
+                size="small" 
+                class="w-6 h-6"
+              />
+              <span>{{ users.find(u => u.id === slotProps.value)?.name }}</span>
+            </div>
+            <span v-else class="text-gray-500">Semua User</span>
+          </template>
+        </Select>
+      </div>
+
+      <div class="flex gap-2 mt-4">
+        <Button @click="getData(); visibleFilterDrawer = false" class="flex-1" :loading="loading">
+          <Icon name="lucide:search" />
+          Terapkan Filter
+        </Button>
+        <Button @click="getData()" outlined :loading="loading">
+          <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
+        </Button>
+      </div>
+    </div>
+  </Drawer>
+
   <DashLoader :loading="loading" />
 </template>
 
@@ -383,6 +497,9 @@ const deletedJournal = () => {
   visibleFormDialog.value = false;
   selectedItem.value = {};
 }
+
+// Filter Drawer (mobile)
+const visibleFilterDrawer = ref(false);
 
 // Initialize on component mount
 onMounted(() => {
