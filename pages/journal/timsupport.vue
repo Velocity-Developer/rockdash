@@ -1,14 +1,49 @@
 <template>
       
-  <div class="flex justify-end items-center gap-1">
-    <Button @click="getData()" size="small" :loading="loading" severity="info">
-      <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
-      Refresh
-    </Button>
-    <Button @click="openFormDialog('add','')" size="small" :loading="loading">
-      <Icon name="lucide:plus" />
-      Tambah
-    </Button>
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-2 mb-4">
+    <!-- Filter Kategori -->
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium opacity-50">
+        Filter Kategori:
+      </label>
+      <Select 
+        v-model="filters.journal_category_id" 
+        :options="categories" 
+        optionLabel="name" 
+        optionValue="id" 
+        placeholder="Semua Kategori"
+        :loading="loadingCategories"
+        @change="getData()"
+        :clearable="true"
+        size="small"
+      >
+        <template #option="slotProps">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">{{ slotProps.option.icon }}</span>
+            <span>{{ slotProps.option.name }}</span>
+          </div>
+        </template>
+        <template #value="slotProps">
+          <div v-if="slotProps.value" class="flex items-center gap-2">
+            <span class="text-sm">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
+            <span>{{ categories.find(c => c.id === slotProps.value)?.name }}</span>
+          </div>
+          <span v-else class="text-gray-500">Semua Kategori</span>
+        </template>
+      </Select>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end items-center gap-1">
+      <Button @click="getData()" size="small" :loading="loading" severity="info">
+        <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin':loading }" />
+        Refresh
+      </Button>
+      <Button @click="openFormDialog('add','')" size="small" :loading="loading">
+        <Icon name="lucide:plus" />
+        Tambah
+      </Button>
+    </div>
   </div>
   
   <Card class="shadow mt-4">
@@ -172,6 +207,7 @@ const filters = reactive({
   date_end: '',
   role: 'support',
   user_id: '',
+  journal_category_id: '',
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
   order: 'desc',
@@ -179,6 +215,26 @@ const filters = reactive({
 
 const loading = ref(false);
 const data = ref({} as any);
+const categories = ref([] as any[]);
+const loadingCategories = ref(false);
+
+// Fungsi untuk mengambil daftar kategori dengan role support
+const getCategories = async () => {
+  loadingCategories.value = true;
+  try {
+    const res = await client('/api/journal_category', {
+      params: {
+        role: 'support',
+        per_page: 100 // Ambil semua kategori support
+      }
+    }) as any;
+    categories.value = res.data || [];
+  } catch (error) {
+    console.log('Error fetching categories:', error);
+  }
+  loadingCategories.value = false;
+}
+
 const getData = async () => {
     loading.value = true;
 
@@ -238,6 +294,7 @@ const deletedJournal = () => {
 
 // Initialize on component mount
 onMounted(() => {
+  getCategories();
   getData();
 });
 </script>
