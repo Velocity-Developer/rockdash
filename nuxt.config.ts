@@ -110,6 +110,7 @@ export default defineNuxtConfig({
   ],
   pwa: {
     registerType: 'autoUpdate',
+    includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-180x180.png'],
     workbox: {
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,png,svg,ico,webp}'],
@@ -176,5 +177,12 @@ export default defineNuxtConfig({
   appConfig: {
     //for testing purposes
     buildDate: new Date().toISOString(),
+  },
+  app: {
+    head: {
+      link: [
+        { rel: 'manifest', href: '/manifest.webmanifest' }
+      ]
+    }
   }
 })
