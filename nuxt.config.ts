@@ -109,7 +109,7 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt'
   ],
   pwa: {
-    registerType: 'autoUpdate',
+    registerType: 'prompt',
     includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-180x180.png'],
     workbox: {
       navigateFallback: '/',
@@ -131,6 +131,7 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
+      periodicSyncForUpdates: 20,
     },
     devOptions: {
       enabled: true,
