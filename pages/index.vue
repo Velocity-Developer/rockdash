@@ -5,11 +5,16 @@
     <div class="mb-3">    
       <DashDashboardWelcomeWebdeveloper />
     </div>
-    <div class="mb-3">    
-      <DashDashboardJurnalWebdeveloper />
+    <div class="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-6 gap-5 mb-5">
+      <div class="col-span-1 md:col-span-3 xl:col-span-4">
+        <DashDashboardChartProjectWebdeveloper />
+      </div>
+      <div class="col-span-1 md:col-span-3 xl:col-span-2">
+        <DashDashboardChartProjectWebdeveloperNow />
+      </div>
     </div>
     <div class="mb-3">    
-      <DashDashboardChartProjectWebdeveloper />
+      <DashDashboardJurnalWebdeveloper />
     </div>
 
   </template>
