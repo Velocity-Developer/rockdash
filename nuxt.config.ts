@@ -140,10 +140,10 @@ export default defineNuxtConfig({
       type: 'module',
     },
     manifest: {
-      name: 'Nglorok',
-      short_name: 'Nglorok',
+      name: 'New Nglorok',
+      short_name: 'New Nglorok',
       description: 'Aplikasi untuk manajemen project dan data Velocity Developer',
-      theme_color: '#1f8378',
+      theme_color: '#034235',
       background_color: '#ffffff',
       display: 'standalone',
       orientation: 'portrait',
