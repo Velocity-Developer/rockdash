@@ -208,6 +208,26 @@
             :placeholder="item.label" 
           />
 
+          <Select
+            v-else-if="item.key == 'paket'"
+            v-model="filters[item.key]"
+            class="w-full mb-1" 
+            size="small"
+            :placeholder="item.label" 
+            :options="dataOpsiPaket"
+            optionLabel="label"
+            optionValue="value"
+          />
+          
+          <Select
+            v-else-if="item.key == 'jenis'"
+            v-model="filters[item.key]"
+            class="w-full mb-1" 
+            size="small"
+            :placeholder="item.label" 
+            :options="dataOpsiJenis"
+          />
+
           <InputText 
             v-else
             v-model="filters[item.key]"
@@ -311,6 +331,18 @@ watch(status, (newValue, oldValue) => {
     }
 })
 
+//get opsi jenis
+const { data: dataOpsiJenis} = await useAsyncData(
+    'data_opsi-jenis_project',
+    () => client('/api/data_opsi/jenis_project')
+) as any
+//get opsi paket
+const { data: dataOpsiPaket} = await useAsyncData(
+    'data_opsi-paket_project',
+    () => client('/api/data_opsi/paket')
+) as any
+
+
 const visibleDrawerFilter = ref(false);
 const filterSubmit = async () => {
     refresh()
@@ -321,8 +353,8 @@ const fieldsFilter = [
   { key: 'tgl_masuk_start', label: 'Tanggal dari', type: 'date' },
   { key: 'tgl_masuk_end', label: 'Tanggal sampai', type: 'date' },
   { key: 'nama_web', label: 'Nama Web', type: 'text' },
-  { key: 'paket', label: 'Paket', type: 'text' },
-  { key: 'jenis', label: 'Jenis', type: 'text' },
+  { key: 'paket', label: 'Paket', type: 'select' },
+  { key: 'jenis', label: 'Jenis', type: 'select', options: computed(() => dataOpsiJenis?.data?.map((item: any) => ({ label: item, value: item })) || []), },
   { key: 'deskripsi', label: 'Deskripsi', type: 'text' },
   { key: 'trf', label: 'Trf', type: 'text' },
   { key: 'hp', label: 'HP', type: 'text' },
@@ -455,4 +487,5 @@ const confirmDelete = (id: any) => {
         }
     });
 }
+
 </script>
