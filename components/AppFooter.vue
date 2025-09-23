@@ -1,9 +1,13 @@
 <template>
 
   <footer class="p-4 md:px-8 text-xs flex justify-end items-center gap-2 opacity-75">
-    <span class="flex justify-end gap-2">
+    <span class="flex justify-end items-center gap-1" v-tooltip="`Di build : ${formatBuildDate(buildInfo.buildDate)}`">
       <Icon name="lucide:rocket" />
       <span>Built: {{ formatBuildDate(buildInfo.buildDate) }}</span>
+    </span>
+    <span>|</span>
+    <span class="flex justify-end items-center gap-1" v-tooltip="`Version: ${buildInfo.version}`">
+      <Icon name="lucide:package" /> {{ buildInfo.version }}
     </span>
     <Badge v-if="isInPWA()" size="small" severity="success" class="animate-pulse">
       <Icon name="lucide:monitor-smartphone" class="mr-1"/> PWA
