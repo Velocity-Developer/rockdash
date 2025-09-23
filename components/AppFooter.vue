@@ -1,8 +1,13 @@
 <template>
 
-  <footer class="p-4 text-xs flex justify-end gap-2 opacity-75">
-    <Icon name="lucide:rocket" />
-    <span>Built: {{ formatBuildDate(buildInfo.buildDate) }}</span>
+  <footer class="p-4 md:px-8 text-xs flex justify-end items-center gap-2 opacity-75">
+    <span class="flex justify-end gap-2">
+      <Icon name="lucide:rocket" />
+      <span>Built: {{ formatBuildDate(buildInfo.buildDate) }}</span>
+    </span>
+    <Badge v-if="isInPWA()" size="small" severity="success" class="animate-pulse">
+      <Icon name="lucide:monitor-smartphone" class="mr-1"/> PWA
+    </Badge>
   </footer>
 
 </template>
