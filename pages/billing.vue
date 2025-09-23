@@ -1,7 +1,7 @@
 <template>
         
       <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
-        <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
+        <form @submit.prevent="refresh();updateRouteParams()" class="hidden md:flex items-end gap-2">
           <div>
             <div class="mb-1 opacity-50">Per Page : </div>            
             <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
@@ -22,10 +22,10 @@
 
         <div class="flex justify-end items-center gap-2">
           <Button @click="openDialog('add')" size="small" class="shadow-md">
-            <Icon name="lucide:plus-circle" /> Tambah
+            <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
           </Button>
           <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
-            <Icon name="lucide:filter" /> Filter
+            <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
             <span
             class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
             v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
@@ -69,8 +69,17 @@
                 </div>
               </template>
             </Column>
-            <Column field="jenis" header="Jenis"></Column>
-            <Column field="webhost.paket.paket" header="Paket"></Column>
+            <Column field="jenis" header="Jenis">
+              <template #body="slotProps">
+                <div>
+                  {{ slotProps.data.jenis }}
+                </div>
+                <div v-if="slotProps.data.webhost?.paket?.paket" class="text-xs text-emerald-500 mt-1 xl:hidden">
+                  {{ slotProps.data.webhost?.paket?.paket }}
+                </div>
+              </template>
+            </Column>
+            <Column field="webhost.paket.paket" header="Paket" class="hidden xl:table-cell"></Column>
             <Column field="deskripsi" header="Deskripsi">
               <template #body="slotProps">
                 <div class="max-w-[200px] whitespace-normal">
@@ -132,7 +141,7 @@
                 </div>
               </template>
             </Column>
-            <Column field="dikerjakan_oleh" header="Dikerjakan">
+            <Column field="dikerjakan_oleh" header="Dikerjakan" class="hidden xl:table-cell">
               <template #body="slotProps">
                 <div class="whitespace-normal max-w-[5rem] truncate" v-for="item in slotProps.data.karyawans">
                   <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
@@ -207,6 +216,11 @@
             :placeholder="item.label" 
             size="small"
           />
+        </div>
+        
+        <div class="mb-5">
+          <div class="mb-1 text-sm">Per Page : </div>            
+          <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-full" />
         </div>
       </ScrollPanel>
       
