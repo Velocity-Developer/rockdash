@@ -10,7 +10,7 @@
       </div>
       <div class="body-wrapper flex flex-col w-full bg-gradient-to-tr from-blue-50 to-teal-50 dark:from-black dark:to-gray-950">
         <DashHeader />
-        <div class="md:max-w-[1600px] mx-auto px-4 py-4 relative flex-1">
+        <div class="md:max-w-[1600px] w-full mx-auto px-4 py-4 relative flex-1">
           
             <div v-if="$route.meta.title" class="md:hidden mb-5">
               <h1 class="text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">
