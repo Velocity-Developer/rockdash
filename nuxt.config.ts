@@ -148,7 +148,7 @@ export default defineNuxtConfig({
       display: 'standalone',
       orientation: 'portrait',
       scope: '/',
-      start_url: '/',
+      start_url: '/splash',
       icons: [
         {
           src: '/pwa-192x192.png',
