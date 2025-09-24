@@ -1,5 +1,5 @@
 <template>
-  <Badge :severity="status.severity">
+  <Badge :severity="status.severity" class="truncate" size="small">
     {{ status.label }}
   </Badge>
 </template>
@@ -32,6 +32,10 @@ const statuses = {
   draft: {
     label: 'Draft',
     severity: 'primary'
+  },
+  followup: {
+    label: 'Follow Up',
+    severity: 'warning'
   }
 } as any
 
