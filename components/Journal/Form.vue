@@ -100,20 +100,15 @@
         <div class="flex items-center gap-2 justify-between">
           <SelectButton 
             v-model="form.status" 
-            :options="[{ label: 'Proses', value: 'ongoing' },{ label: 'Selesai', value: 'completed' },{ label: 'Batal', value: 'cancelled' }]" 
+            :options="[
+              { label: 'Proses', value: 'ongoing' },
+              { label: 'Selesai', value: 'completed' },
+              { label: 'Follow Up', value: 'followup' },
+              { label: 'Batal', value: 'cancelled' }
+            ]" 
             optionLabel="label" optionValue="value" placeholder="Semua Status"
             class="w-full h-[55px]"
-          />
-          <span class="text-2xl flex items-center p-2 rounded-full text-white"
-          :class="[
-            { 'bg-green-500': form.status === 'completed' },
-            { 'bg-red-500': form.status === 'cancelled' },
-            { 'bg-amber-500 animate-pulse': form.status === 'ongoing' }
-          ]">
-            <Icon name="lucide:check-line" v-if="form.status === 'completed'"/>
-            <Icon name="lucide:x" v-if="form.status === 'cancelled'"/>
-            <Icon name="lucide:hourglass" v-if="form.status === 'ongoing'"/>
-          </span>
+          />          
         </div>
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
