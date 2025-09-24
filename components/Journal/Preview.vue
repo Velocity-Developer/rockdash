@@ -42,7 +42,9 @@
 
   <!-- Info Klien -->
   
-  <div class="mb-6 rounded-md p-5 bg-indigo-100 dark:bg-indigo-950">
+  <div
+    v-if="journal.webhost || journal.detail_support"
+    class="mb-6 rounded-md p-5 bg-indigo-100 dark:bg-indigo-950">
     <div class="font-medium mb-4 flex items-center gap-1">
       <Icon name="lucide:square-user" /> Info Klien
     </div>    
