@@ -2,7 +2,7 @@
 
   <div class="mt-10 mb-3 flex justify-end items-center gap-2">
     <div class="hidden md:inline-block">
-      <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
+      <InputText @change="getData" type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
     </div>
     <Button @click="getData()" size="small" class="shadow-md">
       <Icon name="lucide:refresh-cw" :class="{'animate-spin': loading}" />
@@ -22,7 +22,7 @@
       <DataTable :value="data.data" size="small" class="text-xs" stripedRows scrollHeight="70vh" scrollable>
         <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
-              {{ slotProps.index + 1 }}
+              {{ slotProps.index + data.from }}
           </template>
         </Column>
         <Column field="jenis" header="Jenis">
@@ -44,7 +44,7 @@
         </Column>
         <Column field="webmaster" header="Webmaster">
           <template #body="slotProps">
-            <div class="truncate w-20">
+            <div class="truncate w-20" v-tooltip="slotProps.data.wm_project?.user?.name">
               {{ slotProps.data.wm_project?.user?.name }}
             </div>
           </template>
@@ -162,6 +162,7 @@ const data = ref([] as any) ;
 const loading = ref(false);
 const getData = async () => {
   loading.value = true;
+  data.value = [];
   try {
     const response = await client('/api/project_manager',{
       params: filters.value,
@@ -173,6 +174,7 @@ const getData = async () => {
     loading.value = false;
   }
   loading.value = false;
+  updateRouteParams()
 }
 const onPaginate = (event: { page: number }) => {
     filters.value.page = event.page + 1;
