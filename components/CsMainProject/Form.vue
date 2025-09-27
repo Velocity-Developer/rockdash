@@ -125,6 +125,10 @@
     </div>
   </form>
 
+  <div v-if="action == 'add'">
+    <CsMainProjectLastData />
+  </div>
+
 </template>
 
 <script setup lang="ts">
@@ -221,7 +225,7 @@ const handleSubmit = async () => {
     });
     
   } catch (error) {
-    
+
     const er = useSanctumError(error);
     errorSubmit.value = er.bag;
     console.log(er);
