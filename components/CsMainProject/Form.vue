@@ -221,9 +221,16 @@ const handleSubmit = async () => {
     });
     
   } catch (error) {
+    
     const er = useSanctumError(error);
     errorSubmit.value = er.bag;
     console.log(er);
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal!',
+      detail: 'Data gagal disimpan',
+      life: 3000
+    });
   }
 
   loadingSubmit.value = false;
