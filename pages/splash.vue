@@ -9,6 +9,9 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'blank',
+  sanctum: {
+      excluded: true,
+  }
 })
 const router = useRouter()
 const route = useRoute()
