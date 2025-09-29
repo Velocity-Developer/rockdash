@@ -1,8 +1,17 @@
 <template>
   <div class="border p-4 rounded-md mt-4">
-    <DataTable :value="data" size="small">
+    <div class="text-sm font-bold mb-4 border-b pb-3">
+      Billing project terbaru
+    </div>
+    <DataTable :value="data" size="small" class="text-xs">
       <Column field="webhost.nama_web" header="web" />
-      <Column field="cs_main_project_info.created_at" header="Tanggal" />
+      <Column field="cs_main_project_info.created_at" header="Tanggal">
+        <template #body="slotProps">
+            <template v-if="slotProps.data.cs_main_project_info?.created_at">
+              {{ formatDate(slotProps.data.cs_main_project_info.created_at,'YYYY-MM-DD HH:mm:ss') }}
+            </template>
+        </template>
+      </Column>
     </DataTable>
   </div>
 </template>
