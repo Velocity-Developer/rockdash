@@ -19,7 +19,7 @@
 
   <Card>
     <template #content>
-      <DataTable :value="data.data" size="small" class="text-xs" stripedRows scrollHeight="70vh" scrollable>
+      <DataTable :value="data.data" size="small" class="text-xs" stripedRows scrollHeight="70vh" tableStyle="min-width: 50rem" scrollable>
         <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
               {{ slotProps.index + data.from }}
@@ -49,8 +49,12 @@
             </div>
           </template>
         </Column>
-        <Column field="pm_project.konfirm_revisi_1" header="Konfirmasi Revisi 1"></Column>
+        <Column field="pm_project.konfirm_revisi_1" header="Konf. Rev. 1"></Column>
         <Column field="pm_project.fr1" header="Follow up revisi"></Column>
+        <Column field="pm_project.revisi_1" header="Revisi 1"></Column>
+        <Column field="pm_project.konfirm_revisi_2" header="Rev 1 + Konf. Rev. 2"></Column>
+        <Column field="pm_project.revisi_2" header="Revisi 2"></Column>
+        <Column field="lunas" header="Lunas"></Column>
       </DataTable>
       <div class="flex justify-between items-center text-xs mt-3">
           <div>
