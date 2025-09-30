@@ -26,23 +26,30 @@ const useConfig = useConfigStore()
 const client = useSanctumClient();
 
 onMounted( async () => {
-
-  const getconfig = await client('/api/dash/config') as any
-  useConfig.setConfig(getconfig);
-
   //jika ada query test, tidak perlu redirect
   if (test.value) {
     return
   }
  
   if (isInPWA()) {
+    // Untuk PWA: tunggu getconfig dulu, baru redirect dengan delay
+    const getconfig = await client('/api/dash/config') as any
+    useConfig.setConfig(getconfig);
+    
     // kasih delay biar splash terlihat
     setTimeout(() => {
       router.replace('/') // halaman utama homepage
-    }, 2000)
+    }, 100)
   } else {
-    // kalau bukan PWA, langsung ke homepage biasa
+    // Untuk non-PWA: redirect langsung tanpa tunggu getconfig
     router.replace('/')
+    
+    // Load config di background untuk halaman selanjutnya
+    client('/api/dash/config').then((getconfig: any) => {
+      useConfig.setConfig(getconfig);
+    }).catch(() => {
+      // Handle error jika diperlukan
+    })
   }
 })
 </script>
