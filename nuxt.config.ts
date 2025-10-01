@@ -174,7 +174,7 @@ export default defineNuxtConfig({
   appConfig: {
     //for testing purposes
     buildDate: new Date().toISOString(),
-    version: '1.0.0',
+    version: '1.0.1',
     buildNumber: process.env.BUILD_NUMBER || Math.floor(Date.now() / 1000).toString(),
     environment: process.env.NODE_ENV || 'development',
     buildHash: process.env.COMMIT_HASH || Math.random().toString(36).substring(2, 8),
