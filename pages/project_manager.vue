@@ -32,14 +32,16 @@
           </template>
         </Column>
         <Column field="webhost.nama_web" header="Web"></Column>
-        <Column field="tgl_masuk" header="Masuk Tgl">
+        <Column field="tgl_masuk" header="Waktu">
           <template #body="slotProps">
-              {{ formatTanggal(slotProps.data.tgl_masuk) }}
-          </template>
-        </Column>
-        <Column field="tgl_deadline" header="Deadline Tgl">       
-          <template #body="slotProps">
-              {{ formatTanggal(slotProps.data.tgl_deadline) }}
+              <div>
+                <div class="text-xs opacity-70">Masuk</div>
+                {{ formatTanggal(slotProps.data.tgl_masuk) }}
+              </div>
+              <div class="mt-1">
+                <div class="text-xs opacity-70">Deadline</div>
+                {{ formatTanggal(slotProps.data.tgl_deadline) }}
+              </div>
           </template>
         </Column>
         <Column field="webmaster" header="Webmaster">
@@ -49,11 +51,35 @@
             </div>
           </template>
         </Column>
-        <Column field="pm_project.konfirm_revisi_1" header="Konf. Rev. 1"></Column>
-        <Column field="pm_project.fr1" header="Follow up revisi"></Column>
-        <Column field="pm_project.revisi_1" header="Revisi 1"></Column>
-        <Column field="pm_project.konfirm_revisi_2" header="Rev 1 + Konf. Rev. 2"></Column>
-        <Column field="pm_project.revisi_2" header="Revisi 2"></Column>
+        <!-- <Column field="pm_project.konfirm_revisi_1" header="Konf. Rev. 1"></Column> -->
+        <!-- <Column field="pm_project.fr1" header="Follow up revisi"></Column> -->
+        <!-- <Column field="pm_project.revisi_1" header="Revisi 1"></Column> -->
+        <!-- <Column field="pm_project.konfirm_revisi_2" header="Rev 1 + Konf. Rev. 2"></Column> -->
+        <!-- <Column field="pm_project.revisi_2" header="Revisi 2"></Column> -->
+        <Column field="revisi_1" header="Rev.1">
+          <template #body="slotProps">
+            <div class="mb-1">
+              <div class="text-xs opacity-70">Konf. Rev.1</div>
+              {{ slotProps.data.pm_project.konfirm_revisi_1 }}
+            </div>
+            <div v-for="(layanan, index) in slotProps.data.client_supports" :key="index" class="mb-1">
+              <div class="text-xs opacity-70">{{ index }}</div>
+              {{ layanan }}
+            </div>
+          </template>
+        </Column>
+        <Column field="revisi_2" header="Rev.2">
+          <template #body="slotProps">
+            <div class="mb-1">
+              <div class="text-xs opacity-70">Konf. Rev.2</div>
+              {{ slotProps.data.pm_project.konfirm_revisi_2 }}
+            </div>
+            <div v-for="(layanan, index) in slotProps.data.client_supports" :key="index" class="mb-1">
+              <div class="text-xs opacity-70">{{ index }}</div>
+              {{ layanan }}
+            </div>
+          </template>
+        </Column>
         <Column field="lunas" header="Lunas"></Column>
       </DataTable>
       <div class="flex justify-between items-center text-xs mt-3">
