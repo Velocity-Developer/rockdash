@@ -40,6 +40,20 @@
     </Drawer>
 
   </div>
+
+  <div v-if="isError" class="flex justify-center items-center fixed z-[99] top-0 bottom-0 end-0 start-0 bg-white/30 backdrop-blur-sm">
+    <div class="bg-gray-950 border border-red-500 text-center text-white p-4 rounded-md shadow-md w-[300px]">
+      <div class="flex justify-center items-center mb-5">
+        <Icon name="lucide:server-off" class="w-20 h-20" :ssr="true"/>
+      </div>
+      Gagal menyambung ke server !. <br> Silahkan coba lagi...
+      <Button @click="fetchNotifikasi" severity="danger" class="w-full mt-5">
+        Coba lagi
+      </Button>
+    </div>      
+    <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 6px"></ProgressBar>
+  </div>
+
 </template>
 
 <script setup lang="ts">
@@ -55,15 +69,27 @@ interface NotifikasiItem {
   };
 }
 
+const isError = ref(false)
+const isLoading = ref(false)
 const client = useSanctumClient();
 const notifikasi: Ref<NotifikasiItem[]> = ref([]);
 const fetchNotifikasi = async () => {
-  const data = await client('/api/notifications') as any
-  notifikasi.value = data 
+  isLoading.value = true
+  try {
+    const data = await client('/api/notifications') as any
+    notifikasi.value = data 
+    isError.value = false
+  } catch (error) {
+    console.log(error)
+    isError.value = true
+  }
+  isLoading.value = false
 }
 
-// Ambil pertama kali
-await fetchNotifikasi()
+// Ambil pertama kali, setelah 20 detik
+setTimeout(() => {
+  fetchNotifikasi()
+}, 20000)
 
 // Ambil ulang setiap 5 menit
 setInterval(fetchNotifikasi, 5 * 60 * 1000)
