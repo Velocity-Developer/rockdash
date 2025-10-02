@@ -221,6 +221,7 @@ const props = defineProps({
     default: 'edit',
   }
 })
+const emit = defineEmits(['update'])
 const client = useSanctumClient()
 
 // Reactive form data for date fields
@@ -298,20 +299,32 @@ const getDataWebhost = async () => {
 }
 
 // Handle save functionality
-const handleSave = () => {
-  // Format dates using Day.js before saving
-  const formattedData = {
-    selesai: formData.selesai ? dayjs(formData.selesai).format('YYYY-MM-DD') : null,
-    konfirm_revisi_1: formData.konfirm_revisi_1 ? dayjs(formData.konfirm_revisi_1).format('YYYY-MM-DD') : null,
-    revisi_1: formData.revisi_1 ? dayjs(formData.revisi_1).format('YYYY-MM-DD') : null,
-    fr1: formData.fr1 ? dayjs(formData.fr1).format('YYYY-MM-DD') : null,
-    konfirm_revisi_2: formData.konfirm_revisi_2 ? dayjs(formData.konfirm_revisi_2).format('YYYY-MM-DD') : null,
-    revisi_2: formData.revisi_2 ? dayjs(formData.revisi_2).format('YYYY-MM-DD') : null,
-    tutorial_password: formData.tutorial_password ? dayjs(formData.tutorial_password).format('YYYY-MM-DD') : null,
+const loadinghandleSave = ref(false)
+const handleSave = async () => {
+
+  //kirim data ke server
+  loadinghandleSave.value = true
+  try {
+    await client(`api/project_manager_save`,{
+      method: 'POST',
+      params: {
+        selesai: formData.selesai ? dayjs(formData.selesai).format('YYYY-MM-DD') : null,
+        konfirm_revisi_1: formData.konfirm_revisi_1 ? dayjs(formData.konfirm_revisi_1).format('YYYY-MM-DD') : null,
+        revisi_1: formData.revisi_1 ? dayjs(formData.revisi_1).format('YYYY-MM-DD') : null,
+        fr1: formData.fr1 ? dayjs(formData.fr1).format('YYYY-MM-DD') : null,
+        konfirm_revisi_2: formData.konfirm_revisi_2 ? dayjs(formData.konfirm_revisi_2).format('YYYY-MM-DD') : null,
+        revisi_2: formData.revisi_2 ? dayjs(formData.revisi_2).format('YYYY-MM-DD') : null,
+        tutorial_password: formData.tutorial_password ? dayjs(formData.tutorial_password).format('YYYY-MM-DD') : null,
+        cs_main_project_id: props.data.id || null,
+      }
+    })
+    emit('update', props.data)
+  } catch (error) {
+    console.error('Error saving project data:', error)
+  } finally {
+    loadinghandleSave.value = false
   }
   
-  console.log('Formatted date data:', formattedData)
-  // Here you would typically send the data to your API
 }
 
 onMounted(() => {
