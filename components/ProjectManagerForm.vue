@@ -54,11 +54,11 @@
 
         <div class="md:col-span-2">
           <label class="block text-sm font-medium opacity-50 mb-2">Selesai</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.pm_project?.selesai)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.selesai"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.pm_project?.selesai) }}
@@ -80,11 +80,11 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="block text-sm font-medium opacity-50 mb-2">Konfirmasi Revisi 1</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.pm_project?.konfirm_revisi_1)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.konfirm_revisi_1"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.pm_project?.konfirm_revisi_1) }}
@@ -93,11 +93,11 @@
         
         <div>
           <label class="block text-sm font-medium opacity-50 mb-2">Revisi 1</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.client_supports?.revisi_1)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.revisi_1"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.client_supports?.revisi_1) }}
@@ -106,11 +106,11 @@
 
         <div class="md:col-span-2">
           <label class="block text-sm font-medium opacity-50 mb-2">Follow up revisi</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.pm_project?.fr1)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.fr1"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.pm_project?.fr1) }}
@@ -119,11 +119,11 @@
         
         <div>
           <label class="block text-sm font-medium opacity-50 mb-2">Konfirmasi Revisi 2</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.pm_project?.konfirm_revisi_2)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.konfirm_revisi_2"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.pm_project?.konfirm_revisi_2) }}
@@ -132,11 +132,11 @@
         
         <div>
           <label class="block text-sm font-medium opacity-50 mb-2">Revisi 2</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.client_supports?.revisi_2)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.revisi_2"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.client_supports?.revisi_2) }}
@@ -145,11 +145,11 @@
         
         <div class="md:col-span-2">
           <label class="block text-sm font-medium opacity-50 mb-2">Tutorial & Password</label>
-          <input 
+          <DatePicker 
             v-if="props.action === 'edit'"
-            type="date" 
-            :value="formatDateForInput(data.pm_project?.tutorial_password)"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            v-model="formData.tutorial_password"
+            dateFormat="yy-mm-dd" 
+            class="w-full"
           />
           <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
             {{ formatTanggal(data.pm_project?.tutorial_password) }}
@@ -198,6 +198,7 @@
     <div v-if="props.action === 'edit'" class="flex justify-end mt-4">
       <button 
         type="button"
+        @click="handleSave"
         class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
       >
         <Icon name="lucide:save" class="inline-block mr-2" size="16" />
@@ -208,6 +209,9 @@
 </template>
 
 <script setup lang="ts">
+import { useDayjs } from '#dayjs'
+const dayjs = useDayjs()
+
 const props = defineProps({
   data: {
     type: Object,
@@ -219,6 +223,42 @@ const props = defineProps({
   }
 })
 const client = useSanctumClient()
+
+// Reactive form data for date fields
+const formData = reactive({
+  selesai: null,
+  konfirm_revisi_1: null,
+  revisi_1: null,
+  fr1: null,
+  konfirm_revisi_2: null,
+  revisi_2: null,
+  tutorial_password: null,
+} as any)
+
+// Initialize form data with existing values
+onMounted(() => {
+  if (props.data.pm_project?.selesai && props.data.pm_project.selesai !== '0000-00-00') {
+    formData.selesai = new Date(props.data.pm_project.selesai)
+  }
+  if (props.data.pm_project?.konfirm_revisi_1 && props.data.pm_project.konfirm_revisi_1 !== '0000-00-00') {
+    formData.konfirm_revisi_1 = new Date(props.data.pm_project.konfirm_revisi_1)
+  }
+  if (props.data.client_supports?.revisi_1 && props.data.client_supports.revisi_1 !== '0000-00-00') {
+    formData.revisi_1 = new Date(props.data.client_supports.revisi_1)
+  }
+  if (props.data.pm_project?.fr1 && props.data.pm_project.fr1 !== '0000-00-00') {
+    formData.fr1 = new Date(props.data.pm_project.fr1)
+  }
+  if (props.data.pm_project?.konfirm_revisi_2 && props.data.pm_project.konfirm_revisi_2 !== '0000-00-00') {
+    formData.konfirm_revisi_2 = new Date(props.data.pm_project.konfirm_revisi_2)
+  }
+  if (props.data.client_supports?.revisi_2 && props.data.client_supports.revisi_2 !== '0000-00-00') {
+    formData.revisi_2 = new Date(props.data.client_supports.revisi_2)
+  }
+  if (props.data.pm_project?.tutorial_password && props.data.pm_project.tutorial_password !== '0000-00-00') {
+    formData.tutorial_password = new Date(props.data.pm_project.tutorial_password)
+  }
+})
 
 // Helper function to format dates
 const formatTanggal = (date: string | null | undefined) => {
@@ -288,6 +328,23 @@ const getDataWebhost = async () => {
       loadingDataWebhost.value = false
     }
   }
+}
+
+// Handle save functionality
+const handleSave = () => {
+  // Format dates using Day.js before saving
+  const formattedData = {
+    selesai: formData.selesai ? dayjs(formData.selesai).format('YYYY-MM-DD') : null,
+    konfirm_revisi_1: formData.konfirm_revisi_1 ? dayjs(formData.konfirm_revisi_1).format('YYYY-MM-DD') : null,
+    revisi_1: formData.revisi_1 ? dayjs(formData.revisi_1).format('YYYY-MM-DD') : null,
+    fr1: formData.fr1 ? dayjs(formData.fr1).format('YYYY-MM-DD') : null,
+    konfirm_revisi_2: formData.konfirm_revisi_2 ? dayjs(formData.konfirm_revisi_2).format('YYYY-MM-DD') : null,
+    revisi_2: formData.revisi_2 ? dayjs(formData.revisi_2).format('YYYY-MM-DD') : null,
+    tutorial_password: formData.tutorial_password ? dayjs(formData.tutorial_password).format('YYYY-MM-DD') : null,
+  }
+  
+  console.log('Formatted date data:', formattedData)
+  // Here you would typically send the data to your API
 }
 
 onMounted(() => {
