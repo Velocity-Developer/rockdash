@@ -198,7 +198,8 @@
     <div v-if="props.action === 'edit'" class="flex justify-end mt-4">
       <Button 
         type="button"
-        @click="handleSave"        
+        @click="handleSave"
+        :loading="loadinghandleSave"
       >
         <Icon name="lucide:save" />
         Simpan
@@ -210,6 +211,7 @@
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
+const toast = useToast()
 
 const props = defineProps({
   data: {
@@ -318,9 +320,27 @@ const handleSave = async () => {
         cs_main_project_id: props.data.id || null,
       }
     })
+    
+    // Show success toast
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: 'Data berhasil disimpan',
+      life: 3000
+    })
+    
+    // Emit update event
     emit('update', props.data)
   } catch (error) {
     console.error('Error saving project data:', error)
+    
+    // Show error toast
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: 'Data gagal disimpan',
+      life: 3000
+    })
   } finally {
     loadinghandleSave.value = false
   }

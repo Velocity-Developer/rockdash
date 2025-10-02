@@ -187,7 +187,7 @@
   </Drawer>
 
   <Dialog v-model:visible="visibleDialog" modal :header="dialogAction === 'edit' ? 'Edit' : 'Detail'" :style="{ width: '60vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ProjectManagerForm :data="dialogData" :action="dialogAction" />
+    <ProjectManagerForm :data="dialogData" :action="dialogAction" @update="handleFormUpdate" />
   </Dialog>
 
 </template>
@@ -272,5 +272,14 @@ const openDialog = (action: string, data : any) => {
   dialogAction.value = action;
   dialogData.value = data;
   visibleDialog.value = true;
+}
+
+// Handle form update event
+const handleFormUpdate = (updatedData: any) => {
+  // Refresh data when form is updated
+  getData();
+  
+  // Close the dialog
+  visibleDialog.value = false;
 }
 </script>
