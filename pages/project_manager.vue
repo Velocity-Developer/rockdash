@@ -31,8 +31,14 @@
             <div class="text-xs text-primary">{{ slotProps.data.webhost?.paket?.paket }}</div>
           </template>
         </Column>
-        <Column field="webhost.nama_web" header="Web"></Column>
-        <Column field="tgl_masuk" header="Waktu">
+        <Column field="webhost.nama_web" header="Web">
+          <template #body="slotProps">
+            <div class="whitespace-nowrap" v-tooltip="slotProps.data.webhost?.nama_web">
+              {{ slotProps.data.webhost?.nama_web }}
+            </div>
+          </template>
+        </Column>
+        <Column field="tgl_masuk" header="Waktu" class="whitespace-nowrap">
           <template #body="slotProps">
               <div>
                 <div class="text-xs opacity-70">Masuk</div>
@@ -88,7 +94,7 @@
         </Column>
         <Column field="webmaster" header="Webmaster">
           <template #body="slotProps">
-            <div class="truncate w-20" v-tooltip="slotProps.data.wm_project?.user?.name">
+            <div class="truncate w-[70px]" v-tooltip="slotProps.data.wm_project?.user?.name">
               {{ slotProps.data.wm_project?.user?.name }}
             </div>
           </template>
@@ -96,7 +102,7 @@
         <Column field="act" header="Aksi">          
           <template #body="slotProps">
             <div class="flex justify-center items-center gap-1">
-              <Button size="small" severity="info">
+              <Button @click="openDialog('edit',slotProps.data)" size="small" severity="info">
                 <Icon name="lucide:edit" />
               </Button>
             </div>
@@ -175,6 +181,10 @@
     </form>
   </Drawer>
 
+  <Dialog v-model:visible="visibleDialog" modal header="Edit" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <ProjectManagerForm :data="dialogData" :action="dialogAction" />
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -249,5 +259,14 @@ const filterSubmit = async () => {
     getData()
     visibleDrawerFilter.value = false;
     updateRouteParams()
+}
+
+const visibleDialog = ref(false);
+const dialogData = ref({} as any);
+const dialogAction = ref('')
+const openDialog = (action: string, data : any) => {
+  dialogAction.value = action;
+  dialogData.value = data;
+  visibleDialog.value = true;
 }
 </script>
