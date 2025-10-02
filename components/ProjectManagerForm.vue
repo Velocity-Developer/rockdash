@@ -19,9 +19,9 @@
         
         <div>
           <label class="block text-sm font-medium opacity-50 mb-2">Jenis</label>
-          <di class="block w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md dark:bg-gray-950">
+          <div class="block w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md dark:bg-gray-950">
             {{ data.jenis || '-' }}
-          </di>
+          </div>
         </div>
                 
         <div>
@@ -196,14 +196,13 @@
 
     <!-- Save Button - Only show in edit mode -->
     <div v-if="props.action === 'edit'" class="flex justify-end mt-4">
-      <button 
+      <Button 
         type="button"
-        @click="handleSave"
-        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        @click="handleSave"        
       >
-        <Icon name="lucide:save" class="inline-block mr-2" size="16" />
+        <Icon name="lucide:save" />
         Simpan
-      </button>
+      </Button>
     </div>
   </div>
 </template>
@@ -282,40 +281,8 @@ const formatTanggal = (date: string | null | undefined) => {
   }
 }
 
-// Helper function to format date for input
-const formatDateForInput = (date: string | null | undefined) => {
-  if (!date || date === '0000-00-00' || date === '0000-00-00 00:00:00') {
-    return ''
-  }
-  
-  try {
-    const dateObj = new Date(date)
-    if (isNaN(dateObj.getTime())) {
-      return ''
-    }
-    
-    return dateObj.toISOString().split('T')[0]
-  } catch (error) {
-    return ''
-  }
-}
-
-// Helper function to format money
-const formatMoney = (amount: number | null | undefined) => {
-  if (amount === null || amount === undefined) {
-    return 'Rp 0'
-  }
-  
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(amount)
-}
-
 const loadingDataWebhost = ref(false)
-const dataWebhost = ref(props.data.webhost || {})
+const dataWebhost = ref({} as any)
 const getDataWebhost = async () => {
   if (props.data.webhost.id_webhost) {
     loadingDataWebhost.value = true
