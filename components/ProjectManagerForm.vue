@@ -1,149 +1,284 @@
 <template>
-    
-    <div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <tbody class="bg-white divide-y divide-gray-200">
-            <!-- Basic Project Info -->
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50 w-48">Jenis</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ data.jenis }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Nama Web</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ data.webhost?.nama_web }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Masuk Tanggal</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.tgl_masuk) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Deadline Tanggal</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.tgl_deadline) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Paket</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ data.webhost?.paket?.paket }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Deskripsi</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ data.deskripsi || '-' }}</td>
-            </tr>
-            
-            <!-- Webmaster Info -->
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Catatan Webmaster</td>
-              <td class="px-4 py-3 text-sm text-gray-700">-</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Dikerjakan Oleh</td>
-              <td class="px-4 py-3 text-sm text-gray-700">
-                <span v-if="data.raw_dikerjakan && data.raw_dikerjakan.length > 0">
-                  {{ data.raw_dikerjakan.join(', ') }}
-                </span>
-                <span v-else>-</span>
-              </td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Webmaster</td>
-              <td class="px-4 py-3 text-sm text-gray-700">
-                <div v-if="data.wm_project?.user" class="flex items-center gap-2">
-                  <img 
-                    v-if="data.wm_project.user.avatar_url" 
-                    :src="data.wm_project.user.avatar_url" 
-                    :alt="data.wm_project.user.name"
-                    class="w-6 h-6 rounded-full"
-                  >
-                  <span>{{ data.wm_project.user.name }}</span>
-                  <span class="text-xs text-gray-500">({{ data.wm_project.user.user_roles?.join(', ') }})</span>
-                </div>
-                <span v-else>-</span>
-              </td>
-            </tr>
-            
-            <!-- Project Management Dates -->
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Konfirmasi Revisi 1</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.pm_project?.konfirm_revisi_1) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Follow up revisi</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.pm_project?.fr1) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Rev 1</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.client_supports?.revisi_1) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Rev 1 + Konf. REV 2</td>
-              <td class="px-4 py-3 text-sm text-gray-700">-</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Rev 2 + Konf. Lunas</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.client_supports?.revisi_2) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Lunas</td>
-              <td class="px-4 py-3 text-sm text-gray-700">
-                <span :class="data.lunas === 'lunas' ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
-                  {{ data.lunas }}
-                </span>
-              </td>
-            </tr>
-            
-            <!-- Financial Info -->
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Saldo</td>
-              <td class="px-4 py-3 text-sm text-gray-700">
-                <span class="font-medium">{{ formatMoney(data.biaya - data.dibayar) }}</span>
-                <span class="text-xs text-gray-500 ml-2">
-                  (Biaya: {{ formatMoney(data.biaya) }} - Dibayar: {{ formatMoney(data.dibayar) }})
-                </span>
-              </td>
-            </tr>
-            
-            <!-- Additional Info -->
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Tutorial + Password</td>
-              <td class="px-4 py-3 text-sm text-gray-700">{{ formatTanggal(data.pm_project?.tutorial_password) }}</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">No. HP</td>
-              <td class="px-4 py-3 text-sm text-gray-700">-</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">BBM</td>
-              <td class="px-4 py-3 text-sm text-gray-700">-</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">WA</td>
-              <td class="px-4 py-3 text-sm text-gray-700">-</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-sm font-medium text-gray-900 bg-gray-50">Email</td>
-              <td class="px-4 py-3 text-sm text-gray-700">-</td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="max-w-4xl mx-auto p-6 space-y-6">
+    <!-- Client Information Section -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <Icon name="lucide:user" class="text-blue-600" size="16" />
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900">Client Information</h2>
       </div>
       
-      <!-- Client Supports Section -->
-      <div v-if="data.cs_main_project_client_supports && data.cs_main_project_client_supports.length > 0" class="mt-6">
-        <h4 class="text-md font-semibold text-gray-900 mb-3">Client Supports</h4>
-        <div class="bg-gray-50 rounded-lg p-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div 
-              v-for="support in data.cs_main_project_client_supports" 
-              :key="support.id"
-              class="bg-white rounded-md p-3 border border-gray-200"
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Website Name</label>
+          <input 
+            type="text" 
+            :value="data.webhost?.nama_web || ''"
+            placeholder="Enter website name"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Website Type</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+            <option>{{ data.jenis || 'Select type' }}</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Client Name</label>
+          <input 
+            type="text" 
+            value=""
+            placeholder="Enter client name"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Package</label>
+          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+            <option>{{ data.webhost?.paket?.paket || 'Select package' }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- After Sales Information Section -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+          <Icon name="lucide:calendar-check" class="text-green-600" size="16" />
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900">After Sales Information</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Revision 1 Confirmation Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.pm_project?.konfirm_revisi_1)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Revision 1 Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.client_supports?.revisi_1)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Revision 2 Confirmation Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.pm_project?.fr1)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Revision 2 Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.client_supports?.revisi_2)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Tutorial & Password Delivery Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.pm_project?.tutorial_password)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Client Contact Information Section -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+          <Icon name="lucide:phone" class="text-purple-600" size="16" />
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900">Client Contact Information</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Icon name="lucide:phone" class="text-gray-400" size="16" />
+            </div>
+            <input 
+              type="tel" 
+              value=""
+              placeholder="+62 xxx xxxx xxxx"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              readonly
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Icon name="lucide:message-circle" class="text-gray-400" size="16" />
+            </div>
+            <input 
+              type="tel" 
+              value=""
+              placeholder="+62 xxx xxxx xxxx"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              readonly
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Telegram</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Icon name="lucide:at-sign" class="text-gray-400" size="16" />
+            </div>
+            <input 
+              type="text" 
+              value=""
+              placeholder="@username"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              readonly
+            />
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Icon name="lucide:mail" class="text-gray-400" size="16" />
+            </div>
+            <input 
+              type="email" 
+              value=""
+              placeholder="client@example.com"
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Project Information -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+          <Icon name="lucide:info" class="text-gray-600" size="16" />
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900">Additional Information</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Entry Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.tgl_masuk)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Deadline Date</label>
+          <input 
+            type="date" 
+            :value="formatDateForInput(data.tgl_deadline)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            readonly
+          />
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+          <div class="flex items-center gap-2">
+            <span :class="data.lunas === 'lunas' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" 
+                  class="px-3 py-1 rounded-full text-sm font-medium">
+              {{ data.lunas }}
+            </span>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Balance</label>
+          <div class="text-lg font-semibold" :class="(data.biaya - data.dibayar) > 0 ? 'text-red-600' : 'text-green-600'">
+            {{ formatMoney(data.biaya - data.dibayar) }}
+          </div>
+          <div class="text-xs text-gray-500">
+            Cost: {{ formatMoney(data.biaya) }} - Paid: {{ formatMoney(data.dibayar) }}
+          </div>
+        </div>
+        
+        <div v-if="data.wm_project?.user" class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Webmaster</label>
+          <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
+            <img 
+              v-if="data.wm_project.user.avatar_url" 
+              :src="data.wm_project.user.avatar_url" 
+              :alt="data.wm_project.user.name"
+              class="w-10 h-10 rounded-full"
             >
-              <div class="text-sm font-medium text-gray-900">{{ support.layanan }}</div>
-              <div class="text-xs text-gray-500 mt-1">{{ formatTanggal(support.tanggal) }}</div>
+            <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center" v-else>
+              <Icon name="lucide:user" class="text-gray-600" size="20" />
+            </div>
+            <div>
+              <div class="font-medium text-gray-900">{{ data.wm_project.user.name }}</div>
+              <div class="text-sm text-gray-500">{{ data.wm_project.user.user_roles?.join(', ') }}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Client Supports Section -->
+    <div v-if="data.cs_main_project_client_supports && data.cs_main_project_client_supports.length > 0" 
+         class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <Icon name="lucide:headphones" class="text-blue-600" size="16" />
+        </div>
+        <h2 class="text-lg font-semibold text-gray-900">Client Supports</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div 
+          v-for="support in data.cs_main_project_client_supports" 
+          :key="support.id"
+          class="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+        >
+          <div class="font-medium text-gray-900 mb-1">{{ support.layanan }}</div>
+          <div class="text-sm text-gray-500">{{ formatTanggal(support.tanggal) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -177,6 +312,24 @@ const formatTanggal = (date: string | null | undefined) => {
     })
   } catch (error) {
     return '-'
+  }
+}
+
+// Helper function to format date for input
+const formatDateForInput = (date: string | null | undefined) => {
+  if (!date || date === '0000-00-00' || date === '0000-00-00 00:00:00') {
+    return ''
+  }
+  
+  try {
+    const dateObj = new Date(date)
+    if (isNaN(dateObj.getTime())) {
+      return ''
+    }
+    
+    return dateObj.toISOString().split('T')[0]
+  } catch (error) {
+    return ''
   }
 }
 
