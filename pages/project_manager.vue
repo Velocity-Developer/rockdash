@@ -99,6 +99,11 @@
             </div>
           </template>
         </Column>
+        <Column field="selesai" header="Selesai">          
+          <template #body="slotProps">
+            {{ slotProps.data.pm_project?.selesai }}
+          </template>
+        </Column>
         <Column field="act" header="Aksi">          
           <template #body="slotProps">
             <div class="flex justify-center items-center gap-1">
