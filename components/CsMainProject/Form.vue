@@ -101,7 +101,12 @@
         <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>
         
         <MultiSelect name="dikerjakan_oleh" id="dikerjakan_oleh" v-model="form.dikerjakan_oleh" 
-          :options="[{label:'Lainnya (eko)',value:23},{label:'Web Custom',value:12},{label:'Web Biasa',value:10}]" 
+          :options="[
+            {label:'Support (yuda)',value:28},
+            {label:'Lainnya (eko)',value:23},
+            {label:'Web Custom',value:12},
+            {label:'Web Biasa',value:10}
+          ]" 
           optionValue="value" optionLabel="label"
           filter showClear
         class="w-full" />
