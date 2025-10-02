@@ -181,7 +181,7 @@
     </form>
   </Drawer>
 
-  <Dialog v-model:visible="visibleDialog" modal header="Edit" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDialog" modal header="Edit" :style="{ width: '60vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <ProjectManagerForm :data="dialogData" :action="dialogAction" />
   </Dialog>
 
