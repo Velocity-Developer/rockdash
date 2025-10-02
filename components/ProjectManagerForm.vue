@@ -13,37 +13,49 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Website Name</label>
           <input 
+            v-if="props.action === 'edit'"
             type="text" 
             :value="data.webhost?.nama_web || ''"
             placeholder="Enter website name"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ data.webhost?.nama_web || '-' }}
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Website Type</label>
-          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+          <select v-if="props.action === 'edit'" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option>{{ data.jenis || 'Select type' }}</option>
           </select>
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ data.jenis || '-' }}
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Client Name</label>
           <input 
+            v-if="props.action === 'edit'"
             type="text" 
             value=""
             placeholder="Enter client name"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            -
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Package</label>
-          <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled>
+          <select v-if="props.action === 'edit'" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option>{{ data.webhost?.paket?.paket || 'Select package' }}</option>
           </select>
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ data.webhost?.paket?.paket || '-' }}
+          </div>
         </div>
       </div>
     </div>
@@ -61,51 +73,66 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Revision 1 Confirmation Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.pm_project?.konfirm_revisi_1)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.pm_project?.konfirm_revisi_1) }}
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Revision 1 Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.client_supports?.revisi_1)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.client_supports?.revisi_1) }}
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Revision 2 Confirmation Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.pm_project?.fr1)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.pm_project?.fr1) }}
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Revision 2 Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.client_supports?.revisi_2)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.client_supports?.revisi_2) }}
+          </div>
         </div>
         
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-gray-700 mb-2">Tutorial & Password Delivery Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.pm_project?.tutorial_password)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.pm_project?.tutorial_password) }}
+          </div>
         </div>
       </div>
     </div>
@@ -127,12 +154,15 @@
               <Icon name="lucide:phone" class="text-gray-400" size="16" />
             </div>
             <input 
+              v-if="props.action === 'edit'"
               type="tel" 
               value=""
               placeholder="+62 xxx xxxx xxxx"
               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              readonly
             />
+            <div v-else class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+              -
+            </div>
           </div>
         </div>
         
@@ -143,12 +173,15 @@
               <Icon name="lucide:message-circle" class="text-gray-400" size="16" />
             </div>
             <input 
+              v-if="props.action === 'edit'"
               type="tel" 
               value=""
               placeholder="+62 xxx xxxx xxxx"
               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              readonly
             />
+            <div v-else class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+              -
+            </div>
           </div>
         </div>
         
@@ -159,12 +192,15 @@
               <Icon name="lucide:at-sign" class="text-gray-400" size="16" />
             </div>
             <input 
+              v-if="props.action === 'edit'"
               type="text" 
               value=""
               placeholder="@username"
               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              readonly
             />
+            <div v-else class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+              -
+            </div>
           </div>
         </div>
         
@@ -175,12 +211,15 @@
               <Icon name="lucide:mail" class="text-gray-400" size="16" />
             </div>
             <input 
+              v-if="props.action === 'edit'"
               type="email" 
               value=""
               placeholder="client@example.com"
               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              readonly
             />
+            <div v-else class="w-full pl-10 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+              -
+            </div>
           </div>
         </div>
       </div>
@@ -199,21 +238,27 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Entry Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.tgl_masuk)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.tgl_masuk) }}
+          </div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Deadline Date</label>
           <input 
+            v-if="props.action === 'edit'"
             type="date" 
             :value="formatDateForInput(data.tgl_deadline)"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            readonly
           />
+          <div v-else class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
+            {{ formatTanggal(data.tgl_deadline) }}
+          </div>
         </div>
         
         <div>
@@ -277,6 +322,17 @@
           <div class="text-sm text-gray-500">{{ formatTanggal(support.tanggal) }}</div>
         </div>
       </div>
+    </div>
+
+    <!-- Save Button - Only show in edit mode -->
+    <div v-if="props.action === 'edit'" class="flex justify-end">
+      <button 
+        type="button"
+        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+      >
+        <Icon name="lucide:save" class="inline-block mr-2" size="16" />
+        Simpan
+      </button>
     </div>
   </div>
 </template>
