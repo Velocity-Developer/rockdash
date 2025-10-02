@@ -1,6 +1,6 @@
 <template>
 
-  <div class="mt-10 mb-3 flex justify-end items-center gap-2">
+  <div class="mb-3 flex justify-end items-center gap-2">
     <div class="hidden md:inline-block">
       <InputText @change="getData" type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
     </div>
@@ -196,7 +196,6 @@
 definePageMeta({
     title: 'Project Selesai',
     description: 'Daftar Project yang sudah dikerjakan',
-    development: true
 })
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
