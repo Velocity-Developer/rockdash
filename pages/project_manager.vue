@@ -33,7 +33,7 @@
         </Column>
         <Column field="webhost.nama_web" header="Web">
           <template #body="slotProps">
-            <div class="whitespace-nowrap" v-tooltip="slotProps.data.webhost?.nama_web">
+            <div @click="openDialog('preview',slotProps.data)" class="whitespace-nowrap cursor-pointer" v-tooltip="slotProps.data.webhost?.nama_web">
               {{ slotProps.data.webhost?.nama_web }}
             </div>
           </template>
