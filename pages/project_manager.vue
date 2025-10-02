@@ -43,6 +43,48 @@
                 {{ formatTanggal(slotProps.data.tgl_deadline) }}
               </div>
           </template>
+        </Column>        
+        <Column field="revisi_1" header="Rev.1" class="vertical-align-top">
+          <template #body="slotProps">
+            <ul class="list-disc ml-4">
+              <li class="mb-1">
+                <div class="text-xs opacity-70">Konf. Rev.1</div>
+                {{ slotProps.data.pm_project?.konfirm_revisi_1 }}
+              </li>
+              <li class="mb-1">
+                <div class="text-xs opacity-70">Follow up revisi</div>
+                {{ slotProps.data.pm_project?.fr1 }}
+              </li>
+              <li class="mb-1">
+                <div class="text-xs opacity-70">Revisi 1</div>
+                <template v-if="slotProps.data.client_supports?.revisi_1">
+                  {{ formatDate(slotProps.data.client_supports?.revisi_1, 'YYYY-MM-DD') }}
+                </template>
+              </li>
+            </ul>
+          </template>
+        </Column>
+        <Column field="revisi_2" header="Rev.2" class="vertical-align-top">
+          <template #body="slotProps">
+            <ul class="list-disc ml-4">
+              <li class="mb-1">
+                <div class="text-xs opacity-70">Konf. Rev.2</div>
+                {{ slotProps.data.pm_project?.konfirm_revisi_2 }}
+              </li>
+              <li class="mb-1">
+                <div class="text-xs opacity-70">Revisi 2 + Lunas</div>
+                <template v-if="slotProps.data.client_supports?.revisi_2">
+                  {{ formatDate(slotProps.data.client_supports?.revisi_2, 'YYYY-MM-DD') }}
+                </template>
+              </li>
+            </ul>
+          </template>
+        </Column>
+        <Column field="lunas" header="Lunas"></Column>
+        <Column field="tutorial_password" header="Tutor+Pass">          
+          <template #body="slotProps">
+            {{ slotProps.data.pm_project?.tutorial_password }}
+          </template>
         </Column>
         <Column field="webmaster" header="Webmaster">
           <template #body="slotProps">
@@ -51,36 +93,15 @@
             </div>
           </template>
         </Column>
-        <!-- <Column field="pm_project.konfirm_revisi_1" header="Konf. Rev. 1"></Column> -->
-        <!-- <Column field="pm_project.fr1" header="Follow up revisi"></Column> -->
-        <!-- <Column field="pm_project.revisi_1" header="Revisi 1"></Column> -->
-        <!-- <Column field="pm_project.konfirm_revisi_2" header="Rev 1 + Konf. Rev. 2"></Column> -->
-        <!-- <Column field="pm_project.revisi_2" header="Revisi 2"></Column> -->
-        <Column field="revisi_1" header="Rev.1">
+        <Column field="act" header="Aksi">          
           <template #body="slotProps">
-            <div class="mb-1">
-              <div class="text-xs opacity-70">Konf. Rev.1</div>
-              {{ slotProps.data.pm_project.konfirm_revisi_1 }}
-            </div>
-            <div v-for="(layanan, index) in slotProps.data.client_supports" :key="index" class="mb-1">
-              <div class="text-xs opacity-70">{{ index }}</div>
-              {{ layanan }}
+            <div class="flex justify-center items-center gap-1">
+              <Button size="small" severity="info">
+                <Icon name="lucide:edit" />
+              </Button>
             </div>
           </template>
         </Column>
-        <Column field="revisi_2" header="Rev.2">
-          <template #body="slotProps">
-            <div class="mb-1">
-              <div class="text-xs opacity-70">Konf. Rev.2</div>
-              {{ slotProps.data.pm_project.konfirm_revisi_2 }}
-            </div>
-            <div v-for="(layanan, index) in slotProps.data.client_supports" :key="index" class="mb-1">
-              <div class="text-xs opacity-70">{{ index }}</div>
-              {{ layanan }}
-            </div>
-          </template>
-        </Column>
-        <Column field="lunas" header="Lunas"></Column>
       </DataTable>
       <div class="flex justify-between items-center text-xs mt-3">
           <div>
