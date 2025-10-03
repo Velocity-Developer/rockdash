@@ -202,7 +202,12 @@
 
       
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Ambil':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ProjectListForm :action="actionDialog" :data="dataDialog" @update="getData()" />
+    <ProjectListForm 
+      :action="actionDialog" 
+      :data="dataDialog" 
+      @update="getData()" 
+      :jenis_project="filters.jenis_project"
+    />
   </Dialog>
 
   

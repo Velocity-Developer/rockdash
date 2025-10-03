@@ -153,7 +153,7 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const toast = useToast();
 const client = useSanctumClient();
-const props = defineProps(['action','data']);
+const props = defineProps(['action','data','jenis_project']);
 const action = props.action;
 const data = props.data;
 const emit = defineEmits(['update']);
@@ -172,6 +172,7 @@ const form = reactive({
   progress: 0,
   id_karyawan: data.raw_dikerjakan?data.raw_dikerjakan[0]:23,
   status_project: 'Belum dikerjakan',
+  jenis_project: props.jenis_project,
 });
 
 // Watch agar form terisi saat wm_project ter-update

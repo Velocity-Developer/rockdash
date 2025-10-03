@@ -1,13 +1,7 @@
 <template>
 
   <div class="mb-3 flex gap-3 flex-col md:flex-row md:justify-end">
-    <!-- <SelectButton 
-      v-model="filters.jenis_project" 
-      :options="[{label:'Semua',value:0},{label:'Biasa',value:10},{label:'Custom',value:12},{label:'Lainnya',value:23}]"
-      optionLabel="label" optionValue="value"
-      size="small"
-    /> -->
-
+  
     <div>
       <div class="flex gap-2 justify-end">
         <Select
@@ -202,7 +196,12 @@
 
       
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Ambil':'Edit'" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ProjectListForm :action="actionDialog" :data="dataDialog" @update="getData()" />
+    <ProjectListForm 
+      :action="actionDialog" 
+      :data="dataDialog" 
+      @update="getData()" 
+      :jenis_project="filters.jenis_project"
+    />
   </Dialog>
 
   
