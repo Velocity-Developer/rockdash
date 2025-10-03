@@ -46,7 +46,7 @@
       </div>
       <div class="flex-1">
         <label for="date_selesai">Tanggal Selesai</label>
-        <DatePicker v-model="form.date_selesai" showTime hourFormat="24" class="w-full" :disabled="form.progress < 60"/>
+        <DatePicker v-model="form.date_selesai" showTime hourFormat="24" class="w-full" :disabled="form.id_karyawan !== 28 && form.progress < 60"/>
       </div>
     </div>
         
@@ -56,7 +56,7 @@
     </div>
 
     <div class="flex gap-4 justify-between items-end">
-      <div class="flex-1">
+      <div class="flex-1" :class="{'!hidden': form.id_karyawan == 28}">
         <ProgressBar 
           v-if="form.progress" 
           :value="form.progress??0" 
@@ -72,8 +72,7 @@
         </Button>
       </div>
       <div class="flex-1 flex justify-end">
-        <div>
-          
+        <div>          
           <label for="status_project">Status Project</label>
             <Select
               v-model="form.status_project" 
@@ -85,7 +84,7 @@
                 'Kurang konfirmasi',
                 'Selesai'
               ]"
-              :disabled="form.progress < 60" 
+              :disabled="form.id_karyawan !== 28 && form.progress < 60"
               allowEmpty
               class="w-full"
             />
