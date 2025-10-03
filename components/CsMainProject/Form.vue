@@ -131,7 +131,7 @@
   </form>
 
   <div v-if="action == 'add'">
-    <CsMainProjectLastData />
+    <CsMainProjectLastData ref="lastDataComponent" />
   </div>
 
 </template>
@@ -145,6 +145,7 @@ const emit = defineEmits(['update']);
 const props = defineProps(['action','data']);
 const action = props.action;
 const data = props.data;
+const lastDataComponent = ref(null as any);
 
 const form = reactive({
   id: '',
@@ -222,6 +223,12 @@ const handleSubmit = async () => {
     }
     
     emit('update');
+    
+    // Refresh LastData component if it exists
+    if (lastDataComponent.value && lastDataComponent.value.getData) {
+      lastDataComponent.value.getData();
+    }
+    
     toast.add({
       severity: 'success',
       summary: 'Berhasil!',

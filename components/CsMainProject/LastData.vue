@@ -32,4 +32,9 @@ const getData = async () => {
 onMounted(() => {
   getData();
 })
+
+// Expose the getData method so it can be called from parent component
+defineExpose({
+  getData
+});
 </script>
