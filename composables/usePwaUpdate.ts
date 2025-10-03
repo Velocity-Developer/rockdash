@@ -1,6 +1,7 @@
 export const usePwaUpdate = () => {
   const showUpdateNotification = ref(false)
   const isUpdating = ref(false)
+  const updateCompleted = ref(false)
 
   // Handle PWA update
   const updatePwa = async () => {
@@ -31,6 +32,49 @@ export const usePwaUpdate = () => {
     }
   }
 
+  // Automatically apply update when available
+  const autoUpdatePwa = async () => {
+    isUpdating.value = true
+    
+    try {
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.getRegistration()
+        
+        if (registration && registration.waiting) {
+          // Tell the waiting service worker to skip waiting and become active
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+          
+          // Set flag that update is completed
+          updateCompleted.value = true
+          
+          // Listen for the controlling service worker change
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            // Show notification that update has been applied
+            showUpdateNotification.value = true
+            
+            // Reload the page to get the latest content after a short delay
+            setTimeout(() => {
+              window.location.reload()
+            }, 2000)
+          })
+        } else {
+          // Force update check
+          await registration?.update()
+          updateCompleted.value = true
+          showUpdateNotification.value = true
+          
+          // Reload the page to get the latest content after a short delay
+          setTimeout(() => {
+            window.location.reload()
+          }, 2000)
+        }
+      }
+    } catch (error) {
+      console.error('Error auto-updating PWA:', error)
+      isUpdating.value = false
+    }
+  }
+
   // Dismiss update notification
   const dismissUpdate = () => {
     showUpdateNotification.value = false
@@ -55,13 +99,11 @@ export const usePwaUpdate = () => {
     if (!('serviceWorker' in navigator)) return
 
     try {
-      // Don't show notification if recently dismissed
-      if (wasRecentlyDismissed()) return
-
       // Register service worker message listener
       navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'SW_UPDATE_AVAILABLE') {
-          showUpdateNotification.value = true
+          // Auto update when new version is available
+          autoUpdatePwa()
         }
       })
 
@@ -71,8 +113,9 @@ export const usePwaUpdate = () => {
         if (registration) {
           await registration.update()
           
-          if (registration.waiting && !wasRecentlyDismissed()) {
-            showUpdateNotification.value = true
+          if (registration.waiting) {
+            // Auto update when new version is available
+            autoUpdatePwa()
           }
         }
       }
@@ -90,10 +133,9 @@ export const usePwaUpdate = () => {
           const newWorker = registration.installing
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && 
-                  navigator.serviceWorker.controller && 
-                  !wasRecentlyDismissed()) {
-                showUpdateNotification.value = true
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Auto update when new version is available
+                autoUpdatePwa()
               }
             })
           }
@@ -120,8 +162,9 @@ export const usePwaUpdate = () => {
         if (registration) {
           await registration.update()
           
-          if (registration.waiting && !wasRecentlyDismissed()) {
-            showUpdateNotification.value = true
+          if (registration.waiting) {
+            // Auto update when new version is available
+            autoUpdatePwa()
           }
         }
       } catch (error) {
@@ -133,7 +176,9 @@ export const usePwaUpdate = () => {
   return {
     showUpdateNotification: readonly(showUpdateNotification),
     isUpdating: readonly(isUpdating),
+    updateCompleted: readonly(updateCompleted),
     updatePwa,
+    autoUpdatePwa,
     dismissUpdate,
     initPwaUpdateDetection,
     checkForUpdates

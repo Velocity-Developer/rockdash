@@ -5,8 +5,9 @@
   </NuxtLayout>
   <Toast />
   <ConfirmDialog/>
-  <PwaUpdateNotification 
-    :show="showUpdateNotification" 
+  <PwaUpdateNotification
+    :show="showUpdateNotification"
+    :update-completed="updateCompleted"
     @update="updatePwa"
     @dismiss="dismissUpdate"
   />
@@ -14,11 +15,12 @@
 
 <script setup lang="ts">
 // Use PWA update composable
-const { 
-  showUpdateNotification, 
-  updatePwa, 
-  dismissUpdate, 
-  initPwaUpdateDetection 
+const {
+  showUpdateNotification,
+  updateCompleted,
+  updatePwa,
+  dismissUpdate,
+  initPwaUpdateDetection
 } = usePwaUpdate()
 
 // Initialize dark mode globally

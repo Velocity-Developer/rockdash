@@ -14,20 +14,30 @@
       >
         <div class="flex items-start gap-3">
           <div class="flex-shrink-0">
-            <div class="w-10 h-10 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
+            <div v-if="updateCompleted" class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+              <Icon name="lucide:check-circle" class="w-5 h-5 text-green-600 dark:text-green-400" />
+            </div>
+            <div v-else class="w-10 h-10 bg-teal-100 dark:bg-teal-900 rounded-full flex items-center justify-center">
               <Icon name="lucide:download" class="w-5 h-5 text-teal-600 dark:text-teal-400" />
             </div>
           </div>
           
           <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+            <h3 v-if="updateCompleted" class="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+              Update Berhasil
+            </h3>
+            <h3 v-else class="text-sm font-semibold text-gray-900 dark:text-white mb-1">
               Update Tersedia
             </h3>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">
+            
+            <p v-if="updateCompleted" class="text-sm text-gray-600 dark:text-gray-300 mb-3">
+              Aplikasi telah diperbarui ke versi terbaru. Halaman akan dimuat ulang secara otomatis.
+            </p>
+            <p v-else class="text-sm text-gray-600 dark:text-gray-300 mb-3">
               Versi baru aplikasi telah tersedia. Update sekarang untuk mendapatkan fitur terbaru dan perbaikan bug.
             </p>
             
-            <div class="flex gap-2">
+            <div v-if="!updateCompleted" class="flex gap-2">
               <Button
                 @click="updateApp"
                 :loading="isUpdating"
@@ -47,6 +57,17 @@
                 Nanti Saja
               </Button>
             </div>
+            
+            <div v-else class="flex gap-2">
+              <Button
+                @click="dismissNotification"
+                size="small"
+                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-xs"
+              >
+                <Icon name="lucide:check" class="w-3 h-3 mr-1" />
+                OK
+              </Button>
+            </div>
           </div>
           
           <button
@@ -64,10 +85,12 @@
 <script setup lang="ts">
 interface Props {
   show?: boolean
+  updateCompleted?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  show: false
+  show: false,
+  updateCompleted: false
 })
 
 const emit = defineEmits<{
@@ -77,9 +100,14 @@ const emit = defineEmits<{
 
 const showNotification = ref(props.show)
 const isUpdating = ref(false)
+const updateCompleted = ref(props.updateCompleted)
 
 watch(() => props.show, (newValue) => {
   showNotification.value = newValue
+})
+
+watch(() => props.updateCompleted, (newValue) => {
+  updateCompleted.value = newValue
 })
 
 const updateApp = async () => {
