@@ -49,7 +49,7 @@
             <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
             <Column header="#" headerStyle="width:3rem">
               <template #body="slotProps">
-                  {{ slotProps.index + 1 }}
+                  {{ slotProps.index + data.from }}
               </template>
             </Column>
             <Column field="webhost.nama_web" header="Nama Web">
