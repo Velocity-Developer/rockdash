@@ -131,7 +131,7 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
-      periodicSyncForUpdates: 20,
+      periodicSyncForUpdates: 1440, // 24 hours instead of 20 minutes
     },
     devOptions: {
       enabled: true,

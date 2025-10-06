@@ -2,6 +2,13 @@ export const usePwaUpdate = () => {
   const showUpdateNotification = ref(false)
   const isUpdating = ref(false)
   const updateCompleted = ref(false)
+  
+  // Track last update check to prevent excessive requests
+  let lastUpdateCheck = 0
+  let checkInterval = 30 * 60 * 1000 // Start with 30 minutes
+  const maxCheckInterval = 4 * 60 * 60 * 1000 // Max 4 hours
+  const minCheckInterval = 15 * 60 * 1000 // Min 15 minutes
+  let visibilityCheckThrottle = false
 
   // Handle PWA update
   const updatePwa = async () => {
@@ -107,24 +114,52 @@ export const usePwaUpdate = () => {
         }
       })
 
-      // Check for updates function
-      const checkForUpdates = async () => {
-        const registration = await navigator.serviceWorker.getRegistration()
-        if (registration) {
-          await registration.update()
-          
-          if (registration.waiting) {
-            // Auto update when new version is available
-            autoUpdatePwa()
+      // Check for updates function with throttling and exponential backoff
+      const checkForUpdates = async (forceCheck = false) => {
+        const now = Date.now()
+        
+        // Throttle checks to prevent excessive requests
+        if (!forceCheck && (now - lastUpdateCheck) < minCheckInterval) {
+          console.log('Update check throttled - too soon since last check')
+          return
+        }
+        
+        lastUpdateCheck = now
+        
+        try {
+          const registration = await navigator.serviceWorker.getRegistration()
+          if (registration) {
+            await registration.update()
+            
+            if (registration.waiting) {
+              // Auto update when new version is available
+              autoUpdatePwa()
+              // Reset interval on successful update
+              checkInterval = 30 * 60 * 1000
+            } else {
+              // Implement exponential backoff if no update found
+              checkInterval = Math.min(checkInterval * 1.5, maxCheckInterval)
+              console.log(`No update found, next check in ${Math.round(checkInterval / 60000)} minutes`)
+            }
           }
+        } catch (error) {
+          console.error('Error during update check:', error)
+          // Increase interval on error
+          checkInterval = Math.min(checkInterval * 2, maxCheckInterval)
         }
       }
 
       // Initial check
-      await checkForUpdates()
+      await checkForUpdates(true)
 
-      // Periodic checks every 5 minutes
-      setInterval(checkForUpdates, 5 * 60 * 1000)
+      // Periodic checks with dynamic interval
+      const scheduleNextCheck = () => {
+        setTimeout(async () => {
+          await checkForUpdates()
+          scheduleNextCheck()
+        }, checkInterval)
+      }
+      scheduleNextCheck()
 
       // Listen for new service worker installations
       const registration = await navigator.serviceWorker.getRegistration()
@@ -142,10 +177,16 @@ export const usePwaUpdate = () => {
         })
       }
 
-      // Listen for page visibility changes to check for updates
+      // Listen for page visibility changes to check for updates (with throttling)
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
+        if (!document.hidden && !visibilityCheckThrottle) {
+          visibilityCheckThrottle = true
           checkForUpdates()
+          
+          // Reset throttle after 5 minutes
+          setTimeout(() => {
+            visibilityCheckThrottle = false
+          }, 5 * 60 * 1000)
         }
       })
 
@@ -154,8 +195,8 @@ export const usePwaUpdate = () => {
     }
   }
 
-  // Force check for updates
-  const checkForUpdates = async () => {
+  // Force check for updates (bypasses throttling)
+  const forceCheckForUpdates = async () => {
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.getRegistration()
@@ -181,6 +222,6 @@ export const usePwaUpdate = () => {
     autoUpdatePwa,
     dismissUpdate,
     initPwaUpdateDetection,
-    checkForUpdates
+    checkForUpdates: forceCheckForUpdates
   }
 }
