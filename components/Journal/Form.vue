@@ -371,30 +371,48 @@ onMounted( async () => {
       console.log(error);
     }
   } else if(props.action === 'clone') {
-    // For clone mode, populate form with cloned data
-    if(props.item) {
-      // Clone data from props.item (not from API)
-      form.journal_category_id = props.item.journal_category_id || ''
-      form.description = props.item.description || ''
-      form.webhost_id = props.item.webhost_id || null
-      form.cs_main_project_id = props.item.cs_main_project_id || ''
+    // For clone mode, get full data from backend like edit mode
+    try {
+      const res = await client('/api/journal/' + props.item.id) as any
 
-      // Clone detail_support if exists
-      if(props.item.detail_support) {
-        form.detail_support = {
-          hp: props.item.detail_support.hp || '',
-          wa: props.item.detail_support.wa || '',
-          email: props.item.detail_support.email || '',
-          biaya: props.item.detail_support.biaya || '',
-          tanggal_bayar: '' // Reset tanggal bayar untuk clone
-        }
+      // Clone data from API response
+      form.journal_category_id = res.journal_category_id || ''
+      form.description = res.description || ''
+      form.webhost_id = res.webhost_id || null
+      form.cs_main_project_id = res.cs_main_project_id || ''
+
+      //jika res.role kosong,maka ambil role dari user
+      if(!res.role) {
+        form.role = res.user.user_roles?.[0] || ''
+      } else {
+        form.role = res.role
       }
 
-      // Set role untuk clone (biasanya support)
-      form.role = props.item.role || props.defaultRole || useConfig.config?.role || 'support'
-      form.user_id = useConfig.config?.user?.id // Gunakan user yang login
+      // Handle detail_support from API data
+      if (res.detail_support) {
+        form.detail_support = {
+          hp: res.detail_support.hp || '',
+          wa: res.detail_support.wa || '',
+          email: res.detail_support.email || '',
+          biaya: res.detail_support.biaya || '',
+          tanggal_bayar: '' // Reset tanggal bayar untuk clone
+        }
+        console.log('Cloned detail_support from API:', form.detail_support)
+      } else if (form.role === 'support') {
+        form.detail_support = {
+          hp: '',
+          wa: '',
+          email: '',
+          biaya: '',
+          tanggal_bayar: ''
+        }
+        console.log('Initialized new detail_support for role support')
+      }
 
-      // Set default values
+      // Set user yang login untuk clone
+      form.user_id = useConfig.config?.user?.id
+
+      // Set default values for new entry
       form.title = '' // Reset title
       form.start = dateNow
       form.end = ''
@@ -414,6 +432,15 @@ onMounted( async () => {
           form.title = 'Support '+kategoriSelectedInfo.value.name
         }
       }
+
+    } catch (error) {
+      console.log('Error fetching journal data for clone:', error);
+      toast.add({
+        severity: 'error',
+        summary: 'Gagal!',
+        detail: 'Gagal mengambil data jurnal untuk di-clone',
+        life: 3000
+      });
     }
   } else {
     // For add mode, just load categories

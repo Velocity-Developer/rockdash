@@ -497,19 +497,8 @@ const openFormDialog = (action: string, item: any) => {
   actionFormDialog.value = action;
 
   if(action === 'clone' && item) {
-    // Untuk clone, buat salinan data untuk form baru
-    selectedItem.value = {
-      // Data yang di-clone
-      journal_category_id: item.journal_category_id,
-      description: item.description,
-      detail_support: {
-        hp: item.detail_support?.hp,
-        wa: item.detail_support?.wa,
-        biaya: item.detail_support?.biaya
-      },
-      webhost_id: item.webhost_id,
-      // Tidak mengclone ID, status, user, dan timestamp
-    };
+    // Untuk clone, kirim full item dengan id untuk API call
+    selectedItem.value = item;
   } else if(action === 'edit' && item) {
     selectedItem.value = item;
   } else {
