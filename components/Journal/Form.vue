@@ -256,7 +256,7 @@ const form = reactive({
   title: '',
   description: '',
   start: dateNow,
-  end: '',
+  end: props.action === 'add' ? dateNow : '',
   status: 'ongoing',
   priority: 'medium',
   user_id: useConfig.config?.user?.id,
@@ -415,7 +415,7 @@ onMounted( async () => {
       // Set default values for new entry
       form.title = '' // Reset title
       form.start = dateNow
-      form.end = ''
+      form.end = dateNow // Set default end time untuk clone
       form.status = 'ongoing'
       form.priority = 'medium'
       form.id = '' // Reset ID untuk data baru
