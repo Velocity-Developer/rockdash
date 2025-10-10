@@ -189,7 +189,7 @@
           <Button :loading="loading" type="submit">
             <Icon name="lucide:loader-circle" v-if="loading" class="animate-spin" />
             <Icon name="lucide:save" v-else/>          
-            {{ props.action === 'add' ? 'Tambah' : 'Update' }}
+            {{ getSubmitButtonText() }}
           </Button>
         </div>
       </div>
@@ -313,13 +313,13 @@ watch(() => form.role, (newRole) => {
   getCategories()
 })
 
-onMounted( async () => {  
+onMounted( async () => {
   if(props.action === 'edit') {
 
     //get detail journal
     try {
       const res = await client('/api/journal/' + props.item.id) as any
-      
+
       // Assign specific fields instead of using Object.assign
       form.id = res.id
       form.title = res.title || ''
@@ -339,7 +339,7 @@ onMounted( async () => {
       } else {
         form.role = res.role
       }
-      
+
       // Handle detail_support
       if (res.detail_support) {
         form.detail_support = {
@@ -361,14 +361,59 @@ onMounted( async () => {
 
       // Load categories first, then set kategoriSelectedInfo
       await getCategories()
-      
+
       // Set kategoriSelectedInfo after categories are loaded
       if (form.journal_category_id) {
         kategoriSelectedInfo.value = opsiCategories.value.find((category: any) => category.id === form.journal_category_id)
       }
-      
+
     } catch (error) {
       console.log(error);
+    }
+  } else if(props.action === 'clone') {
+    // For clone mode, populate form with cloned data
+    if(props.item) {
+      // Clone data from props.item (not from API)
+      form.journal_category_id = props.item.journal_category_id || ''
+      form.description = props.item.description || ''
+      form.webhost_id = props.item.webhost_id || null
+      form.cs_main_project_id = props.item.cs_main_project_id || ''
+
+      // Clone detail_support if exists
+      if(props.item.detail_support) {
+        form.detail_support = {
+          hp: props.item.detail_support.hp || '',
+          wa: props.item.detail_support.wa || '',
+          email: props.item.detail_support.email || '',
+          biaya: props.item.detail_support.biaya || '',
+          tanggal_bayar: '' // Reset tanggal bayar untuk clone
+        }
+      }
+
+      // Set role untuk clone (biasanya support)
+      form.role = props.item.role || props.defaultRole || useConfig.config?.role || 'support'
+      form.user_id = useConfig.config?.user?.id // Gunakan user yang login
+
+      // Set default values
+      form.title = '' // Reset title
+      form.start = dateNow
+      form.end = ''
+      form.status = 'ongoing'
+      form.priority = 'medium'
+      form.id = '' // Reset ID untuk data baru
+
+      // Load categories first, then set kategoriSelectedInfo
+      await getCategories()
+
+      // Set kategoriSelectedInfo after categories are loaded
+      if (form.journal_category_id) {
+        kategoriSelectedInfo.value = opsiCategories.value.find((category: any) => category.id === form.journal_category_id)
+
+        // Generate title otomatis untuk support
+        if(form.role == 'support' && kategoriSelectedInfo.value) {
+          form.title = 'Support '+kategoriSelectedInfo.value.name
+        }
+      }
     }
   } else {
     // For add mode, just load categories
@@ -396,7 +441,7 @@ const handleSubmit = async () => {
     form.detail_support.tanggal_bayar = null
   }
 
-  if(props.action === 'add') {
+  if(props.action === 'add' || props.action === 'clone') {
     try {
       await client('/api/journal', {
         method: 'POST',
@@ -405,7 +450,7 @@ const handleSubmit = async () => {
       toast.add({
         severity: 'success',
         summary: 'Berhasil!',
-        detail: 'Jurnal berhasil ditambahkan',
+        detail: props.action === 'clone' ? 'Jurnal berhasil di-clone' : 'Jurnal berhasil ditambahkan',
         life: 3000
       });
       emit('update')
@@ -416,7 +461,7 @@ const handleSubmit = async () => {
       toast.add({
         severity: 'error',
         summary: 'Gagal!',
-        detail: 'Jurnal gagal ditambahkan',
+        detail: props.action === 'clone' ? 'Jurnal gagal di-clone' : 'Jurnal gagal ditambahkan',
         life: 3000
       });
     }
@@ -503,5 +548,18 @@ const isDetailSupport = computed(() => {
     return false
   }
 })
+
+const getSubmitButtonText = () => {
+  switch (props.action) {
+    case 'add':
+      return 'Tambah'
+    case 'edit':
+      return 'Update'
+    case 'clone':
+      return 'Clone'
+    default:
+      return 'Simpan'
+  }
+}
 
 </script>

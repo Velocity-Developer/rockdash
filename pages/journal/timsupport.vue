@@ -206,13 +206,25 @@
         <Column field="user.name" header="User" style="width: 60px">
           <template #body="slotProps">
             <div class="flex justify-center">
-              <Avatar 
-                :image="slotProps.data.user?.avatar_url" 
-                shape="circle" 
-                size="small" 
-                class="w-8 h-8" 
+              <Avatar
+                :image="slotProps.data.user?.avatar_url"
+                shape="circle"
+                size="small"
+                class="w-8 h-8"
                 v-tooltip.top="slotProps.data.user?.name"
               />
+            </div>
+          </template>
+        </Column>
+        <Column header="Aksi" style="width: 80px">
+          <template #body="slotProps">
+            <div class="flex gap-1 justify-center">
+              <Button size="small" severity="contrast" @click="openFormDialog('clone', slotProps.data)" v-tooltip.top="'Clone Jurnal'">
+                <Icon name="lucide:copy" />
+              </Button>
+              <Button size="small" severity="secondary" @click="openFormDialog('edit', slotProps.data)" v-tooltip.top="'Edit Jurnal'">
+                <Icon name="lucide:pen" />
+              </Button>
             </div>
           </template>
         </Column>
@@ -242,7 +254,7 @@
   </Card>
 
   <!-- Form Dialog -->
-  <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '50rem' }">
+  <Dialog v-model:visible="visibleFormDialog" modal :header="getDialogHeader()" :style="{ width: '50rem' }">
     <JournalForm 
       :action="actionFormDialog" 
       :item="selectedItem" 
@@ -483,7 +495,22 @@ const actionFormDialog = ref('add');
 const openFormDialog = (action: string, item: any) => {
   visibleFormDialog.value = true;
   actionFormDialog.value = action;
-  if(item) {
+
+  if(action === 'clone' && item) {
+    // Untuk clone, buat salinan data untuk form baru
+    selectedItem.value = {
+      // Data yang di-clone
+      journal_category_id: item.journal_category_id,
+      description: item.description,
+      detail_support: {
+        hp: item.detail_support?.hp,
+        wa: item.detail_support?.wa,
+        biaya: item.detail_support?.biaya
+      },
+      webhost_id: item.webhost_id,
+      // Tidak mengclone ID, status, user, dan timestamp
+    };
+  } else if(action === 'edit' && item) {
     selectedItem.value = item;
   } else {
     selectedItem.value = {};
@@ -496,6 +523,19 @@ const deletedJournal = () => {
   getData()
   visibleFormDialog.value = false;
   selectedItem.value = {};
+}
+
+const getDialogHeader = () => {
+  switch (actionFormDialog.value) {
+    case 'add':
+      return 'Tambah Jurnal';
+    case 'edit':
+      return 'Edit Jurnal';
+    case 'clone':
+      return 'Tambah Jurnal (Clone)';
+    default:
+      return 'Jurnal';
+  }
 }
 
 // Filter Drawer (mobile)
