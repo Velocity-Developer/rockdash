@@ -195,9 +195,8 @@ const searchUsers = async () => {
 
 const getRecentUsers = async () => {
   try {
-    // Get a list of all users (we'll use this for recent users)
-    // In a real app, you might have a dedicated endpoint for frequently used users
-    const response = await client('/api/data_opsi/users')
+    // Get a list of all users using existing search endpoint with empty search
+    const response = await client('/api/user_search/')
     let users = response.data || []
 
     // Filter out current user and excluded IDs
