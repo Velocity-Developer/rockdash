@@ -208,7 +208,7 @@ const emit = defineEmits<{
 
 // Use the todo composable for API calls
 const { addTodo, editTodo, categories } = useTodoList()
-const { $toast } = useNuxtApp()
+const toast = useToast()
 
 // Mock current user for now (this should come from auth)
 const currentUser = ref({
@@ -331,8 +331,8 @@ const submitForm = async () => {
     const payload = {
       title: form.title.trim(),
       description: form.description?.trim() || undefined,
-      priority: form.priority,
-      due_date: form.due_date ? form.due_date.toISOString().split('T')[0] : undefined,
+      priority: form.priority as 'low' | 'medium' | 'high' | 'urgent',
+      due_date: form.due_date ? form.due_date : undefined,
       category_id: form.category_id || undefined,
       is_private: form.is_private,
       notes: form.notes?.trim() || undefined,
@@ -343,7 +343,7 @@ const submitForm = async () => {
     if (props.action === 'create') {
       await addTodo(payload)
 
-      $toast.add({
+      toast.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Todo berhasil dibuat',
@@ -352,7 +352,7 @@ const submitForm = async () => {
     } else if (props.todo) {
       await editTodo(props.todo.id, payload)
 
-      $toast.add({
+      toast.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Todo berhasil diupdate',
@@ -371,7 +371,7 @@ const submitForm = async () => {
         errors.value[key] = error.data.errors[key][0]
       })
     } else {
-      $toast.add({
+      toast.add({
         severity: 'error',
         summary: 'Error',
         detail: error.data?.message || 'Gagal menyimpan todo',
