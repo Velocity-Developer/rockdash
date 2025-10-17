@@ -35,7 +35,7 @@
           <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Prioritas
           </label>
-          <Select
+          <Dropdown
             id="priority"
             v-model="form.priority"
             :options="priorityOptions"
@@ -50,7 +50,7 @@
           <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Kategori
           </label>
-          <Select
+          <Dropdown
             id="category_id"
             v-model="form.category_id"
             :options="categories"
@@ -68,7 +68,7 @@
           <label for="due_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Deadline
           </label>
-          <DatePicker
+          <Calendar
             id="due_date"
             v-model="form.due_date"
             dateFormat="yy-mm-dd"
@@ -196,8 +196,6 @@
 </template>
 
 <script setup lang="ts">
-import { useToast } from 'primevue/usetoast'
-
 const props = defineProps<{
   action: 'create' | 'edit'
   todo?: any
@@ -208,13 +206,18 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const client = useSanctumClient()
-const toast = useToast()
-const currentUser = useSanctumUser<User>()
+// Use the todo composable for API calls
+const { addTodo, editTodo, categories } = useTodoList()
+const { $toast } = useNuxtApp()
+
+// Mock current user for now (this should come from auth)
+const currentUser = ref({
+  id: 1,
+  name: 'admin'
+})
 
 // State
 const loading = ref(false)
-const categories = ref<any[]>([])
 const selectedUsers = ref<any[]>([])
 const selectedRoles = ref<any[]>([])
 const includeMe = ref(false)
@@ -275,13 +278,9 @@ const assignments = computed(() => {
 })
 
 // Methods
-const getCategories = async () => {
-  try {
-    const response = await client('/api/todo_categories/active')
-    categories.value = response.data || []
-  } catch (error) {
-    console.error('Error fetching categories:', error)
-  }
+const loadCategories = async () => {
+  // Categories are loaded from the composable
+  // No need to manually fetch here
 }
 
 const handleIncludeMeChange = () => {
@@ -320,33 +319,40 @@ const submitForm = async () => {
   loading.value = true
 
   try {
+    // Prepare the payload according to backend API structure
+    const assignedUsers = assignments.value
+      .filter(a => a.type === 'user')
+      .map(a => a.id)
+
+    const assignedRoles = assignments.value
+      .filter(a => a.type === 'role')
+      .map(a => a.id)
+
     const payload = {
-      ...form,
-      assignments: assignments.value.map(a => ({
-        type: a.type,
-        id: a.id
-      }))
+      title: form.title.trim(),
+      description: form.description?.trim() || undefined,
+      priority: form.priority,
+      due_date: form.due_date ? form.due_date.toISOString().split('T')[0] : undefined,
+      category_id: form.category_id || undefined,
+      is_private: form.is_private,
+      notes: form.notes?.trim() || undefined,
+      assigned_users: assignedUsers,
+      assigned_roles: assignedRoles
     }
 
     if (props.action === 'create') {
-      await client('/api/todos', {
-        method: 'POST',
-        body: payload
-      })
+      await addTodo(payload)
 
-      toast.add({
+      $toast.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Todo berhasil dibuat',
         life: 3000
       })
-    } else {
-      await client(`/api/todos/${props.todo.id}`, {
-        method: 'PUT',
-        body: payload
-      })
+    } else if (props.todo) {
+      await editTodo(props.todo.id, payload)
 
-      toast.add({
+      $toast.add({
         severity: 'success',
         summary: 'Success',
         detail: 'Todo berhasil diupdate',
@@ -365,7 +371,7 @@ const submitForm = async () => {
         errors.value[key] = error.data.errors[key][0]
       })
     } else {
-      toast.add({
+      $toast.add({
         severity: 'error',
         summary: 'Error',
         detail: error.data?.message || 'Gagal menyimpan todo',
@@ -434,8 +440,8 @@ watch(() => props.todo, () => {
 }, { immediate: true })
 
 // Initialize
-onMounted(async () => {
-  await getCategories()
+onMounted(() => {
+  loadCategories()
   initializeForm()
 })
 </script>

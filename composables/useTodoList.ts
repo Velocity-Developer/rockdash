@@ -179,7 +179,7 @@ export const useTodoApi = () => {
 
   // Get todo statistics
   const getTodoStats = async () => {
-    return useFetch<TodoStats>(`${baseURL}/todos/stats`, {
+    return useFetch<TodoStats>(`${baseURL}/todos/statistics`, {
       key: 'todo-stats',
       headers: {
         'Accept': 'application/json',
@@ -189,7 +189,7 @@ export const useTodoApi = () => {
 
   // Get categories
   const getCategories = async () => {
-    return useFetch<TodoCategory[]>(`${baseURL}/todos/categories`, {
+    return useFetch<TodoCategory[]>(`${baseURL}/todo_categories`, {
       key: 'todo-categories',
       headers: {
         'Accept': 'application/json',
@@ -199,7 +199,7 @@ export const useTodoApi = () => {
 
   // Create category
   const createCategory = async (data: Partial<TodoCategory>) => {
-    return $fetch<TodoCategory>(`${baseURL}/todos/categories`, {
+    return $fetch<TodoCategory>(`${baseURL}/todo_categories`, {
       method: 'POST',
       body: data,
       headers: {
@@ -211,7 +211,7 @@ export const useTodoApi = () => {
 
   // Update category
   const updateCategory = async (id: number, data: Partial<TodoCategory>) => {
-    return $fetch<TodoCategory>(`${baseURL}/todos/categories/${id}`, {
+    return $fetch<TodoCategory>(`${baseURL}/todo_categories/${id}`, {
       method: 'PUT',
       body: data,
       headers: {
@@ -223,7 +223,7 @@ export const useTodoApi = () => {
 
   // Delete category
   const deleteCategory = async (id: number) => {
-    return $fetch(`${baseURL}/todos/categories/${id}`, {
+    return $fetch(`${baseURL}/todo_categories/${id}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -321,17 +321,35 @@ export const useTodoList = () => {
     error.value = null
 
     try {
-      const { data, meta } = await getTodos(filters.value, page)
+      const { data } = await getTodos(filters.value, page)
 
       if (data.value) {
-        todos.value = data.value.data
-        totalPages.value = data.value.meta.last_page
-        totalItems.value = data.value.meta.total
+        // Handle different response structures
+        if (Array.isArray(data.value)) {
+          // Direct array response
+          todos.value = data.value
+          totalPages.value = 1
+          totalItems.value = data.value.length
+        } else if (data.value.data && Array.isArray(data.value.data)) {
+          // Paginated response with data property
+          todos.value = data.value.data
+          totalPages.value = data.value.meta?.last_page || 1
+          totalItems.value = data.value.meta?.total || data.value.data.length
+        } else {
+          // Unexpected structure
+          console.warn('Unexpected API response structure:', data.value)
+          todos.value = []
+          totalPages.value = 1
+          totalItems.value = 0
+        }
         currentPage.value = page
       }
     } catch (err) {
       error.value = 'Failed to load todos'
       console.error('Error loading todos:', err)
+      todos.value = []
+      totalPages.value = 1
+      totalItems.value = 0
     } finally {
       loading.value = false
     }

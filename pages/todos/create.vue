@@ -21,6 +21,7 @@
       <template #content>
         <TodoForm
           action="create"
+          :todo="null"
           @success="handleSuccess"
           @cancel="handleCancel"
         />
@@ -30,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import TodoForm from '~/components/todos/TodoForm.vue'
+
 definePageMeta({
   title: 'Buat Todo Baru',
   description: 'Buat tugas baru dan assign ke user atau role',
