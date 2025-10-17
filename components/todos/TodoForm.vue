@@ -134,11 +134,28 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             User Spesifik
           </label>
-          <UserSelect
+          <Select
             v-model="selectedUsers"
-            :exclude-ids="[currentUser?.id]"
+            :options="opsiUsers"
+            optionLabel="label"
+            optionValue="value"
+            showClear
+            filter
+            multiple
             placeholder="Pilih user yang akan ditugaskan"
-          />
+            class="w-full"
+          >
+            <template #option="slotProps">
+              <div class="flex items-center">
+                <img
+                  :alt="slotProps.option.label"
+                  :src="slotProps.option.avatar"
+                  class="w-8 h-8 rounded-full mr-2 object-cover"
+                />
+                <div>{{ slotProps.option.label }}</div>
+              </div>
+            </template>
+          </Select>
         </div>
 
         <!-- Role Selection -->
@@ -146,9 +163,16 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Role/Departemen
           </label>
-          <RoleSelect
+          <Select
             v-model="selectedRoles"
+            :options="opsiRoles"
+            optionLabel="label"
+            optionValue="value"
+            showClear
+            filter
+            multiple
             placeholder="Pilih role yang akan ditugaskan"
+            class="w-full"
           />
         </div>
 
@@ -209,12 +233,26 @@ const emit = defineEmits<{
 // Use the todo composable for API calls
 const { addTodo, editTodo, categories } = useTodoList()
 const toast = useToast()
+const client = useSanctumClient()
 
 // Mock current user for now (this should come from auth)
 const currentUser = ref({
   id: 1,
   name: 'admin'
 })
+
+// Fetch users and roles options
+const { data: opsiUsers } = await useAsyncData(
+  'opsi-users-todoform',
+  () => client('/api/data_opsi/users'),
+  { default: () => [] }
+) as any
+
+const { data: opsiRoles } = await useAsyncData(
+  'opsi-roles-todoform',
+  () => client('/api/option/roles'),
+  { default: () => [] }
+) as any
 
 // State
 const loading = ref(false)
@@ -256,22 +294,28 @@ const assignments = computed(() => {
     })
   }
 
-  // Add selected users
-  selectedUsers.value.forEach(user => {
-    result.push({
-      type: 'user',
-      id: user.id,
-      name: user.name
-    })
+  // Add selected users (now using IDs from Select component)
+  selectedUsers.value.forEach(userId => {
+    const user = opsiUsers.value.find((u: any) => u.value === userId)
+    if (user) {
+      result.push({
+        type: 'user',
+        id: user.value,
+        name: user.label
+      })
+    }
   })
 
-  // Add selected roles
-  selectedRoles.value.forEach(role => {
-    result.push({
-      type: 'role',
-      id: role.id,
-      name: role.name
-    })
+  // Add selected roles (now using IDs from Select component)
+  selectedRoles.value.forEach(roleId => {
+    const role = opsiRoles.value.find((r: any) => r.value === roleId)
+    if (role) {
+      result.push({
+        type: 'role',
+        id: role.value,
+        name: role.label
+      })
+    }
   })
 
   return result
@@ -287,7 +331,7 @@ const handleIncludeMeChange = () => {
   if (includeMe.value && currentUser.value) {
     // Remove from selectedUsers if it exists there
     selectedUsers.value = selectedUsers.value.filter(
-      user => user.id !== currentUser.value?.id
+      userId => userId !== currentUser.value?.id
     )
   }
 }
@@ -397,16 +441,8 @@ const initializeForm = () => {
 
     // Set assignments from todo
     if (props.todo.assignments_summary) {
-      selectedUsers.value = props.todo.assignments_summary.users.map((u: any) => ({
-        id: u.id,
-        name: u.name,
-        avatar: u.avatar
-      }))
-
-      selectedRoles.value = props.todo.assignments_summary.roles.map((r: any) => ({
-        id: r.id,
-        name: r.name
-      }))
+      selectedUsers.value = props.todo.assignments_summary.users.map((u: any) => u.id)
+      selectedRoles.value = props.todo.assignments_summary.roles.map((r: any) => r.id)
 
       // Check if current user is in assignments
       if (currentUser.value) {
