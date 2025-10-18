@@ -412,6 +412,7 @@ const loadingUsers = ref(false);
 // Status options
 const statusOptions = [
   { label: 'Semua Status', value: null },
+  { label: 'Follow Up', value: 'followup' },
   { label: 'Proses', value: 'ongoing' },
   { label: 'Selesai', value: 'completed' },
   { label: 'Batal', value: 'cancelled' },
