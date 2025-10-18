@@ -1,4 +1,4 @@
-import { useFetch, useRuntimeConfig } from '#app'
+import { useRuntimeConfig } from '#app'
 
 export interface TodoList {
   id: number
@@ -111,6 +111,7 @@ export interface UpdateTodoData extends Partial<CreateTodoData> {
 export const useTodoApi = () => {
   const config = useRuntimeConfig()
   const baseURL = config.public.apiURL
+  const client = useSanctumClient()
 
   // Get all todos with filters and pagination
   const getTodos = async (filters: TodoFilters = {}, page = 1) => {
@@ -124,9 +125,8 @@ export const useTodoApi = () => {
 
     params.append('page', page.toString())
 
-    return useFetch<{ data: TodoList[], links: any, meta: any }>(`${baseURL}/todos`, {
-      key: `todos-${params.toString()}`,
-      query: Object.fromEntries(params),
+    return client(`${baseURL}/todos?${params.toString()}`, {
+      method: 'GET',
       headers: {
         'Accept': 'application/json',
       }
@@ -135,8 +135,8 @@ export const useTodoApi = () => {
 
   // Get single todo
   const getTodo = async (id: number) => {
-    return useFetch<TodoList>(`${baseURL}/todos/${id}`, {
-      key: `todo-${id}`,
+    return client<TodoList>(`${baseURL}/todos/${id}`, {
+      method: 'GET',
       headers: {
         'Accept': 'application/json',
       }
@@ -145,7 +145,7 @@ export const useTodoApi = () => {
 
   // Create todo
   const createTodo = async (data: CreateTodoData) => {
-    return $fetch<TodoList>(`${baseURL}/todos`, {
+    return client<TodoList>(`${baseURL}/todos`, {
       method: 'POST',
       body: data,
       headers: {
@@ -157,7 +157,7 @@ export const useTodoApi = () => {
 
   // Update todo
   const updateTodo = async (id: number, data: UpdateTodoData) => {
-    return $fetch<TodoList>(`${baseURL}/todos/${id}`, {
+    return client<TodoList>(`${baseURL}/todos/${id}`, {
       method: 'PUT',
       body: data,
       headers: {
@@ -169,7 +169,7 @@ export const useTodoApi = () => {
 
   // Delete todo
   const deleteTodo = async (id: number) => {
-    return $fetch(`${baseURL}/todos/${id}`, {
+    return client(`${baseURL}/todos/${id}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -179,8 +179,8 @@ export const useTodoApi = () => {
 
   // Get todo statistics
   const getTodoStats = async () => {
-    return useFetch<TodoStats>(`${baseURL}/todos/statistics`, {
-      key: 'todo-stats',
+    return client<TodoStats>(`${baseURL}/todos/statistics`, {
+      method: 'GET',
       headers: {
         'Accept': 'application/json',
       }
@@ -189,8 +189,8 @@ export const useTodoApi = () => {
 
   // Get categories
   const getCategories = async () => {
-    return useFetch<TodoCategory[]>(`${baseURL}/todo_categories`, {
-      key: 'todo-categories',
+    return client<TodoCategory[]>(`${baseURL}/todo_categories`, {
+      method: 'GET',
       headers: {
         'Accept': 'application/json',
       }
@@ -199,7 +199,7 @@ export const useTodoApi = () => {
 
   // Create category
   const createCategory = async (data: Partial<TodoCategory>) => {
-    return $fetch<TodoCategory>(`${baseURL}/todo_categories`, {
+    return client<TodoCategory>(`${baseURL}/todo_categories`, {
       method: 'POST',
       body: data,
       headers: {
@@ -211,7 +211,7 @@ export const useTodoApi = () => {
 
   // Update category
   const updateCategory = async (id: number, data: Partial<TodoCategory>) => {
-    return $fetch<TodoCategory>(`${baseURL}/todo_categories/${id}`, {
+    return client<TodoCategory>(`${baseURL}/todo_categories/${id}`, {
       method: 'PUT',
       body: data,
       headers: {
@@ -223,7 +223,7 @@ export const useTodoApi = () => {
 
   // Delete category
   const deleteCategory = async (id: number) => {
-    return $fetch(`${baseURL}/todo_categories/${id}`, {
+    return client(`${baseURL}/todo_categories/${id}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -233,7 +233,7 @@ export const useTodoApi = () => {
 
   // Assignment management
   const addAssignments = async (todoId: number, data: { users?: number[], roles?: number[] }) => {
-    return $fetch<TodoAssignment[]>(`${baseURL}/todos/${todoId}/assignments`, {
+    return client<TodoAssignment[]>(`${baseURL}/todos/${todoId}/assignments`, {
       method: 'POST',
       body: data,
       headers: {
@@ -244,7 +244,7 @@ export const useTodoApi = () => {
   }
 
   const updateAssignment = async (todoId: number, assignmentId: number, status: string) => {
-    return $fetch<TodoAssignment>(`${baseURL}/todos/${todoId}/assignments/${assignmentId}`, {
+    return client<TodoAssignment>(`${baseURL}/todos/${todoId}/assignments/${assignmentId}`, {
       method: 'PUT',
       body: { status },
       headers: {
@@ -255,7 +255,7 @@ export const useTodoApi = () => {
   }
 
   const removeAssignment = async (todoId: number, assignmentId: number) => {
-    return $fetch(`${baseURL}/todos/${todoId}/assignments/${assignmentId}`, {
+    return client(`${baseURL}/todos/${todoId}/assignments/${assignmentId}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -321,23 +321,23 @@ export const useTodoList = () => {
     error.value = null
 
     try {
-      const { data } = await getTodos(filters.value, page)
+      const data = await getTodos(filters.value, page)
 
-      if (data.value) {
+      if (data) {
         // Handle different response structures
-        if (Array.isArray(data.value)) {
+        if (Array.isArray(data)) {
           // Direct array response
-          todos.value = data.value
+          todos.value = data
           totalPages.value = 1
-          totalItems.value = data.value.length
-        } else if (data.value.data && Array.isArray(data.value.data)) {
+          totalItems.value = data.length
+        } else if ((data as any).data && Array.isArray((data as any).data)) {
           // Paginated response with data property
-          todos.value = data.value.data
-          totalPages.value = data.value.meta?.last_page || 1
-          totalItems.value = data.value.meta?.total || data.value.data.length
+          todos.value = (data as any).data
+          totalPages.value = (data as any).meta?.last_page || 1
+          totalItems.value = (data as any).meta?.total || (data as any).data.length
         } else {
           // Unexpected structure
-          console.warn('Unexpected API response structure:', data.value)
+          console.warn('Unexpected API response structure:', data)
           todos.value = []
           totalPages.value = 1
           totalItems.value = 0
@@ -361,9 +361,9 @@ export const useTodoList = () => {
     error.value = null
 
     try {
-      const { data } = await getTodo(id)
-      if (data.value) {
-        currentTodo.value = data.value
+      const data = await getTodo(id)
+      if (data) {
+        currentTodo.value = data
       }
     } catch (err) {
       error.value = 'Failed to load todo'
@@ -445,9 +445,9 @@ export const useTodoList = () => {
   // Load statistics
   const loadStats = async () => {
     try {
-      const { data } = await getTodoStats()
-      if (data.value) {
-        stats.value = data.value
+      const data = await getTodoStats()
+      if (data) {
+        stats.value = data
       }
     } catch (err) {
       console.error('Error loading stats:', err)
@@ -457,9 +457,9 @@ export const useTodoList = () => {
   // Load categories
   const loadCategories = async () => {
     try {
-      const { data } = await getCategories()
-      if (data.value) {
-        categories.value = data.value
+      const data = await getCategories()
+      if (data) {
+        categories.value = data
       }
     } catch (err) {
       console.error('Error loading categories:', err)

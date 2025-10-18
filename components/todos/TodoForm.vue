@@ -35,7 +35,7 @@
           <label for="priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Prioritas
           </label>
-          <Dropdown
+          <Select
             id="priority"
             v-model="form.priority"
             :options="priorityOptions"
@@ -50,7 +50,7 @@
           <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Kategori
           </label>
-          <Dropdown
+          <Select
             id="category_id"
             v-model="form.category_id"
             :options="categories"
@@ -68,7 +68,7 @@
           <label for="due_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Deadline
           </label>
-          <Calendar
+          <DatePicker
             id="due_date"
             v-model="form.due_date"
             dateFormat="yy-mm-dd"
