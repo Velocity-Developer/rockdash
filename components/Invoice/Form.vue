@@ -167,14 +167,6 @@ async function searchWebhost(websiteName: string, itemIndex: number) {
   }
 }
 
-// Handle website input with debounce
-function onWebsiteInput(value: string, itemIndex: number) {
-  if (webhostSearchTimer) clearTimeout(webhostSearchTimer);
-  webhostSearchTimer = setTimeout(() => {
-    searchWebhost(value, itemIndex);
-  }, 500);
-}
-
 // Select webhost from search results
 function selectWebhost(webhost: any) {
   if (currentItemIndex.value !== null) {
@@ -355,9 +347,9 @@ watchEffect(() => {
     selectedCustomerId.value = form.customer_id;
     form.note = props.modelValue.note;
     form.status = props.modelValue.status;
-    form.tanggal = props.modelValue.tanggal;
+    form.tanggal = props.modelValue.tanggal ? dayjs(props.modelValue.tanggal).toDate() : dayjs().toDate();
     form.jatuh_tempo = props.modelValue.jatuh_tempo;
-    form.tanggal_bayar = props.modelValue.tanggal_bayar;
+    form.tanggal_bayar = props.modelValue.tanggal_bayar ? dayjs(props.modelValue.tanggal_bayar).toDate() : null;
     form.subtotal = Number(props.modelValue.subtotal || 0);
     form.pajak = Boolean(props.modelValue.pajak);
     form.nama_pajak = props.modelValue.nama_pajak || '';
@@ -683,7 +675,13 @@ function toNumberLocale(v: any): number {
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Tanggal</label>
-          <DatePicker v-model="form.tanggal" showTime hourFormat="24" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }" />
+          <DatePicker
+           v-model="form.tanggal" 
+           showTime
+           hourFormat="24"
+           dateFormat="dd-mm-yy"
+           class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }"
+          />
           <small v-if="errorSubmit.tanggal" class="text-red-500 block mt-1">{{ errorSubmit.tanggal[0] }}</small>
         </div>
         <div>
@@ -705,7 +703,14 @@ function toNumberLocale(v: any): number {
         </div>
         <div v-if="form.status === 'lunas'">
           <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
-          <DatePicker v-model="form.tanggal_bayar" showTime hourFormat="24" class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" />
+          <DatePicker
+            v-model="form.tanggal_bayar"
+            showTime
+            hourFormat="24"
+            class="w-full" 
+            dateFormat="dd-mm-yy"
+            :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" 
+          />
           <small v-if="errorSubmit.tanggal_bayar" class="text-red-500 block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
         </div>
       </div>
