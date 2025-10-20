@@ -53,7 +53,7 @@
           <Select
             id="category_id"
             v-model="form.category_id"
-            :options="categories"
+            :options="opsiCategories"
             optionLabel="name"
             optionValue="id"
             showClear
@@ -231,7 +231,7 @@ const emit = defineEmits<{
 }>()
 
 // Use the todo composable for API calls
-const { addTodo, editTodo, categories } = useTodoList()
+const { addTodo, editTodo } = useTodoList()
 const toast = useToast()
 const client = useSanctumClient()
 
@@ -322,9 +322,15 @@ const assignments = computed(() => {
 })
 
 // Methods
+const opsiCategories = ref<any[]>([])
 const loadCategories = async () => {
-  // Categories are loaded from the composable
-  // No need to manually fetch here
+  try {
+    const response = await client(`api/todo_categories`) as any
+    opsiCategories.value = response.data
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    throw error
+  }
 }
 
 const handleIncludeMeChange = () => {

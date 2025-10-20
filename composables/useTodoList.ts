@@ -26,13 +26,7 @@ export interface TodoList {
     icon: string
   }
   assignments?: TodoAssignment[]
-  _stats?: {
-    total_assignments: number
-    completed_assignments: number
-    in_progress_assignments: number
-    pending_assignments: number
-    completion_percentage: number
-  }
+
 }
 
 export interface TodoAssignment {
@@ -67,18 +61,6 @@ export interface TodoCategory {
   is_active: boolean
   created_at: string
   updated_at: string
-}
-
-export interface TodoStats {
-  total: number
-  pending: number
-  in_progress: number
-  completed: number
-  cancelled: number
-  overdue_count: number
-  completion_rate: number
-  my_assigned_count: number
-  my_created_count: number
 }
 
 export interface TodoFilters {
@@ -177,24 +159,16 @@ export const useTodoApi = () => {
     })
   }
 
-  // Get todo statistics
-  const getTodoStats = async () => {
-    return client<TodoStats>(`${baseURL}/todos/statistics`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      }
-    })
-  }
 
   // Get categories
   const getCategories = async () => {
-    return client<TodoCategory[]>(`${baseURL}/todo_categories`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      }
-    })
+    try {
+      const response = await client(`api/todo_categories`) as any
+      return response.data
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+      throw error
+    }
   }
 
   // Create category
@@ -269,7 +243,6 @@ export const useTodoApi = () => {
     createTodo,
     updateTodo,
     deleteTodo,
-    getTodoStats,
     getCategories,
     createCategory,
     updateCategory,
@@ -285,7 +258,6 @@ export const useTodoList = () => {
   const todos = ref<TodoList[]>([])
   const currentTodo = ref<TodoList | null>(null)
   const categories = ref<TodoCategory[]>([])
-  const stats = ref<TodoStats | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -305,7 +277,6 @@ export const useTodoList = () => {
     createTodo,
     updateTodo,
     deleteTodo,
-    getTodoStats,
     getCategories,
     createCategory,
     updateCategory,
@@ -381,7 +352,6 @@ export const useTodoList = () => {
     try {
       const newTodo = await createTodo(todoData)
       todos.value.unshift(newTodo)
-      await loadStats() // Refresh stats
       return newTodo
     } catch (err: any) {
       error.value = err.data?.message || 'Failed to create todo'
@@ -409,7 +379,6 @@ export const useTodoList = () => {
         currentTodo.value = updatedTodo
       }
 
-      await loadStats() // Refresh stats
       return updatedTodo
     } catch (err: any) {
       error.value = err.data?.message || 'Failed to update todo'
@@ -433,24 +402,11 @@ export const useTodoList = () => {
         currentTodo.value = null
       }
 
-      await loadStats() // Refresh stats
     } catch (err: any) {
       error.value = err.data?.message || 'Failed to delete todo'
       throw err
     } finally {
       loading.value = false
-    }
-  }
-
-  // Load statistics
-  const loadStats = async () => {
-    try {
-      const data = await getTodoStats()
-      if (data) {
-        stats.value = data
-      }
-    } catch (err) {
-      console.error('Error loading stats:', err)
     }
   }
 
@@ -525,8 +481,6 @@ export const useTodoList = () => {
           await loadTodos(currentPage.value) // Refresh current page
         }
       }
-
-      await loadStats() // Refresh stats
       return assignment
     } catch (err: any) {
       error.value = err.data?.message || 'Failed to update assignment'
@@ -565,7 +519,6 @@ export const useTodoList = () => {
   // Initialize
   onMounted(async () => {
     await Promise.all([
-      loadStats(),
       loadCategories(),
       loadTodos()
     ])
@@ -576,7 +529,6 @@ export const useTodoList = () => {
     todos: readonly(todos),
     currentTodo: readonly(currentTodo),
     categories: readonly(categories),
-    stats: readonly(stats),
     loading: readonly(loading),
     error: readonly(error),
     filters: readonly(filters),
@@ -590,7 +542,6 @@ export const useTodoList = () => {
     addTodo,
     editTodo,
     removeTodo,
-    loadStats,
     loadCategories,
     setFilters,
     clearFilters,

@@ -285,13 +285,11 @@ const getTodos = async () => {
         ...filters,
         pagination: 'true'
       }
-    })
+    }) as any
 
     todos.value = response.data || []
     pagination.value = response
 
-    // Update tab counts
-    await getStatistics()
   } catch (error) {
     console.error('Error fetching todos:', error)
     useToast().add({
@@ -305,18 +303,9 @@ const getTodos = async () => {
   }
 }
 
-const getStatistics = async () => {
-  try {
-    const response = await client('/api/todos/statistics')
-    statistics.value = response.data
-  } catch (error) {
-    console.error('Error fetching statistics:', error)
-  }
-}
-
 const getCategories = async () => {
   try {
-    const response = await client('/api/todo_categories/active')
+    const response = await client('/api/todo_categories/active') as any
     categories.value = response.data || []
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -377,7 +366,6 @@ onMounted(async () => {
   await Promise.all([
     getCategories(),
     getTodos(),
-    getStatistics()
   ])
 })
 </script>
