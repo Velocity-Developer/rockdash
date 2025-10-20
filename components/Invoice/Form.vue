@@ -1,3 +1,351 @@
+
+<template>
+  <form @submit.prevent="submitForm" class="p-4 space-y-5">
+    <!-- Client Information -->
+    <div>
+      <div class="flex items-center gap-2 text-md font-bold mb-3">
+        <Icon name="lucide:user-round" class="text-indigo-700" /> 
+        Informasi Klien
+        <!-- Badge untuk customer yang sudah ada -->
+        <div v-if="form.customer_id" class="flex items-center gap-1">
+          <Badge value="Customer Terdaftar" severity="success" class="text-xs" />
+          <Button 
+            @click="clearSelectedCustomer" 
+            icon="lucide:x" 
+            size="small" 
+            severity="secondary" 
+            text 
+            class="p-1 w-6 h-6" 
+            v-tooltip="'Hapus pilihan customer'"
+          />
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="relative">
+          <label class="block text-sm font-medium mb-1">Nama</label>
+          <div class="relative">
+            <InputText v-model="form.nama_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.nama_klien }" placeholder="Masukkan nama klien" />
+          </div>
+          
+          <!-- Customer Suggestions Dropdown -->
+          <div v-if="showCustomerPicker" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-800 dark:border-gray-600">
+            <div v-if="isSearchingCustomer" class="p-3 text-sm text-gray-500 dark:text-gray-400">
+              <Icon name="lucide:loader-2" class="animate-spin inline mr-2" />Mencari...
+            </div>
+            <div v-else-if="customerOptions.length">
+              <div 
+                v-for="customer in customerOptions" 
+                :key="customer.id"
+                @click="selectCustomer(customer)"
+                class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+              >
+                <div class="font-medium text-sm">{{ customer.raw.nama }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                  <span v-if="customer.raw.email">{{ customer.raw.email }}</span>
+                  <span v-if="customer.raw.email && customer.raw.hp"> • </span>
+                  <span v-if="customer.raw.hp">{{ customer.raw.hp }}</span>
+                  <span v-if="customer.raw.alamat"> • {{ customer.raw.alamat }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="p-3 text-sm text-gray-500 dark:text-gray-400">
+              Tidak ditemukan customer. Customer baru akan dibuat.
+            </div>
+          </div>
+          
+          <small v-if="errorSubmit.nama_klien" class="text-red-500 block mt-1">{{ errorSubmit.nama_klien[0] }}</small>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Telepon</label>
+          <InputText v-model="form.telepon_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.telepon_klien }" placeholder="No hp klien" />
+          <small v-if="errorSubmit.telepon_klien" class="text-red-500 block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Email</label>
+          <InputText v-model="form.email_klien" type="email" class="w-full" :class="{ 'p-invalid': errorSubmit.email_klien }" placeholder="Email klien" />
+          <small v-if="errorSubmit.email_klien" class="text-red-500 block mt-1">{{ errorSubmit.email_klien[0] }}</small>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-2 mt-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Alamat</label>
+          <Textarea v-model="form.alamat_klien" class="w-full" autoResize rows="2" placeholder="Masukkan alamat klien" />
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- Invoice Details -->
+    <div>
+      <div class="flex items-center gap-2 text-md font-bold mb-3">
+        <Icon name="lucide:file-text" class="text-green-700" /> Invoice Details
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Invoice</label>
+          <InputText :model-value="nomorPreview" class="w-full" disabled placeholder="Auto generated" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Tanggal</label>
+          <DatePicker
+           v-model="form.tanggal" 
+           showTime
+           hourFormat="24"
+           dateFormat="dd-mm-yy"
+           class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }"
+          />
+          <small v-if="errorSubmit.tanggal" class="text-red-500 block mt-1">{{ errorSubmit.tanggal[0] }}</small>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Jatuh tempo</label>
+          <DatePicker v-model="form.jatuh_tempo" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.jatuh_tempo }" />
+          <small v-if="errorSubmit.jatuh_tempo" class="text-red-500 block mt-1">{{ errorSubmit.jatuh_tempo[0] }}</small>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Unit</label>
+          <Select v-model="form.unit" :options="unitOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.unit }" placeholder="Pilih unit" />
+          <small v-if="errorSubmit.unit" class="text-red-500 block mt-1">{{ errorSubmit.unit[0] }}</small>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Status</label>
+          <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Pilih status" />
+          <small v-if="errorSubmit.status" class="text-red-500 block mt-1">{{ errorSubmit.status[0] }}</small>
+        </div>
+        <div v-if="form.status === 'lunas'">
+          <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
+          <DatePicker
+            v-model="form.tanggal_bayar"
+            showTime
+            hourFormat="24"
+            class="w-full" 
+            dateFormat="dd-mm-yy"
+            :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" 
+          />
+          <small v-if="errorSubmit.tanggal_bayar" class="text-red-500 block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Items -->
+    <div class="bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-500 rounded-lg">
+      <div class="flex items-center justify-between p-3 border-b">
+        <div class="flex items-center gap-2 text-md font-bold">
+          <Icon name="lucide:table-properties" class="text-blue-700" /> Item Invoice
+        </div>
+        <Button @click="addItem" type="button" size="small" severity="info"><Icon name="lucide:plus" /> Add Item</Button>
+      </div>
+
+      <div class="p-3">
+        <small v-if="errorSubmit.items" class="p-error block mb-2">{{ errorSubmit.items[0] }}</small>
+
+        <div v-for="(item, index) in form.items" :key="index" class="bg-white dark:bg-zinc-700 rounded-lg border dark:border-zinc-800 p-3 mb-3">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+            <div class="md:col-span-4">
+              <label class="block text-xs font-medium mb-1">
+                Jenis                
+                <span v-if="item.webhost_id && item.website" class="opacity-75">
+                  ( {{ item.website }} )
+                </span>
+              </label>
+              <div class="flex gap-2">
+                <Select v-model="item.jenis" :options="dataOpsiJenis" showClear class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
+                <Button 
+                  v-if="item.jenis" 
+                  @click="openWebhostDialog(index)"
+                  type="button" 
+                  severity="info" outlined
+                  size="small"
+                  v-tooltip="'Pilih Webhost'"
+                >
+                  <Icon name="lucide:globe" />
+                </Button>
+              </div>
+              <small v-if="errorSubmit[`items.${index}.jenis`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
+            </div>
+            <div class="md:col-span-5">
+              <label class="block text-xs font-medium mb-1">Nama Item</label>
+              <InputText v-model="item.nama" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.nama`] }" placeholder="Nama/keterangan" />
+              <small v-if="errorSubmit[`items.${index}.nama`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-medium mb-1">Harga</label>
+              <InputNumber v-model="item.harga" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.harga`] }" placeholder="0.00" mode="currency" currency="IDR" locale="id-ID" />
+              <small v-if="errorSubmit[`items.${index}.harga`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.harga`][0] }}</small>
+            </div>
+            <div class="md:col-span-1 md:justify-self-end">
+              <Button @click="removeItem(index)" type="button" severity="danger" class="px-1" text :disabled="form.items.length === 1">
+                <Icon name="lucide:trash-2" />
+              </Button>
+            </div>
+          </div>
+        </div>
+       
+      </div>
+    </div>
+
+     <!-- Summary -->
+    <div class="mt-4 rounded-lg border border-gray-300 dark:border-gray-700 overflow-hidden">
+      <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-900 dark:to-sky-950 p-3">
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div class="font-semibold">Subtotal:</div>
+          <div class="text-right">{{ formatIDR(form.subtotal) }}</div>
+          <div class="font-semibold">Pajak:</div>
+          <div class="text-right">
+            <ToggleSwitch v-model="form.pajak" :class="{ 'p-invalid': errorSubmit.pajak }" />
+          </div>
+          <template v-if="form.pajak">
+            <div class="font-semibold">Nama Pajak:</div>
+            <div class="text-right">
+              <InputText
+                v-model="form.nama_pajak"
+                class="w-full text-right"
+                :class="{ 'p-invalid': errorSubmit.nama_pajak }"
+                placeholder="PPN, PPh, dll"
+                size="small"
+              />
+            </div>
+            <div class="font-semibold">Nominal Pajak:</div>
+            <div class="text-right">
+              <InputNumber
+                v-model="form.nominal_pajak"
+                class="overflow-hidden rounded-md border-none"
+                fluid
+                mode="currency"
+                currency="IDR"
+                locale="id-ID"
+                :class="{ 'p-invalid': errorSubmit.nominal_pajak }"
+                size="small"
+                placeholder="0"
+              />
+            </div>
+          </template>
+          <div class="col-span-2 border border-b-blue-300"></div>
+          <div class="font-semibold">Total:</div>
+          <div class="text-right font-semibold text-xl">{{ formatIDR(form.total) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Notes (Optional)</label>
+      <Textarea v-model="form.note" class="w-full" :class="{ 'p-invalid': errorSubmit.note }" placeholder="Tambahkan catatan tambahan" rows="3" />
+      <small v-if="errorSubmit.note" class="text-red-500 block mt-1">{{ errorSubmit.note[0] }}</small>
+    </div>
+
+    <!-- Error Display -->
+    <Message v-if="Object.keys(errorSubmit).length > 0" severity="error" closable>
+      <h4 class="text-red-800 font-medium mb-2">Terdapat kesalahan pada form:</h4>
+      <ul class="text-red-700 text-sm space-y-1">
+        <li v-for="(errors, field) in errorSubmit" :key="field" class="flex items-start">
+          <span class="inline-block w-2 h-2 bg-red-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+          <div>
+            <span class="font-medium capitalize">{{ String(field).replace('_', ' ') }}:</span>
+            <span v-if="Array.isArray(errors)">{{ errors.join(', ') }}</span>
+            <span v-else>{{ errors }}</span>
+          </div>
+        </li>
+      </ul>
+    </Message>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-2 pt-2">
+      <Button @click="closeForm" type="button" severity="secondary" outlined>Batal</Button>
+      <Button type="submit" :loading="loadingSubmit">
+        <span v-if="props.action === 'edit' && props.modelValue">Update Invoice</span>
+        <span v-else>Buat Invoice</span>
+      </Button>
+    </div>
+  </form>
+
+  <!-- Webhost Search Dialog -->
+  <Dialog 
+    v-model:visible="showWebhostDialog" 
+    modal 
+    header="Pilih Webhost" 
+    :style="{ width: '50rem' }"
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
+    <div class="mb-3">
+      <div class="flex items-center gap-2 mb-2">
+        <Icon name="lucide:search" class="text-gray-500" />
+        <span class="text-sm text-gray-600">Hasil pencarian webhost:</span>
+        <div v-if="isSearchingWebhost" class="text-xs text-blue-600">mencari...</div>
+      </div>
+    </div>
+    
+    <div v-if="webhostSearchResults.length > 0" class="space-y-2">
+      <div 
+        v-for="webhost in webhostSearchResults" 
+        :key="webhost.id"
+        class="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        @click="selectWebhost(webhost)"
+      >
+        <div class="font-medium">{{ webhost.nama }}</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400">{{ webhost.domain }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-500">Customer: {{ webhost.customer }}</div>
+      </div>
+    </div>
+    
+    <div v-else-if="!isSearchingWebhost" class="text-center py-4 text-gray-500">
+      Tidak ditemukan webhost yang cocok
+    </div>
+    
+    <template #footer>
+      <Button 
+        @click="showWebhostDialog = false" 
+        severity="secondary" 
+        text
+      >
+        Tutup
+      </Button>
+    </template>
+  </Dialog>
+
+  <!-- Webhost Picker Dialog -->
+  <Dialog 
+    v-model:visible="showWebhostPickerDialog" 
+    modal 
+    header="Pilih Webhost" 
+    :style="{ width: '60rem' }"
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
+    <div class="mb-4">
+      <InputText 
+        v-model="webhostPickerSearch" 
+        placeholder="Cari webhost berdasarkan nama atau domain..." 
+        class="w-full"
+      />
+    </div>
+    
+    <div v-if="isLoadingWebhostPicker" class="text-center py-4">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      <div class="mt-2">Mencari webhost...</div>
+    </div>
+    <div v-else-if="webhostPickerResults.length" class="max-h-96 overflow-y-auto space-y-2">
+      <div 
+        v-for="webhost in webhostPickerResults" 
+        :key="webhost.id"
+        @click="selectWebhostFromPicker(webhost)"
+        class="p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
+        {{ webhost.nama }}
+      </div>
+    </div>
+    <div v-else class="text-center py-8 text-gray-500">
+      <i class="pi pi-search text-4xl mb-2 block"></i>
+      <div>{{ webhostPickerSearch ? 'Tidak ada webhost ditemukan' : 'Ketik untuk mencari webhost' }}</div>
+    </div>
+    
+    <template #footer>
+      <Button @click="showWebhostPickerDialog = false" label="Tutup" severity="secondary" />
+    </template>
+  </Dialog>
+</template>
+
 <script setup lang="ts">
 import { onMounted, onUnmounted } from 'vue'
 import { useDayjs } from '#dayjs'
@@ -489,6 +837,36 @@ async function submitForm() {
       });
       customerId = cust?.id ?? cust?.data?.id ?? null;
       if (!customerId) throw { bag: { customer_id: ['Gagal membuat customer'] } };
+    } else {
+      // Update data customer yang sudah ada saat edit invoice
+      console.log('DEBUG: customerId =', customerId);
+      console.log('DEBUG: props.action =', props.action);
+      console.log('DEBUG: selectedCustomerId =', selectedCustomerId.value);
+      console.log('DEBUG: form.customer_id =', form.customer_id);
+
+      if (props.action === 'edit') {
+        console.log('DEBUG: Will update customer', customerId);
+        try {
+          const customerData = {
+            nama: form.nama_klien,
+            email: form.email_klien || null,
+            hp: form.telepon_klien || null,
+            alamat: form.alamat_klien || null,
+          };
+          console.log('DEBUG: Customer data to update:', customerData);
+
+          await client(`/api/customer/${customerId}`, {
+            method: 'PUT',
+            body: customerData
+          });
+          console.log('DEBUG: Customer updated successfully');
+        } catch (error) {
+          console.error('Error updating customer:', error);
+          // Tetap lanjutkan simpan invoice meskipun update customer gagal
+        }
+      } else {
+        console.log('DEBUG: Not updating customer because action is not edit');
+      }
     }
 
     // Kosongkan tanggal_bayar jika status bukan lunas
@@ -511,6 +889,12 @@ async function submitForm() {
       nominal_pajak: Number(form.nominal_pajak || 0),
       total: Number(form.total || 0),
       items: form.items.map((it: any) => ({ id: it.id, webhost_id: it.webhost_id, nama: it.nama, jenis: it.jenis, harga: Number(it.harga || 0) })),
+      customer_info : {
+        nama: form.nama_klien,
+        email: form.email_klien || null,
+        hp: form.telepon_klien || null,
+        alamat: form.alamat_klien || null,
+      }
     };
     
     // Kirim data ke API
@@ -586,351 +970,5 @@ function toNumberLocale(v: any): number {
 
 </script>
 
-<template>
-  <form @submit.prevent="submitForm" class="p-4 space-y-5">
-    <!-- Client Information -->
-    <div>
-      <div class="flex items-center gap-2 text-md font-bold mb-3">
-        <Icon name="lucide:user-round" class="text-indigo-700" /> 
-        Informasi Klien
-        <!-- Badge untuk customer yang sudah ada -->
-        <div v-if="form.customer_id" class="flex items-center gap-1">
-          <Badge value="Customer Terdaftar" severity="success" class="text-xs" />
-          <Button 
-            @click="clearSelectedCustomer" 
-            icon="lucide:x" 
-            size="small" 
-            severity="secondary" 
-            text 
-            class="p-1 w-6 h-6" 
-            v-tooltip="'Hapus pilihan customer'"
-          />
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        <div class="relative">
-          <label class="block text-sm font-medium mb-1">Nama</label>
-          <div class="relative">
-            <InputText v-model="form.nama_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.nama_klien }" placeholder="Masukkan nama klien" />
-          </div>
-          
-          <!-- Customer Suggestions Dropdown -->
-          <div v-if="showCustomerPicker" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto dark:bg-gray-800 dark:border-gray-600">
-            <div v-if="isSearchingCustomer" class="p-3 text-sm text-gray-500 dark:text-gray-400">
-              <Icon name="lucide:loader-2" class="animate-spin inline mr-2" />Mencari...
-            </div>
-            <div v-else-if="customerOptions.length">
-              <div 
-                v-for="customer in customerOptions" 
-                :key="customer.id"
-                @click="selectCustomer(customer)"
-                class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-              >
-                <div class="font-medium text-sm">{{ customer.raw.nama }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400">
-                  <span v-if="customer.raw.email">{{ customer.raw.email }}</span>
-                  <span v-if="customer.raw.email && customer.raw.hp"> • </span>
-                  <span v-if="customer.raw.hp">{{ customer.raw.hp }}</span>
-                  <span v-if="customer.raw.alamat"> • {{ customer.raw.alamat }}</span>
-                </div>
-              </div>
-            </div>
-            <div v-else class="p-3 text-sm text-gray-500 dark:text-gray-400">
-              Tidak ditemukan customer. Customer baru akan dibuat.
-            </div>
-          </div>
-          
-          <small v-if="errorSubmit.nama_klien" class="text-red-500 block mt-1">{{ errorSubmit.nama_klien[0] }}</small>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Telepon</label>
-          <InputText v-model="form.telepon_klien" class="w-full" :class="{ 'p-invalid': errorSubmit.telepon_klien }" placeholder="No hp klien" />
-          <small v-if="errorSubmit.telepon_klien" class="text-red-500 block mt-1">{{ errorSubmit.telepon_klien[0] }}</small>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Email</label>
-          <InputText v-model="form.email_klien" type="email" class="w-full" :class="{ 'p-invalid': errorSubmit.email_klien }" placeholder="Email klien" />
-          <small v-if="errorSubmit.email_klien" class="text-red-500 block mt-1">{{ errorSubmit.email_klien[0] }}</small>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 gap-2 mt-3">
-        <div>
-          <label class="block text-sm font-medium mb-1">Alamat</label>
-          <Textarea v-model="form.alamat_klien" class="w-full" autoResize rows="2" placeholder="Masukkan alamat klien" />
-        </div>
-      </div>
-
-
-    </div>
-
-    <!-- Invoice Details -->
-    <div>
-      <div class="flex items-center gap-2 text-md font-bold mb-3">
-        <Icon name="lucide:file-text" class="text-green-700" /> Invoice Details
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="block text-sm font-medium mb-1">Invoice</label>
-          <InputText :model-value="nomorPreview" class="w-full" disabled placeholder="Auto generated" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Tanggal</label>
-          <DatePicker
-           v-model="form.tanggal" 
-           showTime
-           hourFormat="24"
-           dateFormat="dd-mm-yy"
-           class="w-full" :class="{ 'p-invalid': errorSubmit.tanggal }"
-          />
-          <small v-if="errorSubmit.tanggal" class="text-red-500 block mt-1">{{ errorSubmit.tanggal[0] }}</small>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Jatuh tempo</label>
-          <DatePicker v-model="form.jatuh_tempo" dateFormat="dd/mm/yy" class="w-full" :class="{ 'p-invalid': errorSubmit.jatuh_tempo }" />
-          <small v-if="errorSubmit.jatuh_tempo" class="text-red-500 block mt-1">{{ errorSubmit.jatuh_tempo[0] }}</small>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-        <div>
-          <label class="block text-sm font-medium mb-1">Unit</label>
-          <Select v-model="form.unit" :options="unitOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.unit }" placeholder="Pilih unit" />
-          <small v-if="errorSubmit.unit" class="text-red-500 block mt-1">{{ errorSubmit.unit[0] }}</small>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Status</label>
-          <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" :class="{ 'p-invalid': errorSubmit.status }" placeholder="Pilih status" />
-          <small v-if="errorSubmit.status" class="text-red-500 block mt-1">{{ errorSubmit.status[0] }}</small>
-        </div>
-        <div v-if="form.status === 'lunas'">
-          <label class="block text-sm font-medium mb-1">Tanggal bayar</label>
-          <DatePicker
-            v-model="form.tanggal_bayar"
-            showTime
-            hourFormat="24"
-            class="w-full" 
-            dateFormat="dd-mm-yy"
-            :class="{ 'p-invalid': errorSubmit.tanggal_bayar }" 
-          />
-          <small v-if="errorSubmit.tanggal_bayar" class="text-red-500 block mt-1">{{ errorSubmit.tanggal_bayar[0] }}</small>
-        </div>
-      </div>
-    </div>
-
-    <!-- Invoice Items -->
-    <div class="bg-gray-50 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-500 rounded-lg">
-      <div class="flex items-center justify-between p-3 border-b">
-        <div class="flex items-center gap-2 text-md font-bold">
-          <Icon name="lucide:table-properties" class="text-blue-700" /> Item Invoice
-        </div>
-        <Button @click="addItem" type="button" size="small" severity="info"><Icon name="lucide:plus" /> Add Item</Button>
-      </div>
-
-      <div class="p-3">
-        <small v-if="errorSubmit.items" class="p-error block mb-2">{{ errorSubmit.items[0] }}</small>
-
-        <div v-for="(item, index) in form.items" :key="index" class="bg-white dark:bg-zinc-700 rounded-lg border dark:border-zinc-800 p-3 mb-3">
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            <div class="md:col-span-4">
-              <label class="block text-xs font-medium mb-1">
-                Jenis                
-                <span v-if="item.webhost_id && item.website" class="opacity-75">
-                  ( {{ item.website }} )
-                </span>
-              </label>
-              <div class="flex gap-2">
-                <Select v-model="item.jenis" :options="dataOpsiJenis" showClear class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.jenis`] }" placeholder="Jenis layanan" />
-                <Button 
-                  v-if="item.jenis" 
-                  @click="openWebhostDialog(index)"
-                  type="button" 
-                  severity="info" outlined
-                  size="small"
-                  v-tooltip="'Pilih Webhost'"
-                >
-                  <Icon name="lucide:globe" />
-                </Button>
-              </div>
-              <small v-if="errorSubmit[`items.${index}.jenis`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.jenis`][0] }}</small>
-            </div>
-            <div class="md:col-span-5">
-              <label class="block text-xs font-medium mb-1">Nama Item</label>
-              <InputText v-model="item.nama" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.nama`] }" placeholder="Nama/keterangan" />
-              <small v-if="errorSubmit[`items.${index}.nama`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.nama`][0] }}</small>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-xs font-medium mb-1">Harga</label>
-              <InputNumber v-model="item.harga" class="w-full" :class="{ 'p-invalid': errorSubmit[`items.${index}.harga`] }" placeholder="0.00" mode="currency" currency="IDR" locale="id-ID" />
-              <small v-if="errorSubmit[`items.${index}.harga`]" class="text-red-500 block mt-1">{{ errorSubmit[`items.${index}.harga`][0] }}</small>
-            </div>
-            <div class="md:col-span-1 md:justify-self-end">
-              <Button @click="removeItem(index)" type="button" severity="danger" class="px-1" text :disabled="form.items.length === 1">
-                <Icon name="lucide:trash-2" />
-              </Button>
-            </div>
-          </div>
-        </div>
-       
-      </div>
-    </div>
-
-     <!-- Summary -->
-    <div class="mt-4 rounded-lg border border-gray-300 dark:border-gray-700 overflow-hidden">
-      <div class="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-slate-900 dark:to-sky-950 p-3">
-        <div class="grid grid-cols-2 gap-2 text-sm">
-          <div class="font-semibold">Subtotal:</div>
-          <div class="text-right">{{ formatIDR(form.subtotal) }}</div>
-          <div class="font-semibold">Pajak:</div>
-          <div class="text-right">
-            <ToggleSwitch v-model="form.pajak" :class="{ 'p-invalid': errorSubmit.pajak }" />
-          </div>
-          <template v-if="form.pajak">
-            <div class="font-semibold">Nama Pajak:</div>
-            <div class="text-right">
-              <InputText
-                v-model="form.nama_pajak"
-                class="w-full text-right"
-                :class="{ 'p-invalid': errorSubmit.nama_pajak }"
-                placeholder="PPN, PPh, dll"
-                size="small"
-              />
-            </div>
-            <div class="font-semibold">Nominal Pajak:</div>
-            <div class="text-right">
-              <InputNumber
-                v-model="form.nominal_pajak"
-                class="overflow-hidden rounded-md border-none"
-                fluid
-                mode="currency"
-                currency="IDR"
-                locale="id-ID"
-                :class="{ 'p-invalid': errorSubmit.nominal_pajak }"
-                size="small"
-                placeholder="0"
-              />
-            </div>
-          </template>
-          <div class="col-span-2 border border-b-blue-300"></div>
-          <div class="font-semibold">Total:</div>
-          <div class="text-right font-semibold text-xl">{{ formatIDR(form.total) }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Notes -->
-    <div>
-      <label class="block text-sm font-medium mb-1">Notes (Optional)</label>
-      <Textarea v-model="form.note" class="w-full" :class="{ 'p-invalid': errorSubmit.note }" placeholder="Tambahkan catatan tambahan" rows="3" />
-      <small v-if="errorSubmit.note" class="text-red-500 block mt-1">{{ errorSubmit.note[0] }}</small>
-    </div>
-
-    <!-- Error Display -->
-    <Message v-if="Object.keys(errorSubmit).length > 0" severity="error" closable>
-      <h4 class="text-red-800 font-medium mb-2">Terdapat kesalahan pada form:</h4>
-      <ul class="text-red-700 text-sm space-y-1">
-        <li v-for="(errors, field) in errorSubmit" :key="field" class="flex items-start">
-          <span class="inline-block w-2 h-2 bg-red-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
-          <div>
-            <span class="font-medium capitalize">{{ String(field).replace('_', ' ') }}:</span>
-            <span v-if="Array.isArray(errors)">{{ errors.join(', ') }}</span>
-            <span v-else>{{ errors }}</span>
-          </div>
-        </li>
-      </ul>
-    </Message>
-
-    <!-- Actions -->
-    <div class="flex justify-end gap-2 pt-2">
-      <Button @click="closeForm" type="button" severity="secondary" outlined>Batal</Button>
-      <Button type="submit" :loading="loadingSubmit">
-        <span v-if="props.action === 'edit' && props.modelValue">Update Invoice</span>
-        <span v-else>Buat Invoice</span>
-      </Button>
-    </div>
-  </form>
-
-  <!-- Webhost Search Dialog -->
-  <Dialog 
-    v-model:visible="showWebhostDialog" 
-    modal 
-    header="Pilih Webhost" 
-    :style="{ width: '50rem' }"
-    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-  >
-    <div class="mb-3">
-      <div class="flex items-center gap-2 mb-2">
-        <Icon name="lucide:search" class="text-gray-500" />
-        <span class="text-sm text-gray-600">Hasil pencarian webhost:</span>
-        <div v-if="isSearchingWebhost" class="text-xs text-blue-600">mencari...</div>
-      </div>
-    </div>
-    
-    <div v-if="webhostSearchResults.length > 0" class="space-y-2">
-      <div 
-        v-for="webhost in webhostSearchResults" 
-        :key="webhost.id"
-        class="p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-        @click="selectWebhost(webhost)"
-      >
-        <div class="font-medium">{{ webhost.nama }}</div>
-        <div class="text-sm text-gray-600 dark:text-gray-400">{{ webhost.domain }}</div>
-        <div class="text-xs text-gray-500 dark:text-gray-500">Customer: {{ webhost.customer }}</div>
-      </div>
-    </div>
-    
-    <div v-else-if="!isSearchingWebhost" class="text-center py-4 text-gray-500">
-      Tidak ditemukan webhost yang cocok
-    </div>
-    
-    <template #footer>
-      <Button 
-        @click="showWebhostDialog = false" 
-        severity="secondary" 
-        text
-      >
-        Tutup
-      </Button>
-    </template>
-  </Dialog>
-
-  <!-- Webhost Picker Dialog -->
-  <Dialog 
-    v-model:visible="showWebhostPickerDialog" 
-    modal 
-    header="Pilih Webhost" 
-    :style="{ width: '60rem' }"
-    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-  >
-    <div class="mb-4">
-      <InputText 
-        v-model="webhostPickerSearch" 
-        placeholder="Cari webhost berdasarkan nama atau domain..." 
-        class="w-full"
-      />
-    </div>
-    
-    <div v-if="isLoadingWebhostPicker" class="text-center py-4">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-      <div class="mt-2">Mencari webhost...</div>
-    </div>
-    <div v-else-if="webhostPickerResults.length" class="max-h-96 overflow-y-auto space-y-2">
-      <div 
-        v-for="webhost in webhostPickerResults" 
-        :key="webhost.id"
-        @click="selectWebhostFromPicker(webhost)"
-        class="p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-      >
-        {{ webhost.nama }}
-      </div>
-    </div>
-    <div v-else class="text-center py-8 text-gray-500">
-      <i class="pi pi-search text-4xl mb-2 block"></i>
-      <div>{{ webhostPickerSearch ? 'Tidak ada webhost ditemukan' : 'Ketik untuk mencari webhost' }}</div>
-    </div>
-    
-    <template #footer>
-      <Button @click="showWebhostPickerDialog = false" label="Tutup" severity="secondary" />
-    </template>
-  </Dialog>
-</template>
 
 <style scoped></style>
