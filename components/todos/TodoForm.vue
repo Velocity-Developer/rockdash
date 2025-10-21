@@ -107,6 +107,7 @@
     </div>
 
     <!-- Assignments -->
+
     <div class="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -295,28 +296,32 @@ const assignments = computed(() => {
   }
 
   // Add selected users (now using IDs from Select component)
-  selectedUsers.value.forEach(userId => {
-    const user = opsiUsers.value.find((u: any) => u.value === userId)
-    if (user) {
-      result.push({
-        type: 'user',
-        id: user.value,
-        name: user.label
-      })
-    }
-  })
+  if (selectedUsers.value && Array.isArray(selectedUsers.value)) {
+    selectedUsers.value.forEach(userId => {
+      const user = opsiUsers.value.find((u: any) => u.value === userId)
+      if (user) {
+        result.push({
+          type: 'user',
+          id: user.value,
+          name: user.label
+        })
+      }
+    })
+  }
 
   // Add selected roles (now using IDs from Select component)
-  selectedRoles.value.forEach(roleId => {
-    const role = opsiRoles.value.find((r: any) => r.value === roleId)
-    if (role) {
-      result.push({
-        type: 'role',
-        id: role.value,
-        name: role.label
-      })
-    }
-  })
+  if (selectedRoles.value && Array.isArray(selectedRoles.value)) {
+    selectedRoles.value.forEach(roleId => {
+      const role = opsiRoles.value.find((r: any) => r.value === roleId)
+      if (role) {
+        result.push({
+          type: 'role',
+          id: role.value,
+          name: role.label
+        })
+      }
+    })
+  }
 
   return result
 })
