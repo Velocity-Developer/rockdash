@@ -190,7 +190,7 @@
       </div>
 
       <div v-else class="space-y-3">
-        <TodoCard
+        <todosTodoCard
           v-for="todo in todos"
           :key="todo.id"
           :todo="todo"

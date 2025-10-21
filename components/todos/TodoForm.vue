@@ -129,6 +129,24 @@
           </label>
         </div>
 
+        <!-- Role Selection -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Role/Departemen
+          </label>
+          <Select
+            v-model="selectedRoles"
+            :options="opsiRoles"
+            optionLabel="label"
+            optionValue="value"
+            showClear
+            filter
+            multiple
+            placeholder="Pilih role yang akan ditugaskan"
+            class="w-full"
+          />
+        </div>
+
         <!-- User Selection -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -157,25 +175,7 @@
             </template>
           </Select>
         </div>
-
-        <!-- Role Selection -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Role/Departemen
-          </label>
-          <Select
-            v-model="selectedRoles"
-            :options="opsiRoles"
-            optionLabel="label"
-            optionValue="value"
-            showClear
-            filter
-            multiple
-            placeholder="Pilih role yang akan ditugaskan"
-            class="w-full"
-          />
-        </div>
-
+       
         <!-- Assignment Summary -->
         <div v-if="assignments.length > 0" class="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

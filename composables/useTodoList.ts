@@ -107,7 +107,7 @@ export const useTodoApi = () => {
 
     params.append('page', page.toString())
 
-    return client(`${baseURL}/todos?${params.toString()}`, {
+    return client(`api/todos?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -117,7 +117,7 @@ export const useTodoApi = () => {
 
   // Get single todo
   const getTodo = async (id: number) => {
-    return client<TodoList>(`${baseURL}/todos/${id}`, {
+    return client<TodoList>(`api/todos/${id}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -127,7 +127,7 @@ export const useTodoApi = () => {
 
   // Create todo
   const createTodo = async (data: CreateTodoData) => {
-    return client<TodoList>(`${baseURL}/todos`, {
+    return client<TodoList>(`api/todos`, {
       method: 'POST',
       body: data,
       headers: {
@@ -139,7 +139,7 @@ export const useTodoApi = () => {
 
   // Update todo
   const updateTodo = async (id: number, data: UpdateTodoData) => {
-    return client<TodoList>(`${baseURL}/todos/${id}`, {
+    return client<TodoList>(`api/todos/${id}`, {
       method: 'PUT',
       body: data,
       headers: {
@@ -151,7 +151,7 @@ export const useTodoApi = () => {
 
   // Delete todo
   const deleteTodo = async (id: number) => {
-    return client(`${baseURL}/todos/${id}`, {
+    return client(`api/todos/${id}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -173,7 +173,7 @@ export const useTodoApi = () => {
 
   // Create category
   const createCategory = async (data: Partial<TodoCategory>) => {
-    return client<TodoCategory>(`${baseURL}/todo_categories`, {
+    return client<TodoCategory>(`api/todo_categories`, {
       method: 'POST',
       body: data,
       headers: {
@@ -185,7 +185,7 @@ export const useTodoApi = () => {
 
   // Update category
   const updateCategory = async (id: number, data: Partial<TodoCategory>) => {
-    return client<TodoCategory>(`${baseURL}/todo_categories/${id}`, {
+    return client<TodoCategory>(`api/todo_categories/${id}`, {
       method: 'PUT',
       body: data,
       headers: {
@@ -197,7 +197,7 @@ export const useTodoApi = () => {
 
   // Delete category
   const deleteCategory = async (id: number) => {
-    return client(`${baseURL}/todo_categories/${id}`, {
+    return client(`api/todo_categories/${id}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -207,7 +207,7 @@ export const useTodoApi = () => {
 
   // Assignment management
   const addAssignments = async (todoId: number, data: { users?: number[], roles?: number[] }) => {
-    return client<TodoAssignment[]>(`${baseURL}/todos/${todoId}/assignments`, {
+    return client<TodoAssignment[]>(`api/todos/${todoId}/assignments`, {
       method: 'POST',
       body: data,
       headers: {
@@ -218,7 +218,7 @@ export const useTodoApi = () => {
   }
 
   const updateAssignment = async (todoId: number, assignmentId: number, status: string) => {
-    return client<TodoAssignment>(`${baseURL}/todos/${todoId}/assignments/${assignmentId}`, {
+    return client<TodoAssignment>(`api/todos/${todoId}/assignments/${assignmentId}`, {
       method: 'PUT',
       body: { status },
       headers: {
@@ -229,7 +229,7 @@ export const useTodoApi = () => {
   }
 
   const removeAssignment = async (todoId: number, assignmentId: number) => {
-    return client(`${baseURL}/todos/${todoId}/assignments/${assignmentId}`, {
+    return client(`api/todos/${todoId}/assignments/${assignmentId}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
