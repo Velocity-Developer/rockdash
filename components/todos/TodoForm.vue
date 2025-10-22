@@ -117,26 +117,88 @@
           Pilih user atau role yang akan ditugaskan untuk mengerjakan todo ini
         </p>
 
-        <!-- Include Me Checkbox -->
-        <div class="flex items-center mb-4">
-          <Checkbox
-            id="include_me"
-            v-model="includeMe"
-            binary
-            @change="handleIncludeMeChange"
-          />
-          <label for="include_me" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
-            Sertakan saya ({{ currentUser?.name }})
+        <!-- Assignment Type Selection -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            Pilih Tipe Assignment:
           </label>
+          <div class="space-y-3">
+            <!-- Option 1: Diri Sendiri -->
+            <div class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                 :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/20': assignmentType === 'self' }">
+              <RadioButton
+                v-model="assignmentType"
+                inputId="assign-self"
+                value="self"
+                class="mr-3"
+              />
+              <label for="assign-self" class="flex items-center cursor-pointer flex-1">
+                <span class="text-lg mr-2">📝</span>
+                <div>
+                  <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Untuk Diri Sendiri
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    Todo pribadi untuk {{ currentUser.name }}
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Option 2: Untuk Role -->
+            <div class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                 :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/20': assignmentType === 'role' }">
+              <RadioButton
+                v-model="assignmentType"
+                inputId="assign-role"
+                value="role"
+                class="mr-3"
+              />
+              <label for="assign-role" class="flex items-center cursor-pointer flex-1">
+                <span class="text-lg mr-2">👥</span>
+                <div>
+                  <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Untuk Role Departemen
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    Assign ke seluruh anggota role
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Option 3: User Lain -->
+            <div class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                 :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/20': assignmentType === 'user' }">
+              <RadioButton
+                v-model="assignmentType"
+                inputId="assign-user"
+                value="user"
+                class="mr-3"
+              />
+              <label for="assign-user" class="flex items-center cursor-pointer flex-1">
+                <span class="text-lg mr-2">👤</span>
+                <div>
+                  <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Untuk User Lain
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    Assign ke user spesifik (selain diri sendiri)
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
 
+        <!-- Dynamic Content Based on Assignment Type -->
         <!-- Role Selection -->
-        <div class="mb-4">
+        <div v-if="assignmentType === 'role'" class="mb-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Role/Departemen
+            Pilih Role:
           </label>
           <Select
-            v-model="selectedRoles"
+            v-model="selectedRolesModel"
             :options="opsiRoles"
             optionLabel="label"
             optionValue="value"
@@ -145,17 +207,21 @@
             multiple
             placeholder="Pilih role yang akan ditugaskan"
             class="w-full"
-          />
+          >
+            <template #empty>
+              <div class="p-2 text-gray-500">Tidak ada role tersedia</div>
+            </template>
+          </Select>
         </div>
 
         <!-- User Selection -->
-        <div class="mb-4">
+        <div v-if="assignmentType === 'user'" class="mb-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            User Spesifik
+            Pilih User Lain:
           </label>
           <Select
-            v-model="selectedUsers"
-            :options="opsiUsers"
+            v-model="selectedUsersModel"
+            :options="opsiUsersFilter"
             optionLabel="label"
             optionValue="value"
             showClear
@@ -174,25 +240,12 @@
                 <div>{{ slotProps.option.label }}</div>
               </div>
             </template>
+            <template #empty>
+              <div class="p-2 text-gray-500">Tidak ada user tersedia</div>
+            </template>
           </Select>
         </div>
-       
-        <!-- Assignment Summary -->
-        <div v-if="assignments.length > 0" class="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Assignments ({{ assignments.length }}):
-          </h4>
-          <div class="flex flex-wrap gap-2">
-            <Badge
-              v-for="assignment in assignments"
-              :key="`${assignment.type}-${assignment.id}`"
-              :value="getAssignmentLabel(assignment)"
-              severity="info"
-              class="text-xs"
-            />
-          </div>
-        </div>
-
+  
         <small v-if="errors.assignments" class="text-red-500">{{ errors.assignments }}</small>
       </div>
     </div>
@@ -211,7 +264,7 @@
       <Button
         type="submit"
         :loading="loading"
-        :disabled="assignments.length === 0"
+        :disabled="assignmentType.length === 0"
       >
         <Icon name="lucide:save" />
         {{ action === 'create' ? 'Buat Todo' : 'Update Todo' }}
@@ -260,6 +313,26 @@ const loading = ref(false)
 const selectedUsers = ref<any[]>([])
 const selectedRoles = ref<any[]>([])
 const includeMe = ref(false)
+const assignmentType = ref<'self' | 'role' | 'user'>('self')
+
+// Create reactive getters/setters for Select components
+const selectedUsersModel = computed({
+  get: () => selectedUsers.value,
+  set: (value) => {
+    console.log('selectedUsersModel setter called with:', value)
+    selectedUsers.value = Array.isArray(value) ? value : (value ? [value] : [])
+    console.log('selectedUsers.value after setter:', selectedUsers.value)
+  }
+})
+
+const selectedRolesModel = computed({
+  get: () => selectedRoles.value,
+  set: (value) => {
+    console.log('selectedRolesModel setter called with:', value)
+    selectedRoles.value = Array.isArray(value) ? value : (value ? [value] : [])
+    console.log('selectedRoles.value after setter:', selectedRoles.value)
+  }
+})
 
 // Form
 const form = reactive({
@@ -283,45 +356,81 @@ const priorityOptions = [
 ]
 
 // Computed
+const opsiUsersFilter = computed(() => {
+  const filtered = opsiUsers.value.filter((user: any) => user.value !== currentUser.value?.id)
+  console.log('=== Debug opsiUsersFilter ===')
+  console.log('opsiUsers.value:', opsiUsers.value)
+  console.log('currentUser.value?.id:', currentUser.value?.id)
+  console.log('filtered result:', filtered)
+  console.log('=== End Debug opsiUsersFilter ===')
+  return filtered
+})
+
 const assignments = computed(() => {
   const result = []
 
-  // Add current user if include me is checked
-  if (includeMe.value && currentUser.value) {
+  console.log('=== Debug Assignments ===')
+  console.log('assignmentType:', assignmentType.value)
+  console.log('selectedUsers:', selectedUsers.value)
+  console.log('selectedRoles:', selectedRoles.value)
+  console.log('selectedUsers type:', typeof selectedUsers.value)
+  console.log('selectedUsers is array:', Array.isArray(selectedUsers.value))
+
+  // Based on assignment type
+  if (assignmentType.value === 'self' && currentUser.value) {
     result.push({
       type: 'user',
-      id: currentUser.value.id,
-      name: currentUser.value.name
+      id: currentUser.value.id
     })
   }
 
-  // Add selected users (ensure array handling)
-  if (selectedUsers.value && Array.isArray(selectedUsers.value)) {
-    selectedUsers.value.forEach(userId => {
-      const user = opsiUsers.value.find((u: any) => u.value === userId)
-      if (user) {
-        result.push({
-          type: 'user',
-          id: user.value,
-          name: user.label
+  // Add selected users - more detailed check
+  if (assignmentType.value === 'user') {
+    console.log('Assignment type is user, checking selectedUsers...')
+    if (selectedUsers.value) {
+      console.log('selectedUsers.value exists')
+      console.log('selectedUsers.value length:', selectedUsers.value.length)
+
+      if (selectedUsers.value.length > 0) {
+        console.log('Processing selected users...')
+        // Handle both array and single value cases
+        const usersArray = Array.isArray(selectedUsers.value) ? selectedUsers.value : [selectedUsers.value]
+        console.log('usersArray:', usersArray)
+
+        usersArray.forEach(userId => {
+          if (userId) {  // Skip null/undefined values
+            console.log('Adding user:', userId)
+            result.push({
+              type: 'user',
+              id: userId
+            })
+          }
         })
+      } else {
+        console.log('selectedUsers.value is empty')
       }
-    })
+    } else {
+      console.log('selectedUsers.value is null/undefined')
+    }
   }
 
-  // Add selected roles (now using IDs from Select component)
-  if (selectedRoles.value && Array.isArray(selectedRoles.value)) {
-    selectedRoles.value.forEach(roleId => {
-      const role = opsiRoles.value.find((r: any) => r.value === roleId)
-      if (role) {
+  // Add selected roles - simplified condition
+  if (assignmentType.value === 'role' && selectedRoles.value?.length > 0) {
+    // Handle both array and single value cases
+    const rolesArray = Array.isArray(selectedRoles.value) ? selectedRoles.value : [selectedRoles.value]
+    rolesArray.forEach(roleId => {
+      if (roleId) {  // Skip null/undefined values
         result.push({
           type: 'role',
-          id: role.value,
-          name: role.label
+          id: roleId
         })
       }
     })
   }
+
+  console.log('Final result length:', result.length)
+  console.log('Final result:', result)
+  console.log('=== End Debug ===')
 
   return result
 })
@@ -338,19 +447,6 @@ const loadCategories = async () => {
   }
 }
 
-const handleIncludeMeChange = () => {
-  if (includeMe.value && currentUser.value) {
-    // Remove from selectedUsers if it exists there
-    selectedUsers.value = selectedUsers.value.filter(
-      userId => userId !== currentUser.value?.id
-    )
-  }
-}
-
-const getAssignmentLabel = (assignment: any) => {
-  const icon = assignment.type === 'user' ? '👤' : '👥'
-  return `${icon} ${assignment.name}`
-}
 
 const validateForm = () => {
   errors.value = {}
@@ -374,15 +470,6 @@ const submitForm = async () => {
   loading.value = true
 
   try {
-    // Prepare the payload according to backend API structure
-    const assignedUsers = assignments.value
-      .filter(a => a.type === 'user')
-      .map(a => a.id)
-
-    const assignedRoles = assignments.value
-      .filter(a => a.type === 'role')
-      .map(a => a.id)
-
     const payload = {
       title: form.title.trim(),
       description: form.description?.trim() || undefined,
@@ -391,8 +478,7 @@ const submitForm = async () => {
       category_id: form.category_id || undefined,
       is_private: form.is_private,
       notes: form.notes?.trim() || undefined,
-      assigned_users: assignedUsers,
-      assigned_roles: assignedRoles
+      assignments: assignments.value
     }
 
     if (props.action === 'create') {
@@ -450,21 +536,41 @@ const initializeForm = () => {
       notes: props.todo.notes || ''
     })
 
-    // Set assignments from todo
+    // Set assignments from todo (determine assignment type based on existing assignments)
     if (props.todo.assignments_summary) {
-      selectedUsers.value = Array.isArray(props.todo.assignments_summary.users)
-        ? props.todo.assignments_summary.users.map((u: any) => u.id)
-        : []
-      selectedRoles.value = Array.isArray(props.todo.assignments_summary.roles)
-        ? props.todo.assignments_summary.roles.map((r: any) => r.id)
-        : []
+      const hasCurrentUser = currentUser.value && props.todo.assignments_summary.users.some(
+        (u: any) => u.id === currentUser.value.id
+      )
+      const hasOtherUsers = props.todo.assignments_summary.users.some(
+        (u: any) => u.id !== currentUser.value?.id
+      )
+      const hasRoles = props.todo.assignments_summary.roles && props.todo.assignments_summary.roles.length > 0
 
-      // Check if current user is in assignments
-      if (currentUser.value) {
-        const userAssignment = props.todo.assignments_summary.users.find(
-          (u: any) => u.id === currentUser.value.id
-        )
-        includeMe.value = !!userAssignment
+      // Determine assignment type based on existing assignments
+      if (hasCurrentUser && !hasOtherUsers && !hasRoles) {
+        // Only assigned to current user
+        assignmentType.value = 'self'
+      } else if (hasRoles && !hasOtherUsers) {
+        // Has roles but no other users
+        assignmentType.value = 'role'
+        selectedRoles.value = Array.isArray(props.todo.assignments_summary.roles)
+          ? props.todo.assignments_summary.roles.map((r: any) => r.id)
+          : []
+      } else if (hasOtherUsers && !hasRoles) {
+        // Has other users but no roles
+        assignmentType.value = 'user'
+        selectedUsers.value = props.todo.assignments_summary.users
+          .filter((u: any) => u.id !== currentUser.value?.id)
+          .map((u: any) => u.id)
+      } else {
+        // Mixed or complex assignments - default to user type
+        assignmentType.value = 'user'
+        selectedUsers.value = props.todo.assignments_summary.users
+          .filter((u: any) => u.id !== currentUser.value?.id)
+          .map((u: any) => u.id)
+        selectedRoles.value = Array.isArray(props.todo.assignments_summary.roles)
+          ? props.todo.assignments_summary.roles.map((r: any) => r.id)
+          : []
       }
     }
   } else {
@@ -482,6 +588,7 @@ const initializeForm = () => {
     selectedUsers.value = []
     selectedRoles.value = []
     includeMe.value = false
+    assignmentType.value = 'self'
   }
 }
 
