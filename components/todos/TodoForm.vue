@@ -295,7 +295,7 @@ const assignments = computed(() => {
     })
   }
 
-  // Add selected users (now using IDs from Select component)
+  // Add selected users (ensure array handling)
   if (selectedUsers.value && Array.isArray(selectedUsers.value)) {
     selectedUsers.value.forEach(userId => {
       const user = opsiUsers.value.find((u: any) => u.value === userId)
@@ -452,8 +452,12 @@ const initializeForm = () => {
 
     // Set assignments from todo
     if (props.todo.assignments_summary) {
-      selectedUsers.value = props.todo.assignments_summary.users.map((u: any) => u.id)
-      selectedRoles.value = props.todo.assignments_summary.roles.map((r: any) => r.id)
+      selectedUsers.value = Array.isArray(props.todo.assignments_summary.users)
+        ? props.todo.assignments_summary.users.map((u: any) => u.id)
+        : []
+      selectedRoles.value = Array.isArray(props.todo.assignments_summary.roles)
+        ? props.todo.assignments_summary.roles.map((r: any) => r.id)
+        : []
 
       // Check if current user is in assignments
       if (currentUser.value) {
