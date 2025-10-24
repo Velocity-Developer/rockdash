@@ -200,18 +200,13 @@
           <Select
             v-model="selectedRolesModel"
             :options="opsiRoles"
-            optionLabel="label"
-            optionValue="value"
+            option-label="label"
+            option-value="id"
             showClear
-            filter
-            multiple
+            filter            
             placeholder="Pilih role yang akan ditugaskan"
             class="w-full"
-          >
-            <template #empty>
-              <div class="p-2 text-gray-500">Tidak ada role tersedia</div>
-            </template>
-          </Select>
+          />
         </div>
 
         <!-- User Selection -->
