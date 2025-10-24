@@ -1,17 +1,6 @@
 <template>
   <div class="md:max-w-[50rem] md:mx-auto">
     <div class="flex justify-end items-center gap-2 mb-2">
-      <Select
-        v-model="filters.role"
-        :options="opsiRoles"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Semua Role"
-        :loading="loadingRole"
-        size="small"
-        @change="getData"
-        showClear
-      />
       <Button @click="openFormDialog('add','')" size="small" :loading="loading">
         <Icon name="lucide:plus" />
         Tambah
@@ -30,7 +19,7 @@
             <Column field="name" header="Name">
               <template #body="slotProps">
                 <div class="flex items-center gap-2">
-                  <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-full bg-gradient-to-bl from-indigo-200 to-indigo-400 dark:from-indigo-700 dark:to-indigo-900">
+                  <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-full" :style="{ backgroundColor: slotProps.data.color || '#ffffff' }">
                     {{slotProps.data.icon}}
                   </span>
                   <span class="inline-block">
@@ -39,8 +28,15 @@
                 </div>
               </template>
             </Column>
+            <Column field="color" header="Color">
+              <template #body="slotProps">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded border border-gray-300" :style="{ backgroundColor: slotProps.data.color || '#ffffff' }"></div>
+                  <span>{{slotProps.data.color || '#ffffff'}}</span>
+                </div>
+              </template>
+            </Column>
             <Column field="description" header="Desc" />
-            <Column field="role" header="Role" />
             <Column field="action" header="">
               <template #body="slotProps">
                 <div class="flex justify-end items-center gap-1">
@@ -91,33 +87,15 @@ const confirm = useConfirm();
 const toast = useToast();
 
 const filters = reactive({
-  role: '',
   page: route.query.page ? Number(route.query.page) : 1,
 })
-
-const opsiRoles = ref([] as any)
-const loadingRole = ref(false)
-const getDataOptionRoles = async () => {
-  loadingRole.value = true
-  try {
-    const res = await client('/api/option/roles') as any
-    //tambah opsi role
-    opsiRoles.value = [{
-      label: 'Semua',
-      value: ' ',
-    },...res]
-  } catch (error) {
-    console.log(error);
-  }
-  loadingRole.value = false
-}
 
 const loading = ref(false);
 const data = ref({} as any);
 const getData = async () => {
     loading.value = true;
     try {
-      const res = await client('/api/todo_categories',{
+      const res = await client('/api/todo_category',{
         params: filters,
       }) as any
       data.value = res;
@@ -132,7 +110,6 @@ const onPaginate = (event: { page: number }) => {
 };
 onMounted(() => {
     getData();
-    getDataOptionRoles()
 })
 
 const visibleFormDialog = ref(false);
@@ -160,7 +137,7 @@ const deleteItem = async (id:number) => {
         },
         accept: async () => {
           try {
-            await client(`/api/todo_categories/${id}`,{
+            await client(`/api/todo_category/${id}`,{
               method: 'DELETE',
             })
             toast.add({ severity: 'success', summary: 'Success', detail: 'Kategori todo berhasil dihapus', life: 3000 });

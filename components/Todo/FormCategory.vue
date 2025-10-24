@@ -6,15 +6,18 @@
         <InputText v-model="form.name"/>
       </div>
       <div class="flex flex-col gap-1">
-        <label for="role">Role</label>
-        <Select
-          v-model="form.role"
-          :options="opsiRoles"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Pilih role"
-          :disabled="loadingRole"
-        />
+        <label for="color">Warna</label>
+        <div class="flex gap-2 items-center">
+          <InputText
+            v-model="form.color"
+            placeholder="#ffffff atau nama warna"
+          />
+          <div
+            class="w-8 h-8 rounded border border-gray-300"
+            :style="{ backgroundColor: form.color || '#ffffff' }"
+          ></div>
+        </div>
+        <span class="text-sm text-gray-500">Gunakan hex color (#ffffff) atau nama warna (red, blue)</span>
       </div>
       <div class="flex flex-col gap-1">
         <label for="icon">Icon (Emoji)</label>
@@ -50,32 +53,18 @@ const emit = defineEmits(['update']);
 const client = useSanctumClient();
 const toast = useToast();
 
-const opsiRoles = ref([] as any)
-const loadingRole = ref(false)
-const getDataOptionRoles = async () => {
-  loadingRole.value = true
-  try {
-    const res = await client('/api/option/roles') as any
-    opsiRoles.value = res
-  } catch (error) {
-    console.log(error);
-  }
-  loadingRole.value = false
-}
-
 const form = reactive({
   name: '',
   description: '',
-  role: '',
+  color: '#ffffff',
   icon: '🎈',
 })
 
 onMounted(() => {
-  getDataOptionRoles()
   if(props.action === 'edit') {
     form.name = props.item.name
     form.description = props.item.description
-    form.role = props.item.role
+    form.color = props.item.color
     form.icon = props.item.icon
   }
 })
@@ -85,7 +74,7 @@ const handleSubmit = async () => {
   loading.value = true
   if(props.action === 'add') {
     try {
-      await client('/api/todo_categories', {
+      await client('/api/todo_category', {
         method: 'POST',
         body: form
       })
@@ -107,7 +96,7 @@ const handleSubmit = async () => {
     }
   } else {
     try {
-      await client('/api/todo_categories/' + props.item.id, {
+      await client('/api/todo_category/' + props.item.id, {
         method: 'PUT',
         body: form
       })
