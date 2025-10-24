@@ -197,13 +197,13 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Pilih Role:
           </label>
-          <Select
+          <MultiSelect
             v-model="selectedRolesModel"
             :options="opsiRoles"
-            option-label="label"
-            option-value="id"
+            optionLabel="label"
+            optionValue="id"
             showClear
-            filter            
+            filter
             placeholder="Pilih role yang akan ditugaskan"
             class="w-full"
           />
@@ -214,14 +214,13 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Pilih User Lain:
           </label>
-          <Select
+          <MultiSelect
             v-model="selectedUsersModel"
             :options="opsiUsersFilter"
             optionLabel="label"
             optionValue="value"
             showClear
-            filter
-            multiple
+            filter            
             placeholder="Pilih user yang akan ditugaskan"
             class="w-full"
           >
@@ -238,7 +237,7 @@
             <template #empty>
               <div class="p-2 text-gray-500">Tidak ada user tersedia</div>
             </template>
-          </Select>
+          </MultiSelect>
         </div>
   
         <small v-if="errors.assignments" class="text-red-500">{{ errors.assignments }}</small>
