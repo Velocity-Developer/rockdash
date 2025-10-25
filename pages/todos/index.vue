@@ -190,8 +190,8 @@
               <template #body="slotProps">
 
                 <span
-                  @click="navigateTo(`/todos/${slotProps.data.id}`)"
-                  class="cursor-pointer text-sm"
+                  @click="viewTodo(slotProps.data)"
+                  class="cursor-pointer hover:underline"
                 >
                   {{ slotProps.data.title }}
                 </span>
@@ -328,6 +328,22 @@
       />
 
     </Dialog>
+
+    <!-- Todo Preview Dialog -->
+    <Dialog
+      v-model:visible="showPreviewDialog"
+      modal
+      header="Detail Todo"
+      :style="{ width: '70vw' }"
+      :breakpoints="{ '1199px': '85vw', '575px': '95vw' }"
+      :draggable="false"
+    >
+      <TodoPreview
+        v-if="selectedTodo"
+        :todo="selectedTodo"
+        @close="showPreviewDialog = false"
+      />
+    </Dialog>
   </div>
 </template>
 
@@ -350,6 +366,7 @@ const statistics = ref<any>(null)
 const pagination = ref<any>(null)
 const categories = ref<any[]>([])
 const showCreateDialog = ref(false)
+const showPreviewDialog = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
 const selectedTodo = ref<any>(null)
 
@@ -554,6 +571,12 @@ const editTodo = (todo: any) => {
   dialogMode.value = 'edit'
   selectedTodo.value = todo
   showCreateDialog.value = true
+}
+
+// Open preview dialog
+const viewTodo = (todo: any) => {
+  selectedTodo.value = todo
+  showPreviewDialog.value = true
 }
 
 // Watchers
