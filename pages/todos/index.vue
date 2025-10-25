@@ -20,7 +20,7 @@
           <Badge v-if="tab.count > 0" :value="tab.count" class="ml-2" />
         </button>
       </nav>
-      <Button @click="navigateTo('/todos/create')" size="small" :loading="loading">
+      <Button @click="showCreateDialog = true" size="small" :loading="loading">
         <Icon name="lucide:plus" />
         Todo Baru
       </Button>
@@ -174,7 +174,7 @@
         </p>
         <Button
           v-if="activeTab === 'created'"
-          @click="navigateTo('/todos/create')"
+          @click="showCreateDialog = true"
           class="mt-4"
         >
           <Icon name="lucide:plus" />
@@ -289,6 +289,23 @@
         />
       </template>
     </Card>
+
+    <!-- Create Todo Dialog -->
+    <Dialog
+      v-model:visible="showCreateDialog"
+      modal
+      header="Buat Todo Baru"
+      :style="{ width: '60vw' }"
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+      :draggable="false"
+    >
+      <todosTodoForm
+        action="create"
+        @success="handleCreateSuccess"
+        @cancel="handleCreateCancel"
+      />
+
+    </Dialog>
   </div>
 </template>
 
@@ -310,6 +327,7 @@ const todos = ref<any[]>([])
 const statistics = ref<any>(null)
 const pagination = ref<any>(null)
 const categories = ref<any[]>([])
+const showCreateDialog = ref(false)
 
 // Tabs
 const activeTab = ref(route.query.tab as string || 'my')
@@ -483,6 +501,17 @@ const getStatusSeverity = (status: string) => {
     declined: 'danger'
   }
   return severityMap[status] || 'secondary'
+}
+
+// Dialog handlers
+const handleCreateSuccess = () => {
+  showCreateDialog.value = false
+  // Reload todos to show the new item
+  loadTodos()
+}
+
+const handleCreateCancel = () => {
+  showCreateDialog.value = false
 }
 
 // Watchers

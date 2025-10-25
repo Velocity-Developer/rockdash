@@ -278,6 +278,9 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
+import { useDayjs } from '#dayjs'
+const dayjs = useDayjs()
+
 // Use the todo composable for API calls
 const { addTodo, editTodo } = useTodoList()
 const toast = useToast()
@@ -468,7 +471,7 @@ const submitForm = async () => {
       title: form.title.trim(),
       description: form.description?.trim() || undefined,
       priority: form.priority as 'low' | 'medium' | 'high' | 'urgent',
-      due_date: form.due_date ? form.due_date : undefined,
+      due_date: form.due_date ? dayjs(form.due_date).local().format('YYYY-MM-DD') : undefined,
       category_id: form.category_id || undefined,
       is_private: form.is_private,
       notes: form.notes?.trim() || undefined,
