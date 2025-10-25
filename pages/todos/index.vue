@@ -20,7 +20,7 @@
           <Badge v-if="tab.count > 0" :value="tab.count" class="ml-2" />
         </button>
       </nav>
-      <Button @click="showCreateDialog = true" size="small" :loading="loading">
+      <Button @click="openCreateDialog" size="small" :loading="loading">
         <Icon name="lucide:plus" />
         Todo Baru
       </Button>
@@ -174,7 +174,7 @@
         </p>
         <Button
           v-if="activeTab === 'created'"
-          @click="showCreateDialog = true"
+          @click="openCreateDialog"
           class="mt-4"
         >
           <Icon name="lucide:plus" />
@@ -270,6 +270,27 @@
               </template>
             </Column>
             <Column field="act" header="">
+              <template #body="slotProps">
+                <div class="flex items-center justify-end">
+                  <Button
+                    size="small"
+                    severity="primary"
+                    variant="text"
+                    class="px-1"
+                    @click="editTodo(slotProps.data)"
+                  >
+                    <Icon name="lucide:pen" />
+                  </Button>
+                  <Button
+                    size="small"
+                    severity="danger"
+                    variant="text"
+                    class="px-1"
+                  >
+                    <Icon name="lucide:trash" />
+                  </Button>
+                </div>
+              </template>
             </Column>
           </DataTable>
 
@@ -290,19 +311,20 @@
       </template>
     </Card>
 
-    <!-- Create Todo Dialog -->
+    <!-- Todo Dialog (Create/Edit) -->
     <Dialog
       v-model:visible="showCreateDialog"
       modal
-      header="Buat Todo Baru"
+      :header="dialogMode === 'create' ? 'Buat Todo Baru' : 'Edit Todo'"
       :style="{ width: '60vw' }"
       :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
       :draggable="false"
     >
       <todosTodoForm
-        action="create"
-        @success="handleCreateSuccess"
-        @cancel="handleCreateCancel"
+        :action="dialogMode"
+        :todo="selectedTodo"
+        @success="handleFormSuccess"
+        @cancel="handleFormCancel"
       />
 
     </Dialog>
@@ -328,6 +350,8 @@ const statistics = ref<any>(null)
 const pagination = ref<any>(null)
 const categories = ref<any[]>([])
 const showCreateDialog = ref(false)
+const dialogMode = ref<'create' | 'edit'>('create')
+const selectedTodo = ref<any>(null)
 
 // Tabs
 const activeTab = ref(route.query.tab as string || 'my')
@@ -504,14 +528,32 @@ const getStatusSeverity = (status: string) => {
 }
 
 // Dialog handlers
-const handleCreateSuccess = () => {
+const handleFormSuccess = () => {
   showCreateDialog.value = false
-  // Reload todos to show the new item
+  dialogMode.value = 'create'
+  selectedTodo.value = null
+  // Reload todos to show the updated/new item
   loadTodos()
 }
 
-const handleCreateCancel = () => {
+const handleFormCancel = () => {
   showCreateDialog.value = false
+  dialogMode.value = 'create'
+  selectedTodo.value = null
+}
+
+// Open create dialog
+const openCreateDialog = () => {
+  dialogMode.value = 'create'
+  selectedTodo.value = null
+  showCreateDialog.value = true
+}
+
+// Open edit dialog
+const editTodo = (todo: any) => {
+  dialogMode.value = 'edit'
+  selectedTodo.value = todo
+  showCreateDialog.value = true
 }
 
 // Watchers

@@ -139,7 +139,7 @@
                     Untuk Diri Sendiri
                   </div>
                   <div class="text-xs text-gray-500 dark:text-gray-400">
-                    Todo pribadi untuk {{ currentUser.name }}
+                    Todo pribadi untuk {{ currentUser?.name || 'Anda' }}
                   </div>
                 </div>
               </label>
@@ -286,11 +286,13 @@ const { addTodo, editTodo } = useTodoList()
 const toast = useToast()
 const client = useSanctumClient()
 
-// Mock current user for now (this should come from auth)
-const currentUser = ref({
-  id: 1,
-  name: 'admin'
-})
+// Get current user from auth
+interface User {
+  id: number
+  name: string
+  email: string
+}
+const currentUser = useSanctumUser<User>() as any
 
 // Fetch users and roles options
 const { data: opsiUsers } = await useAsyncData(
