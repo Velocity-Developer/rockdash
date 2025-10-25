@@ -156,7 +156,7 @@
               Reset
             </Button>
             <Button
-              @click="getTodos"
+              @click="loadTodos"
               size="small"
               :loading="loading"
             >
@@ -251,12 +251,12 @@ const tabs = computed(() => [
 
 // Filters
 const filters = reactive({
-  search: '',
-  status: '',
-  priority: '',
-  category_id: '',
-  page: 1,
-  per_page: 10
+  search: (route.query.search as string) || '',
+  status: (route.query.status as string) || '',
+  priority: (route.query.priority as string) || '',
+  category_id: (route.query.category_id as string) || '',
+  page: parseInt(route.query.page as string) || 1,
+  per_page: parseInt(route.query.per_page as string) || 10
 })
 
 // Options
@@ -275,24 +275,33 @@ const priorityOptions = [
 ]
 
 // Methods
+const updateUrlParams = () => {
+  const query: any = {}
+
+  // Add tab parameter if not default
+  if (activeTab.value !== 'my') {
+    query.tab = activeTab.value
+  }
+
+  // Add filter parameters only if they have values
+  if (filters.search) query.search = filters.search
+  if (filters.status) query.status = filters.status
+  if (filters.priority) query.priority = filters.priority
+  if (filters.category_id) query.category_id = filters.category_id
+  if (filters.page > 1) query.page = filters.page
+  if (filters.per_page !== 10) query.per_page = filters.per_page
+
+  router.push({
+    path: route.path,
+    query
+  })
+}
+
 const switchTab = (tabKey: string) => {
   if (tabKey !== activeTab.value) {
-    // Update URL first
-    const query = { ...route.query }
-    if (tabKey === 'my') {
-      // Default tab, omit from URL for cleaner URLs
-      delete query.tab
-    } else {
-      query.tab = tabKey
-    }
-
-    router.push({
-      path: route.path,
-      query
-    })
-
-    // Then update active tab (this will trigger the watcher that loads data)
     activeTab.value = tabKey
+    resetFilters()
+    loadTodos()
   }
 }
 
@@ -341,12 +350,42 @@ const resetFilters = () => {
     category_id: '',
     page: 1
   })
-  getTodos()
+  updateUrlParams()
+}
+
+// Separate function for getting todos without updating URL
+const loadTodos = async () => {
+  loading.value = true
+
+  try {
+    const endpoint = activeTab.value === 'my' ? '/api/todos/my' : '/api/todos/created'
+    const response = await client(endpoint, {
+      params: {
+        ...filters,
+        pagination: 'true'
+      }
+    }) as any
+
+    todos.value = response.data || []
+    pagination.value = response
+
+  } catch (error) {
+    console.error('Error fetching todos:', error)
+    useToast().add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Gagal memuat todo',
+      life: 3000
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 const onPageChange = (event: any) => {
   filters.page = event.page + 1
-  getTodos()
+  updateUrlParams()
+  loadTodos()
 }
 
 const getEmptyMessage = () => {
@@ -363,34 +402,45 @@ watch(() => route.query.tab, (newTab) => {
     activeTab.value = newTab as string
     resetFilters()
   }
-  getTodos()
 })
 
-watch(() => filters.search, () => {
-  filters.page = 1
-  getTodos()
+watch(() => filters.search, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    filters.page = 1
+    updateUrlParams()
+    loadTodos()
+  }
 })
 
-watch(() => filters.status, () => {
-  filters.page = 1
-  getTodos()
+watch(() => filters.status, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    filters.page = 1
+    updateUrlParams()
+    loadTodos()
+  }
 })
 
-watch(() => filters.priority, () => {
-  filters.page = 1
-  getTodos()
+watch(() => filters.priority, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    filters.page = 1
+    updateUrlParams()
+    loadTodos()
+  }
 })
 
-watch(() => filters.category_id, () => {
-  filters.page = 1
-  getTodos()
+watch(() => filters.category_id, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    filters.page = 1
+    updateUrlParams()
+    loadTodos()
+  }
 })
 
 // Initialize
 onMounted(async () => {
   await Promise.all([
     getCategories(),
-    getTodos(),
+    loadTodos(),
   ])
 })
 </script>
