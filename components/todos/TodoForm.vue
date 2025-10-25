@@ -378,7 +378,7 @@ const assignments = computed(() => {
   // Based on assignment type
   if (assignmentType.value === 'self' && currentUser.value) {
     result.push({
-      assignment_type: 'user',
+      type: 'user',
       id: currentUser.value.id
     })
   }
@@ -400,7 +400,7 @@ const assignments = computed(() => {
           if (userId) {  // Skip null/undefined values
             console.log('Adding user:', userId)
             result.push({
-              assignment_type: 'user',
+              type: 'user',
               id: userId
             })
           }
@@ -420,7 +420,7 @@ const assignments = computed(() => {
     rolesArray.forEach(roleId => {
       if (roleId) {  // Skip null/undefined values
         result.push({
-          assignment_type: 'role',
+          type: 'role',
           id: roleId
         })
       }
@@ -434,7 +434,7 @@ const assignments = computed(() => {
     rolesArray.forEach(roleId => {
       if (roleId) {  // Skip null/undefined values
         result.push({
-          assignment_type: 'role',
+          type: 'role',
           id: roleId
         })
       }
