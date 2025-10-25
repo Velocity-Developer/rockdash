@@ -378,7 +378,7 @@ const assignments = computed(() => {
   // Based on assignment type
   if (assignmentType.value === 'self' && currentUser.value) {
     result.push({
-      type: 'user',
+      assignment_type: 'user',
       id: currentUser.value.id
     })
   }
@@ -400,7 +400,7 @@ const assignments = computed(() => {
           if (userId) {  // Skip null/undefined values
             console.log('Adding user:', userId)
             result.push({
-              type: 'user',
+              assignment_type: 'user',
               id: userId
             })
           }
@@ -420,7 +420,21 @@ const assignments = computed(() => {
     rolesArray.forEach(roleId => {
       if (roleId) {  // Skip null/undefined values
         result.push({
-          type: 'role',
+          assignment_type: 'role',
+          id: roleId
+        })
+      }
+    })
+  }
+
+  // Handle mixed assignments case (when assignmentType is 'user' but we also have roles)
+  if (assignmentType.value === 'user' && selectedRoles.value?.length > 0) {
+    // Handle both array and single value cases
+    const rolesArray = Array.isArray(selectedRoles.value) ? selectedRoles.value : [selectedRoles.value]
+    rolesArray.forEach(roleId => {
+      if (roleId) {  // Skip null/undefined values
+        result.push({
+          assignment_type: 'role',
           id: roleId
         })
       }
@@ -536,41 +550,81 @@ const initializeForm = () => {
     })
 
     // Set assignments from todo (determine assignment type based on existing assignments)
-    if (props.todo.assignments_summary) {
-      const hasCurrentUser = currentUser.value && props.todo.assignments_summary.users.some(
+    let assignmentsSummary = props.todo.assignments_summary
+
+    // Convert assignments format to assignments_summary if not available
+    if (!assignmentsSummary && props.todo.assignments) {
+      assignmentsSummary = {
+        users: [],
+        roles: []
+      }
+
+      props.todo.assignments.forEach((assignment: any) => {
+        if (assignment.tipe === 'User' && assignment.assignable) {
+          assignmentsSummary.users.push({
+            id: assignment.assignable.id,
+            name: assignment.assignable.name,
+            avatar: assignment.assignable.avatar
+          })
+        } else if (assignment.tipe === 'Role' && assignment.assignable) {
+          assignmentsSummary.roles.push({
+            id: assignment.assignable.id,
+            name: assignment.assignable.name
+          })
+        }
+      })
+    }
+
+    if (assignmentsSummary) {
+      const hasCurrentUser = currentUser.value && assignmentsSummary.users.some(
         (u: any) => u.id === currentUser.value.id
       )
-      const hasOtherUsers = props.todo.assignments_summary.users.some(
+      const hasOtherUsers = assignmentsSummary.users.some(
         (u: any) => u.id !== currentUser.value?.id
       )
-      const hasRoles = props.todo.assignments_summary.roles && props.todo.assignments_summary.roles.length > 0
+      const hasRoles = assignmentsSummary.roles && assignmentsSummary.roles.length > 0
+
+      // Debug logging
+      console.log('=== Edit Assignment Debug ===')
+      console.log('assignmentsSummary:', assignmentsSummary)
+      console.log('currentUser:', currentUser.value)
+      console.log('hasCurrentUser:', hasCurrentUser)
+      console.log('hasOtherUsers:', hasOtherUsers)
+      console.log('hasRoles:', hasRoles)
 
       // Determine assignment type based on existing assignments
       if (hasCurrentUser && !hasOtherUsers && !hasRoles) {
         // Only assigned to current user
         assignmentType.value = 'self'
+        console.log('Setting assignmentType to: self')
       } else if (hasRoles && !hasOtherUsers) {
         // Has roles but no other users
         assignmentType.value = 'role'
-        selectedRoles.value = Array.isArray(props.todo.assignments_summary.roles)
-          ? props.todo.assignments_summary.roles.map((r: any) => r.id)
+        selectedRoles.value = Array.isArray(assignmentsSummary.roles)
+          ? assignmentsSummary.roles.map((r: any) => r.id)
           : []
+        console.log('Setting assignmentType to: role, selectedRoles:', selectedRoles.value)
       } else if (hasOtherUsers && !hasRoles) {
         // Has other users but no roles
         assignmentType.value = 'user'
-        selectedUsers.value = props.todo.assignments_summary.users
+        selectedUsers.value = assignmentsSummary.users
           .filter((u: any) => u.id !== currentUser.value?.id)
           .map((u: any) => u.id)
+        console.log('Setting assignmentType to: user, selectedUsers:', selectedUsers.value)
       } else {
         // Mixed or complex assignments - default to user type
         assignmentType.value = 'user'
-        selectedUsers.value = props.todo.assignments_summary.users
+        selectedUsers.value = assignmentsSummary.users
           .filter((u: any) => u.id !== currentUser.value?.id)
           .map((u: any) => u.id)
-        selectedRoles.value = Array.isArray(props.todo.assignments_summary.roles)
-          ? props.todo.assignments_summary.roles.map((r: any) => r.id)
+        selectedRoles.value = Array.isArray(assignmentsSummary.roles)
+          ? assignmentsSummary.roles.map((r: any) => r.id)
           : []
+        console.log('Mixed assignments - setting to user type')
+        console.log('selectedUsers:', selectedUsers.value)
+        console.log('selectedRoles:', selectedRoles.value)
       }
+      console.log('=== End Debug ===')
     }
   } else {
     // Reset form for create
