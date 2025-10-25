@@ -22,7 +22,7 @@
 
               <!-- Priority Badge -->
               <Badge
-                :value="todo.priority_label"
+                :value="todo.priority"
                 :severity="getPrioritySeverity(todo.priority)"
                 size="small"
               />
@@ -43,9 +43,9 @@
 
             <!-- Meta Info -->
             <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              <div class="flex items-center gap-1">
-                <Icon name="lucide:calendar" class="w-3 h-3" />
-                <span v-if="todo.due_date">
+              <div v-if="todo.due_date" v-tooltip="'Deadline'" class="flex items-center gap-1">
+                <Icon name="lucide:calendar" class="w-3 h-3" />                
+                <span>
                   {{ formatDate(todo.due_date) }}
                   <span v-if="todo.due_date_days_left > 0" class="text-green-600">
                     ({{ todo.due_date_days_left }} hari lagi)
@@ -56,12 +56,11 @@
                   <span v-else class="text-red-600">
                     (telat {{ Math.abs(todo.due_date_days_left) }} hari)
                   </span>
-                </span>
-                <span v-else>Tidak ada deadline</span>
+                </span>                
               </div>
 
               <div v-if="todo.category" class="flex items-center gap-1">
-                <Icon :name="todo.category.icon || 'lucide:tag'" class="w-3 h-3" />
+                {{ todo.category.icon || '⚙' }}
                 <span>{{ todo.category.name }}</span>
               </div>
 
@@ -74,7 +73,7 @@
 
           <!-- Status Badge -->
           <Badge
-            :value="todo.status_label"
+            :value="todo.status"
             :severity="getStatusSeverity(todo.status)"
             size="small"
           />
@@ -117,7 +116,7 @@
                 <div
                   v-if="todo.assignments_summary.users.length > 4"
                   class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-white dark:border-gray-800 flex items-center justify-center text-xs font-medium"
-                  v-tooltip="todo.assignments_summary.users.slice(4).map(u => u.name).join(', ')"
+                  v-tooltip="todo.assignments_summary.users.slice(4).map((u: { name: any; }) => u.name).join(', ')"
                 >
                   +{{ todo.assignments_summary.users.length - 4 }}
                 </div>
