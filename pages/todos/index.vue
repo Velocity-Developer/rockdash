@@ -1,19 +1,8 @@
 <template>
   <div class="space-y-4">
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">TodoList</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Kelola tugas dan assignment</p>
-      </div>
-      <Button @click="navigateTo('/todos/create')" size="small" :loading="loading">
-        <Icon name="lucide:plus" />
-        Todo Baru
-      </Button>
-    </div>
 
     <!-- Tab Navigation -->
-    <div class="border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
       <nav class="-mb-px flex space-x-8" aria-label="Tabs">
         <button
           v-for="tab in tabs"
@@ -31,6 +20,10 @@
           <Badge v-if="tab.count > 0" :value="tab.count" class="ml-2" />
         </button>
       </nav>
+      <Button @click="navigateTo('/todos/create')" size="small" :loading="loading">
+        <Icon name="lucide:plus" />
+        Todo Baru
+      </Button>
     </div>
 
     <!-- Statistics Cards -->
@@ -189,16 +182,100 @@
         </Button>
       </div>
 
-      <div v-else class="space-y-3">
-        <todosTodoCard
-          v-for="todo in todos"
-          :key="todo.id"
-          :todo="todo"
-          @refresh="getTodos"
-          @edit="navigateTo(`/todos/${todo.id}`)"
-          @view="navigateTo(`/todos/${todo.id}`)"
-        />
-      </div>
+      <Card v-else class="space-y-3">
+        <template #content>
+
+          <DataTable :value="todos" scrollable scrollHeight="42rem" size="small" class="text-xs" stripedRows>
+            <Column field="title" header="Judul">
+              <template #body="slotProps">
+
+                <span
+                  @click="navigateTo(`/todos/${slotProps.data.id}`)"
+                  class="cursor-pointer text-sm"
+                >
+                  {{ slotProps.data.title }}
+                </span>
+
+                <div v-if="slotProps.data.category" class="mt-1">
+                  {{ slotProps.data.category.icon || '⚙' }}
+                  <span class="opacity-50">{{ slotProps.data.category.name }}</span>
+                </div>
+
+              </template>
+            </Column>
+            <Column field="status" header="Status">
+              <template #body="slotProps">
+                <Badge
+                  :value="slotProps.data.status"
+                  :severity="getStatusSeverity(slotProps.data.status)"
+                  size="small"
+                />
+              </template>
+            </Column>
+            <Column field="due_date" header="Deadline">              
+              <template #body="slotProps">
+                <div v-if="slotProps.data.due_date" class="text-xs">
+                  {{ slotProps.data.due_date }}
+                </div>
+
+                <!-- Overdue Indicator -->
+                <span v-if="slotProps.data.due_date">
+                  <span v-if="slotProps.data.due_date_days_left > 0" class="text-green-600">
+                    ({{ slotProps.data.due_date_days_left }} hari lagi)
+                  </span>
+                  <span v-else-if="slotProps.data.due_date_days_left === 0" class="text-yellow-600">
+                    (hari ini)
+                  </span>
+                  <span v-else class="text-red-600">
+                    (telat {{ Math.abs(slotProps.data.due_date_days_left) }} hari)
+                  </span>
+                </span> 
+                
+              </template>
+            </Column>
+            <Column field="description" header="Deskipsi">
+              <template #body="slotProps">
+                <div class="truncate max-w-[150px]">
+                  {{ slotProps.data.description }}
+                </div>
+              </template>
+            </Column>
+            <Column field="assign" header="Assignment">
+              <template #body="slotProps">
+                <Badge 
+                  size="small"
+                  severity="secondary" 
+                  class="flex items-center gap-1 justify-start mb-1 me-1"
+                  v-for="assignment in slotProps.data.assignments"
+                >
+                  <Icon :name="assignment.tipe === 'User' ? 'lucide:user' : 'lucide:layers'"/>
+                  {{ assignment.assignable.name }}
+                </Badge>
+              </template>
+            </Column>
+            <Column field="created_at" header="Dibuat">  
+              <template #body="slotProps">
+                <div v-if="slotProps.data.created_at" class="text-xs">
+                  {{ dayjs(slotProps.data.created_at).format('YYYY-MM-DD') }}
+                  <br/>
+                  {{ dayjs(slotProps.data.created_at).format('HH:mm:ss') }}
+                </div>
+              </template>
+            </Column>           
+            <Column field="author" header="Author">
+              <template #body="slotProps">
+                <div v-if="slotProps.data.creator" class="text-xs">
+                  {{ slotProps.data.creator.name }}
+                </div>
+              </template>
+            </Column>
+            <Column field="act" header="">
+            </Column>
+          </DataTable>
+
+        </template>
+      </Card>
+
     </div>
 
     <!-- Pagination -->
@@ -221,6 +298,8 @@ definePageMeta({
   description: 'Kelola tugas dan assignment',
 })
 
+import { useDayjs } from '#dayjs'
+const dayjs = useDayjs()
 const client = useSanctumClient()
 const route = useRoute()
 const router = useRouter()
@@ -394,6 +473,16 @@ const getEmptyMessage = () => {
   } else {
     return 'Anda belum membuat todo apapun'
   }
+}
+
+const getStatusSeverity = (status: string) => {
+  const severityMap: Record<string, any> = {
+    assigned: 'secondary',
+    in_progress: 'info',
+    completed: 'success',
+    declined: 'danger'
+  }
+  return severityMap[status] || 'secondary'
 }
 
 // Watchers
