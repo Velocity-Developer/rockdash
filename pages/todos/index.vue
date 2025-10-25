@@ -18,7 +18,7 @@
         <button
           v-for="tab in tabs"
           :key="tab.key"
-          @click="activeTab = tab.key"
+          @click="switchTab(tab.key)"
           :class="[
             activeTab === tab.key
               ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-300'
@@ -233,7 +233,7 @@ const pagination = ref<any>(null)
 const categories = ref<any[]>([])
 
 // Tabs
-const activeTab = ref('my')
+const activeTab = ref(route.query.tab as string || 'my')
 const tabs = computed(() => [
   {
     key: 'my',
@@ -275,6 +275,27 @@ const priorityOptions = [
 ]
 
 // Methods
+const switchTab = (tabKey: string) => {
+  if (tabKey !== activeTab.value) {
+    // Update URL first
+    const query = { ...route.query }
+    if (tabKey === 'my') {
+      // Default tab, omit from URL for cleaner URLs
+      delete query.tab
+    } else {
+      query.tab = tabKey
+    }
+
+    router.push({
+      path: route.path,
+      query
+    })
+
+    // Then update active tab (this will trigger the watcher that loads data)
+    activeTab.value = tabKey
+  }
+}
+
 const getTodos = async () => {
   loading.value = true
 
@@ -337,8 +358,12 @@ const getEmptyMessage = () => {
 }
 
 // Watchers
-watch(activeTab, () => {
-  resetFilters()
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && newTab !== activeTab.value) {
+    activeTab.value = newTab as string
+    resetFilters()
+  }
+  getTodos()
 })
 
 watch(() => filters.search, () => {
