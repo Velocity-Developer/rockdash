@@ -357,11 +357,6 @@ const priorityOptions = [
 // Computed
 const opsiUsersFilter = computed(() => {
   const filtered = opsiUsers.value.filter((user: any) => user.value !== currentUser.value?.id)
-  console.log('=== Debug opsiUsersFilter ===')
-  console.log('opsiUsers.value:', opsiUsers.value)
-  console.log('currentUser.value?.id:', currentUser.value?.id)
-  console.log('filtered result:', filtered)
-  console.log('=== End Debug opsiUsersFilter ===')
   return filtered
 })
 
@@ -440,10 +435,6 @@ const assignments = computed(() => {
       }
     })
   }
-
-  console.log('Final result length:', result.length)
-  console.log('Final result:', result)
-  console.log('=== End Debug ===')
 
   return result
 })
@@ -584,33 +575,22 @@ const initializeForm = () => {
       )
       const hasRoles = assignmentsSummary.roles && assignmentsSummary.roles.length > 0
 
-      // Debug logging
-      console.log('=== Edit Assignment Debug ===')
-      console.log('assignmentsSummary:', assignmentsSummary)
-      console.log('currentUser:', currentUser.value)
-      console.log('hasCurrentUser:', hasCurrentUser)
-      console.log('hasOtherUsers:', hasOtherUsers)
-      console.log('hasRoles:', hasRoles)
-
       // Determine assignment type based on existing assignments
       if (hasCurrentUser && !hasOtherUsers && !hasRoles) {
         // Only assigned to current user
         assignmentType.value = 'self'
-        console.log('Setting assignmentType to: self')
       } else if (hasRoles && !hasOtherUsers) {
         // Has roles but no other users
         assignmentType.value = 'role'
         selectedRoles.value = Array.isArray(assignmentsSummary.roles)
           ? assignmentsSummary.roles.map((r: any) => r.id)
           : []
-        console.log('Setting assignmentType to: role, selectedRoles:', selectedRoles.value)
       } else if (hasOtherUsers && !hasRoles) {
         // Has other users but no roles
         assignmentType.value = 'user'
         selectedUsers.value = assignmentsSummary.users
           .filter((u: any) => u.id !== currentUser.value?.id)
           .map((u: any) => u.id)
-        console.log('Setting assignmentType to: user, selectedUsers:', selectedUsers.value)
       } else {
         // Mixed or complex assignments - default to user type
         assignmentType.value = 'user'
@@ -620,11 +600,7 @@ const initializeForm = () => {
         selectedRoles.value = Array.isArray(assignmentsSummary.roles)
           ? assignmentsSummary.roles.map((r: any) => r.id)
           : []
-        console.log('Mixed assignments - setting to user type')
-        console.log('selectedUsers:', selectedUsers.value)
-        console.log('selectedRoles:', selectedRoles.value)
       }
-      console.log('=== End Debug ===')
     }
   } else {
     // Reset form for create
