@@ -286,6 +286,7 @@
                     severity="danger"
                     variant="text"
                     class="px-1"
+                    @click="confirmDelete(slotProps.data)"
                   >
                     <Icon name="lucide:trash" />
                   </Button>
@@ -358,6 +359,8 @@ const dayjs = useDayjs()
 const client = useSanctumClient()
 const route = useRoute()
 const router = useRouter()
+const toast = useToast();
+const confirm = useConfirm();
 
 // State
 const loading = ref(false)
@@ -577,6 +580,60 @@ const editTodo = (todo: any) => {
 const viewTodo = (todo: any) => {
   selectedTodo.value = todo
   showPreviewDialog.value = true
+}
+
+// Delete todo with confirmation
+const confirmDelete = (todo: any) => {
+  confirm.require({
+    message: `Apakah Anda yakin ingin menghapus todo "${todo.title}"?`,
+    header: 'Konfirmasi Hapus',
+    icon: 'pi pi-exclamation-triangle',
+    rejectClass: 'p-button-secondary p-button-outlined',
+    rejectLabel: 'Batal',
+    acceptLabel: 'Hapus',
+    acceptClass: 'p-button-danger',
+    accept: () => {
+      deleteTodo(todo.id)
+    },
+    reject: () => {
+      // User cancelled, do nothing
+    }
+  })
+}
+
+// Delete todo API call
+const deleteTodo = async (todoId: number) => {
+  loading.value = true
+
+  try {
+    await client(`/api/todos/${todoId}`, {
+      method: 'DELETE'
+    })
+
+    // Show success toast
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: 'Todo berhasil dihapus',
+      life: 3000
+    })
+
+    // Reload todos to update the list
+    await loadTodos()
+
+  } catch (error) {
+    console.error('Error deleting todo:', error)
+
+    // Show error toast
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Gagal menghapus todo',
+      life: 3000
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 // Watchers
