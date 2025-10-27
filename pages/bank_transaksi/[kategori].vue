@@ -113,6 +113,13 @@
         </div>
     </div>
 
+    <div class="text-end mb-2">
+        <Button @click="openSearchDialog()" size="small">
+            <Icon name="lucide:search" />
+            Search
+        </Button>
+    </div>
+
     <DataTable
         :value="data.data"
         size="small"
@@ -389,6 +396,46 @@
         />
     </Dialog>
 
+    <Dialog
+        v-model:visible="dialogSearch"
+        modal
+        header="Pencarian Transaksi"
+        :style="{ width: '30rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    >
+        <div class="space-y-4">
+            <div>
+                <label for="searchText" class="block text-sm font-medium mb-2">
+                    Cari Transaksi
+                </label>
+                <InputText
+                    id="searchText"
+                    v-model="searchForm.text"
+                    placeholder="Masukkan kata kunci pencarian..."
+                    class="w-full"
+                />
+            </div>
+            <div class="flex justify-end gap-2">
+                <Button
+                    @click="dialogSearch = false"
+                    severity="secondary"
+                    outlined
+                    size="small"
+                >
+                    Batal
+                </Button>
+                <Button
+                    @click="performSearch()"
+                    severity="primary"
+                    size="small"
+                >
+                    <Icon name="lucide:search" />
+                    Cari
+                </Button>
+            </div>
+        </div>
+    </Dialog>
+
     <DashLoader :loading="isLoadingDash" />
 </template>
 
@@ -556,4 +603,23 @@ const exportExcel = async () => {
 
 //atur saldo
 const dialogFormSaldo = ref(false);
+
+//search dialog
+const dialogSearch = ref(false);
+const searchForm = reactive({
+    text: "",
+});
+
+const openSearchDialog = () => {
+    dialogSearch.value = true;
+    searchForm.text = "";
+};
+
+const performSearch = async () => {
+    if (searchForm.text.trim()) {
+        filters.search = searchForm.text.trim();
+        refresh();
+    }
+    dialogSearch.value = false;
+};
 </script>
