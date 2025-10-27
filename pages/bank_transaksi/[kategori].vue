@@ -129,7 +129,7 @@
     </div>
 
     <DataTable
-        :value="data.data"
+        :value="filteredData"
         size="small"
         class="text-xs"
         sortField="nomor"
@@ -519,12 +519,20 @@ function updateRouteParams() {
     });
 }
 
-//watch filters
-watch(filters, () => {
-    //ubah format date dayjs
-    filters.bulan = filters.bulan ? dayjs(filters.bulan).format("YYYY-MM") : "";
+//watch filters (exclude search untuk filter client-side)
+watch(
+    () => ({ bank: filters.bank, bulan: filters.bulan, kategori: filters.kategori }),
+    () => {
+        //ubah format date dayjs
+        filters.bulan = filters.bulan ? dayjs(filters.bulan).format("YYYY-MM") : "";
+        updateRouteParams();
+        refresh();
+    }
+);
+
+//watch search untuk update URL tanpa refresh
+watch(() => filters.search, () => {
     updateRouteParams();
-    refresh();
 });
 
 //watch status
@@ -619,12 +627,95 @@ const openSearchDialog = () => {
     dialogSearch.value = true;
 };
 const searchParams = () => {
-    refresh();
+    // Tidak perlu refresh karena filter sudah dilakukan di client-side
     dialogSearch.value = false;
 };
 
 const clearSearch = () => {
     filters.search = "";
-    refresh();
+    // Tidak perlu refresh karena filter sudah dilakukan di client-side
 };
+
+// Computed property untuk memfilter data berdasarkan search text
+const filteredData = computed(() => {
+    if (!filters.search) {
+        return data.value.data || [];
+    }
+
+    const searchTerm = filters.search.toLowerCase();
+
+    return (data.value.data || []).filter((item: any) => {
+        // Filter berdasarkan tanggal
+        if (item.tgl && item.tgl.toLowerCase().includes(searchTerm)) {
+            return true;
+        }
+
+        // Filter berdasarkan keterangan bank
+        if (item.keterangan_bank && item.keterangan_bank.toLowerCase().includes(searchTerm)) {
+            return true;
+        }
+
+        // Filter berdasarkan nominal (masuk)
+        if (item.jenis_transaksi === 'masuk' && item.nominal) {
+            const nominalStr = formatMoney(item.nominal, item.bank).toLowerCase();
+            if (nominalStr.includes(searchTerm)) {
+                return true;
+            }
+        }
+
+        // Filter berdasarkan nominal (keluar)
+        if (item.jenis_transaksi === 'keluar' && item.nominal) {
+            const nominalStr = formatMoney(item.nominal, item.bank).toLowerCase();
+            if (nominalStr.includes(searchTerm)) {
+                return true;
+            }
+        }
+
+        // Filter berdasarkan saldo
+        if (item.saldo) {
+            const saldoStr = formatMoney(item.saldo, item.bank).toLowerCase();
+            if (saldoStr.includes(searchTerm)) {
+                return true;
+            }
+        }
+
+        // Filter berdasarkan jenis transaksi di cs_main_project
+        if (item.cs_main_project && item.cs_main_project.length > 0) {
+            for (const csItem of item.cs_main_project) {
+                if (csItem.jenis && csItem.jenis.toLowerCase().includes(searchTerm)) {
+                    return true;
+                }
+                if (csItem.webhost && csItem.webhost.nama_web && csItem.webhost.nama_web.toLowerCase().includes(searchTerm)) {
+                    return true;
+                }
+                if (csItem.deskripsi && csItem.deskripsi.toLowerCase().includes(searchTerm)) {
+                    return true;
+                }
+                if (csItem.dibayar) {
+                    const dibayarStr = formatMoney(csItem.dibayar, item.bank).toLowerCase();
+                    if (dibayarStr.includes(searchTerm)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Filter berdasarkan jenis transaksi di transaksi_keluar
+        if (item.transaksi_keluar && item.transaksi_keluar.length > 0) {
+            for (const transItem of item.transaksi_keluar) {
+                if (transItem.jenis && transItem.jenis.toLowerCase().includes(searchTerm)) {
+                    return true;
+                }
+                if (transItem.jml) {
+                    const jmlStr = formatMoney(transItem.jml, item.bank).toLowerCase();
+                    if (jmlStr.includes(searchTerm)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    });
+});
 </script>
