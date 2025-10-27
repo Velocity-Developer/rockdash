@@ -113,7 +113,15 @@
         </div>
     </div>
 
-    <div class="text-end mb-2">
+    <div class="flex gap-1 justify-end items-center mb-2">
+        <Chip
+            v-if="filters.search"
+            :label="filters.search"
+            removable
+            @remove="clearSearch"
+            severity="info"
+            size="small"
+        />
         <Button @click="openSearchDialog()" size="small">
             <Icon name="lucide:search" />
             Search
@@ -410,7 +418,7 @@
                 </label>
                 <InputText
                     id="searchText"
-                    v-model="searchForm.text"
+                    v-model="filters.search"
                     placeholder="Masukkan kata kunci pencarian..."
                     class="w-full"
                 />
@@ -425,7 +433,7 @@
                     Batal
                 </Button>
                 <Button
-                    @click="performSearch()"
+                    @click="searchParams()"
                     severity="primary"
                     size="small"
                 >
@@ -454,6 +462,7 @@ const filters = reactive({
     bank: route.query.bank || "",
     bulan: route.query.bulan || dayjs().format("YYYY-MM"),
     kategori: kategori || "umum",
+    search: route.query.search || "",
 } as any);
 
 //get opsi bank
@@ -606,20 +615,16 @@ const dialogFormSaldo = ref(false);
 
 //search dialog
 const dialogSearch = ref(false);
-const searchForm = reactive({
-    text: "",
-});
-
 const openSearchDialog = () => {
     dialogSearch.value = true;
-    searchForm.text = "";
+};
+const searchParams = () => {
+    refresh();
+    dialogSearch.value = false;
 };
 
-const performSearch = async () => {
-    if (searchForm.text.trim()) {
-        filters.search = searchForm.text.trim();
-        refresh();
-    }
-    dialogSearch.value = false;
+const clearSearch = () => {
+    filters.search = "";
+    refresh();
 };
 </script>
