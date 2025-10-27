@@ -41,7 +41,7 @@
 
   </div>
 
-  <div class="flex justify-center items-center fixed z-[99] top-0 bottom-0 end-0 start-0 bg-white/30 backdrop-blur-sm">
+  <div v-if="isError" class="flex justify-center items-center fixed z-[99] top-0 bottom-0 end-0 start-0 bg-white/30 backdrop-blur-sm">
     <div class="bg-gray-950 border border-red-500 text-center text-white p-4 rounded-md shadow-md w-[300px] md:w-[400px]">
       <div class="flex justify-center items-center mb-5">
         <Icon name="lucide:server-off" class="w-20 h-20" :ssr="true"/>
