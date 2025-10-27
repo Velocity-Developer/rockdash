@@ -41,12 +41,22 @@
 
   </div>
 
-  <div v-if="isError" class="flex justify-center items-center fixed z-[99] top-0 bottom-0 end-0 start-0 bg-white/30 backdrop-blur-sm">
-    <div class="bg-gray-950 border border-red-500 text-center text-white p-4 rounded-md shadow-md w-[300px]">
+  <div class="flex justify-center items-center fixed z-[99] top-0 bottom-0 end-0 start-0 bg-white/30 backdrop-blur-sm">
+    <div class="bg-gray-950 border border-red-500 text-center text-white p-4 rounded-md shadow-md w-[300px] md:w-[400px]">
       <div class="flex justify-center items-center mb-5">
         <Icon name="lucide:server-off" class="w-20 h-20" :ssr="true"/>
       </div>
       Gagal menyambung ke server !. <br> Silahkan coba lagi...
+      <div class="bg-gray-800 p-3 text-left rounded-md mt-4">
+        <ul class="list-decimal pl-4">
+          <li>Periksa koneksi internet</li>
+          <li>Periksa apakah IP di block</li>
+        </ul>
+      </div>
+      <span class="bg-gray-800 p-3 mt-2 rounded-md flex justify-start items-center gap-1" v-tooltip="`IP Address: ${userIP}`">
+        <Icon name="lucide:globe" />
+        <span>IP: {{ userIP || 'Loading...' }}</span>
+      </span>
       <Button @click="fetchNotifikasi" severity="danger" class="w-full mt-5">
         Coba lagi
       </Button>
@@ -69,6 +79,7 @@ interface NotifikasiItem {
   };
 }
 
+const userIP = ref('')
 const isError = ref(false)
 const isLoading = ref(false)
 const client = useSanctumClient();
@@ -82,6 +93,7 @@ const fetchNotifikasi = async () => {
   } catch (error) {
     console.log(error)
     isError.value = true
+    fetchUserIP()
   }
   isLoading.value = false
 }
@@ -93,6 +105,18 @@ setTimeout(() => {
 
 // Ambil ulang setiap 5 menit
 setInterval(fetchNotifikasi, 5 * 60 * 1000)
+
+// Function to fetch user IP
+const fetchUserIP = async () => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json')
+    const data = await response.json()
+    userIP.value = data.ip
+  } catch (error) {
+    console.error('Failed to fetch IP:', error)
+    userIP.value = 'Unknown'
+  }
+}
 
 // Mark as read
 const markRead = async (data: any) => {
