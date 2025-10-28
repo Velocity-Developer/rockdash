@@ -297,6 +297,17 @@
                                 />
                             </template>
                         </Column>
+                        <Column field="priority" header="Prioritas" class="capitalize">
+                            <template #body="slotProps">
+                                <Badge
+                                    :value="getPriorityLabel(slotProps.data.priority)"
+                                    :severity="
+                                        getPrioritySeverity(slotProps.data.priority)
+                                    "
+                                    size="small"
+                                />
+                            </template>
+                        </Column>
                         <Column field="due_date" header="Deadline">
                             <template #body="slotProps">
                                 <div
@@ -525,6 +536,28 @@ const getStatusLabel = (status: string) => {
         declined: "Ditolak",
     };
     return labelMap[status] || status;
+};
+
+//get priority label
+const getPriorityLabel = (priority: string) => {
+    const labelMap: Record<string, string> = {
+        low: "Low",
+        medium: "Medium",
+        high: "High",
+        urgent: "Urgent",
+    };
+    return labelMap[priority] || priority;
+};
+
+//get priority severity
+const getPrioritySeverity = (severity: string) => {
+    const labelMap: Record<string, string> = {
+        low: "secondary",
+        medium: "info",
+        high: "warn",
+        urgent: "danger",
+    };
+    return labelMap[severity] || severity;
 };
 
 // Filters
