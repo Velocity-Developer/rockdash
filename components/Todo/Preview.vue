@@ -47,6 +47,7 @@ const emit = defineEmits<{
 // Import composables for API calls
 const { editTodo } = useTodoList();
 const client = useSanctumClient();
+const toast = useToast()
 
 // Loading and error states
 const isUpdatingStatus = ref(false);
@@ -137,6 +138,7 @@ const handleStatusChange = async (newStatus: string) => {
                 }
             }) as any
             updatedTodo.status = res.data.status;
+            
         } catch (error) {
             console.error('Failed to update assignments status:', error);
             throw error; // Re-throw to be caught in outer try-catch
@@ -152,8 +154,13 @@ const handleStatusChange = async (newStatus: string) => {
         // Emit the updated todo to parent
         emit('updateTodo', todoForEmit);
 
-        // Show success message (optional - you can add toast notification)
-        console.log('Status updated successfully');
+        // Show success toast
+        toast.add({
+            severity: 'success',
+            summary: 'Berhasil',
+            detail: 'Status berhasil diperbarui',
+            life: 3000
+        })
     } catch (error) {
         console.error('Failed to update status:', error);
         statusUpdateError.value = 'Gagal mengubah status. Silakan coba lagi.';
