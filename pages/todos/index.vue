@@ -614,7 +614,7 @@ const getTodos = async () => {
 
 const getCategories = async () => {
     try {
-        const response = (await client("/api/todo_categories")) as any;
+        const response = (await client("/api/todo_category")) as any;
         categories.value = response.data || [];
     } catch (error) {
         console.error("Error fetching categories:", error);
