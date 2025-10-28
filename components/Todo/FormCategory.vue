@@ -8,16 +8,22 @@
       <div class="flex flex-col gap-1">
         <label for="color">Warna</label>
         <div class="flex gap-2 items-center">
+          <input
+            type="color"
+            v-model="form.color"
+            class="w-16 h-10 border border-gray-300 rounded cursor-pointer"
+          />
           <InputText
             v-model="form.color"
-            placeholder="#ffffff atau nama warna"
+            placeholder="#ffffff"
+            class="flex-1"
           />
           <div
             class="w-8 h-8 rounded border border-gray-300"
             :style="{ backgroundColor: form.color || '#ffffff' }"
           ></div>
         </div>
-        <span class="text-sm text-gray-500">Gunakan hex color (#ffffff) atau nama warna (red, blue)</span>
+        <span class="text-sm text-gray-500">Pilih warna atau masukkan hex color (#ffffff)</span>
       </div>
       <div class="flex flex-col gap-1">
         <label for="icon">Icon (Emoji)</label>
