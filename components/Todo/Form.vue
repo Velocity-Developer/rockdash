@@ -451,13 +451,6 @@ const opsiUsersFilter = computed(() => {
 const assignments = computed(() => {
     const result = [];
 
-    console.log("=== Debug Assignments ===");
-    console.log("assignmentType:", assignmentType.value);
-    console.log("selectedUsers:", selectedUsers.value);
-    console.log("selectedRoles:", selectedRoles.value);
-    console.log("selectedUsers type:", typeof selectedUsers.value);
-    console.log("selectedUsers is array:", Array.isArray(selectedUsers.value));
-
     // Based on assignment type
     if (assignmentType.value === "self" && currentUser.value) {
         result.push({
@@ -543,7 +536,7 @@ const assignments = computed(() => {
 const opsiCategories = ref<any[]>([]);
 const loadCategories = async () => {
     try {
-        const response = (await client(`api/todo_categories`)) as any;
+        const response = (await client(`api/todo_category`)) as any;
         opsiCategories.value = response.data;
     } catch (error) {
         console.error("Error fetching categories:", error);
