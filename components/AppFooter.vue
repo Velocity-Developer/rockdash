@@ -6,12 +6,12 @@
       <span>IP: {{ userIP || 'Loading...' }}</span>
     </span>
     <span>|</span>
-    <span class="flex justify-end items-center gap-1" v-tooltip="`Di build : ${formatBuildDate(buildInfo.buildDate)}`">
+    <span @click="navigateTo('/pwa-test')" class="cursor-pointer flex justify-end items-center gap-1" v-tooltip="`Di build : ${formatBuildDate(buildInfo.buildDate)}`">
       <Icon name="lucide:rocket" />
       <span>Build: {{ formatBuildDate(buildInfo.buildDate) }}</span>
     </span>
     <span>|</span>
-    <span class="flex justify-end items-center gap-1" v-tooltip="`Version: ${buildInfo.version}`">
+    <span @click="navigateTo('/pwa-test')" class="cursor-pointer flex justify-end items-center gap-1" v-tooltip="`Version: ${buildInfo.version}`">
       <Icon name="lucide:package" /> {{ buildInfo.version }}
     </span>
     <Badge v-if="isInPWA()" size="small" severity="success" class="animate-pulse">
