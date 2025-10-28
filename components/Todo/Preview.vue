@@ -80,6 +80,7 @@ const { dayjs } = useDayjs();
 
 const getStatusSeverity = (status: string) => {
     const severityMap: Record<string, any> = {
+        pending: "warning",
         assigned: "secondary",
         in_progress: "info",
         completed: "success",
@@ -110,6 +111,7 @@ const getPriorityLabel = (priority: string) => {
 
 const getStatusLabel = (status: string) => {
     const labelMap: Record<string, string> = {
+        pending: "Menunggu",
         assigned: "Ditugaskan",
         in_progress: "Dalam Progres",
         completed: "Selesai",
@@ -173,6 +175,7 @@ const handleStatusChange = async (newStatus: string) => {
 };
 
 const availableStatuses = [
+    { value: 'pending', label: 'Menunggu' },
     { value: 'assigned', label: 'Ditugaskan' },
     { value: 'in_progress', label: 'Dalam Progres' },
     { value: 'completed', label: 'Selesai' },
