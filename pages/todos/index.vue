@@ -408,7 +408,7 @@
                                 </div>
                             </template>
                         </Column>
-                        <Column field="act" header="">
+                        <Column field="act" header="" v-if="activeTab !== 'my'">
                             <template #body="slotProps">
                                 <div class="flex items-center justify-end">
                                     <Button
