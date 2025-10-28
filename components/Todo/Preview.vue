@@ -30,13 +30,22 @@ interface Todo {
     }>;
 }
 
-defineProps<{
+const props = defineProps<{
     todo: Todo;
 }>();
 
 const emit = defineEmits<{
     close: [];
+    updateTodo: [todo: Todo];
 }>();
+
+// Import composables for API calls
+const { editTodo } = useTodoList();
+const client = useSanctumClient();
+
+// Loading and error states
+const isUpdatingStatus = ref(false);
+const statusUpdateError = ref<string | null>(null);
 
 const useDayjs = () => {
     const dayjs = (date: string) => {
@@ -102,6 +111,61 @@ const getStatusLabel = (status: string) => {
     };
     return labelMap[status] || status;
 };
+
+const handleStatusChange = async (newStatus: string) => {
+    if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
+
+    isUpdatingStatus.value = true;
+    statusUpdateError.value = null;
+    const updatedTodo = props.todo;
+
+    try {
+        // Update todo via API - convert status to match API expected type
+        const apiStatus = newStatus as 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+        try {
+            // Update todo assignments status
+            const res = await client(`api/todos/update-status/${props.todo.id}`, {
+                method: 'PUT',
+                params: {
+                    status: apiStatus
+                }
+            }) as any
+            updatedTodo.status = res.data.status;
+        } catch (error) {
+            console.error('Failed to update assignments status:', error);
+            throw error; // Re-throw to be caught in outer try-catch
+        }
+
+        // Create a simple todo object for emission with minimal conversion
+        const todoForEmit: Todo = {
+            ...props.todo,
+            status: updatedTodo.status,
+            updated_at: updatedTodo.updated_at
+        };
+
+        // Emit the updated todo to parent
+        emit('updateTodo', todoForEmit);
+
+        // Show success message (optional - you can add toast notification)
+        console.log('Status updated successfully');
+    } catch (error) {
+        console.error('Failed to update status:', error);
+        statusUpdateError.value = 'Gagal mengubah status. Silakan coba lagi.';
+
+        // Optionally show error toast
+        // You can import and use toast notification here
+    } finally {
+        isUpdatingStatus.value = false;
+    }
+};
+
+const availableStatuses = [
+    { value: 'assigned', label: 'Ditugaskan' },
+    { value: 'in_progress', label: 'Dalam Progres' },
+    { value: 'completed', label: 'Selesai' },
+    { value: 'declined', label: 'Ditolak' },
+];
 </script>
 
 <template>
@@ -113,7 +177,7 @@ const getStatusLabel = (status: string) => {
             >
                 {{ todo.title }}
             </h1>
-            <div class="flex gap-2 sm:gap-3">
+            <div class="flex gap-2 sm:gap-3 mb-3">
                 <!-- Category -->
                 <Badge v-if="todo.category" size="small" class="font-normal">
                     <span>{{ todo.category.icon || "📋" }}</span>
@@ -131,6 +195,30 @@ const getStatusLabel = (status: string) => {
                     :severity="getPrioritySeverity(todo.priority)"
                     size="small"
                 />
+            </div>
+
+            <!-- Status Change with SelectButton -->
+            <div>
+                <div class="opacity-75 mb-2">Ubah Status</div>
+                <div class="relative">
+                    <SelectButton
+                        v-model="todo.status"
+                        :options="availableStatuses"
+                        optionLabel="label"
+                        optionValue="value"
+                        @update:modelValue="handleStatusChange"
+                        class="w-full"
+                        :disabled="isUpdatingStatus"
+                    />
+                    <div v-if="isUpdatingStatus" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded">
+                        <div class="text-sm text-gray-600">Menyimpan...</div>
+                    </div>
+                </div>
+
+                <!-- Error message -->
+                <div v-if="statusUpdateError" class="mt-2 text-sm text-red-600">
+                    {{ statusUpdateError }}
+                </div>
             </div>
         </div>
 
