@@ -289,7 +289,7 @@
                         <Column field="status" header="Status">
                             <template #body="slotProps">
                                 <Badge
-                                    :value="slotProps.data.status"
+                                    :value="getStatusLabel(slotProps.data.status)"
                                     :severity="
                                         getStatusSeverity(slotProps.data.status)
                                     "
@@ -515,6 +515,18 @@ const tabs = computed(() => [
     },
 ]);
 
+// get label status
+const getStatusLabel = (status: string) => {
+    const labelMap: Record<string, string> = {
+        pending: "Menunggu",
+        assigned: "Ditugaskan",
+        in_progress: "Dalam Progres",
+        completed: "Selesai",
+        declined: "Ditolak",
+    };
+    return labelMap[status] || status;
+};
+
 // Filters
 const filters = reactive({
     search: (route.query.search as string) || "",
@@ -527,10 +539,11 @@ const filters = reactive({
 
 // Options
 const statusOptions = [
-    { label: "Assigned", value: "assigned" },
-    { label: "In Progress", value: "in_progress" },
-    { label: "Completed", value: "completed" },
-    { label: "Declined", value: "declined" },
+    { label: "Pending", value: "pending" },
+    { label: "Ditugaskan", value: "assigned" },
+    { label: "Dalam Progres", value: "in_progress" },
+    { label: "Selesai", value: "completed" },
+    { label: "Ditolak", value: "declined" },
 ];
 
 const priorityOptions = [
