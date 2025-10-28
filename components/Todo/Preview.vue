@@ -19,6 +19,11 @@ interface Todo {
         id: number;
         name: string;
         email: string;
+        user_roles?: Array<{
+            id: number;
+            name: string;
+        }>;
+        avatar_url?: string;
     };
     assignments?: Array<{
         id: number;
@@ -171,13 +176,13 @@ const availableStatuses = [
 <template>
     <div class="space-y-6">
         <div>
-            <div class="opacity-75 mb-1">Judul</div>
+            <div class="opacity-75 mb-1">Judul</div>            
             <h1
-                class="text-md font-bold text-gray-900 dark:text-white mb-2 leading-tight"
+                class="text-md md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight"
             >
                 {{ todo.title }}
             </h1>
-            <div class="flex gap-2 sm:gap-3 mb-3">
+            <div class="flex justify-end gap-2 sm:gap-3 mt-1">
                 <!-- Category -->
                 <Badge v-if="todo.category" size="small" class="font-normal">
                     <span>{{ todo.category.icon || "📋" }}</span>
@@ -199,8 +204,8 @@ const availableStatuses = [
 
             <!-- Status Change with SelectButton -->
             <div>
-                <div class="opacity-75 mb-2">Ubah Status</div>
-                <div class="relative">
+                <div class="text-sm font-bold opacity-75 mb-2">Ubah Status</div>
+                <div class="relative bg-slate-200 dark:bg-slate-800 border border-slate-200 p-3 rounded-xl">
                     <SelectButton
                         v-model="todo.status"
                         :options="availableStatuses"
@@ -351,7 +356,7 @@ const availableStatuses = [
             >
                 <div v-if="todo.creator" class="flex items-center space-x-4">
                     <Avatar
-                        :label="todo.creator.name.charAt(0).toUpperCase()"
+                        :src="todo.creator?.avatar_url || todo.creator.name.charAt(0).toUpperCase()"
                         class="w-12 h-12 bg-teal-500 text-white font-bold text-lg"
                         shape="circle"
                     />
@@ -362,9 +367,10 @@ const availableStatuses = [
                             {{ todo.creator.name }}
                         </p>
                         <p
+                            v-if="todo.creator?.user_roles"
                             class="text-sm text-gray-600 dark:text-gray-400 truncate"
                         >
-                            {{ todo.creator.email }}
+                            {{ todo.creator?.user_roles[0] }}
                         </p>
                     </div>
                 </div>
