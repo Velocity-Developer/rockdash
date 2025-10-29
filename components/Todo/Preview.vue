@@ -175,7 +175,6 @@ const handleStatusChange = async (newStatus: string) => {
 };
 
 const availableStatuses = [
-    { value: 'pending', label: 'Menunggu' },
     { value: 'assigned', label: 'Ditugaskan' },
     { value: 'in_progress', label: 'Dalam Progres' },
     { value: 'completed', label: 'Selesai' },
