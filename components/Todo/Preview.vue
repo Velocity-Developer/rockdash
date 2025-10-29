@@ -120,6 +120,13 @@ const getStatusLabel = (status: string) => {
     return labelMap[status] || status;
 };
 
+const startWorkingOnTodo = async () => {
+    if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
+
+    // Directly call handleStatusChange with 'in_progress' status
+    await handleStatusChange('in_progress');
+};
+
 const handleStatusChange = async (newStatus: string) => {
     if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
 
@@ -140,7 +147,7 @@ const handleStatusChange = async (newStatus: string) => {
                 }
             }) as any
             updatedTodo.status = res.data.status;
-            
+
         } catch (error) {
             console.error('Failed to update assignments status:', error);
             throw error; // Re-throw to be caught in outer try-catch
@@ -214,7 +221,23 @@ const availableStatuses = [
             <!-- Status Change with SelectButton -->
             <div>
                 <div class="text-sm font-bold opacity-75 mb-2">Ubah Status</div>
-                <div class="relative bg-slate-200 dark:bg-slate-800 border border-slate-200 p-3 rounded-xl">
+
+                <!-- Show "Kerjakan Todo" button when status is assigned -->
+                <div v-if="todo.status === 'assigned'" class="mb-3">
+                    <Button
+                        @click="startWorkingOnTodo"
+                        :disabled="isUpdatingStatus"
+                        severity="success"
+                        class="w-full"
+                        v-tooltip="'Kerjakan dan tambahkan ke Jurnal'"
+                    >
+                        <Icon name="lucide:play" class="mr-2 w-4 h-4" />
+                        Kerjakan Todo
+                    </Button>
+                </div>
+
+                <!-- Show SelectButton for other statuses -->
+                <div v-else class="relative bg-slate-200 dark:bg-slate-800 border border-slate-200 p-3 rounded-xl">
                     <SelectButton
                         v-model="todo.status"
                         :options="availableStatuses"
