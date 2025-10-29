@@ -7,7 +7,7 @@
           <template #body="slotProps">
             <div class="flex flex-col gap-1">
               <div class="flex items-start gap-2">
-                <span v-tooltip="slotProps.data.journal_category?.name" class="w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-1 rounded-full">
+                <span v-if="slotProps.data.journal_category" v-tooltip="slotProps.data.journal_category?.name" class="w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-1 rounded-full">
                   {{ slotProps.data.journal_category?.icon }}
                 </span>
                 <div>

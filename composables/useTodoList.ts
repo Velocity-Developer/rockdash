@@ -163,7 +163,7 @@ export const useTodoApi = () => {
   // Get categories
   const getCategories = async () => {
     try {
-      const response = await client(`api/todo_categories`) as any
+      const response = await client(`api/todo_category`) as any
       return response.data
     } catch (error) {
       console.error('Error fetching categories:', error)
@@ -173,7 +173,7 @@ export const useTodoApi = () => {
 
   // Create category
   const createCategory = async (data: Partial<TodoCategory>) => {
-    return client<TodoCategory>(`api/todo_categories`, {
+    return client<TodoCategory>(`api/todo_category`, {
       method: 'POST',
       body: data,
       headers: {
@@ -185,7 +185,7 @@ export const useTodoApi = () => {
 
   // Update category
   const updateCategory = async (id: number, data: Partial<TodoCategory>) => {
-    return client<TodoCategory>(`api/todo_categories/${id}`, {
+    return client<TodoCategory>(`api/todo_category/${id}`, {
       method: 'PUT',
       body: data,
       headers: {
@@ -197,7 +197,7 @@ export const useTodoApi = () => {
 
   // Delete category
   const deleteCategory = async (id: number) => {
-    return client(`api/todo_categories/${id}`, {
+    return client(`api/todo_category/${id}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',

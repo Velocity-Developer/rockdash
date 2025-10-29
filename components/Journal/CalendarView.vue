@@ -43,7 +43,9 @@
                   v-tooltip.top="(journal as { title: string }).title"
                   >
                     <div>
-                      {{ (journal as { journal_category: { icon: string } }).journal_category.icon }}
+                      <span v-if="journal?.journal_category?.icon">
+                        {{ journal.journal_category.icon }}
+                      </span>
                     </div>
                     <div
                       class="truncate"
@@ -77,7 +79,7 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const props = defineProps({
   data: {
-    type: Array,
+    type: Object,
     default: () => []
   },
   start: {
