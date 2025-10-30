@@ -128,6 +128,46 @@ const startWorkingOnTodo = async () => {
     await handleStatusChange('in_progress');
 };
 
+const completeTodo = async () => {
+    if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
+
+    await handleStatusChange('completed');
+};
+
+const cancelTodo = async () => {
+    if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
+
+    // Show confirmation dialog
+    const confirmed = confirm('Apakah Anda yakin ingin membatalkan pengerjaan todo ini? Data pengerjaan akan dihapus.');
+    if (!confirmed) return;
+
+    await handleStatusChange('assigned');
+};
+
+const getStatusIcon = (status: string) => {
+    const iconMap: Record<string, string> = {
+        pending: 'lucide:clock',
+        assigned: 'lucide:user-check',
+        in_progress: 'lucide:play-circle',
+        completed: 'lucide:check-circle',
+        declined: 'lucide:x-circle',
+        cancelled: 'lucide:ban'
+    };
+    return iconMap[status] || 'lucide:circle';
+};
+
+const getStatusColor = (status: string) => {
+    const colorMap: Record<string, string> = {
+        pending: 'text-orange-500',
+        assigned: 'text-blue-500',
+        in_progress: 'text-purple-500',
+        completed: 'text-green-500',
+        declined: 'text-red-500',
+        cancelled: 'text-gray-500'
+    };
+    return colorMap[status] || 'text-gray-500';
+};
+
 const handleStatusChange = async (newStatus: string) => {
     if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
 
@@ -168,8 +208,12 @@ const handleStatusChange = async (newStatus: string) => {
         // Show success toast with context-specific message
         let successMessage = 'Status berhasil diperbarui';
 
-        if (newStatus === 'in_progress' && oldStatus === 'assigned') {
+        if (oldStatus === 'assigned' && newStatus === 'in_progress') {
             successMessage = 'Todo dimulai! Waktu pengerjaan telah dicatat.';
+        } else if (oldStatus === 'in_progress' && newStatus === 'completed') {
+            successMessage = 'Todo selesai! Great job! Waktu selesai telah dicatat.';
+        } else if (oldStatus === 'in_progress' && newStatus === 'assigned') {
+            successMessage = 'Todo dibatalkan. Data pengerjaan telah dihapus.';
         } else if (newStatus === 'completed') {
             successMessage = 'Todo selesai! Great job!';
         }
@@ -191,12 +235,6 @@ const handleStatusChange = async (newStatus: string) => {
     }
 };
 
-const availableStatuses = [
-    { value: 'assigned', label: 'Ditugaskan' },
-    { value: 'in_progress', label: 'Dalam Progres' },
-    { value: 'completed', label: 'Selesai' },
-    { value: 'declined', label: 'Ditolak' },
-];
 </script>
 
 <template>
@@ -228,12 +266,12 @@ const availableStatuses = [
                 />
             </div>
 
-            <!-- Status Change with SelectButton -->
+            <!-- Action Buttons -->
             <div>
-                <div class="text-sm font-bold opacity-75 mb-2">Ubah Status</div>
+                <div class="text-sm font-bold opacity-75 mb-2">Aksi Todo</div>
 
                 <!-- Show "Kerjakan Todo" button when status is assigned -->
-                <div v-if="todo.status === 'assigned'" class="mb-3">
+                <div v-if="todo.status === 'assigned'" class="space-y-2">
                     <Button
                         @click="startWorkingOnTodo"
                         :disabled="isUpdatingStatus"
@@ -246,19 +284,39 @@ const availableStatuses = [
                     </Button>
                 </div>
 
-                <!-- Show SelectButton for other statuses -->
-                <div v-else class="relative bg-slate-200 dark:bg-slate-800 border border-slate-200 p-3 rounded-xl">
-                    <SelectButton
-                        v-model="todo.status"
-                        :options="availableStatuses"
-                        optionLabel="label"
-                        optionValue="value"
-                        @update:modelValue="handleStatusChange"
-                        class="w-full"
+                <!-- Show "Todo Selesai" and "Batalkan Todo" buttons when status is in_progress -->
+                <div v-else-if="todo.status === 'in_progress'" class="flex justify-between gap-2">
+                    <Button
+                        @click="completeTodo"
                         :disabled="isUpdatingStatus"
-                    />
-                    <div v-if="isUpdatingStatus" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded">
-                        <div class="text-sm text-gray-600">Menyimpan...</div>
+                        severity="success"
+                        class="w-full"
+                        v-tooltip="'Tandai todo sebagai selesai'"
+                    >
+                        <Icon name="lucide:check-circle" class="mr-2 w-4 h-4" />
+                        Todo Selesai
+                    </Button>
+                    <Button
+                        @click="cancelTodo"
+                        :disabled="isUpdatingStatus"
+                        severity="danger"
+                        class="w-full"
+                        v-tooltip="'Batalkan pengerjaan todo'"
+                    >
+                        <Icon name="lucide:x-circle" class="mr-2 w-4 h-4" />
+                        Batalkan Todo
+                    </Button>
+                </div>
+
+                <!-- Show status info for other statuses -->
+                <div v-else class="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-2">
+                        <Icon
+                            :name="getStatusIcon(todo.status)"
+                            :class="getStatusColor(todo.status)"
+                            class="w-4 h-4"
+                        />
+                        <span class="font-medium capitalize">{{ getStatusLabel(todo.status) }}</span>
                     </div>
                 </div>
 
