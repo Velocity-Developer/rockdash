@@ -124,6 +124,7 @@ const startWorkingOnTodo = async () => {
     if (isUpdatingStatus.value) return; // Prevent multiple simultaneous calls
 
     // Directly call handleStatusChange with 'in_progress' status
+    // This will trigger TodoUser creation on the backend
     await handleStatusChange('in_progress');
 };
 
@@ -132,6 +133,7 @@ const handleStatusChange = async (newStatus: string) => {
 
     isUpdatingStatus.value = true;
     statusUpdateError.value = null;
+    const oldStatus = props.todo.status;
     const updatedTodo = props.todo;
 
     try {
@@ -163,11 +165,19 @@ const handleStatusChange = async (newStatus: string) => {
         // Emit the updated todo to parent
         emit('updateTodo', todoForEmit);
 
-        // Show success toast
+        // Show success toast with context-specific message
+        let successMessage = 'Status berhasil diperbarui';
+
+        if (newStatus === 'in_progress' && oldStatus === 'assigned') {
+            successMessage = 'Todo dimulai! Waktu pengerjaan telah dicatat.';
+        } else if (newStatus === 'completed') {
+            successMessage = 'Todo selesai! Great job!';
+        }
+
         toast.add({
             severity: 'success',
             summary: 'Berhasil',
-            detail: 'Status berhasil diperbarui',
+            detail: successMessage,
             life: 3000
         })
     } catch (error) {
@@ -229,7 +239,7 @@ const availableStatuses = [
                         :disabled="isUpdatingStatus"
                         severity="success"
                         class="w-full"
-                        v-tooltip="'Kerjakan dan tambahkan ke Jurnal'"
+                        v-tooltip="'Mulai kerjakan todo dan catat waktu mulai'"
                     >
                         <Icon name="lucide:play" class="mr-2 w-4 h-4" />
                         Kerjakan Todo
