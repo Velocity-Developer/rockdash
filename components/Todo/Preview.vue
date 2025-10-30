@@ -213,7 +213,7 @@ const handleStatusChange = async (newStatus: string) => {
         } else if (oldStatus === 'in_progress' && newStatus === 'completed') {
             successMessage = 'Todo selesai! Great job! Waktu selesai telah dicatat.';
         } else if (oldStatus === 'in_progress' && newStatus === 'assigned') {
-            successMessage = 'Todo dibatalkan. Data pengerjaan telah dihapus.';
+            successMessage = 'Todo dibatalkan. Data pengerjaan dan journal telah dihapus.';
         } else if (newStatus === 'completed') {
             successMessage = 'Todo selesai! Great job!';
         }
