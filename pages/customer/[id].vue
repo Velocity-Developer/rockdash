@@ -1,5 +1,6 @@
 <template>
-  <div class="w-full">
+  <div class="w-full space-y-4">
+
     <div class="mb-5">
       <Button @click="$router.go(-1)" size="small" severity="secondary" class="shadow-md">
         <Icon name="lucide:arrow-left" /> Kembali
@@ -47,49 +48,6 @@
             </div>
           </div>
 
-          <div class="mt-6">
-            <h3 class="text-lg font-bold mb-4">Invoice Terkait</h3>
-            <DataTable 
-              :value="data.invoices || []" 
-              size="small" 
-              class="text-xs" 
-              stripedRows 
-              scrollHeight="40vh" 
-              scrollable
-              :paginator="true"
-              :rows="10"
-            >
-              <Column field="id" header="ID" headerStyle="width: 3rem"></Column>
-              <Column field="nomor_invoice" header="Nomor Invoice">
-                <template #body="slotProps">
-                  <NuxtLink :to="'/invoice/' + slotProps.data.id" class="hover:underline">
-                    {{ slotProps.data.nomor_invoice }}
-                  </NuxtLink>
-                </template>
-              </Column>
-              <Column field="tanggal" header="Tanggal">
-                <template #body="slotProps">
-                  {{ formatTanggal(slotProps.data.tanggal) }}
-                </template>
-              </Column>
-              <Column field="total" header="Total">
-                <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.total) }}
-                </template>
-              </Column>
-              <Column field="status" header="Status">
-                <template #body="slotProps">
-                  <span :class="getStatusClass(slotProps.data.status)">
-                    {{ slotProps.data.status }}
-                  </span>
-                </template>
-              </Column>
-            </DataTable>
-            
-            <Message v-if="!data.invoices || data.invoices.length === 0" severity="info" class="mt-2">
-              Tidak ada invoice untuk customer ini
-            </Message>
-          </div>
         </div>
         
         <div v-else-if="pending" class="flex justify-center items-center h-64">
@@ -101,6 +59,12 @@
             Terjadi kesalahan saat memuat data customer
           </Message>
         </div>
+      </template>
+    </Card>
+
+    <Card>
+      <template #content>
+        <CustomerTableInvoice :customerId="customer_id" v-if="customer_id"/>
       </template>
     </Card>
 
@@ -124,6 +88,7 @@ import { formatDate } from '~/utils/formatDate'
 const dayjs = useDayjs()
 const route = useRoute();
 const client = useSanctumClient();
+const customer_id = computed(() => route.params.id) as any
 
 const { data, pending, error, refresh } = await useAsyncData(
   `customer-${route.params.id}`,
@@ -197,20 +162,5 @@ const confirmDelete = (id: any) => {
 // Format tanggal
 function formatTanggal(tanggal: string) {
   return formatDate(tanggal, 'DD/MM/YYYY');
-}
-
-
-// Get status class for invoice
-function getStatusClass(status: string) {
-  switch (status?.toLowerCase()) {
-    case 'lunas':
-      return 'text-green-600 font-semibold';
-    case 'belum lunas':
-      return 'text-orange-600 font-semibold';
-    case 'batal':
-      return 'text-red-600 font-semibold';
-    default:
-      return 'text-gray-600';
-  }
 }
 </script>
