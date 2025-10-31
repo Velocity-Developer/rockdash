@@ -1,195 +1,195 @@
 <template>
         
-      <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
-        <form @submit.prevent="refresh();updateRouteParams()" class="hidden md:flex items-end gap-2">
-          <div>
-            <div class="mb-1 opacity-50">Per Page : </div>            
-            <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
-          </div>
-          <div class="hidden md:block">
-              <div class="mb-1 opacity-50">Tgl Masuk</div>
-              <div class="flex items-center justify-end gap-2 mt-1">
-                <DatePicker v-model="filters.tgl_masuk_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px] shadow rounded"/>
-                <DatePicker v-model="filters.tgl_masuk_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px] shadow rounded"/>
-              </div>
-          </div>
-          <div>
-            <Button type="submit" size="small" severity="info" class="shadow-md">
-              Go
-            </Button>
-          </div>
-        </form>
-
-        <div class="flex justify-end items-center gap-2">
-          <Button @click="openDialog('add')" size="small" class="shadow-md">
-            <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
-          </Button>
-          <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
-            <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
-            <span
-            class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
-            v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
-            ></span>
-          </Button>
-        </div>
+  <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
+    <form @submit.prevent="refresh();updateRouteParams()" class="hidden md:flex items-end gap-2">
+      <div>
+        <div class="mb-1 opacity-50">Per Page : </div>            
+        <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
       </div>
-
-      <Card>
-        <template #content>
-
-          <Message class="w-[14rem] mb-2 shadow hover:shadow-md" severity="info">
-            <div class="text-xs">
-              Pembuatan Bulan Ini: <span class="font-bold">{{ prediksi.total }}</span>
-              <br>
-              Prediksi Pembuatan Bulan ini: <span class="font-bold">{{ prediksi.prediksi }}</span>
-            </div>
-          </Message>
-
-          <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
-            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-            <Column header="#" headerStyle="width:3rem">
-              <template #body="slotProps">
-                  {{ slotProps.index + data.from }}
-              </template>
-            </Column>
-            <Column field="webhost.nama_web" header="Nama Web">
-              <template #body="slotProps">
-                <div class="group relative py-1">
-                  <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline block">
-                    {{ slotProps.data.webhost.nama_web }}
-                  </NuxtLink>
-                  <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
-                    <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
-                      <Icon name="lucide:pencil" /> Edit
-                    </Button>
-                    <Button @click="confirmDelete(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" severity="danger" size="small">
-                      <Icon name="lucide:trash-2" /> Hapus
-                    </Button>
-                  </div>
-                </div>
-              </template>
-            </Column>
-            <Column field="jenis" header="Jenis">
-              <template #body="slotProps">
-                <div>
-                  {{ slotProps.data.jenis }}
-                </div>
-                <div v-if="slotProps.data.webhost?.paket?.paket" class="text-xs text-emerald-500 mt-1 xl:hidden">
-                  {{ slotProps.data.webhost?.paket?.paket }}
-                </div>
-              </template>
-            </Column>
-            <Column field="webhost.paket.paket" header="Paket" class="hidden xl:table-cell"></Column>
-            <Column field="deskripsi" header="Deskripsi">
-              <template #body="slotProps">
-                <div class="max-w-[200px] whitespace-normal">
-                  {{ slotProps.data.deskripsi }}
-                </div>
-              </template>
-            </Column>
-            <Column field="trf" header="Trf">
-              <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.trf) }}
-              </template>
-            </Column>
-            <Column field="tgl_masuk" sortable header="Masuk Tgl">        
-              <template #body="slotProps">
-                  {{ formatTanggal(slotProps.data.tgl_masuk) }}
-              </template>
-            </Column>
-            <Column field="tgl_deadline" sortable header="Deadline Tgl">       
-              <template #body="slotProps">
-                  {{ formatTanggal(slotProps.data.tgl_deadline) }}
-              </template>
-            </Column>
-            <Column field="biaya" header="Total Biaya">
-              <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.biaya) }}
-              </template>
-            </Column>
-            <Column field="dibayar" header="Dibayar">
-              <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.dibayar) }}
-              </template>
-            </Column>
-            <Column field="lunas" sortable header="Kurang">
-              <template #body="slotProps">
-                  {{ slotProps.data.lunas }}
-              </template>
-            </Column>
-            <Column field="saldo" header="Saldo" class="hidden 2xl:table-cell"></Column>
-            <Column field="webhost.hp" header="HP">
-              <template #body="slotProps">
-                <div class="whitespace-normal">
-                  {{ split_comma(slotProps.data.webhost.hp) }}
-                </div>
-              </template>
-            </Column>
-            <Column field="webhost.telegram" header="Telegram" class="hidden 2xl:table-cell"></Column>
-            <Column field="webhost.hpads" sortable header="HP Ads"></Column>
-            <Column field="webhost.wa" header="WA">
-              <template #body="slotProps">
-                <div class="whitespace-normal">
-                  {{ split_comma(slotProps.data.webhost.wa) }}
-                </div>
-              </template>
-            </Column>
-            <Column field="webhost.email" header="Email">
-              <template #body="slotProps">
-                <div class="whitespace-normal">
-                  {{ split_comma(slotProps.data.webhost.email) }}
-                </div>
-              </template>
-            </Column>
-            <Column field="dikerjakan_oleh" header="Dikerjakan" class="hidden xl:table-cell">
-              <template #body="slotProps">
-                <div class="whitespace-normal max-w-[5rem] truncate" v-for="item in slotProps.data.karyawans">
-                  <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
-                </div>
-              </template>
-            </Column>
-            <Column field="act" header="">
-              <template #body="slotProps">
-                <div class="flex item-center gap-1 justify-end">
-                  <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
-                    <Icon name="lucide:pencil" />
-                  </Button>
-                  <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
-                    <Icon name="lucide:trash-2" />
-                  </Button>
-                </div>
-              </template>
-            </Column>
-          </DataTable>
-
-          <div class="flex justify-between items-center text-xs mt-3">
-            <div>
-              {{ data.from }} - {{ data.to }} dari {{ data.total }}
-            </div>
-
-            <Paginator
-                :rows="data.per_page"
-                :totalRecords="data.total"
-                @page="onPaginate"
-                :pt="{
-                    root: (event: any) => {
-                        const itemForPage =  data.per_page;
-                        const currentPage =  page - 1;
-                        event.state.d_first = itemForPage * currentPage;
-                    },
-                }"
-            >
-            </Paginator>
+      <div class="hidden md:block">
+          <div class="mb-1 opacity-50">Tgl Masuk</div>
+          <div class="flex items-center justify-end gap-2 mt-1">
+            <DatePicker v-model="filters.tgl_masuk_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px] shadow rounded"/>
+            <DatePicker v-model="filters.tgl_masuk_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px] shadow rounded"/>
           </div>
-        </template>
-      </Card>
-
-      <div class="mt-3">
-        <Button v-if="selectedRowsNamaWeb" @click="copyToClipboard()" size="small">
-          <Icon name="lucide:copy" /> Copy Nama Web
+      </div>
+      <div>
+        <Button type="submit" size="small" severity="info" class="shadow-md">
+          Go
         </Button>
       </div>
-    
+    </form>
+
+    <div class="flex justify-end items-center gap-2">
+      <Button @click="openDialog('add',{})" size="small" class="shadow-md">
+        <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
+      </Button>
+      <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
+        <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
+        <span
+        class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
+        v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
+        ></span>
+      </Button>
+    </div>
+  </div>
+
+  <Card>
+    <template #content>
+
+      <Message class="w-[14rem] mb-2 shadow hover:shadow-md" severity="info">
+        <div class="text-xs">
+          Pembuatan Bulan Ini: <span class="font-bold">{{ prediksi.total }}</span>
+          <br>
+          Prediksi Pembuatan Bulan ini: <span class="font-bold">{{ prediksi.prediksi }}</span>
+        </div>
+      </Message>
+
+      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
+        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+        <Column header="#" headerStyle="width:3rem">
+          <template #body="slotProps">
+              {{ slotProps.index + data.from }}
+          </template>
+        </Column>
+        <Column field="webhost.nama_web" header="Nama Web">
+          <template #body="slotProps">
+            <div class="group relative py-1">
+              <NuxtLink :to="'/webhost/'+slotProps.data.id_webhost" class="hover:underline block">
+                {{ slotProps.data.webhost.nama_web }}
+              </NuxtLink>
+              <div class="invisible group-hover:visible absolute bottom-[-1rem] inset-x-0 flex item-center">
+                <Button @click="openDialog('edit',slotProps.data)" class="!text-xs !px-1 !py-0" variant="text" severity="info" size="small">
+                  <Icon name="lucide:pencil" /> Edit
+                </Button>
+                <Button @click="confirmDelete(slotProps.data.id)" class="!text-xs !px-1 !py-0" variant="text" severity="danger" size="small">
+                  <Icon name="lucide:trash-2" /> Hapus
+                </Button>
+              </div>
+            </div>
+          </template>
+        </Column>
+        <Column field="jenis" header="Jenis">
+          <template #body="slotProps">
+            <div>
+              {{ slotProps.data.jenis }}
+            </div>
+            <div v-if="slotProps.data.webhost?.paket?.paket" class="text-xs text-emerald-500 mt-1 xl:hidden">
+              {{ slotProps.data.webhost?.paket?.paket }}
+            </div>
+          </template>
+        </Column>
+        <Column field="webhost.paket.paket" header="Paket" class="hidden xl:table-cell"></Column>
+        <Column field="deskripsi" header="Deskripsi">
+          <template #body="slotProps">
+            <div class="max-w-[200px] whitespace-normal">
+              {{ slotProps.data.deskripsi }}
+            </div>
+          </template>
+        </Column>
+        <Column field="trf" header="Trf">
+          <template #body="slotProps">
+              {{ formatMoney(slotProps.data.trf) }}
+          </template>
+        </Column>
+        <Column field="tgl_masuk" sortable header="Masuk Tgl">        
+          <template #body="slotProps">
+              {{ formatTanggal(slotProps.data.tgl_masuk) }}
+          </template>
+        </Column>
+        <Column field="tgl_deadline" sortable header="Deadline Tgl">       
+          <template #body="slotProps">
+              {{ formatTanggal(slotProps.data.tgl_deadline) }}
+          </template>
+        </Column>
+        <Column field="biaya" header="Total Biaya">
+          <template #body="slotProps">
+              {{ formatMoney(slotProps.data.biaya) }}
+          </template>
+        </Column>
+        <Column field="dibayar" header="Dibayar">
+          <template #body="slotProps">
+              {{ formatMoney(slotProps.data.dibayar) }}
+          </template>
+        </Column>
+        <Column field="lunas" sortable header="Kurang">
+          <template #body="slotProps">
+              {{ slotProps.data.lunas }}
+          </template>
+        </Column>
+        <Column field="saldo" header="Saldo" class="hidden 2xl:table-cell"></Column>
+        <Column field="webhost.hp" header="HP">
+          <template #body="slotProps">
+            <div class="whitespace-normal">
+              {{ split_comma(slotProps.data.webhost.hp) }}
+            </div>
+          </template>
+        </Column>
+        <Column field="webhost.telegram" header="Telegram" class="hidden 2xl:table-cell"></Column>
+        <Column field="webhost.hpads" sortable header="HP Ads"></Column>
+        <Column field="webhost.wa" header="WA">
+          <template #body="slotProps">
+            <div class="whitespace-normal">
+              {{ split_comma(slotProps.data.webhost.wa) }}
+            </div>
+          </template>
+        </Column>
+        <Column field="webhost.email" header="Email">
+          <template #body="slotProps">
+            <div class="whitespace-normal">
+              {{ split_comma(slotProps.data.webhost.email) }}
+            </div>
+          </template>
+        </Column>
+        <Column field="dikerjakan_oleh" header="Dikerjakan" class="hidden xl:table-cell">
+          <template #body="slotProps">
+            <div class="whitespace-normal max-w-[5rem] truncate" v-for="item in slotProps.data.karyawans">
+              <span>{{ item.nama }} ({{ item.pivot.porsi }}%)</span>,
+            </div>
+          </template>
+        </Column>
+        <Column field="act" header="">
+          <template #body="slotProps">
+            <div class="flex item-center gap-1 justify-end">
+              <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
+                <Icon name="lucide:pencil" />
+              </Button>
+              <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
+                <Icon name="lucide:trash-2" />
+              </Button>
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+
+      <div class="flex justify-between items-center text-xs mt-3">
+        <div>
+          {{ data.from }} - {{ data.to }} dari {{ data.total }}
+        </div>
+
+        <Paginator
+            :rows="data.per_page"
+            :totalRecords="data.total"
+            @page="onPaginate"
+            :pt="{
+                root: (event: any) => {
+                    const itemForPage =  data.per_page;
+                    const currentPage =  page - 1;
+                    event.state.d_first = itemForPage * currentPage;
+                },
+            }"
+        >
+        </Paginator>
+      </div>
+    </template>
+  </Card>
+
+  <div class="mt-3">
+    <Button v-if="selectedRowsNamaWeb" @click="copyToClipboard()" size="small">
+      <Icon name="lucide:copy" /> Copy Nama Web
+    </Button>
+  </div>
+
 
   <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
     <form @submit.prevent="filterSubmit">
@@ -440,8 +440,8 @@ const actionDialog = ref('add');
 const dataDialog = ref({});
 const openDialog = async (action: string, data = {}) => {
   visibleDialog.value = true;
-  actionDialog.value = action;
-  dataDialog.value = data;
+  actionDialog.value = action || 'add';
+  dataDialog.value = data || {};
 }
 
 const toast = useToast();
