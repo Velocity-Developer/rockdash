@@ -473,7 +473,7 @@ async function loadCustomerData(customerId: number) {
       // Isi form dengan data customer
       form.nama_klien = customer.nama || form.nama_klien;
       form.email_klien = customer.email || form.email_klien;
-      form.telepon_klien = customer.hp || form.telepon_klien;
+      form.telepon_klien = formatPhoneNumber(customer.hp || form.telepon_klien);
       form.alamat_klien = customer.alamat || form.alamat_klien;
     }
   } catch (e) {
@@ -647,26 +647,36 @@ watch(
 // Watch selectedCustomerId to update form.customer_id
 watch(selectedCustomerId, async (newValue) => {
   form.customer_id = newValue;
-  
+
   // Jika memilih customer, isi field yang kosong dengan data customer
   if (newValue) {
     const selectedCustomer = customerOptions.value.find(c => c.value === newValue);
     if (selectedCustomer && selectedCustomer.raw) {
       const customer = selectedCustomer.raw;
-      
+
       // Isi field yang kosong dengan data customer
       if (!form.nama_klien) form.nama_klien = customer.nama || '';
       if (!form.email_klien) form.email_klien = customer.email || '';
       if (!form.alamat_klien) form.alamat_klien = customer.alamat || '';
-      if (!form.telepon_klien) form.telepon_klien = customer.hp || '';
+      if (!form.telepon_klien) form.telepon_klien = formatPhoneNumber(customer.hp || '');
     }
-    
+
     // Jika edit mode, load data customer tersebut
     if (props.action === 'edit') {
       await loadCustomerData(newValue);
     }
   }
 })
+
+// Watch telepon_klien untuk format otomatis
+watch(
+  () => form.telepon_klien,
+  (newValue) => {
+    if (newValue) {
+      form.telepon_klien = formatPhoneNumber(newValue);
+    }
+  }
+)
 
 // Watch webhost picker search with debounce
 let webhostPickerSearchTimer: any = null;
@@ -953,6 +963,21 @@ const nomorPreview = computed(() => (props.modelValue && props.modelValue.nomor)
 // Format IDR helper
 function formatIDR(v?: number | string) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(Number(v || 0));
+}
+
+// Format nomor telepon agar rapi
+function formatPhoneNumber(phone: string): string {
+  if (!phone) return '';
+
+  // Hapus semua karakter kecuali angka dan + di awal
+  let formatted = phone.replace(/[^\d+]/g, '');
+
+  // Ganti +62 dengan 0
+  if (formatted.startsWith('+62')) {
+    formatted = '0' + formatted.substring(3);
+  }
+
+  return formatted;
 }
 
 // Safely parse numbers with comma decimal
