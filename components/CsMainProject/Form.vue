@@ -207,9 +207,24 @@ onMounted(() => {
 })
 
 // Handler untuk invoice yang dipilih
-const handleInvoiceSelected = (invoiceData: { id: number, customer_id: number }) => {
+const handleInvoiceSelected = (invoiceData: { 
+  id: number, 
+  customer_id: number, 
+  customer_hp: string, 
+  customer_email: string, 
+  customer_nama: string,
+  total_invoice: number,
+  jenis_project: string[],
+}) => {
   form.invoice_id = invoiceData.id;
   form.customer_id = invoiceData.customer_id;
+  form.hp = invoiceData.customer_hp;
+  form.email = invoiceData.customer_email;
+  form.wa = invoiceData.customer_hp;
+  form.dibayar = invoiceData.total_invoice;
+  
+  //set jenis project
+  form.jenis = invoiceData.jenis_project[0] || '';
 }
 
 const errorSubmit = ref({} as any)

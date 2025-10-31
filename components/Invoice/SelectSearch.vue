@@ -6,12 +6,12 @@
     </div>
 
     <div v-else-if="!loading && dataInvoices && dataInvoices?.data" class="bg-indigo-50 dark:bg-indigo-950 border border-indigo-300 dark:border-indigo-700 p-4 rounded">
-      <div v-if="dataInvoices?.data" class="mb-2 text-sm font-bold text-indigo-800 dark:text-indigo-200 flex items-center gap-1">
+      <div v-if="dataInvoices?.data" class="text-sm font-bold text-indigo-800 dark:text-indigo-200 flex items-center gap-1">
         <Icon name="lucide:receipt-text" />
         {{ dataInvoices.data.length }} Invoice ditemukan
       </div>
 
-      <ul class="list-disc ps-4 text-xs">
+      <ul v-if="dataInvoices?.data" class="list-disc ps-4 text-xs mt-2">
         <li v-for="item in dataInvoices.data" :key="item.id">
           <div class="flex justify-between items-center pb-1">
             <div class="flex items-center gap-2">
@@ -42,7 +42,7 @@
       </ul>
 
       <!-- Selected invoice info -->
-      <div v-if="selectedInvoice" class="mt-3 p-2 bg-green-100 dark:bg-green-900 rounded border border-green-300 dark:border-green-700">
+      <div v-if="selectedInvoice && selectedInvoice?.nomor" class="mt-3 p-2 bg-green-100 dark:bg-green-900 rounded border border-green-300 dark:border-green-700">
         <div class="text-sm font-medium text-green-800 dark:text-green-200">
           <Icon name="lucide:check-circle" class="inline mr-1" />
           Terpilih: {{ selectedInvoice.nomor }} - {{ selectedInvoice.customer?.nama }}
@@ -91,10 +91,16 @@ function openPreview(id: number) {
 // Fungsi untuk memilih invoice
 function selectInvoice(invoice: any) {
   selectedInvoice.value = invoice;
+
   // Emit data ke parent component
   emit('invoice-selected', {
     id: invoice.id,
-    customer_id: invoice.customer.id
+    customer_id: invoice.customer.id,
+    customer_hp: invoice.customer.hp,
+    customer_email: invoice.customer.email,
+    customer_nama: invoice.customer.nama,
+    total_invoice: invoice.total,
+    jenis_project: invoice.items.map((item: any) => item.jenis),
   });
 }
 const getInvoices = async () => {
@@ -108,6 +114,13 @@ const getInvoices = async () => {
       }
     }) as any
     dataInvoices.value = data;
+
+    //jika ada invoice, pilih invoice pertama
+    if (data.data.length > 0) {
+      selectInvoice(data.data[0]);
+    } else {
+      selectedInvoice.value = {};
+    }
   } catch (error) {
     console.log(error);
   } finally {
