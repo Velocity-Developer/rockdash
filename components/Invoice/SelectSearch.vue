@@ -14,11 +14,14 @@
       <ul class="list-disc ps-4 text-xs">
         <li v-for="item in dataInvoices.data" :key="item.id">
           <div class="flex justify-between pb-1">
-            <span>
+            <span
+              @click="openPreview(item.id)"
+              class="hover:underline cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+            >
               {{ item.nomor }} | {{ item.customer.nama }} | {{ item.tanggal }}
             </span>
-            <Badge 
-              :severity="item.status === 'belum' ? 'contrast' : 'success'" 
+            <Badge
+              :severity="item.status === 'belum' ? 'contrast' : 'success'"
               size="small"
               class="font-normal capitalize"
             >
@@ -28,8 +31,16 @@
         </li>
       </ul>
     </div>
-    
+
   </div>
+
+  <!-- Dialog Preview Invoice -->
+  <Dialog v-model:visible="visibleDialogPreview" modal header="Preview Invoice" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <InvoicePreview
+      v-if="previewId"
+      :id="previewId"
+    />
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -44,6 +55,15 @@ const loading = ref(false);
 const selectedInvoice = ref('');
 
 const dataInvoices = ref({} as any);
+
+// Preview dialog state
+const visibleDialogPreview = ref(false);
+const previewId = ref<number | null>(null);
+
+function openPreview(id: number) {
+  previewId.value = id;
+  visibleDialogPreview.value = true;
+}
 const getInvoices = async () => {
   loading.value = true;
   try {
