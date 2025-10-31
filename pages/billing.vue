@@ -437,8 +437,8 @@ function copyToClipboard() {
 
 const visibleDialog = ref(false);
 const actionDialog = ref('add');
-const dataDialog = ref({});
-const openDialog = async (action: string, data = {}) => {
+const dataDialog = ref({} as any);
+const openDialog = (action: string, data = {}) => {
   visibleDialog.value = true;
   actionDialog.value = action || 'add';
   dataDialog.value = data || {};

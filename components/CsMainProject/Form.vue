@@ -22,6 +22,10 @@
 
       </div>
 
+      <div class="col-span-4">
+        <InvoiceSelectSearch :search="keySearchInvoice"/>
+      </div>
+
       <div class="col-start-1 col-end-3">
         <label class="mb-1 block" for="jenis">Jenis</label>
         <Select name="jenis" id="jenis" 
@@ -297,6 +301,14 @@ watch(() => form.id_webhost, async (val) => {
     }
   }
 })
+
+//search Invoice by key
+const keySearchInvoice = computed(() => {
+  return {
+    nama_web: form.nama_web,
+    hp: form.hp,
+  }
+});
 
 
 </script>
