@@ -61,8 +61,27 @@
         Coba lagi
       </Button>
     </div>      
-    <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 6px"></ProgressBar>
   </div>
+
+  <Dialog v-model:visible="visibleErrorDialog" modal header="Oops !" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <img src="/undraw_connection_lost_am29.webp" alt="Connection Lost" class="max-w-[300px] mx-auto my-5" :ssr="true"/>
+    <div class="text-xl font-bold"> Gagal menyambung ke server !.</div>
+    <div class="bg-amber-50 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 p-3 text-left rounded-md mt-4">
+      <ul class="list-decimal pl-4">
+        <li>Periksa koneksi internet</li>
+        <li>Periksa apakah IP di block</li>
+      </ul>
+    </div>
+    <span class="bg-amber-100 dark:bg-amber-950 p-3 mt-2 rounded-md flex justify-start items-center gap-1" v-tooltip="`IP Address: ${userIP}`">
+      <Icon name="lucide:globe" />
+      <span>IP anda : {{ userIP || 'sedang memuat IP anda...' }}</span>
+    </span>
+
+    <ProgressBar v-if="isLoading" mode="indeterminate" style="height: 6px"></ProgressBar>
+    <Button @click="fetchNotifikasi" severity="danger" class="w-full mt-5">
+      Coba lagi
+    </Button>
+  </Dialog>
 
 </template>
 
@@ -79,6 +98,9 @@ interface NotifikasiItem {
   };
 }
 
+
+const visibleErrorDialog = ref(false);
+
 const userIP = ref('')
 const isError = ref(false)
 const isLoading = ref(false)
@@ -90,9 +112,11 @@ const fetchNotifikasi = async () => {
     const data = await client('/api/notifications') as any
     notifikasi.value = data 
     isError.value = false
+    visibleErrorDialog.value = false
   } catch (error) {
     console.log(error)
     isError.value = true
+    visibleErrorDialog.value = true
     fetchUserIP()
   }
   isLoading.value = false
