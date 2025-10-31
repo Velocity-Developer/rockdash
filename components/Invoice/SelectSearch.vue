@@ -13,13 +13,23 @@
 
       <ul class="list-disc ps-4 text-xs">
         <li v-for="item in dataInvoices.data" :key="item.id">
-          <div class="flex justify-between pb-1">
-            <span
-              @click="openPreview(item.id)"
-              class="hover:underline cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-            >
-              {{ item.nomor }} | {{ item.customer.nama }} | {{ item.tanggal }}
-            </span>
+          <div class="flex justify-between items-center pb-1">
+            <div class="flex items-center gap-2">
+              <input
+                type="radio"
+                :name="'invoice-select'"
+                :value="item.id"
+                v-model="selectedInvoiceId"
+                @change="selectInvoice(item)"
+                class="cursor-pointer"
+              />
+              <span
+                @click="openPreview(item.id)"
+                class="hover:underline cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              >
+                {{ item.nomor }} | {{ item.customer.nama }} | {{ item.tanggal }}
+              </span>
+            </div>
             <Badge
               :severity="item.status === 'belum' ? 'contrast' : 'success'"
               size="small"
@@ -30,6 +40,14 @@
           </div>
         </li>
       </ul>
+
+      <!-- Selected invoice info -->
+      <div v-if="selectedInvoice" class="mt-3 p-2 bg-green-100 dark:bg-green-900 rounded border border-green-300 dark:border-green-700">
+        <div class="text-sm font-medium text-green-800 dark:text-green-200">
+          <Icon name="lucide:check-circle" class="inline mr-1" />
+          Terpilih: {{ selectedInvoice.nomor }} - {{ selectedInvoice.customer?.nama }}
+        </div>
+      </div>
     </div>
 
   </div>
@@ -50,9 +68,14 @@ const props = defineProps({
     default: {}
   }
 })
+
+// Define emit untuk memberikan notifikasi ke parent
+const emit = defineEmits(['invoice-selected'])
+
 const client = useSanctumClient();
 const loading = ref(false);
-const selectedInvoice = ref('');
+const selectedInvoice = ref({} as any);
+const selectedInvoiceId = ref<number | null>(null);
 
 const dataInvoices = ref({} as any);
 
@@ -63,6 +86,16 @@ const previewId = ref<number | null>(null);
 function openPreview(id: number) {
   previewId.value = id;
   visibleDialogPreview.value = true;
+}
+
+// Fungsi untuk memilih invoice
+function selectInvoice(invoice: any) {
+  selectedInvoice.value = invoice;
+  // Emit data ke parent component
+  emit('invoice-selected', {
+    id: invoice.id,
+    customer_id: invoice.customer.id
+  });
 }
 const getInvoices = async () => {
   loading.value = true;

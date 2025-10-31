@@ -23,7 +23,7 @@
       </div>
 
       <div class="col-span-4">
-        <InvoiceSelectSearch :search="keySearchInvoice"/>
+        <InvoiceSelectSearch :search="keySearchInvoice" @invoice-selected="handleInvoiceSelected"/>
       </div>
 
       <div class="col-start-1 col-end-3">
@@ -170,6 +170,8 @@ const form = reactive({
   email: '',
   dikerjakan_oleh: [],
   id_webhost: '',
+  invoice_id: '',
+  customer_id: '',
 } as any);
 
 //get opsi jenis
@@ -199,8 +201,16 @@ onMounted(() => {
     form.email = data.webhost.email;
     form.dikerjakan_oleh = data.raw_dikerjakan;
     form.karyawans = data.karyawans;
+    form.invoice_id = data.invoice_id || '';
+    form.customer_id = data.customer_id || '';
   }
 })
+
+// Handler untuk invoice yang dipilih
+const handleInvoiceSelected = (invoiceData: { id: number, customer_id: number }) => {
+  form.invoice_id = invoiceData.id;
+  form.customer_id = invoiceData.customer_id;
+}
 
 const errorSubmit = ref({} as any)
 const loadingSubmit = ref(false);
