@@ -216,15 +216,19 @@ const handleInvoiceSelected = (invoiceData: {
   total_invoice: number,
   jenis_project: string[],
 }) => {
-  form.invoice_id = invoiceData.id;
-  form.customer_id = invoiceData.customer_id;
-  form.hp = invoiceData.customer_hp;
-  form.email = invoiceData.customer_email;
-  form.wa = invoiceData.customer_hp;
-  form.dibayar = invoiceData.total_invoice;
+  form.invoice_id = invoiceData.id || '';
+  form.customer_id = invoiceData.customer_id || '';
+  // form.hp = invoiceData.customer_hp;
+  form.email = invoiceData.customer_email || '';
+  // form.wa = invoiceData.customer_hp || '';
+  // form.dibayar = invoiceData.total_invoice || '';
   
   //set jenis project
-  form.jenis = invoiceData.jenis_project[0] || '';
+  if(invoiceData.jenis_project?.length > 0) 
+    form.jenis = invoiceData.jenis_project[0] || '';
+  else
+    form.jenis = '';
+  
 }
 
 const errorSubmit = ref({} as any)
