@@ -14,15 +14,35 @@
     </div>
   </div>
 
+  <div v-if="errorServer" class="flex items-center fixed bottom-0 left-0 right-0 bg-red-500 text-white text-center py-2">
+    <Icon name="lucide:alert-triangle" /> Gagal menyambung ke server, silahkan coba lagi.
+  </div>
+
 </template>
 
 <script setup lang="ts">
 const useConfig = useConfigStore()
 const client = useSanctumClient();
+const toast = useToast()
+const errorServer = ref(false)
 
 onMounted( async () => {
-    const getconfig = await client('/api/dash/config') as any
-    useConfig.setConfig(getconfig);
+    try {
+        const getconfig = await client('/api/dash/config') as any
+        useConfig.setConfig(getconfig);
+        errorServer.value = false
+    } catch (error) {
+        console.log(error);
+        errorServer.value = true
+        toast.add(
+          {
+            severity: 'error',
+            summary: 'Error Connection',
+            detail: 'Gagal menyambung ke server',
+            life: 5000
+          }
+        )
+    }
 });
 
 const route = useRoute();
