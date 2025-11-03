@@ -1,100 +1,105 @@
 <template>
-  <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
-    
-    <Column field="nomor" header="Nomor Invoice" sortable>
-      <template #body="slotProps">
-        <div class="group relative py-1">
-          <span @click="openPreview(slotProps.data.id)" class="hover:underline cursor-pointer">
-            {{ slotProps.data.nomor }}
-          </span>
-        </div>
-      </template>
-    </Column>
 
-    <Column field="tanggal" sortable header="Tanggal">
-      <template #body="slotProps">
-          {{ formatDate(slotProps.data.tanggal,'YYYY-MM-DD HH:mm') }}
-      </template>
-    </Column>
+<Card>
+  <template #content>
+    <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
+      
+      <Column field="nomor" header="Nomor Invoice" sortable>
+        <template #body="slotProps">
+          <div class="group relative py-1">
+            <span @click="openPreview(slotProps.data.id)" class="hover:underline cursor-pointer">
+              {{ slotProps.data.nomor }}
+            </span>
+          </div>
+        </template>
+      </Column>
 
-    <Column field="unit" header="Unit">
-      <template #body="slotProps">
-        <Tag
-          :value="slotProps.data.unit"
-          :severity="slotProps.data.unit === 'vdi' ? 'info' : 'success'"
-          class="!text-xs"
-        />
-      </template>
-    </Column>
+      <Column field="tanggal" sortable header="Tanggal">
+        <template #body="slotProps">
+            {{ formatDate(slotProps.data.tanggal,'YYYY-MM-DD HH:mm') }}
+        </template>
+      </Column>
 
-    <Column field="status" header="Status" sortable>
-      <template #body="slotProps">
-        <Tag class="!text-xs capitalize" :severity="getStatusSeverity(slotProps.data.status)">
-          {{ slotProps.data.status }}
-        </Tag>
-      </template>
-    </Column>
+      <Column field="unit" header="Unit">
+        <template #body="slotProps">
+          <Tag
+            :value="slotProps.data.unit"
+            :severity="slotProps.data.unit === 'vdi' ? 'info' : 'success'"
+            class="!text-xs"
+          />
+        </template>
+      </Column>
 
-    <Column field="total" header="Total">
-      <template #body="slotProps">
-          {{ formatMoney(slotProps.data.total) }}
-      </template>
-    </Column>
+      <Column field="status" header="Status" sortable>
+        <template #body="slotProps">
+          <Tag class="!text-xs capitalize" :severity="getStatusSeverity(slotProps.data.status)">
+            {{ slotProps.data.status }}
+          </Tag>
+        </template>
+      </Column>
 
-    <Column field="jatuh_tempo" header="Jatuh Tempo" sortable>
-      <template #body="slotProps">
-        <div v-if="slotProps.data.jatuh_tempo">
-          {{ formatDate(slotProps.data.jatuh_tempo,'YYYY-MM-DD HH:mm') }}
-        </div>
-        <span v-else class="text-gray-400">-</span>
-      </template>
-    </Column>
+      <Column field="total" header="Total">
+        <template #body="slotProps">
+            {{ formatMoney(slotProps.data.total) }}
+        </template>
+      </Column>
 
-    <Column field="tanggal_bayar" header="Tanggal Bayar" sortable>
-      <template #body="slotProps">
-        <div v-if="slotProps.data.tanggal_bayar">
-          {{ formatDate(slotProps.data.tanggal_bayar,'YYYY-MM-DD HH:mm') }}
-        </div>
-        <span v-else class="text-gray-400">-</span>
-      </template>
-    </Column>
+      <Column field="jatuh_tempo" header="Jatuh Tempo" sortable>
+        <template #body="slotProps">
+          <div v-if="slotProps.data.jatuh_tempo">
+            {{ formatDate(slotProps.data.jatuh_tempo,'YYYY-MM-DD HH:mm') }}
+          </div>
+          <span v-else class="text-gray-400">-</span>
+        </template>
+      </Column>
 
-    <Column field="act" header="">
-      <template #body="slotProps">
-        <div class="flex item-center gap-1 justify-end">
-          <Button @click="downloadPDF(slotProps.data.url_pdf_download,slotProps.data.nomor)" severity="contrast" size="small">
-            <Icon name="lucide:download" />
-          </Button>
-          <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
-            <Icon name="lucide:pencil" />
-          </Button>
-          <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
-            <Icon name="lucide:trash-2" />
-          </Button>
-        </div>
-      </template>
-    </Column>
-  </DataTable>
+      <Column field="tanggal_bayar" header="Tanggal Bayar" sortable>
+        <template #body="slotProps">
+          <div v-if="slotProps.data.tanggal_bayar">
+            {{ formatDate(slotProps.data.tanggal_bayar,'YYYY-MM-DD HH:mm') }}
+          </div>
+          <span v-else class="text-gray-400">-</span>
+        </template>
+      </Column>
 
-  <div class="flex justify-between items-center text-xs mt-3">
-    <div>
-      {{ data.from }} - {{ data.to }} dari {{ data.total }}
+      <Column field="act" header="">
+        <template #body="slotProps">
+          <div class="flex item-center gap-1 justify-end">
+            <Button @click="downloadPDF(slotProps.data.url_pdf_download,slotProps.data.nomor)" severity="contrast" size="small">
+              <Icon name="lucide:download" />
+            </Button>
+            <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
+              <Icon name="lucide:pencil" />
+            </Button>
+            <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
+              <Icon name="lucide:trash-2" />
+            </Button>
+          </div>
+        </template>
+      </Column>
+    </DataTable>
+
+    <div class="flex justify-between items-center text-xs mt-3">
+      <div>
+        {{ data.from }} - {{ data.to }} dari {{ data.total }}
+      </div>
+
+      <Paginator
+          :rows="data.per_page"
+          :totalRecords="data.total"
+          @page="onPaginate"
+          :pt="{
+              root: (event: any) => {
+                  const itemForPage =  data.per_page;
+                  const currentPage =  page - 1;
+                  event.state.d_first = itemForPage * currentPage;
+              },
+          }"
+      >
+      </Paginator>
     </div>
-
-    <Paginator
-        :rows="data.per_page"
-        :totalRecords="data.total"
-        @page="onPaginate"
-        :pt="{
-            root: (event: any) => {
-                const itemForPage =  data.per_page;
-                const currentPage =  page - 1;
-                event.state.d_first = itemForPage * currentPage;
-            },
-        }"
-    >
-    </Paginator>
-  </div>
+  </template>
+</Card>
 
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Invoice':'Edit Invoice'" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <InvoiceForm

@@ -1,50 +1,29 @@
 <template>
   <div class="w-full space-y-4">
 
-    <div class="mb-5">
-      <Button @click="$router.go(-1)" size="small" severity="secondary" class="shadow-md">
-        <Icon name="lucide:arrow-left" /> Kembali
-      </Button>
-    </div>
-
     <Card>
       <template #content>
         <div v-if="data">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h3 class="text-lg font-bold mb-4">Informasi Customer</h3>
-              <div class="space-y-2">
-                <div>
-                  <span class="font-semibold">Nama:</span> {{ data.nama }}
-                </div>
-                <div>
-                  <span class="font-semibold">Email:</span> {{ data.email || '-' }}
-                </div>
-                <div>
-                  <span class="font-semibold">No. HP:</span> {{ data.hp || '-' }}
-                </div>
-                <div>
-                  <span class="font-semibold">Alamat:</span> {{ data.alamat || '-' }}
-                </div>
-                <div>
-                  <span class="font-semibold">Tanggal Dibuat:</span> {{ formatTanggal(data.created_at) }}
-                </div>
-                <div>
-                  <span class="font-semibold">Terakhir Diperbarui:</span> {{ formatTanggal(data.updated_at) }}
-                </div>
+
+          <div class="flex flex-col md:flex-row gap-2 items-start justify-between text-sm">
+            <div class="space-y-2">
+              <h2 class="text-lg font-bold mb-3">{{ data.nama }}</h2>              
+              <div class="flex items-center gap-2">
+                <Icon name="lucide:mail" /> {{ data.email || '-' }}
+              </div>
+              <div class="flex items-center gap-2">
+                <Icon name="lucide:phone" /> {{ data.hp || '-' }}
+              </div>
+              <div class="flex items-center gap-2">
+                <Icon name="lucide:map-pin" /> {{ data.alamat || '-' }}
               </div>
             </div>
-            
             <div>
-              <h3 class="text-lg font-bold mb-4">Aksi</h3>
-              <div class="flex flex-wrap gap-2">
-                <Button @click="openDialog('edit', data)" severity="info" size="small">
+              <Button asChild v-slot="slotProps" severity="info" size="small">                
+                <RouterLink :to="'/customer/'+data.id+'?tab=setting'" :class="slotProps.class">
                   <Icon name="lucide:pencil" /> Edit
-                </Button>
-                <Button @click="confirmDelete(data.id)" severity="danger" size="small">
-                  <Icon name="lucide:trash-2" /> Hapus
-                </Button>
-              </div>
+                </RouterLink>
+              </Button>
             </div>
           </div>
 
@@ -62,15 +41,23 @@
       </template>
     </Card>
 
-    <Card>
-      <template #content>
-        <CustomerTableInvoice :customerId="customer_id" v-if="customer_id"/>
-      </template>
-    </Card>
+    <Tabs class="mb-3 !bg-transparent !rounded" :value="tab">
+        <TabList class="!bg-transparent !rounded">
+            <Tab v-for="tab in items" :key="tab.label" :value="tab.route" class="py-3">
+                <router-link v-if="tab.route" v-slot="{ href, navigate }" :to="tab.route" custom>
+                    <a v-ripple :href="href" @click="navigate" class="flex items-center gap-1 font-normal text-sm">
+                      <Icon :name="'lucide:'+tab.icon"/>
+                      <span>{{ tab.label }}</span>
+                    </a>
+                </router-link>
+            </Tab>
+        </TabList>
+    </Tabs>
 
-    <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Customer':'Edit Customer'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <CustomerForm :action="actionDialog" :data="dataDialog" @update="refresh()" />
-    </Dialog>
+    <template v-if="customer_id">
+      <CustomerTableInvoice v-if="tab == 'invoice'" :customerId="customer_id"/>
+      <CustomerTabSettings v-else-if="tab == 'setting'" :customerId="customer_id"/>
+    </template>
 
     <DashLoader :loading="isLoadingDash"/>
   </div>
@@ -82,13 +69,10 @@ definePageMeta({
   description: 'Detail Informasi Customer',
 })
 
-import { useDayjs } from '#dayjs'
-import { formatMoney } from '~/utils/formatMoney'
-import { formatDate } from '~/utils/formatDate'
-const dayjs = useDayjs()
 const route = useRoute();
 const client = useSanctumClient();
 const customer_id = computed(() => route.params.id) as any
+const tab = computed(() => route.query.tab || 'invoice') as any
 
 const { data, pending, error, refresh } = await useAsyncData(
   `customer-${route.params.id}`,
@@ -105,62 +89,8 @@ watch(pending, (newValue, oldValue) => {
   }
 })
 
-const visibleDialog = ref(false);
-const actionDialog = ref('add');
-const dataDialog = ref({});
-const openDialog = async (action: string, data = {}) => {
-  visibleDialog.value = true;
-  actionDialog.value = action;
-  dataDialog.value = data;
-}
-
-const toast = useToast();
-const confirm = useConfirm();
-const confirmDelete = (id: any) => {    
-    confirm.require({
-        message: 'Anda yakin hapus data ini?',
-        header: 'Hapus Data',
-        accept: async () => {
-            try {              
-              const re = await client(`/api/customer/${id}`, {
-                  method: 'DELETE',
-              })
-              toast.add({
-                severity: 'success',
-                summary: 'Berhasil!',
-                detail: 'Data berhasil dihapus',
-                life: 3000
-              });
-              // Redirect ke halaman customer setelah hapus
-              navigateTo('/customer')
-            } catch (error) {
-                const er = useSanctumError(error)                 
-                toast.add({
-                    severity: 'error',
-                    summary: 'Gagal!',
-                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
-                    life: 3000
-                });
-            }
-        },
-        rejectProps: {
-            label: 'Cancel',
-            severity: 'secondary',
-            outlined: true
-        },
-        acceptProps: {
-            label: 'Hapus',
-            severity: 'danger',
-            outlined: false
-        },
-        reject: () => {
-            //callback to execute when user rejects to delete
-        }
-    });
-}
-
-// Format tanggal
-function formatTanggal(tanggal: string) {
-  return formatDate(tanggal, 'DD/MM/YYYY');
-}
+const items = ref([
+    { route: '/customer/' + customer_id.value+'?tab=invoice', label: 'Invoice', icon: 'file-text' },
+    { route: '/customer/' + customer_id.value+'?tab=setting', label: 'Pengaturan', icon: 'settings' },
+]);
 </script>

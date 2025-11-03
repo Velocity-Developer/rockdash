@@ -275,7 +275,7 @@
                                     {{ slotProps.data.title }}
                                 </span>
 
-                                <div class="flex items-center">
+                                <div class="flex items-center gap-1">
                                     <div
                                         v-if="slotProps.data.category"
                                         class="mt-1"
@@ -288,7 +288,7 @@
                                     <div v-if="slotProps.data.creator" class="flex items-center gap-1">
                                         <Avatar
                                             shape="circle" size="small"
-                                            class="w-3 h-3"
+                                            class="!w-3 !h-3"
                                             :image="slotProps.data.creator?.avatar_url || ''"
                                         />
                                         {{ slotProps.data.creator.name }}
@@ -375,6 +375,7 @@
                                         v-for="assignment in slotProps.data.assignments"
                                         shape="circle"
                                         size="small"
+                                        class="!w-5 !h-5"
                                         v-tooltip="assignment.assignable?.name"
                                         v-bind="assignment.assignable?.avatar_url
                                             ? { image: assignment.assignable.avatar_url }
@@ -536,7 +537,7 @@ const getStatusLabel = (status: string) => {
     const labelMap: Record<string, string> = {
         pending: "Menunggu",
         assigned: "Ditugaskan",
-        in_progress: "Dalam Progres",
+        in_progress: "Progres",
         completed: "Selesai",
         declined: "Ditolak",
     };
@@ -579,7 +580,7 @@ const filters = reactive({
 const statusOptions = [
     { label: "Pending", value: "pending" },
     { label: "Ditugaskan", value: "assigned" },
-    { label: "Dalam Progres", value: "in_progress" },
+    { label: "Progres", value: "in_progress" },
     { label: "Selesai", value: "completed" },
     { label: "Ditolak", value: "declined" },
 ];
