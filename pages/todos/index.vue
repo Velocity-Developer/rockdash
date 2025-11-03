@@ -275,14 +275,24 @@
                                     {{ slotProps.data.title }}
                                 </span>
 
-                                <div
-                                    v-if="slotProps.data.category"
-                                    class="mt-1"
-                                >
-                                    {{ slotProps.data.category.icon || "⚙" }}
-                                    <span class="opacity-50">{{
-                                        slotProps.data.category.name
-                                    }}</span>
+                                <div class="flex items-center">
+                                    <div
+                                        v-if="slotProps.data.category"
+                                        class="mt-1"
+                                    >
+                                        {{ slotProps.data.category.icon || "⚙" }}
+                                        <span class="opacity-50">{{
+                                            slotProps.data.category.name
+                                        }}</span>
+                                    </div>
+                                    <div v-if="slotProps.data.creator" class="flex items-center gap-1">
+                                        <Avatar
+                                            shape="circle" size="small"
+                                            class="w-3 h-3"
+                                            :image="slotProps.data.creator?.avatar_url || ''"
+                                        />
+                                        {{ slotProps.data.creator.name }}
+                                    </div>
                                 </div>
                             </template>
                         </Column>
@@ -360,25 +370,20 @@
                         </Column>
                         <Column field="assign" header="Assignment">
                             <template #body="slotProps">
-                                <Badge
-                                    size="small"
-                                    severity="secondary"
-                                    class="flex items-center gap-1 justify-start mb-1 me-1"
-                                    v-for="assignment in slotProps.data
-                                        .assignments"
-                                >
-                                    <Icon
-                                        :name="
-                                            assignment.tipe === 'User'
-                                                ? 'lucide:user'
-                                                : 'lucide:layers'
-                                        "
+                                <AvatarGroup>
+                                    <Avatar
+                                        v-for="assignment in slotProps.data.assignments"
+                                        shape="circle"
+                                        size="small"
+                                        v-tooltip="assignment.assignable?.name"
+                                        v-bind="assignment.assignable?.avatar_url
+                                            ? { image: assignment.assignable.avatar_url }
+                                            : { label: assignment.assignable.name.charAt(0).toUpperCase() }"
                                     />
-                                    {{ assignment.assignable?.name }}
-                                </Badge>
+                                </AvatarGroup>
                             </template>
                         </Column>
-                        <Column field="created_at" header="Dibuat">
+                        <Column field="created_at" header="Dibuat" class="whitespace-nowrap">
                             <template #body="slotProps">
                                 <div
                                     v-if="slotProps.data.created_at"
@@ -398,7 +403,7 @@
                                 </div>
                             </template>
                         </Column>
-                        <Column field="author" header="Author">
+                        <!-- <Column field="author" header="Author">
                             <template #body="slotProps">
                                 <div
                                     v-if="slotProps.data.creator"
@@ -407,7 +412,7 @@
                                     {{ slotProps.data.creator.name }}
                                 </div>
                             </template>
-                        </Column>
+                        </Column> -->
                         <Column field="act" header="" v-if="activeTab !== 'my'">
                             <template #body="slotProps">
                                 <div class="flex items-center justify-end">

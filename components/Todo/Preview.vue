@@ -459,6 +459,7 @@ const handleStatusChange = async (newStatus: string) => {
                         :src="todo.creator?.avatar_url || todo.creator.name.charAt(0).toUpperCase()"
                         class="w-12 h-12 bg-teal-500 text-white font-bold text-lg"
                         shape="circle"
+                        :image="todo.creator?.avatar_url || ''"
                     />
                     <div class="flex-1 min-w-0">
                         <p
@@ -491,10 +492,8 @@ const handleStatusChange = async (newStatus: string) => {
         <Button
             @click="emit('close')"
             severity="secondary"
-            outlined
-            class="px-6 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
         >
-            <Icon name="lucide:x" class="mr-2 w-4 h-4" />
+            <Icon name="lucide:x"/>
             Tutup
         </Button>
     </div>
