@@ -40,29 +40,7 @@
     </Drawer>
 
   </div>
-
-  <div v-if="isError" class="flex justify-center items-center fixed z-[99] top-0 bottom-0 end-0 start-0 bg-white/30 backdrop-blur-sm">
-    <div class="bg-gray-950 border border-red-500 text-center text-white p-4 rounded-md shadow-md w-[300px] md:w-[400px]">
-      <div class="flex justify-center items-center mb-5">
-        <Icon name="lucide:server-off" class="w-20 h-20" :ssr="true"/>
-      </div>
-      Gagal menyambung ke server !. <br> Silahkan coba lagi...
-      <div class="bg-gray-800 p-3 text-left rounded-md mt-4">
-        <ul class="list-decimal pl-4">
-          <li>Periksa koneksi internet</li>
-          <li>Periksa apakah IP di block</li>
-        </ul>
-      </div>
-      <span class="bg-gray-800 p-3 mt-2 rounded-md flex justify-start items-center gap-1" v-tooltip="`IP Address: ${userIP}`">
-        <Icon name="lucide:globe" />
-        <span>IP: {{ userIP || 'Loading...' }}</span>
-      </span>
-      <Button @click="fetchNotifikasi" severity="danger" class="w-full mt-5">
-        Coba lagi
-      </Button>
-    </div>      
-  </div>
-
+ 
   <Dialog v-model:visible="visibleErrorDialog" modal header="Oops !" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <img src="/undraw_connection_lost_am29.webp" alt="Connection Lost" class="max-w-[300px] mx-auto my-5" :ssr="true"/>
     <div class="text-xl font-bold"> Gagal menyambung ke server !.</div>
