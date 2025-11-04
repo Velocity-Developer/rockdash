@@ -34,196 +34,114 @@
         <!-- Statistics Cards -->
         <div
             v-if="statistics && activeTab === 'my'"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-        >
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:list-checks"
-                                class="w-6 h-6 text-blue-600 dark:text-blue-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+            class="overflow-x-auto"
+            >
+            <div class="flex items-center gap-2 md:justify-between py-1">
+                <Card>
+                    <template #content>
+                        <div class="flex items-center min-w-[200px]">
+                            <div
+                                class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg"
                             >
-                                Total Todo
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.my_total }}
-                            </p>
+                                <Icon
+                                    name="lucide:loader"
+                                    class="w-6 h-6 text-blue-600 dark:text-blue-300"
+                                />
+                            </div>
+                            <div class="ml-4">
+                                <p
+                                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                                >
+                                    Dalam Progres
+                                </p>
+                                <p
+                                    class="text-2xl font-bold text-gray-900 dark:text-white"
+                                >
+                                    {{ statistics.in_progress_count || 0 }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-green-100 dark:bg-green-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:check-circle"
-                                class="w-6 h-6 text-green-600 dark:text-green-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                    </template>
+                </Card>
+                <Card>
+                    <template #content>
+                        <div class="flex items-center min-w-[200px]">
+                            <div
+                                class="p-3 bg-red-100 dark:bg-red-900 rounded-lg"
                             >
-                                Selesai
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.my_completed }}
-                            </p>
+                                <Icon
+                                    name="lucide:alert-triangle"
+                                    class="w-6 h-6 text-red-600 dark:text-red-300"
+                                />
+                            </div>
+                            <div class="ml-4">
+                                <p
+                                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                                >
+                                    Urgent
+                                </p>
+                                <p
+                                    class="text-2xl font-bold text-gray-900 dark:text-white"
+                                >
+                                    {{ statistics.assigned_urgent_count || 0 }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:clock"
-                                class="w-6 h-6 text-yellow-600 dark:text-yellow-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                    </template>
+                </Card>                
+                <Card>
+                    <template #content>
+                        <div class="flex items-center min-w-[200px]">
+                            <div
+                                class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg"
                             >
-                                Pending
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.my_pending }}
-                            </p>
+                                <Icon
+                                    name="lucide:clock"
+                                    class="w-6 h-6 text-yellow-600 dark:text-yellow-300"
+                                />
+                            </div>
+                            <div class="ml-4">
+                                <p
+                                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                                >
+                                    Pending
+                                </p>
+                                <p
+                                    class="text-2xl font-bold text-gray-900 dark:text-white"
+                                >
+                                    {{ statistics.my_pending }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:plus-circle"
-                                class="w-6 h-6 text-purple-600 dark:text-purple-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                    </template>
+                </Card>
+                <Card>
+                    <template #content>
+                        <div class="flex items-center min-w-[200px]">
+                            <div
+                                class="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg"
                             >
-                                Dibuat Saya
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.created_total }}
-                            </p>
+                                <Icon
+                                    name="lucide:user-check"
+                                    class="w-6 h-6 text-orange-600 dark:text-orange-300"
+                                />
+                            </div>
+                            <div class="ml-4">
+                                <p
+                                    class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                                >
+                                    Ditugaskan
+                                </p>
+                                <p
+                                    class="text-2xl font-bold text-gray-900 dark:text-white"
+                                >
+                                    {{ statistics.assigned_count || 0 }}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:user-check"
-                                class="w-6 h-6 text-orange-600 dark:text-orange-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
-                            >
-                                Ditugaskan
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.assigned_count || 0 }}
-                            </p>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:loader"
-                                class="w-6 h-6 text-blue-600 dark:text-blue-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
-                            >
-                                Dalam Progres
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.in_progress_count || 0 }}
-                            </p>
-                        </div>
-                    </div>
-                </template>
-            </Card>
-
-            <Card>
-                <template #content>
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 bg-red-100 dark:bg-red-900 rounded-lg"
-                        >
-                            <Icon
-                                name="lucide:alert-triangle"
-                                class="w-6 h-6 text-red-600 dark:text-red-300"
-                            />
-                        </div>
-                        <div class="ml-4">
-                            <p
-                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
-                            >
-                                Urgent & Ditugaskan
-                            </p>
-                            <p
-                                class="text-2xl font-bold text-gray-900 dark:text-white"
-                            >
-                                {{ statistics.assigned_urgent_count || 0 }}
-                            </p>
-                        </div>
-                    </div>
-                </template>
-            </Card>
+                    </template>
+                </Card>
+            </div>
         </div>
 
         <!-- Filters -->
@@ -730,7 +648,7 @@ const getTodos = async () => {
     } finally {
         loading.value = false;
     }
-    
+
     await getStatistics();
 };
 
