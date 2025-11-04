@@ -34,7 +34,7 @@
         <!-- Statistics Cards -->
         <div
             v-if="statistics && activeTab === 'my'"
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         >
             <Card>
                 <template #content>
@@ -138,6 +138,87 @@
                                 class="text-2xl font-bold text-gray-900 dark:text-white"
                             >
                                 {{ statistics.created_total }}
+                            </p>
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card>
+                <template #content>
+                    <div class="flex items-center">
+                        <div
+                            class="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg"
+                        >
+                            <Icon
+                                name="lucide:user-check"
+                                class="w-6 h-6 text-orange-600 dark:text-orange-300"
+                            />
+                        </div>
+                        <div class="ml-4">
+                            <p
+                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                            >
+                                Ditugaskan
+                            </p>
+                            <p
+                                class="text-2xl font-bold text-gray-900 dark:text-white"
+                            >
+                                {{ statistics.assigned_count || 0 }}
+                            </p>
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card>
+                <template #content>
+                    <div class="flex items-center">
+                        <div
+                            class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg"
+                        >
+                            <Icon
+                                name="lucide:loader"
+                                class="w-6 h-6 text-blue-600 dark:text-blue-300"
+                            />
+                        </div>
+                        <div class="ml-4">
+                            <p
+                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                            >
+                                Dalam Progres
+                            </p>
+                            <p
+                                class="text-2xl font-bold text-gray-900 dark:text-white"
+                            >
+                                {{ statistics.in_progress_count || 0 }}
+                            </p>
+                        </div>
+                    </div>
+                </template>
+            </Card>
+
+            <Card>
+                <template #content>
+                    <div class="flex items-center">
+                        <div
+                            class="p-3 bg-red-100 dark:bg-red-900 rounded-lg"
+                        >
+                            <Icon
+                                name="lucide:alert-triangle"
+                                class="w-6 h-6 text-red-600 dark:text-red-300"
+                            />
+                        </div>
+                        <div class="ml-4">
+                            <p
+                                class="text-sm font-medium text-gray-600 dark:text-gray-400"
+                            >
+                                Urgent & Ditugaskan
+                            </p>
+                            <p
+                                class="text-2xl font-bold text-gray-900 dark:text-white"
+                            >
+                                {{ statistics.assigned_urgent_count || 0 }}
                             </p>
                         </div>
                     </div>
@@ -615,11 +696,11 @@ const updateUrlParams = () => {
     });
 };
 
-const switchTab = (tabKey: string) => {
+const switchTab = async (tabKey: string) => {
     if (tabKey !== activeTab.value) {
         activeTab.value = tabKey;
         resetFilters();
-        loadTodos();
+        await Promise.all([loadTodos(), getStatistics()]);
     }
 };
 
@@ -649,6 +730,8 @@ const getTodos = async () => {
     } finally {
         loading.value = false;
     }
+    
+    await getStatistics();
 };
 
 const getCategories = async () => {
@@ -657,6 +740,15 @@ const getCategories = async () => {
         categories.value = response.data || [];
     } catch (error) {
         console.error("Error fetching categories:", error);
+    }
+};
+
+const getStatistics = async () => {
+    try {
+        const response = (await client("/api/todos/statistics")) as any;
+        statistics.value = response.data || {};
+    } catch (error) {
+        console.error("Error fetching statistics:", error);
     }
 };
 
@@ -725,12 +817,12 @@ const getStatusSeverity = (status: string) => {
 };
 
 // Dialog handlers
-const handleFormSuccess = () => {
+const handleFormSuccess = async () => {
     showCreateDialog.value = false;
     dialogMode.value = "create";
     selectedTodo.value = null;
-    // Reload todos to show the updated/new item
-    loadTodos();
+    // Reload todos and statistics to show the updated/new item
+    await Promise.all([loadTodos(), getStatistics()]);
 };
 
 const handleFormCancel = () => {
@@ -795,8 +887,8 @@ const deleteTodo = async (todoId: number) => {
             life: 3000,
         });
 
-        // Reload todos to update the list
-        await loadTodos();
+        // Reload todos and statistics to update the list
+        await Promise.all([loadTodos(), getStatistics()]);
     } catch (error) {
         console.error("Error deleting todo:", error);
 
@@ -869,6 +961,6 @@ watch(
 
 // Initialize
 onMounted(async () => {
-    await Promise.all([getCategories(), loadTodos()]);
+    await Promise.all([getCategories(), getStatistics(), loadTodos()]);
 });
 </script>
