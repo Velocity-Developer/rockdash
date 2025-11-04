@@ -22,10 +22,6 @@
 
       </div>
 
-      <div class="col-span-4">
-        <InvoiceSelectSearch :search="keySearchInvoice" @invoice-selected="handleInvoiceSelected"/>
-      </div>
-
       <div class="col-start-1 col-end-3">
         <label class="mb-1 block" for="jenis">Jenis</label>
         <Select name="jenis" id="jenis" 
@@ -70,37 +66,6 @@
         <InputNumber id="dibayar" name="dibayar" v-model="form.dibayar" class="w-full" />
       </div>
 
-      <div class="col-start-1 col-end-3">
-        <label class="mb-1 block" for="hp">No. HP</label>
-        <InputText type="text" id="hp" name="hp" v-model="form.hp" class="w-full" />
-      </div>
-      <div class="col-start-3 col-end-5">
-        <label class="mb-1 block" for="telegram">Telegram</label> 
-        <InputText type="text" id="telegram" name="telegram" v-model="form.telegram" class="w-full" />
-      </div>
-
-      <div class="col-start-1 col-end-3">
-        <label class="mb-1 block" for="hpads">HP ads</label>
-        <Select name="hpads" id="hpads" 
-          v-model="form.hpads" 
-          :options="[{label:'Hp Ads',value:'ya'},{label:'Hp Web',value:'tidak'}]" 
-          optionValue="value" optionLabel="label"
-        class="w-full" />
-      </div>
-      <div class="col-start-3 col-end-5">
-        <label class="mb-1 block" for="wa">No. WA</label>
-        <InputText type="text" id="wa" name="wa" v-model="form.wa" class="w-full" />
-      </div>
-
-      <div class="col-start-1 col-end-3">
-        <label class="mb-1 block" for="saldo">Saldo</label>
-        <InputText type="text" id="saldo" name="saldo" v-model="form.saldo" class="w-full" />
-      </div>
-      <div class="col-start-3 col-end-5">
-        <label class="mb-1 block" for="email">Email</label>
-        <Textarea id="email" name="deskripsi" v-model="form.email" class="w-full"></Textarea>
-      </div>
-
       <div class="col-span-4">
         <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>
         
@@ -115,6 +80,61 @@
           filter showClear
         class="w-full" />
 
+      </div>
+
+      <!-- Informasi Klien -->
+      <div class="col-span-4 bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 rounded-md p-4 md:p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-1 font-bold mb-3">
+          <Icon name="lucide:user" />
+          Informasi Klien
+        </div>
+        <div v-if="selectedCustomer && form.customer_id">
+          <Message severity="warn" size="small">
+            <div class="flex items-center justify-between">
+              Klien ditemukan
+              <Button severity="danger" class="text-sm" @click="selectedCustomer = null;form.customer_id = null">
+                <Icon name="lucide:trash-2" />
+              </Button>
+            </div>
+          </Message>
+        </div>
+        <div class="grid grid-cols-4 gap-4">
+          <div class="col-span-4">
+            <label class="mb-1 text-sm block" for="email">Nama Klien</label>
+            <InputText type="text" id="nama" name="nama" v-model="form.nama" class="w-full" />
+          </div> 
+          <div class="col-span-2">
+            <label class="mb-1 text-sm block" for="email">Email</label>
+            <InputText type="text" id="email" name="email" v-model="form.email" class="w-full" />
+          </div>          
+          <div class="col-span-2">
+            <label class="mb-1 text-sm block" for="hp">No. HP</label>
+            <InputText type="text" id="hp" name="hp" v-model="form.hp" class="w-full" />
+          </div>
+          <div class="col-span-2">
+            <label class="mb-1 text-sm block" for="wa">No. WA</label>
+            <InputText type="text" id="wa" name="wa" v-model="form.wa" class="w-full" />
+          </div>
+          <div class="col-span-2">
+            <label class="mb-1 text-sm block" for="telegram">Telegram</label> 
+            <InputText type="text" id="telegram" name="telegram" v-model="form.telegram" class="w-full" />
+          </div>          
+          <div class="col-span-2">
+            <label class="mb-1 text-sm block" for="hpads">HP ads</label>
+            <Select name="hpads" id="hpads" 
+              v-model="form.hpads" 
+              :options="[{label:'Hp Ads',value:'ya'},{label:'Hp Web',value:'tidak'}]" 
+              optionValue="value" optionLabel="label"
+            class="w-full" />
+          </div>
+          <div class="col-span-2 ">
+            <label class="mb-1 text-sm block" for="saldo">Saldo</label>
+            <InputText type="text" id="saldo" name="saldo" v-model="form.saldo" class="w-full" />
+          </div>
+        </div>
+        <Message v-if="!form.customer_id && form.nama" severity="warn" size="small" class="mt-2 flex items-center justify-between">
+          <Icon name="lucide:info" /> Membuat data klien/Customer baru
+        </Message>
       </div>
 
       <div class="col-span-4 text-right">
@@ -172,7 +192,10 @@ const form = reactive({
   id_webhost: '',
   invoice_id: '',
   customer_id: '',
+  nama: '',
 } as any);
+
+const selectedCustomer = ref({} as any);
 
 //get opsi jenis
 const { data: dataOpsi} = await useAsyncData(
@@ -203,33 +226,9 @@ onMounted(() => {
     form.karyawans = data.karyawans;
     form.invoice_id = data.invoice_id || '';
     form.customer_id = data.customer_id || '';
+    form.nama = data.webhost.customers[0].nama;
   }
 })
-
-// Handler untuk invoice yang dipilih
-const handleInvoiceSelected = (invoiceData: { 
-  id: number, 
-  customer_id: number, 
-  customer_hp: string, 
-  customer_email: string, 
-  customer_nama: string,
-  total_invoice: number,
-  jenis_project: string[],
-}) => {
-  form.invoice_id = invoiceData.id || '';
-  form.customer_id = invoiceData.customer_id || '';
-  // form.hp = invoiceData.customer_hp;
-  form.email = invoiceData.customer_email || '';
-  // form.wa = invoiceData.customer_hp || '';
-  // form.dibayar = invoiceData.total_invoice || '';
-  
-  //set jenis project
-  if(invoiceData.jenis_project?.length > 0) 
-    form.jenis = invoiceData.jenis_project[0] || '';
-  else
-    form.jenis = '';
-  
-}
 
 const errorSubmit = ref({} as any)
 const loadingSubmit = ref(false);
@@ -293,7 +292,7 @@ watch(() => form.nama_web, async (val) => {
   if (val && val.length > 3) {
     loadingSearchWebhost.value = true;
     try {
-      const response = await client(`/api/webhost_search/${val}`);
+      const response = await client(`/api/webhost_search/${val}`) as any
       search_webhost.value = response;
     } catch (error) {
       console.log(error);
@@ -310,10 +309,11 @@ watch(() => form.nama_web, async (val) => {
 const selectedWebhost = ref({} as any);
 //watch form.id_webhost
 watch(() => form.id_webhost, async (val) => {
+  selectedCustomer.value = {};
   //ambilkan data webhost
   if(val) {
     try {
-      const res = await client(`/api/webhost/${val}`);
+      const res = await client(`/api/webhost/${val}`) as any;
       selectedWebhost.value = res;
 
       //set data ke form
@@ -324,20 +324,21 @@ watch(() => form.id_webhost, async (val) => {
       form.wa = selectedWebhost.value.wa;
       form.email = selectedWebhost.value.email;
       form.saldo = selectedWebhost.value.saldo;
+      
+      //if response.customer
+      if(res.customers && res.customers.length > 0) {
+        form.customer_id = res.customers[0].id;
+        form.hp = res.customers[0].hp;
+        form.wa = res.customers[0].wa;
+        form.email = res.customers[0].email;
+        form.nama = res.customers[0].nama;
+        selectedCustomer.value = res.customers[0];
+      }
 
     } catch (error) {
       console.log(error);
     }
   }
 })
-
-//search Invoice by key
-const keySearchInvoice = computed(() => {
-  return {
-    nama_web: form.nama_web,
-    hp: form.hp,
-  }
-});
-
 
 </script>
