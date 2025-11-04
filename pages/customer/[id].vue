@@ -57,6 +57,7 @@
     <template v-if="customer_id">
       <CustomerTableInvoice v-if="tab == 'invoice'" :customerId="customer_id"/>
       <CustomerTabSettings v-else-if="tab == 'setting'" :customerId="customer_id"/>
+      <CustomerTabProjects v-else-if="tab == 'project'" :customerId="customer_id"/>
     </template>
 
     <DashLoader :loading="isLoadingDash"/>
@@ -91,6 +92,7 @@ watch(pending, (newValue, oldValue) => {
 
 const items = ref([
     { route: '/customer/' + customer_id.value+'?tab=invoice', label: 'Invoice', icon: 'file-text' },
+    { route: '/customer/' + customer_id.value+'?tab=project', label: 'Project', icon: 'briefcase' },
     { route: '/customer/' + customer_id.value+'?tab=setting', label: 'Pengaturan', icon: 'settings' },
 ]);
 </script>
