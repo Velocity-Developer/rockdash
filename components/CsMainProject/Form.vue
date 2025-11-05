@@ -131,6 +131,10 @@
             <label class="mb-1 text-sm block" for="saldo">Saldo</label>
             <InputText type="text" id="saldo" name="saldo" v-model="form.saldo" class="w-full" />
           </div>
+          <div class="col-span-4">
+            <label class="mb-1 text-sm block" for="alamat">Alamat</label>
+            <Textarea id="alamat" name="alamat" v-model="form.alamat" class="w-full"/>
+          </div>
         </div>
         <Message v-if="!form.customer_id && form.nama" severity="warn" size="small" class="mt-2 flex items-center justify-between">
           <Icon name="lucide:info" /> Membuat data klien/Customer baru
@@ -145,11 +149,19 @@
           </Message>
         </div>
 
-        <Button type="submit" :loading="loadingSubmit">
-          <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
-          <Icon v-else name="lucide:save"/>
-          Simpan
-        </Button>
+        <div class="flex items-center justify-end">
+          <div class="hidden">
+            <label for="create_invoice"> Create Invoice </label>
+            <ToggleSwitch v-model="form.create_invoice" />
+          </div>
+
+          <Button type="submit" :loading="loadingSubmit">
+            <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
+            <Icon v-else name="lucide:save"/>
+            Simpan
+          </Button>
+        </div>
+        
       </div>
     </div>
   </form>
@@ -190,9 +202,11 @@ const form = reactive({
   email: '',
   dikerjakan_oleh: [],
   id_webhost: '',
+  create_invoice: true,
   invoice_id: '',
   customer_id: '',
   nama: '',
+  alamat: '',
 } as any);
 
 const selectedCustomer = ref({} as any);
@@ -227,6 +241,7 @@ onMounted(() => {
     form.invoice_id = data.invoice_id || '';
     form.customer_id = data.customer_id || '';
     form.nama = data.webhost.customers[0].nama;
+    form.alamat = data.webhost.customers[0].alamat;
   }
 })
 
@@ -332,6 +347,7 @@ watch(() => form.id_webhost, async (val) => {
         form.wa = res.customers[0].wa;
         form.email = res.customers[0].email;
         form.nama = res.customers[0].nama;
+        form.alamat = res.customers[0].alamat;
         selectedCustomer.value = res.customers[0];
       }
 
