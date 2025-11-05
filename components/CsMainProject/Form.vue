@@ -89,18 +89,31 @@
           Informasi Klien
         </div>
         <div v-if="selectedCustomer && form.customer_id">
-          <Message severity="warn" size="small" class="flex !items-center !justify-between">            
+          <div class="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 px-1 py-2 rounded mb-1 !flex !items-center !justify-between">
+            <div class="text-xs ps-2 text-amber-700 dark:text-amber-300">
               Klien ditemukan
+            </div>
+            <div>
               <Button 
-                severity="danger" 
-                variant="text" 
-                class="text-sm" 
+                severity="danger"
+                class="text-sm !py-1 mr-1" 
                 @click="selectedCustomer = null;form.customer_id = null"
                 v-tooltip="'Hapus Customer terpilih'"
               >
                 <Icon name="lucide:trash-2" />
               </Button>
-          </Message>
+              <Button               
+                severity="info"
+                class="text-sm !py-1"
+                v-tooltip="'Lihat Profil'"
+                as="a"
+                :href="'/customer/' + form.customer_id" 
+                target="_blank" 
+              >
+                <Icon name="lucide:user" />
+            </Button>
+            </div>
+          </div>
         </div>
 
         <CsMainProjectCariCustomer 
@@ -112,7 +125,10 @@
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
             <label class="mb-1 text-sm block" for="email">Nama Klien</label>
-            <InputText type="text" id="nama" name="nama" v-model="form.nama" class="w-full" />
+            <InputText type="text" id="nama" name="nama" v-model="form.nama" class="w-full" required/>
+            <Message v-if="!form.nama && form.email" severity="warn" size="small" class="mt-1">
+              Nama Klien wajib diisi, silahkan isi dari biodata pemilik web
+            </Message>
           </div> 
           <div class="col-span-2">
             <label class="mb-1 text-sm block" for="email">Email</label>
