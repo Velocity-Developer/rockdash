@@ -29,13 +29,7 @@
                 >
                     Deskripsi
                 </label>
-                <Textarea
-                    id="description"
-                    v-model="form.description"
-                    placeholder="Masukkan deskripsi todo"
-                    rows="4"
-                    class="w-full"
-                />
+                <Editor v-model="form.description" editorStyle="height: 320px" />
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -332,9 +332,11 @@ const handleStatusChange = async (newStatus: string) => {
             <div
                 class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-md"
             >
-                <p class="text-md text-gray-700 dark:text-gray-300 mb-2">
-                    {{ todo.description }}
-                </p>
+                <div 
+                    class="text-md text-gray-700 dark:text-gray-300 mb-2 break-words"
+                    v-html="todo.description"
+                >
+                </div>
             </div>
         </div>
 
