@@ -89,15 +89,26 @@
           Informasi Klien
         </div>
         <div v-if="selectedCustomer && form.customer_id">
-          <Message severity="warn" size="small">
-            <div class="flex items-center justify-between">
+          <Message severity="warn" size="small" class="flex !items-center !justify-between">            
               Klien ditemukan
-              <Button severity="danger" class="text-sm" @click="selectedCustomer = null;form.customer_id = null">
+              <Button 
+                severity="danger" 
+                variant="text" 
+                class="text-sm" 
+                @click="selectedCustomer = null;form.customer_id = null"
+                v-tooltip="'Hapus Customer terpilih'"
+              >
                 <Icon name="lucide:trash-2" />
               </Button>
-            </div>
           </Message>
         </div>
+
+        <CsMainProjectCariCustomer 
+          v-if="!form.customer_id && form.nama"
+          :q="form.nama || form.hp"
+          @selectCustomer="selectedSearchCustomer"
+        />
+
         <div class="grid grid-cols-4 gap-4">
           <div class="col-span-4">
             <label class="mb-1 text-sm block" for="email">Nama Klien</label>
@@ -136,7 +147,7 @@
             <Textarea id="alamat" name="alamat" v-model="form.alamat" class="w-full"/>
           </div>
         </div>
-        <Message v-if="!form.customer_id && form.nama" severity="warn" size="small" class="mt-2 flex items-center justify-between">
+        <Message v-if="!form.customer_id && form.nama" severity="warn" size="small" class="mt-2 mb-1 flex items-center justify-between">
           <Icon name="lucide:info" /> Membuat data klien/Customer baru
         </Message>
       </div>
@@ -347,6 +358,9 @@ watch(() => form.id_webhost, async (val) => {
         form.wa = res.customers[0].wa;
         form.email = res.customers[0].email;
         form.nama = res.customers[0].nama;
+        form.telegram = res.customers[0].telegram;
+        form.saldo = res.customers[0].saldo;
+        form.hpads = res.customers[0].hpads;
         form.alamat = res.customers[0].alamat;
         selectedCustomer.value = res.customers[0];
       }
@@ -356,5 +370,20 @@ watch(() => form.id_webhost, async (val) => {
     }
   }
 })
+
+//selectedSearchCustomer  
+const selectedSearchCustomer = (data: any) => {
+  selectedCustomer.value = data;
+  form.customer_id = data.id;
+  form.hp = data.hp;
+  form.wa = data.wa;
+  form.email = data.email;
+  form.nama = data.nama;
+  form.telegram = data.telegram;
+  form.saldo = data.saldo;
+  form.hpads = data.hpads;
+  form.alamat = data.alamat;
+  console.log(data);
+}
 
 </script>
