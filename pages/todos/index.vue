@@ -279,7 +279,9 @@
                                         v-if="slotProps.data.category"
                                         class="mt-1"
                                     >
-                                        {{ slotProps.data.category.icon || "⚙" }}
+                                        <span class="noto-emoji">{{
+                                            slotProps.data.category.icon || "⚙"
+                                        }}</span>
                                         <span class="opacity-50">{{
                                             slotProps.data.category.name
                                         }}</span>

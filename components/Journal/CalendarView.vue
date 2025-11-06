@@ -43,7 +43,7 @@
                   v-tooltip.top="(journal as { title: string }).title"
                   >
                     <div>
-                      <span v-if="journal?.journal_category?.icon">
+                      <span v-if="journal?.journal_category?.icon" class="noto-emoji">
                         {{ journal.journal_category.icon }}
                       </span>
                     </div>

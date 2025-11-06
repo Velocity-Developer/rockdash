@@ -20,7 +20,7 @@
               <template #body="slotProps">
                 <div class="flex items-center gap-2">
                   <span v-if="slotProps.data.icon" class="w-9 h-9 text-lg shadow hover:shadow-lg flex items-center justify-center rounded-full" :style="{ backgroundColor: slotProps.data.color || '#ffffff' }">
-                    {{slotProps.data.icon}}
+                    <span class="noto-emoji">{{slotProps.data.icon}}</span>
                   </span>
                   <span class="inline-block">
                     {{slotProps.data.name}}

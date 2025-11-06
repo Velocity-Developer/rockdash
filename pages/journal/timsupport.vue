@@ -37,13 +37,13 @@
         >
           <template #option="slotProps">
             <div class="flex items-center gap-2">
-              <span class="text-sm">{{ slotProps.option.icon }}</span>
+              <span class="text-sm noto-emoji">{{ slotProps.option.icon }}</span>
               <span>{{ slotProps.option.name }}</span>
             </div>
           </template>
           <template #value="slotProps">
             <div v-if="slotProps.value" class="flex items-center gap-2">
-              <span class="text-sm">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
+              <span class="text-sm noto-emoji">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
               <span>{{ categories.find(c => c.id === slotProps.value)?.name }}</span>
             </div>
             <span v-else class="text-gray-500">Semua Kategori</span>
@@ -132,7 +132,7 @@
          <Column field="journal_category" header="Kategori" :sortable="false">
           <template #body="slotProps">
             <div class="flex items-start gap-2">
-                <span v-tooltip="slotProps.data.journal_category?.name" class="w-5 h-5 flex items-center justify-center bg-indigo-200 dark:bg-indigo-800 text-sm p-1 rounded-full">
+                <span v-tooltip="slotProps.data.journal_category?.name" class="noto-emoji w-5 h-5 flex items-center justify-center bg-indigo-200 dark:bg-indigo-800 text-sm p-1 rounded-full">
                   {{ slotProps.data.journal_category?.icon }}
                 </span>
                 <div>
@@ -297,13 +297,13 @@
         >
           <template #option="slotProps">
             <div class="flex items-center gap-2">
-              <span class="text-sm">{{ slotProps.option.icon }}</span>
+              <span class="text-sm noto-emoji">{{ slotProps.option.icon }}</span>
               <span>{{ slotProps.option.name }}</span>
             </div>
           </template>
           <template #value="slotProps">
             <div v-if="slotProps.value" class="flex items-center gap-2">
-              <span class="text-sm">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
+              <span class="text-sm noto-emoji">{{ categories.find(c => c.id === slotProps.value)?.icon }}</span>
               <span>{{ categories.find(c => c.id === slotProps.value)?.name }}</span>
             </div>
             <span v-else class="text-gray-500">Semua Kategori</span>

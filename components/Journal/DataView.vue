@@ -11,7 +11,7 @@
                   <div class="flex flex-col gap-3">
                     <div class="flex justify-between items-start">
                       <div class="flex items-center gap-2 flex-wrap">
-                        <span v-if="item.journal_category" class="w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-2 rounded-full">
+                        <span v-if="item.journal_category" class="noto-emoji w-5 h-5 flex items-center justify-center bg-indigo-200 text-sm p-2 rounded-full">
                           {{ item.journal_category?.icon }}
                         </span>
                         <Badge v-if="item.journal_category" class="bg-indigo-200 text-indigo-800" size="small">{{ item.journal_category?.name }}</Badge>

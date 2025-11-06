@@ -9,3 +9,6 @@ html {
     --primary: theme(colors.teal.500);
     --secondary: theme(colors.orange.400);
 }
+.noto-emoji {
+    font-family: 'Noto Color Emoji', sans-serif;
+}

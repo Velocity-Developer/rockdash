@@ -1,5 +1,8 @@
 export function purifyHtml(html: string,length: number = 0) {
 
+    //jika html kosong, maka return empty string
+    if(!html) return ''
+
     //hitung total karakter
     let total = html.length
 

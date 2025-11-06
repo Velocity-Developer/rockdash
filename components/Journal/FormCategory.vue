@@ -18,7 +18,7 @@
       </div>
       <div class="flex flex-col gap-1">
         <label for="icon">Icon (Emoji)</label>
-        <InputText v-model="form.icon"/>
+        <InputText v-model="form.icon" class="w-full noto-emoji" />
         <span class="text-sm text-gray-500">Gunakan emoji, contoh: 🎈</span>
       </div>
       <div class="flex flex-col gap-1">
