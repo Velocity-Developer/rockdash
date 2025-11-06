@@ -66,7 +66,13 @@
             </Column> 
             <Column field="webhost" header="Domain">
               <template #body="slotProps">
-                {{ slotProps.data.items?.map((item: { webhost: { nama_web: any; }; }) => item.webhost?.nama_web).join(', ') }}
+                <template v-if="slotProps.data.items">
+                  {{ slotProps.data.items
+                    ?.map((item: { webhost: { nama_web: string } }) =>
+                      item.webhost?.nama_web?.replace(/^https?:\/\//, '')
+                    )
+                    .join(', ') }}
+                </template>
               </template>
             </Column>          
             <Column field="status" header="Status" sortable>
