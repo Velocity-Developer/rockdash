@@ -309,7 +309,7 @@
                         <Column field="description" header="Deskripsi">
                             <template #body="slotProps">
                                 <div class="truncate max-w-[150px]">
-                                    {{ slotProps.data.description }}
+                                    {{ purifyHtml(slotProps.data.description,40) }}
                                 </div>
                             </template>
                         </Column>

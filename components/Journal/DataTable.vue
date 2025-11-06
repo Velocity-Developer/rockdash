@@ -24,7 +24,7 @@
         <Column field="description" header="Deskripsi" :sortable="false">
           <template #body="slotProps">
             <div class="text-xs text-gray-600 line-clamp-2 max-w-xs">
-              {{ slotProps.data.description }}
+              {{ purifyHtml(slotProps.data.description,40) }}
             </div>
           </template>
         </Column>
@@ -113,6 +113,7 @@
 </template>
 
 <script setup lang="ts">
+import { purifyHtml } from '~/utils/purifyHtml'
 const props = defineProps({
   data: {
     type: Array,

@@ -142,7 +142,7 @@
       
       <div class="col-span-6">
         <div class="block text-sm font-medium opacity-70">Deskripsi</div>
-        <Textarea v-model="form.description" class="w-full" rows="6"></Textarea>
+        <Editor v-model="form.description" class="w-full" editorStyle="height: 320px"/>
         <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
       </div>
       

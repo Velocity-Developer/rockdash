@@ -148,8 +148,7 @@
             </div>
           <span class="font-medium">Deskripsi</span>
         </div>
-        <div class="prose prose-sm max-w-none text-sm">
-          <p class="whitespace-pre-wrap">{{ journal.description }}</p>
+        <div class="prose prose-sm max-w-none text-sm whitespace-pre-wrap" v-html="journal.description">
         </div>
     </div>
 

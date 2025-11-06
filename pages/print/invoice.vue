@@ -40,7 +40,7 @@ const dueDate = computed(() => {
   return dayjs(t).add(3, 'day').format('DD/MM/YYYY')
 })
 
-function formatMoney(v?: number) { return money(Number(v || 0)) }
+function formatMoney(v?: number, p0?: string, p1?: number) { return money(Number(v || 0)) }
 
 function handlePrint() { 
   printJS({

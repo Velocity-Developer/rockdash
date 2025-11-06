@@ -22,6 +22,7 @@
     "@primeuix/themes": "^1.2.3",
     "@primevue/forms": "^4.3.7",
     "@primevue/nuxt-module": "^4.3.7",
+    "@tailwindcss/typography": "^0.5.19",
     "@vite-pwa/nuxt": "^1.0.4",
     "chart.js": "^4.5.0",
     "dayjs-nuxt": "^2.1.11",

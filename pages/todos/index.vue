@@ -363,7 +363,7 @@
                         <Column field="description" header="Deskipsi">
                             <template #body="slotProps">
                                 <div class="truncate max-w-[150px]">
-                                    {{ slotProps.data.description }}
+                                    {{ purifyHtml(slotProps.data.description,40) }}
                                 </div>
                             </template>
                         </Column>

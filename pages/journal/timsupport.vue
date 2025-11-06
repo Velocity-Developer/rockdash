@@ -181,7 +181,7 @@
         <Column field="description" header="Detail" class="hidden md:table-cell">
           <template #body="slotProps">         
             <div class="truncate text-xs w-[150px]" v-tooltip="slotProps.data.description">
-              {{ slotProps.data.description }}
+              {{ purifyHtml(slotProps.data.description, 30) }}
             </div>  
           </template>
         </Column>
