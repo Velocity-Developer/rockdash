@@ -333,7 +333,7 @@ const handleStatusChange = async (newStatus: string) => {
                 class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-3 rounded-md"
             >
                 <div 
-                    class="text-md text-gray-700 dark:text-gray-300 mb-2 break-words"
+                    class="text-md text-gray-700 dark:text-gray-300 mb-2 break-words prose prose-slate max-w-none dark:prose-invert"
                     v-html="todo.description"
                 >
                 </div>
