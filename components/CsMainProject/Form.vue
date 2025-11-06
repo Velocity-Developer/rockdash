@@ -282,6 +282,11 @@ const handleSubmit = async () => {
   form.tgl_masuk = form.tgl_masuk?dayjs(form.tgl_masuk).format('YYYY-MM-DD'):'';
   form.tgl_deadline = form.tgl_deadline?dayjs(form.tgl_deadline).format('YYYY-MM-DD'):'';
 
+  //hapus http:// dan https:// dari form.nama_web
+  if (form.nama_web) {
+    form.nama_web = form.nama_web.replace(/^https?:\/\//, '');
+  }
+
   try {
 
     if (action == 'edit') {
@@ -330,11 +335,16 @@ const handleSubmit = async () => {
 const search_webhost = ref({} as any);
 const loadingSearchWebhost = ref(false);
 watch(() => form.nama_web, async (val) => {
+  //bersihkan dari http:// atau https://
+  if (val) {
+    form.nama_web = val.replace(/^https?:\/\//, '');
+  }
+
   //cari webhost berdasarkan nama dan karakter lebih dari 3
-  if (val && val.length > 3) {
+  if (form.nama_web && form.nama_web.length > 3) {
     loadingSearchWebhost.value = true;
     try {
-      const response = await client(`/api/webhost_search/${val}`) as any
+      const response = await client(`/api/webhost_search/${form.nama_web}`) as any
       search_webhost.value = response;
     } catch (error) {
       console.log(error);
