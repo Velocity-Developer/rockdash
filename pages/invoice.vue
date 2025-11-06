@@ -63,7 +63,12 @@
                   {{ slotProps.data.customer?.nama }}
                 </div>
               </template>
-            </Column>           
+            </Column> 
+            <Column field="webhost" header="Domain">
+              <template #body="slotProps">
+                {{ slotProps.data.items?.map((item: { webhost: { nama_web: any; }; }) => item.webhost?.nama_web).join(', ') }}
+              </template>
+            </Column>          
             <Column field="status" header="Status" sortable>
               <template #body="slotProps">
                 <Tag class="!text-xs capitalize" :severity="getStatusSeverity(slotProps.data.status)">
