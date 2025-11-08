@@ -6,18 +6,29 @@
 
       <div class="absolute top-0 right-0 m-1" v-if="notifikasi.length">
         <span class="relative flex size-2">
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
-          <span class="relative inline-flex size-2 rounded-full bg-sky-500"></span>
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex size-2 rounded-full bg-red-500"></span>
         </span>
       </div>
 
     </Button>
 
     <Drawer v-model:visible="visibleDrawer" :header="'Notifikasi'+' ('+notifikasi.length+')'" position="right">
-        
+      
       <ScrollPanel v-if="notifikasi.length" style="width: 100%; height: calc(85vh - 60px);">
         <div v-for="item in notifikasi" :key="item.id" class="border-b border-zinc-100 dark:border-zinc-800">
-          <Button @click="markRead(item)" severity="secondary" variant="text" class="flex flex-row !justify-start gap-2 !items-baseline w-full !py-1 text-left">
+          <Button v-if="item.type === 'App\\Notifications\\TodoAssignedNotification'" @click="markRead(item,'/todos?preview_todo='+item.data.todo_id)" severity="secondary" variant="text" class="flex flex-row !justify-start gap-2 !items-baseline w-full !py-1 text-left">
+            <div>
+              <Icon name="lucide:list-plus" size="small" :ssr="true"/>   
+            </div>           
+            <div class="text-sm">
+              <div class="font-bold">{{ item.data.title }}</div>
+              <div class="w-full">
+                {{ item.data.message }}
+              </div>
+            </div>
+          </Button>
+          <Button v-else @click="markRead(item,'/posts/edit/'+item.data.id)" severity="secondary" variant="text" class="flex flex-row !justify-start gap-2 !items-baseline w-full !py-1 text-left">
             <div>
               <Icon name="lucide:mail" size="small" :ssr="true"/>   
             </div>           
@@ -72,8 +83,12 @@ const toggle = () => {
 interface NotifikasiItem {
   id: number;
   data: {
+    id: number;
+    todo_id?: number;
     title: string;
+    message: string;
   };
+  type: string;
 }
 
 
@@ -100,10 +115,10 @@ const fetchNotifikasi = async () => {
   isLoading.value = false
 }
 
-// Ambil pertama kali, setelah 20 detik
+// Ambil pertama kali, setelah 2 detik
 setTimeout(() => {
   fetchNotifikasi()
-}, 20000)
+}, 2000)
 
 // Ambil ulang setiap 5 menit
 setInterval(fetchNotifikasi, 5 * 60 * 1000)
@@ -121,7 +136,7 @@ const fetchUserIP = async () => {
 }
 
 // Mark as read
-const markRead = async (data: any) => {
+const markRead = async (data: any,url: string) => {
   try {
     await client('/api/notifications/mark-as-read', { 
       method: 'POST',
@@ -129,10 +144,11 @@ const markRead = async (data: any) => {
         id: data.id
       }
     })
+
     //open link
-    if(data.data.id){
-      navigateTo(`/posts/edit/${data.data.id}`)
-    }
+    navigateTo(url)
+    //close drawer
+    visibleDrawer.value = false
 
     await fetchNotifikasi()
   } catch (error) {
