@@ -483,9 +483,9 @@
             :draggable="false"
         >
             <TodoPreview
-                v-if="selectedTodo"
-                :todo="selectedTodo"
-                :todoId="selectedTodo.id"
+                v-if="selectedIdTodoPreview"
+                :todo="selectedTodo || {}"
+                :todoId="selectedIdTodoPreview"
                 @close="showPreviewDialog = false"
             />
         </Dialog>
@@ -516,6 +516,7 @@ const showCreateDialog = ref(false);
 const showPreviewDialog = ref(false);
 const dialogMode = ref<"create" | "edit">("create");
 const selectedTodo = ref<any>(null);
+const selectedIdTodoPreview = ref<number>(0);
 
 // Tabs
 const activeTab = ref((route.query.tab as string) || "my");
@@ -770,6 +771,7 @@ const editTodo = (todo: any) => {
 const viewTodo = (todo: any) => {
     selectedTodo.value = todo;
     showPreviewDialog.value = true;
+    selectedIdTodoPreview.value = todo.id;
 };
 
 // Delete todo with confirmation
@@ -883,5 +885,11 @@ watch(
 // Initialize
 onMounted(async () => {
     await Promise.all([getCategories(), getStatistics(), loadTodos()]);
+
+    //jika route.params.preview_todo ada, maka set selectedTodo.value = route.params.preview_todo
+    if (route.query.preview_todo) {
+        selectedIdTodoPreview.value = Number(route.query.preview_todo);
+        showPreviewDialog.value = true;
+    }
 });
 </script>
