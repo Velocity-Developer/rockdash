@@ -36,6 +36,7 @@ interface Todo {
 }
 
 const props = defineProps<{
+    todoId: number;
     todo: Todo;
 }>();
 
@@ -52,6 +53,33 @@ const toast = useToast()
 // Loading and error states
 const isUpdatingStatus = ref(false);
 const statusUpdateError = ref<string | null>(null);
+
+// Todo data
+const todo = ref<Todo | null>(null);
+const isLoading = ref(true);
+const fetchError = ref<string | null>(null);
+
+// Fetch todo details
+const fetchTodoDetails = async () => {
+    try {
+        isLoading.value = true;
+        fetchError.value = null;
+
+        const response = await client(`api/todos/${props.todoId}`) as any;
+        todo.value = response;
+    } catch (error) {
+        console.error('Failed to fetch todo details:', error);
+        fetchError.value = 'Gagal memuat detail todo. Silakan coba lagi.';
+        todo.value = null;
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+// Fetch todo when component mounts
+onMounted(() => {
+    fetchTodoDetails();
+});
 
 const useDayjs = () => {
     const dayjs = (date: string) => {
@@ -173,33 +201,42 @@ const handleStatusChange = async (newStatus: string) => {
 
     isUpdatingStatus.value = true;
     statusUpdateError.value = null;
-    const oldStatus = props.todo.status;
-    const updatedTodo = props.todo;
+    const oldStatus = todo.value?.status;
 
     try {
         // Update todo via API - convert status to match API expected type
         const apiStatus = newStatus as 'pending' | 'in_progress' | 'completed' | 'cancelled';
 
+        if (!todo.value) {
+            throw new Error('Todo data not available');
+        }
+
+        let response: any;
         try {
             // Update todo assignments status
-            const res = await client(`api/todos/update-status/${props.todo.id}`, {
+            response = await client(`api/todos/update-status/${todo.value.id}`, {
                 method: 'PUT',
                 params: {
                     status: apiStatus
                 }
             }) as any
-            updatedTodo.status = res.data.status;
 
         } catch (error) {
             console.error('Failed to update assignments status:', error);
             throw error; // Re-throw to be caught in outer try-catch
         }
 
+        // Update local todo data with response
+        if (todo.value) {
+            todo.value.status = response.data.status;
+            todo.value.updated_at = response.data.updated_at;
+        }
+
         // Create a simple todo object for emission with minimal conversion
         const todoForEmit: Todo = {
-            ...props.todo,
-            status: updatedTodo.status,
-            updated_at: updatedTodo.updated_at
+            ...todo.value!,
+            status: response.data.status,
+            updated_at: response.data.updated_at
         };
 
         // Emit the updated todo to parent
@@ -239,13 +276,35 @@ const handleStatusChange = async (newStatus: string) => {
 
 <template>
     <div class="space-y-6">
-        <div>
-            <div class="opacity-75 mb-1">Judul</div>            
-            <h1
-                class="text-md md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight"
-            >
-                {{ todo.title }}
-            </h1>
+        <!-- Loading State -->
+        <div v-if="isLoading" class="flex justify-center items-center py-12">
+            <div class="text-center">
+                <Icon name="lucide:loader-2" class="w-8 h-8 animate-spin text-teal-600 mx-auto mb-3" />
+                <p class="text-gray-500 text-sm">Memuat detail todo...</p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="fetchError" class="flex justify-center items-center py-12">
+            <div class="text-center">
+                <Icon name="lucide:alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3" />
+                <p class="text-red-600 text-sm font-medium mb-2">{{ fetchError }}</p>
+                <Button @click="fetchTodoDetails" severity="secondary" size="small">
+                    <Icon name="lucide:refresh-cw" class="mr-2 w-4 h-4" />
+                    Coba Lagi
+                </Button>
+            </div>
+        </div>
+
+        <!-- Todo Content -->
+        <div v-else-if="todo">
+            <div>
+                <div class="opacity-75 mb-1">Judul</div>
+                <h1
+                    class="text-md md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight"
+                >
+                    {{ todo.title }}
+                </h1>
             <div class="flex justify-end gap-2 sm:gap-3 mt-1">
                 <!-- Category -->
                 <Badge v-if="todo.category" size="small" class="font-normal">
@@ -487,6 +546,7 @@ const handleStatusChange = async (newStatus: string) => {
                     </p>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 

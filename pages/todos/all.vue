@@ -434,6 +434,7 @@
             <TodoPreview
                 v-if="selectedTodo"
                 :todo="selectedTodo"
+                :todoId="selectedTodo.id"
                 @close="showPreviewDialog = false"
             />
         </Dialog>

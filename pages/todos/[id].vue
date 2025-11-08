@@ -596,7 +596,7 @@ const getTodo = async () => {
 
     try {
         const response = (await client(`/api/todos/${route.params.id}`)) as any;
-        todo.value = response.data;
+        todo.value = response;
     } catch (err: any) {
         console.error("Error fetching todo:", err);
         error.value = err.response?.data?.message || "Gagal memuat todo";
