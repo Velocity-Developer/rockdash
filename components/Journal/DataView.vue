@@ -21,7 +21,9 @@
                     <div class="font-bold hover:underline cursor-pointer text-sm md:text-base" @click="openPreviewDialog(item)">
                       {{ item.title }}
                     </div>
-                    <div class="text-xs md:text-sm text-gray-600 line-clamp-2">{{ item.description }}</div>
+                    <div class="text-xs md:text-sm text-gray-600 line-clamp-2">
+                      {{ purifyHtml(item.description,80) }}
+                    </div>
 
                     <div class="flex flex-col md:flex-row md:items-center gap-2 text-xs md:text-sm">
                         <div class="flex items-center gap-2">

@@ -189,8 +189,12 @@ const defaultUser = () => {
 }
 
 const filters = reactive({
-  date_start: route.query.date_start || dayjs().startOf('month').format('YYYY-MM-DD'),  
-  date_end: route.query.date_end || dayjs().format('YYYY-MM-DD'),
+  date_start: route.query.date_start
+  ? dayjs(route.query.date_start as string, 'DD-MM-YYYY').format('YYYY-MM-DD')
+  : dayjs().startOf('month').format('YYYY-MM-DD'),
+date_end: route.query.date_end
+  ? dayjs(route.query.date_end as string, 'DD-MM-YYYY').format('YYYY-MM-DD')
+  : dayjs().format('YYYY-MM-DD'),
   role: route.query.role || '',
   user_id: route.query.user_id || defaultUser(),
   page: route.query.page ? Number(route.query.page) : 1,
