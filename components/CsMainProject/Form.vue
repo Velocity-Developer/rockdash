@@ -337,7 +337,7 @@ const loadingSearchWebhost = ref(false);
 watch(() => form.nama_web, async (val) => {
   //bersihkan dari http:// atau https://
   if (val) {
-    form.nama_web = val.replace(/^https?:\/\//, '');
+    form.nama_web = val.replace(/^https?:\/\//, '').replace(/\/+$/, '');
   }
 
   //cari webhost berdasarkan nama dan karakter lebih dari 3
