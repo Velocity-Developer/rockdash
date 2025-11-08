@@ -53,8 +53,10 @@
     <div class="flex items-center gap-3 my-1 mr-1">
       <Card v-for="item in data?.categoryStats" :key="item.category_id" class="min-w-[220px]">
         <template #content>
-          <div class="flex items-start gap-2">
-            <div class="w-8 h-8 text-2xl flex items-center justify-center whitespace-nowrap bg-indigo-100 dark:bg-indigo-700 rounded-full mr-3">
+          <div class="group flex items-start gap-2">
+            <div
+              class="group-hover:text-4xl group-hover:rotate-45 transition-all noto-emoji w-8 h-8 text-2xl flex items-center justify-center whitespace-nowrap bg-indigo-100 dark:bg-indigo-700 rounded-full mr-3"
+              >
               {{ item.icon }}
             </div>
             <div>
