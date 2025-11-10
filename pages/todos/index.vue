@@ -369,7 +369,7 @@
                                 </div>
                             </template>
                         </Column>
-                        <Column field="assign" header="Assignment">
+                        <Column field="assign" header="Assign">
                             <template #body="slotProps">
                                 <AvatarGroup>
                                     <Avatar
@@ -385,7 +385,7 @@
                                 </AvatarGroup>
                             </template>
                         </Column>
-                        <Column field="created_at" header="Dibuat" class="whitespace-nowrap">
+                        <Column field="created_at" header="Tgl" class="whitespace-nowrap">
                             <template #body="slotProps">
                                 <div
                                     v-if="slotProps.data.created_at"
@@ -415,23 +415,31 @@
                                 </div>
                             </template>
                         </Column> -->
-                        <Column field="act" header="" v-if="activeTab !== 'my'">
+                        <Column field="act" header="">
                             <template #body="slotProps">
-                                <div class="flex items-center justify-end">
+                                <div class="flex items-center justify-end gap-1">
                                     <Button
                                         size="small"
+                                        severity="info"
+                                        class="!px-1"
+                                        @click="viewTodo(slotProps.data)"
+                                        >
+                                        <Icon name="lucide:eye" />
+                                    </Button>
+                                    <Button
+                                        v-if="activeTab !== 'my'"
+                                        size="small"
                                         severity="primary"
-                                        variant="text"
-                                        class="px-1"
+                                        class="!px-1"
                                         @click="editTodo(slotProps.data)"
                                     >
                                         <Icon name="lucide:pen" />
                                     </Button>
                                     <Button
+                                        v-if="activeTab !== 'my'"
                                         size="small"
                                         severity="danger"
-                                        variant="text"
-                                        class="px-1"
+                                        class="!px-1"
                                         @click="confirmDelete(slotProps.data)"
                                     >
                                         <Icon name="lucide:trash" />
