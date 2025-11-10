@@ -9,6 +9,10 @@ RewriteRule ^ - [L]
 RewriteCond %{REQUEST_URI} ^/_nuxt/ [NC]
 RewriteRule ^ - [L]
 
+# Jangan arahkan file deployer.php ke index
+RewriteCond %{REQUEST_URI} ^/deployer.php [NC]
+RewriteRule ^ - [L]
+
 # Jangan arahkan file statis umum
 RewriteCond %{REQUEST_URI} \.(js|css|jpg|jpeg|png|gif|ico|svg|eot|ttf|woff|woff2|webp|pdf|zip|json|xml)$ [NC]
 RewriteRule ^ - [L]
