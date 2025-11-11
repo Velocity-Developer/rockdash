@@ -137,7 +137,7 @@ const form = reactive({
 onMounted( async () => {
   if(action == 'edit'){
     try {
-      const res = await client('/api/posts/'+id)
+      const res = await client('/api/posts/'+id) as any
       Object.assign(form, res)
 
       if(res.featured_image){
@@ -193,7 +193,7 @@ const { data: OptionCategory, refresh: refreshOptionCategory } = await useAsyncD
             count: 200
         }
     })
-)
+) as any
 
 const handleSubmit = async () => {
     isLoading.value = true
@@ -217,7 +217,7 @@ const handleSubmit = async () => {
         const response = await client('/api/posts', {
           method: 'POST',
           body: formData
-        })
+        }) as any
         toast.add({
           severity: 'success',
           summary: 'Berhasil!',
@@ -245,7 +245,7 @@ const handleSubmit = async () => {
         const response = await client('/api/posts/'+id, {
           method: 'PUT',
           body: formData
-        })
+        }) as any
         toast.add({
           severity: 'success',
           summary: 'Berhasil!',
