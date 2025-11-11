@@ -101,6 +101,10 @@
   <Dialog v-model:visible="dialogUserSetting" header="Pengaturan Profil" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
     <DashUserForm :idUser="useConfig.config.user.id" :action="'edit'" @update="UserUpdate"/>
   </Dialog>
+  
+  <Dialog v-model:visible="dialogNotifSetting" header="Pengaturan Notifikasi" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
+    <DashUserNotifSettings/>
+  </Dialog>
 
 </template>
 
@@ -141,6 +145,10 @@ const itemsAVatar = ref([
                 command: () => dialogUserSetting.value = true 
             },
             {
+                label: 'Notifikasi',
+                command: () => dialogNotifSetting.value = true 
+            },
+            {
                 label: 'Logout',
                 command: () => logout()
             }
@@ -154,6 +162,7 @@ const toggleAvatar = (event: any) => {
 const visibleSearch = ref(false);
 const dialogAvatarMenu = ref(false);
 const dialogUserSetting = ref(false);
+const dialogNotifSetting = ref(false);
 
 //
 const client = useSanctumClient();
