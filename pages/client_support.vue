@@ -36,16 +36,60 @@
 
   <Card v-if="dataClientSupport && dataClientSupport.length > 0">
     <template #content>
-      <DataTable :value="dataClientSupport" size="small" class="text-xs">
-        <Column field="tanggal" header="Tanggal" />        
-        <Column field="revisi_1" header="Revisi 1">
+      <DataTable :value="dataClientSupport" size="small" class="text-xs" scrollable scrollHeight="80vh">
+        <Column field="tanggal" header="Tanggal" class="whitespace-nowrap align-top"> 
           <template #body="slotProps">
-            {{ slotProps.data?.revisi_1 }}
+            {{ dayjs(slotProps.data?.tanggal).format('DD/MM/YYYY') }}
+          </template>
+        </Column>      
+        <Column field="revisi_1" header="Revisi 1" class="align-top">
+          <template #body="slotProps">
+            <ul v-if="slotProps.data?.revisi_1" class="list-decimal pl-4">
+              <li v-for="(item, index) in slotProps.data?.revisi_1" :key="index" class="cursor-pointer hover:underline">
+                <span>{{ item.nama_web }}</span> <span class="text-primary ml-1">({{ item.jenis }})</span>
+              </li>
+            </ul>
           </template>
         </Column>   
-        <Column field="perbaikan_revisi_1" header="Perbaikan Revisi 1">
+        <Column field="perbaikan_revisi_1" header="Per. Revisi 1" class="align-top">
           <template #body="slotProps">
-            {{ slotProps.data?.perbaikan_revisi_1 }}
+            <ul v-if="slotProps.data?.perbaikan_revisi_1" class="list-decimal pl-4">
+              <li v-for="(item, index) in slotProps.data?.revisi_1" :key="index" class="cursor-pointer hover:underline">
+                <span>{{ item.nama_web }}</span> <span class="text-primary ml-1">({{ item.jenis }})</span>
+              </li>
+            </ul>
+          </template>
+        </Column>  
+        <Column field="revisi_2" header="Revisi 2" class="align-top">
+          <template #body="slotProps">
+            <ul v-if="slotProps.data?.revisi_2" class="list-decimal pl-4">
+              <li v-for="(item, index) in slotProps.data?.revisi_2" :key="index" class="cursor-pointer hover:underline">
+                <span>{{ item.nama_web }}</span> <span class="text-primary ml-1">({{ item.jenis }})</span>
+              </li>
+            </ul>
+          </template>
+        </Column>  
+        <Column field="perbaikan_revisi_2" header="Per. Revisi 2" class="align-top">
+          <template #body="slotProps">
+            <ul v-if="slotProps.data?.perbaikan_revisi_2" class="list-decimal pl-4">
+              <li v-for="(item, index) in slotProps.data?.perbaikan_revisi_2" :key="index" class="cursor-pointer hover:underline">
+                <span>{{ item.nama_web }}</span> <span class="text-primary ml-1">({{ item.jenis }})</span>
+              </li>
+            </ul>
+          </template>
+        </Column>   
+        <Column field="tanya_jawab" header="Tanya Jawab" class="align-top">
+          <template #body="slotProps">
+            <span v-if="slotProps.data?.tanya_jawab" v-for="(item, index) in slotProps.data?.tanya_jawab" class="cursor-pointer hover:underline">
+              {{ item.nama_web }};
+            </span>
+          </template>
+        </Column> 
+        <Column field="update_web" header="Update Web" class="align-top">
+          <template #body="slotProps">
+            <span v-if="slotProps.data?.update_web" v-for="(item, index) in slotProps.data?.update_web" class="cursor-pointer hover:underline">
+              {{ item.nama_web }};
+            </span>
           </template>
         </Column>
       </DataTable>
