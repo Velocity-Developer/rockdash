@@ -121,6 +121,7 @@
               { value: 'revisi_1', label: 'Revisi 1' },
               { value: 'revisi_2', label: 'Revisi 2' },
             ]"
+            showClear
           />
         </div>
         <div>
