@@ -44,7 +44,9 @@
       >
         <Column field="tanggal" header="Tanggal" class="whitespace-nowrap align-top"> 
           <template #body="slotProps">
-            {{ dayjs(slotProps.data?.tanggal).format('DD/MM/YYYY') }}
+            <span @click="openActionDialog('preview',slotProps.data)" class="cursor-pointer hover:underline">
+              {{ dayjs(slotProps.data?.tanggal).format('DD/MM/YYYY') }}
+            </span>
           </template>
         </Column>      
         <Column field="revisi_1" header="Revisi 1" class="align-top">
@@ -85,18 +87,30 @@
         </Column>   
         <Column field="tanya_jawab" header="Tanya Jawab" class="align-top">
           <template #body="slotProps">
-            <span v-if="slotProps.data?.tanya_jawab" v-for="(item, index) in slotProps.data?.tanya_jawab" class="cursor-pointer hover:underline">
+            <span v-if="slotProps.data?.tanya_jawab" v-for="(item, index) in slotProps.data?.tanya_jawab" class="cursor-pointer hover:underline decoration-pink-500">
               {{ item.nama_web }};
             </span>
           </template>
         </Column> 
         <Column field="update_web" header="Update Web" class="align-top">
           <template #body="slotProps">
-            <span v-if="slotProps.data?.update_web" v-for="(item, index) in slotProps.data?.update_web" class="cursor-pointer hover:underline">
+            <span v-if="slotProps.data?.update_web" v-for="(item, index) in slotProps.data?.update_web" class="cursor-pointer hover:underline decoration-indigo-500">
               {{ item.nama_web }};
             </span>
           </template>
-        </Column>
+        </Column>  
+        <Column field="act" header="Aksi" class="align-top">
+          <template #body="slotProps">            
+            <div class="flex items-center justify-center gap-1">
+              <Button @click="openActionDialog('preview',slotProps.data)" size="small" severity="primary">
+                <Icon name="lucide:eye" />
+              </Button>
+              <Button @click="openActionDialog('edit',slotProps.data)" size="small" severity="info">
+                <Icon name="lucide:edit" />
+              </Button>
+            </div>
+          </template>
+        </Column> 
       </DataTable>
     </template>
   </Card>
@@ -141,6 +155,10 @@
         </Button>
     </form>
   </Drawer>
+  
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='preview'?'Preview':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <ClientSupportPreview v-if="actionDialog=='preview'" :data="selectedData" />
+  </Dialog>
 
   <DashLoader :loading="loading" />
 
@@ -218,4 +236,14 @@ const filterSubmit = async () => {
     getData()
     visibleDrawerFilter.value = false;
 }
+
+const selectedData = ref<any>({})
+const actionDialog = ref('preview')
+const visibleDialog = ref(false);
+const openActionDialog = (action: string,data: any) => {
+  selectedData.value = data
+  actionDialog.value = action
+  visibleDialog.value = true
+}
+
 </script>
