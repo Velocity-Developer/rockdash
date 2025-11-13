@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    Component: ClientSupport/Edit
+    Coming SOON
   </div>
 </template>
 

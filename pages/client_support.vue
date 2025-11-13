@@ -21,9 +21,9 @@
     </form>
 
     <div class="flex justify-end items-center gap-2">
-      <!-- <Button @click="openDialog('add',{})" size="small" class="shadow-md">
+      <Button @click="openActionDialog('add',{})" size="small" class="shadow-md">
         <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
-      </Button> -->
+      </Button>
       <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
         <Icon name="lucide:filter" /> Filter
         <span
@@ -116,7 +116,8 @@
   </Card>
 
   <div v-if="!dataClientSupport || dataClientSupport.length === 0">
-    <div class="text-center text-sm text-slate-500">
+    <div class="flex justify-center items-center py-5 gap-2 opacity-50 border rounded-md">
+      <Icon name="lucide:inbox" size="45" />
       Tidak ada data
     </div>
   </div>
@@ -156,8 +157,14 @@
     </form>
   </Drawer>
   
-  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='preview'?'Preview':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog 
+    v-model:visible="visibleDialog" modal 
+    :header="actionDialog=='add'?'Tambah':actionDialog=='edit'?'Edit':'Preview'" 
+    :style="actionDialog=='add'?'width: 50rem':{ width: '50rem' }" 
+    :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+  >
     <ClientSupportPreview v-if="actionDialog=='preview'" :data="selectedData" />
+    <ClientSupportAdd v-if="actionDialog=='add'" @submit="visibleDialog = false;getData()"/>
   </Dialog>
 
   <DashLoader :loading="loading" />
