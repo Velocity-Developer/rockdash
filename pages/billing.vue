@@ -21,6 +21,9 @@
     </form>
 
     <div class="flex justify-end items-center gap-2">
+      <Button @click="exportToExcel()" size="small" severity="success">
+        <Icon name="lucide:file-spreadsheet" /> Excel
+      </Button>
       <Button @click="openDialog('add',{})" size="small" class="shadow-md">
         <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
       </Button>
@@ -269,6 +272,7 @@ definePageMeta({
     description: 'Daftar Project',
 })
 import { useDayjs } from '#dayjs'
+import * as XLSX from 'xlsx'
 const dayjs = useDayjs()
 const route = useRoute();
 const client = useSanctumClient();
@@ -428,6 +432,47 @@ watch(selectedRows, (newValue, oldValue) => {
     selectedRowsNamaWeb.value = newValue.map((item: any) => item.webhost.nama_web).join(', ');
   }
 })
+
+//function export to excel
+function exportToExcel() {
+  if (!data.value?.data || data.value.data.length === 0) {
+    alert('Tidak ada data untuk diekspor');
+    return;
+  }
+
+  // Prepare data for Excel
+  const exportData = data.value.data.map((item: any, index: number) => ({
+    'No': index + data.value.from,
+    'Nama Web': item.webhost?.nama_web || '',
+    'Jenis': item.jenis || '',
+    'Paket': item.webhost?.paket?.paket || '',
+    'Deskripsi': item.deskripsi || '',
+    'Trf': item.trf || 0,
+    'Tanggal Masuk': formatTanggal(item.tgl_masuk),
+    'Deadline Tgl': formatTanggal(item.tgl_deadline),
+    'Total Biaya': item.biaya || 0,
+    'Dibayar': item.dibayar || 0,
+    'Kurang': item.lunas || 0,
+    'Saldo': item.saldo || 0,
+    'HP': split_comma(item.webhost?.hp || ''),
+    'Telegram': item.webhost?.telegram || '',
+    'HP Ads': item.webhost?.hpads || '',
+    'WA': split_comma(item.webhost?.wa || ''),
+    'Email': split_comma(item.webhost?.email || ''),
+    'Dikerjakan Oleh': item.karyawans?.map((k: any) => `${k.nama} (${k.pivot.porsi}%)`).join(', ') || ''
+  }));
+
+  // Create workbook and worksheet
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Billing Data');
+
+  // Generate file name with current date
+  const fileName = `Billing_${dayjs().format('YYYY-MM-DD')}.xlsx`;
+
+  // Save the file
+  XLSX.writeFile(wb, fileName);
+}
 
 //copy selectedRowsNamaWeb ke clipboard
 function copyToClipboard() {
