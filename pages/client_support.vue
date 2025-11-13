@@ -23,20 +23,25 @@
     <div class="flex justify-end items-center gap-2">
       <!-- <Button @click="openDialog('add',{})" size="small" class="shadow-md">
         <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
-      </Button>
-      <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
-        <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
-        <span
-        class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
-        v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
-        ></span>
       </Button> -->
+      <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
+        <Icon name="lucide:filter" /> Filter
+        <span
+        class="w-2 h-2 bg-red-300 rounded-full inline-block absolute top-0 right-0 m-1"
+        v-if="filters.nama_web || filters.jenis"
+        ></span>
+      </Button>
     </div>
   </div>
 
   <Card v-if="dataClientSupport && dataClientSupport.length > 0">
     <template #content>
-      <DataTable :value="dataClientSupport" size="small" class="text-xs" scrollable scrollHeight="80vh">
+      <DataTable 
+        :value="dataClientSupport" 
+        size="small" class="text-xs" 
+        scrollable scrollHeight="80vh"
+        paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50]"
+      >
         <Column field="tanggal" header="Tanggal" class="whitespace-nowrap align-top"> 
           <template #body="slotProps">
             {{ dayjs(slotProps.data?.tanggal).format('DD/MM/YYYY') }}
@@ -102,6 +107,40 @@
     </div>
   </div>
 
+  <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
+    <form @submit.prevent="filterSubmit" class="space-y-3">
+        <div>
+          <div class="text-sm opacity-75">Jenis</div>
+          <Select 
+            v-model="filters.jenis" 
+            placeholder="Pilih jenis" 
+            class="w-full"
+            optionLabel="label"
+            optionValue="value"
+            :options="[
+              { value: 'revisi_1', label: 'Revisi 1' },
+              { value: 'revisi_2', label: 'Revisi 2' },
+            ]"
+          />
+        </div>
+        <div>
+          <div class="text-sm opacity-75">Nama Web</div>
+          <InputText v-model="filters.nama_web" placeholder="Nama Web" class="w-full"/>
+        </div>
+        <div>
+          <div class="text-sm opacity-75">Dari tanggal</div>
+          <DatePicker v-model="filters.tgl_start" dateFormat="dd/mm/yy" placeholder="dari" class="w-full"/>
+        </div>
+        <div>
+          <div class="text-sm opacity-75">Sampai tanggal</div>
+          <DatePicker v-model="filters.tgl_end" dateFormat="dd/mm/yy" placeholder="sampai" class="w-full"/>
+        </div>
+        <Button type="submit" class="w-full shadow">
+          <Icon name="lucide:filter" /> Filter
+        </Button>
+    </form>
+  </Drawer>
+
   <DashLoader :loading="loading" />
 
 </template>
@@ -128,8 +167,8 @@ const filters = reactive({
   tgl_end: tglEndQuery
     ? dayjs(tglEndQuery, 'YYYY-MM-DD').toDate()
     : null,
-  nama_web: '',
-  jenis: '',
+  nama_web: route.query.nama_web || '',
+  jenis: route.query.jenis || '',
 } as any);
 
 // Fungsi untuk mengubah params filters menjadi query URL route
@@ -172,4 +211,10 @@ const getData = async () => {
 onMounted(() => {
     getData()
 })
+
+const visibleDrawerFilter = ref(false);
+const filterSubmit = async () => {
+    getData()
+    visibleDrawerFilter.value = false;
+}
 </script>
