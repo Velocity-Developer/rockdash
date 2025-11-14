@@ -4,9 +4,15 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const client = useSanctumClient()
 const toast = useToast()
+const props = defineProps({
+  tanggal: {
+    type: String,
+    default: () => '',
+  },
+})
 
 const form = reactive({
-  tanggal: dayjs().local().format('DD-MM-YYYY'),
+  tanggal: props.tanggal? dayjs(props.tanggal).toDate() : dayjs().local().format('DD-MM-YYYY'),
   jenis: '',
   nama_web: '',
   id_webhost: '',
@@ -58,6 +64,7 @@ watch(() => form.jenis, (jenis) => {
 </script>
 
 <template>
+  
   <form @submit.prevent="submit" class="space-y-4">
     <div>
       <label for="form.tanggal">Tanggal</label>

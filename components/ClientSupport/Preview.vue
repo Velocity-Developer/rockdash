@@ -5,6 +5,7 @@ const props = defineProps({
     default: () => {},
   },
 })
+const emit = defineEmits(['edit'])
 </script>
 
 <template>
@@ -88,7 +89,9 @@ const props = defineProps({
         </tbody>
       </table>
     </div>
-    
+    <div class="text-end">
+      <Button @click="emit('edit',props.data)">Edit</Button>
+    </div>
 
   </div>
 </template>

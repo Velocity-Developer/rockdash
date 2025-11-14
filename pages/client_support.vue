@@ -160,11 +160,16 @@
   <Dialog 
     v-model:visible="visibleDialog" modal 
     :header="actionDialog=='add'?'Tambah':actionDialog=='edit'?'Edit':'Preview'" 
-    :style="actionDialog=='add'?'width: 50rem':{ width: '50rem' }" 
+    :style="actionDialog=='add'?'width: 30rem':{ width: '50rem' }" 
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
   >
-    <ClientSupportPreview v-if="actionDialog=='preview'" :data="selectedData" />
-    <ClientSupportAdd v-if="actionDialog=='add'" @submit="visibleDialog = false;getData()"/>
+    <ClientSupportPreview 
+      v-if="actionDialog=='preview'" 
+      :data="selectedData"
+      @edit="openActionDialog('edit',selectedData)"
+    />
+    <ClientSupportAdd v-if="actionDialog=='add'" :tanggal="filters.tgl_start" @submit="visibleDialog = false;getData()"/>
+    <ClientSupportEdit v-if="actionDialog=='edit'" :tanggal="selectedData.tanggal" @update="getData()"/>
   </Dialog>
 
   <DashLoader :loading="loading" />
