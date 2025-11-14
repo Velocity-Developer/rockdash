@@ -138,15 +138,99 @@ foreach ($commonFiles as $file) {
 
 echo "\n";
 
-// Handle cleanup if requested via POST
-if ($_POST['cleanup'] == '1') {
-    if (unlink($zipFile)) {
-        echo "✅ build.zip has been deleted successfully!\n";
+// Extract backend ZIP file
+echo "=== Backend Extraction ===\n\n";
+
+$backendDir = __DIR__ . '/../../laravel';
+$backendZipFile = $currentDir . '/build.zip';
+
+echo "👁 Backend Directory: {$backendDir}\n";
+echo "👁 Looking for build.zip in: {$backendZipFile}\n\n";
+
+// Check if backend zip file exists
+if (file_exists($backendZipFile)) {
+    echo "📂 Found build.zip, extracting backend files...\n";
+
+    // Check if backend directory exists, create if not
+    if (!is_dir($backendDir)) {
+        if (mkdir($backendDir, 0755, true)) {
+            echo "📁 Created backend directory: {$backendDir}\n";
+        } else {
+            echo "❌ ERROR: Failed to create backend directory: {$backendDir}\n";
+        }
+    }
+
+    // Open backend zip file
+    $backendZip = new ZipArchive();
+    $backendOpenResult = $backendZip->open($backendZipFile);
+
+    if ($backendOpenResult === true) {
+        $backendNumFiles = $backendZip->numFiles;
+        echo "📂 Backend files in archive: {$backendNumFiles}\n";
+
+        // Extract backend files
+        echo "📂 Extracting backend files to: {$backendDir}\n";
+        echo "------------------------\n";
+
+        $backendExtractResult = $backendZip->extractTo($backendDir);
+
+        if ($backendExtractResult === true) {
+            echo "✅ Successfully extracted all backend files!\n\n";
+
+            // Show extracted backend files (limit to first 20)
+            echo "📂 Extracted Backend Files (first 20):\n";
+            echo "-----------------------------------\n";
+
+            for ($i = 0; $i < min($backendNumFiles, 20); $i++) {
+                $fileInfo = $backendZip->statIndex($i);
+                echo $fileInfo['name'] . "\n";
+            }
+
+            if ($backendNumFiles > 20) {
+                echo "... and " . ($backendNumFiles - 20) . " more files\n";
+            }
+
+            echo "\n";
+
+            // Check for common Laravel files
+            $laravelFiles = ['artisan', 'composer.json', '.env.example', 'app', 'bootstrap', 'config'];
+            echo "👁 Checking Laravel files:\n";
+            echo "-------------------------\n";
+
+            foreach ($laravelFiles as $file) {
+                $filePath = $backendDir . '/' . $file;
+                if (file_exists($filePath)) {
+                    echo "✔ {$file} - Found\n";
+                } else {
+                    echo "❌ {$file} - Not found\n";
+                }
+            }
+        } else {
+            echo "❌ ERROR: Failed to extract backend files!\n";
+        }
+
+        // Close backend zip file
+        $backendZip->close();
     } else {
-        echo "ERROR: Failed to delete build.zip!\n";
+        echo "❌ ERROR: Failed to open build.zip!\n";
+        echo "❌ Error code: {$backendOpenResult}\n";
     }
 } else {
-    echo "Cleanup: build.zip has been extracted. You may want to delete it to save space.\n";
+    echo "ℹ️  build.zip not found - skipping backend extraction\n";
+}
+
+echo "\n";
+
+// Handle cleanup if requested via POST
+if (isset($_POST['cleanup']) && $_POST['cleanup'] == '1') {
+    if (unlink($zipFile)) {
+        echo "✅ build.zip has been deleted successfully!\n";
+    }
+    if (file_exists($backendZipFile) && unlink($backendZipFile)) {
+        echo "✅ build.zip has been deleted successfully!\n";
+    }
+} else {
+    echo "Cleanup: ZIP files have been extracted. You may want to delete them to save space.\n";
 }
 
 // Display completion message
