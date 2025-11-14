@@ -120,8 +120,8 @@ setTimeout(() => {
   fetchNotifikasi()
 }, 2000)
 
-// Ambil ulang setiap 5 menit
-setInterval(fetchNotifikasi, 5 * 60 * 1000)
+// Ambil ulang setiap 1 menit
+setInterval(fetchNotifikasi, 1 * 60 * 1000)
 
 // Function to fetch user IP
 const fetchUserIP = async () => {
