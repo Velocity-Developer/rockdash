@@ -48,7 +48,7 @@
 
       <DataTable 
         :value="dataSearch.data" 
-        size="small" class="text-sm" 
+        size="small" class="text-sm xl:text-xs" 
         v-model:selection="selectedRows" 
         sortField="tgl" :sortOrder="-1" 
         paginator :rows="25" :rowsPerPageOptions="[50, 100, 250, 500]" 
@@ -73,13 +73,18 @@
         <Column field="kategori" header="Kategori" class="align-top">
           <template #body="slotProps">
             
-            <Badge v-if="slotProps.data.tgl_masuk" severity="info">
+            <Badge v-if="slotProps.data.tgl_masuk" severity="info" size="small">
               Masuk
             </Badge>
-            <Badge v-else severity="danger">
+            <Badge v-else severity="danger" size="small">
               Keluar
             </Badge>
 
+          </template>
+        </Column>
+        <Column field="invoices" header="Invoice" class="align-top">
+          <template #body="slotProps">
+            {{ slotProps.data.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-' }}
           </template>
         </Column>
         <Column field="jenis" header="Jenis" class="align-top">

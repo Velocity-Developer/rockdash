@@ -193,6 +193,9 @@
                         <div v-if="item.deskripsi" class="italic">
                             "{{ item.deskripsi }}"
                         </div>
+                        <div v-if="item.invoices" class="mt-2 font-bold text-indigo-500" v-tooltip="'Invoice : '+item.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-'">
+                            "{{ item.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-' }}"
+                        </div>
                     </li>
 
                     <li
