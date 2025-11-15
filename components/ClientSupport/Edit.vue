@@ -10,31 +10,32 @@
   </div>
 
   <div v-if="dataClientSupport && dataClientSupport.count > 0" class="overflow-x-auto text-sm">
-    <table class="w-full table-auto">
-      <thead>
-        <tr>
-          <th class="px-4 py-2 border text-left">Nama Web</th>
-          <th class="px-4 py-2 border text-left">Jenis</th>
-          <th class="px-4 py-2 border text-left">Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="(item_layanan,i) in dataClientSupport.data" :key="i">
-          <tr class="even:bg-zinc-100 odd:bg-white dark:even:bg-zinc-800 dark:odd:bg-zinc-900">
-            <td class="px-4 py-2 border font-bold" colspan="3">{{ labelLayanan(i) }}</td>
-          </tr>
-          <tr v-for="(item,index) in item_layanan" :key="index" class="even:bg-zinc-100 odd:bg-white dark:even:bg-zinc-800 dark:odd:bg-zinc-900">
-            <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-            <td class="px-4 py-2 border">{{ item.jenis }}</td>
-            <td class="px-4 py-2 border text-right">
-              <Button size="small" severity="danger">
+    
+    <div v-for="(item_layanan,i) in dataClientSupport.data" :key="i" class="space-y-4 mb-4">
+      <div>
+        <div class="md:text-md font-bold mb-2">
+          {{ labelLayanan(i) }}
+        </div>
+        <div class="space-y-2">
+          <div 
+            v-for="(item,index) in item_layanan" :key="index" 
+            class="flex justify-between items-center border dark:border-gray-700 px-4 py-2 rounded-md hover:shadow transition-all hover:bg-primary-50 dark:hover:bg-gray-700"
+          >
+            <div>
+              <div>{{ item.nama_web }}</div> 
+              <div class="text-xs text-primary-500" v-if="item.jenis">                
+                {{ item.jenis }}
+              </div>
+            </div>
+            <div>
+              <Button @click="handleDelete(item)" size="small" severity="danger" >
                 <Icon name="lucide:x" />
               </Button>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     
   </div>
 
@@ -58,8 +59,10 @@ const props = defineProps({
     default: () => '',
   },
 })
+const emit = defineEmits(['update'])
 const client = useSanctumClient()
 const toast = useToast()
+const confirm = useConfirm()
 
 const dataClientSupport = ref<any>({})
 const loading = ref(false)
@@ -97,4 +100,56 @@ const labelLayanan = (i: any) => {
 }
 
 const visibleDialog = ref(false)
+
+const handleDelete = (item: any) => {
+    confirm.require({
+        message: 'Anda yakin hapus data support ini?',
+        header: 'Hapus data',
+        accept: async () => {
+            try {
+              loading.value = true
+              await client(`/api/client_support/destroy`,{
+                method: 'DELETE',
+                params: {
+                  id: item.id,
+                  tanggal: props.tanggal,
+                  layanan: item.layanan
+                }
+              })    
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Data berhasil dihapus',
+                life: 3000
+              });
+              getData()
+              emit('update')
+            } catch (error) {
+              console.log(error)
+              toast.add({
+                severity: 'error',
+                summary: 'Gagal menghapus data',
+                life: 3000
+              })
+            } finally {
+              loading.value = false
+            }
+        },
+        rejectProps: {
+            label: 'Batal',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+}
+
+
 </script>
