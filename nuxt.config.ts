@@ -30,7 +30,7 @@ export default defineNuxtConfig({
     }
   },
   build: {
-    analyze: true
+    analyze: false
   },
   ssr: false,  
   sanctum: {
@@ -185,6 +185,20 @@ export default defineNuxtConfig({
       link: [
         { rel: 'manifest', href: '/manifest.webmanifest' }
       ]
+    }
+  },
+  vite: {
+    optimizeDeps: {
+      exclude: ['primevue', '@primeuix/themes']
+    },
+    ssr: {
+      noExternal: ['primevue', '@primeuix/themes']
+    },
+    server: {
+      watch: {
+        usePolling: true,
+        interval: 100
+      }
     }
   }
 })
