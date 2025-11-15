@@ -1,21 +1,34 @@
 <template>
 
+<div class="flex justify-end md:justify-between items-center md:mb-2">
+
+  <div class="hidden md:block">
+    <form @submit.prevent="filterSubmit" class="flex items-center gap-1">
+        <InputText v-model="filters.nama_web" placeholder="Cari Web" size="small" class="w-full shadow" />
+        <Button type="submit" size="small" class="shadow hover:shadow-none py-2">
+          <Icon name="lucide:search" />
+        </Button>
+    </form>
+  </div>
+
   <div class="mb-3 flex justify-end items-center gap-2">
     <div class="hidden md:inline-block">
       <InputText @change="getData" type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
     </div>
     <Button @click="getData()" size="small" class="shadow-md">
       <Icon name="lucide:refresh-cw" :class="{'animate-spin': loading}" />
-      <span class="hidden md:inline-block">Reload</span>
+      Reload
     </Button>
     <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
-      <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
+      <Icon name="lucide:filter" /> Filter
       <span
       class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
       v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
       ></span>
     </Button>
   </div>
+  
+</div>
 
   <Card>
     <template #content>
