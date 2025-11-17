@@ -41,7 +41,7 @@
             shape="circle" 
             class="cursor-pointer !hidden md:!inline"        
             :pt="{
-              image: (options) => ({
+              image: (options: any) => ({
                   class: [
                       '!object-cover',
                   ]
@@ -55,7 +55,7 @@
             shape="circle" 
             class="cursor-pointer md:!hidden"        
             :pt="{
-              image: (options) => ({
+              image: (options: any) => ({
                   class: [
                       '!object-cover',
                   ]

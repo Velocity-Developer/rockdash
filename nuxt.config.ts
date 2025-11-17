@@ -4,28 +4,17 @@ import { definePreset } from '@primeuix/themes';
 const MyPreset = definePreset(Aura, {
   semantic: {
       primary: {
-        50: 'var(--p-primary-50)',
-        100: 'var(--p-primary-100)',
-        200: 'var(--p-primary-200)',
-        300: 'var(--p-primary-300)',
-        400: 'var(--p-primary-400)',
-        500: 'var(--p-primary-500)',
-        600: 'var(--p-primary-600)',
-        700: 'var(--p-primary-700)',
-        800: 'var(--p-primary-800)',
-        900: 'var(--p-primary-900)',
-      },
-      secondary: {
-        50: 'var(--p-secondary-50)',
-        100: 'var(--p-secondary-100)',
-        200: 'var(--p-secondary-200)',
-        300: 'var(--p-secondary-300)',
-        400: 'var(--p-secondary-400)',
-        500: 'var(--p-secondary-500)',
-        600: 'var(--p-secondary-600)',
-        700: 'var(--p-secondary-700)',
-        800: 'var(--p-secondary-800)',
-        900: 'var(--p-secondary-900)',
+          50: '{teal.50}',
+          100: '{teal.100}',
+          200: '{teal.200}',
+          300: '{teal.300}',
+          400: '{teal.400}',
+          500: '{teal.500}',
+          600: '{teal.600}',
+          700: '{teal.700}',
+          800: '{teal.800}',
+          900: '{teal.900}',
+          950: '{teal.950}'
       }
   }
 });
