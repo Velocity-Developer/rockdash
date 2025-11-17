@@ -211,7 +211,7 @@
             :placeholder="item.label" 
           />
 
-          <Select
+          <MultiSelect
             v-else-if="item.key == 'paket'"
             v-model="filters[item.key]"
             class="w-full mb-1" 
@@ -222,7 +222,7 @@
             optionValue="value"
           />
           
-          <Select
+          <MultiSelect
             v-else-if="item.key == 'jenis'"
             v-model="filters[item.key]"
             class="w-full mb-1" 
@@ -349,6 +349,16 @@ const { data: dataOpsiPaket} = await useAsyncData(
 
 const visibleDrawerFilter = ref(false);
 const filterSubmit = async () => {
+
+    //jika filters.paket adalah array, ubah menjadi string
+    if(Array.isArray(filters.paket)) {
+      filters.paket_array = filters.paket.join(',');
+    }
+    //jika filters.jenis adalah array, ubah menjadi string
+    if(Array.isArray(filters.jenis)) {
+      filters.jenis_array = filters.jenis.join(',');
+    }
+
     refresh()
     visibleDrawerFilter.value = false;
     updateRouteParams()
@@ -357,8 +367,8 @@ const fieldsFilter = [
   { key: 'tgl_masuk_start', label: 'Tanggal dari', type: 'date' },
   { key: 'tgl_masuk_end', label: 'Tanggal sampai', type: 'date' },
   { key: 'nama_web', label: 'Nama Web', type: 'text' },
-  { key: 'paket', label: 'Paket', type: 'select' },
-  { key: 'jenis', label: 'Jenis', type: 'select', options: computed(() => dataOpsiJenis?.data?.map((item: any) => ({ label: item, value: item })) || []), },
+  { key: 'paket', label: 'Paket', type: 'multiselect' },
+  { key: 'jenis', label: 'Jenis', type: 'multiselect', options: computed(() => dataOpsiJenis?.data?.map((item: any) => ({ label: item, value: item })) || []), },
   { key: 'deskripsi', label: 'Deskripsi', type: 'text' },
   { key: 'trf', label: 'Trf', type: 'text' },
   { key: 'hp', label: 'HP', type: 'text' },
