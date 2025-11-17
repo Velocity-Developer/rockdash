@@ -2,13 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* FONT GLOBAL */
 html {
-    font-family: 'Plus Jakarta Sans','Plus Jakarta Sans Fallback', sans-serif;
+  font-family: 'Plus Jakarta Sans','Plus Jakarta Sans Fallback', sans-serif;
 }
-:root {
+
+.noto-emoji {
+  font-family: 'Noto Color Emoji', sans-serif;
+}
+
+/* CSS VARIABLE GUNAKAN @layer AGAR JIT BISA BACA THEME() */
+@layer base {
+  :root {
     --primary: theme(colors.teal.500);
     --secondary: theme(colors.orange.400);
-}
-.noto-emoji {
-    font-family: 'Noto Color Emoji', sans-serif;
+    /* Primary */
+    --p-primary-50: theme(colors.teal.50);
+    --p-primary-100: theme(colors.teal.100);
+    --p-primary-200: theme(colors.teal.200);
+    --p-primary-300: theme(colors.teal.300);
+    --p-primary-400: theme(colors.teal.400);
+    --p-primary-500: theme(colors.teal.500);
+    --p-primary-600: theme(colors.teal.600);
+    --p-primary-700: theme(colors.teal.700);
+    --p-primary-800: theme(colors.teal.800);
+    --p-primary-900: theme(colors.teal.900);
+
+    /* Secondary */
+    --p-secondary-50: theme(colors.orange.50);
+    --p-secondary-100: theme(colors.orange.100);
+    --p-secondary-200: theme(colors.orange.200);
+    --p-secondary-300: theme(colors.orange.300);
+    --p-secondary-400: theme(colors.orange.400);
+    --p-secondary-500: theme(colors.orange.500);
+    --p-secondary-600: theme(colors.orange.600);
+    --p-secondary-700: theme(colors.orange.700);
+    --p-secondary-800: theme(colors.orange.800);
+    --p-secondary-900: theme(colors.orange.900);
+  }
+
+  .dark {
+    --primary: theme(colors.teal.400);
+    --secondary: theme(colors.orange.300);
+  }
 }
