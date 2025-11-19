@@ -1,22 +1,64 @@
 <template>
 
-  <div class="flex justify-end items-center mb-2">
+  <div class="flex justify-end items-center gap-1 mb-2">
     <InputNumber v-model="filter.tahun" label="Tahun" size="small" class="max-w-[100px]" showButtons :useGrouping="false" fluid/>
     <Button @click="getData" :loading="loading" size="small">
       <Icon name="lucide:refresh-ccw" :class="{loading:'animate-spin'}"/> Refresh
     </Button>
   </div>
 
-  <Card>
-    <template #content>
-      <Chart v-if="!loading" type="bar" :data="chartData" :options="chartOptions" />
-      <div v-else>
-        <div class="flex items-center justify-center">
-          <ProgressSpinner strokeWidth="4" aria-label="Loading"/>
-        </div>
-      </div>
-    </template>
-  </Card>
+  <div v-if="loading">
+    <div class="flex items-center justify-center">
+      <ProgressSpinner strokeWidth="4" aria-label="Loading"/>
+    </div>
+  </div>
+
+  <div v-else class="space-y-4">
+
+    <Card>
+      <template #content>
+        <Chart v-if="!loading" type="bar" :data="chartData" :options="chartOptions" />      
+      </template>
+    </Card>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <Card v-if="data.hasil" class="md:col-span-2">
+        <template #content>
+          <DataTable :value="data.hasil" class="text-xs" stripedRows>
+            <Column field="bulan" header="Bulan" />
+            <Column field="masuk" header="Masuk">
+            <template #body="slotProps">
+                {{ slotProps.data.masuk?formatMoney(slotProps.data.masuk):0 }}
+            </template>
+            </Column>
+            <Column field="keluar" header="Keluar">
+              <template #body="slotProps">
+                {{ slotProps.data.keluar?formatMoney(slotProps.data.keluar):0 }}
+              </template>
+            </Column>
+          </DataTable>
+        </template>
+      </Card>
+
+      <Card v-if="data.hasil" class="md:col-span-1">
+        <template #content>
+          <ul class="list-disc pl-4 space-y-4">
+            <li>
+              <div class="font-bold">Total Masuk:</div>
+              {{ formatMoney(data.hasil.reduce((acc: any, cur: { masuk: any; }) => acc + (cur.masuk || 0), 0)) }}
+            </li>
+            <li>
+              <div class="font-bold">Total Keluar:</div>
+              {{ formatMoney(data.hasil.reduce((acc: any, cur: { keluar: any; }) => acc + (cur.keluar || 0), 0)) }}
+            </li>
+          </ul>
+        </template>
+      </Card>
+
+    </div>
+
+  </div>
 
 </template>
 
@@ -41,7 +83,7 @@ const chartData = ref({
 }) as any
 const chartOptions = ref();
 
-const data = ref([] as any[]);
+const data = ref({} as any);
 const loading = ref(false);
 const getData = async () => {
   loading.value = false;
