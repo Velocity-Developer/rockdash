@@ -49,3 +49,8 @@ RewriteRule ^(.*)$ /index.html [QSA,L]
 
 # Follow symlinks
 Options +FollowSymLinks -Indexes
+
+# no cache html
+<FilesMatch "\.(html|js)$">
+  Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+</FilesMatch>
