@@ -120,8 +120,44 @@ setTimeout(() => {
   fetchNotifikasi()
 }, 2000)
 
-// Ambil ulang setiap 1 menit
-setInterval(fetchNotifikasi, 1 * 60 * 1000)
+// Ambil ulang setiap 1 menit hanya saat tab aktif
+const pollingInterval = ref()
+
+const startPolling = () => {
+  stopPolling()
+  pollingInterval.value = setInterval(fetchNotifikasi, 1 * 60 * 1000)
+}
+
+const stopPolling = () => {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
+  }
+}
+
+// Deteksi tab visibility
+const handleVisibilityChange = () => {
+  if (document.hidden) {
+    stopPolling()
+  } else {
+    startPolling()
+  }
+}
+
+// Setup event listener untuk tab visibility
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+  // Mulai polling jika tab saat ini aktif
+  if (!document.hidden) {
+    startPolling()
+  }
+})
+
+// Cleanup event listener dan interval saat component unmounted
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  stopPolling()
+})
 
 // Function to fetch user IP
 const fetchUserIP = async () => {
