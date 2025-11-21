@@ -6,89 +6,57 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['edit'])
+
+const labelLayanan = (i: any) => {
+  if(i === 'revisi_1') {
+    return 'Revisi 1'
+  } else if(i === 'perbaikan_revisi_1') {
+    return 'Perbaikan Revisi 1'
+  } else if(i === 'revisi_2') {
+    return 'Revisi 2'
+  } else if(i === 'perbaikan_revisi_2') {
+    return 'Perbaikan Revisi 2'
+  } else if(i === 'tanya_jawab') {
+    return 'Tanya Jawab'
+  } else if(i === 'update_web') {
+    return 'Update Web'
+  } else {
+    return i
+  }
+}
 </script>
 
 <template>
   <div v-if="props.data" class="space-y-4">
+
     <div class="text-sm">
       {{ props.data?.tanggal }}
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="table-auto w-full text-xs">
-        <thead>
-          <tr>
-            <th class="px-4 py-2 border text-left">No</th>
-            <th class="px-4 py-2 border text-left">Nama Web</th>
-            <th class="px-4 py-2 border text-left">Jenis</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <template v-if="props.data?.revisi_1">
-            <tr>
-              <td class="px-4 py-2 border font-bold" colspan="3">Revisi 1</td>
-            </tr>
-            <tr v-for="(item, index) in props.data?.revisi_1" :key="index">
-              <td class="px-4 py-2 border">{{ index + 1 }}</td>
-              <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-              <td class="px-4 py-2 border">{{ item.jenis }}</td>
-            </tr>
-          </template>
-          <template v-if="props.data?.perbaikan_revisi_1">
-            <tr>
-              <td class="px-4 py-2 border font-bold" colspan="3">Perbaikan Revisi 1</td>
-            </tr>
-            <tr v-for="(item, index) in props.data?.perbaikan_revisi_1" :key="index">
-              <td class="px-4 py-2 border">{{ index + 1 }}</td>
-              <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-              <td class="px-4 py-2 border">{{ item.jenis }}</td>
-            </tr>
-          </template>
-          <template v-if="props.data?.revisi_2">
-            <tr>
-              <td class="px-4 py-2 border font-bold" colspan="3">Revisi 2</td>
-            </tr>
-            <tr v-for="(item, index) in props.data?.revisi_2" :key="index">
-              <td class="px-4 py-2 border">{{ index + 1 }}</td>
-              <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-              <td class="px-4 py-2 border">{{ item.jenis }}</td>
-            </tr>
-          </template>
-          <template v-if="props.data?.perbaikan_revisi_2">
-            <tr>
-              <td class="px-4 py-2 border font-bold" colspan="3">Perbaikan Revisi 2</td>
-            </tr>
-            <tr v-for="(item, index) in props.data?.perbaikan_revisi_2" :key="index">
-              <td class="px-4 py-2 border">{{ index + 1 }}</td>
-              <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-              <td class="px-4 py-2 border">{{ item.jenis }}</td>
-            </tr>
-          </template>
-          <template v-if="props.data?.tanya_jawab">
-            <tr>
-              <td class="px-4 py-2 border font-bold" colspan="3">Tanya Jawab</td>
-            </tr>
-            <tr v-for="(item, index) in props.data?.tanya_jawab" :key="index">
-              <td class="px-4 py-2 border">{{ index + 1 }}</td>
-              <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-              <td class="px-4 py-2 border"> </td>
-            </tr>
-          </template>
-          <template v-if="props.data?.update_web">
-            <tr>
-              <td class="px-4 py-2 border font-bold" colspan="3">Update Web</td>
-            </tr>
-            <tr v-for="(item, index) in props.data?.update_web" :key="index">
-              <td class="px-4 py-2 border">{{ index + 1 }}</td>
-              <td class="px-4 py-2 border">{{ item.nama_web }}</td>
-              <td class="px-4 py-2 border"> </td>
-            </tr>
-          </template>
-
-        </tbody>
-      </table>
+    <div v-for="(item_layanan,i) in data" :key="i" class="space-y-4 mb-4">
+      <template v-if="i !== 'tanggal'">
+        <div class="text-sm font-bold">{{ labelLayanan(i) }}</div>
+        <div class="space-y-2">
+          <div v-for="(item,index) in item_layanan" :key="index" class="flex justify-between items-center border dark:border-gray-700 px-4 py-2 rounded-md hover:shadow transition-all hover:bg-primary-50 dark:hover:bg-gray-700">
+            <div>
+              <div>{{ item.nama_web }}</div> 
+              <div class="text-xs text-primary-500" v-if="item.jenis">                
+                {{ item.jenis }}
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <div v-if="item.user?.avatar" class="w-4 h-4 rounded-full">
+                <img :src="item.user?.avatar" alt="avatar" class="w-full h-full rounded-full">
+              </div>
+              <div v-if="item.user?.name">
+                {{ item.user?.name }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
+    
     <div class="text-end">
       <Button @click="emit('edit',props.data)">Edit</Button>
     </div>

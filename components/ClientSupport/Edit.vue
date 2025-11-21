@@ -23,8 +23,18 @@
           >
             <div>
               <div>{{ item.nama_web }}</div> 
-              <div class="text-xs text-primary-500" v-if="item.jenis">                
-                {{ item.jenis }}
+              <div class="flex items-center gap-2 mt-1">                
+                  <div class="text-xs text-primary-500" v-if="item.jenis">                
+                    {{ item.jenis }}
+                  </div>
+                  <div class="flex items-center gap-2 text-xs">
+                    <div v-if="item.user?.avatar" class="w-4 h-4 rounded-full">
+                      <img :src="item.user?.avatar" alt="avatar" class="w-full h-full rounded-full">
+                    </div>
+                    <div v-if="item.user?.name">
+                      {{ item.user?.name }}
+                    </div>
+                  </div>
               </div>
             </div>
             <div>
