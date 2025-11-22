@@ -1,7 +1,23 @@
 <template>
   <div class="md:max-w-4xl mx-auto">
 
-    <div class="flex justify-end mb-2">
+    <div class="flex justify-end md:justify-between md:items-center mb-2">
+      <div>
+        <Select 
+          v-model="filters.type" 
+          size="small"
+          @change="getData()"
+          optionLabel="label"
+          optionValue="value"
+          :options="[
+            { label: 'Semua', value: '' },
+            { label: 'Plugin', value: 'plugin' },
+            { label: 'Theme', value: 'theme' },
+            { label: 'Child Theme', value: 'child_theme' }
+          ]"
+        />
+        <Icon v-if="loading" name="lucide:loader-circle" class="animate-spin" />
+      </div>
       <Button @click="openDialog('add','')" size="small">
         <Icon name="lucide:plus-circle" /> Tambah
       </Button>
@@ -57,8 +73,8 @@
 
   </div>
 
-  <Dialog v-model:visible="visibleDialog" modal header="Preview" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <ModuleProjectForm :action="actionDialog" :data="dataDialog" />
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog === 'add' ? 'Tambah' : 'Update'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">  
+    <ModuleProjectForm :action="actionDialog" :data="dataDialog" @submit="getData" />
   </Dialog>
 
 </template>
@@ -74,7 +90,7 @@ const client = useSanctumClient()
 const filters = reactive({
     per_page: 20,
     page: computed(() => route.query.page || 1),
-    type: computed(() => route.query.type || ''),
+    type: '',
 } as any)
 
 const loading = ref(false)
