@@ -1,22 +1,29 @@
 <template>
         
       <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
-        <form @submit.prevent="refresh();updateRouteParams()" class="flex items-end gap-2">
-          <div>
-            <div class="mb-1 opacity-50">Per Page : </div>            
-            <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
+        <form @submit.prevent="refresh();updateRouteParams()" class="flex flex-col gap-2">
+          <div class="flex items-end gap-2">
+            <div>
+              <div class="mb-1 opacity-50">Per Page : </div>            
+              <InputText type="number" v-model="filters.per_page" placeholder="per Page" size="small" class="w-[70px] shadow rounded" />
+            </div>
+            <div class="hidden md:block">
+                <div class="mb-1 opacity-50">Tanggal</div>
+                <div class="flex items-center justify-end gap-2 mt-1">
+                  <DatePicker v-model="filters.tanggal_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px] shadow rounded"/>
+                  <DatePicker v-model="filters.tanggal_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px] shadow rounded"/>
+                </div>
+            </div>
+            <div>
+              <Button type="submit" size="small" severity="info" class="shadow-md">
+                Go
+              </Button>
+            </div>
           </div>
-          <div class="hidden md:block">
-              <div class="mb-1 opacity-50">Tanggal</div>
-              <div class="flex items-center justify-end gap-2 mt-1">
-                <DatePicker v-model="filters.tanggal_start" dateFormat="dd/mm/yy" placeholder="dari" size="small" class="w-[130px] shadow rounded"/>
-                <DatePicker v-model="filters.tanggal_end" dateFormat="dd/mm/yy" placeholder="sampai" size="small" class="w-[130px] shadow rounded"/>
-              </div>
-          </div>
           <div>
-            <Button type="submit" size="small" severity="info" class="shadow-md">
-              Go
-            </Button>
+            <div>
+              <InputText v-model="filters.search_nama_web" placeholder="Nama Web" size="small" class="shadow rounded" />
+            </div>
           </div>
         </form>
 
@@ -227,6 +234,7 @@ const filters = reactive({
     status: route.query.status || '',
     order_by: 'tanggal',
     order: 'desc',
+    search_nama_web: route.query.search_nama_web || '',
 } as any);
 
 // Status options untuk dropdown
@@ -302,6 +310,7 @@ const fieldsFilter = [
   { key: 'unit', label: 'Unit', type: 'text' },
   { key: 'nama_klien', label: 'Nama Klien', type: 'text' },
   { key: 'status', label: 'Status', type: 'dropdown' },
+  { key: 'search_nama_web', label: 'Nama Web', type: 'text' },
 ]
 
 function split_comma(text: string) {
@@ -315,8 +324,9 @@ function resetFilters() {
   filters.tanggal_end = '';
   filters.nomor = '';
   filters.unit = '';
-  filters.nama = '';
+  filters.nama_klien = '';
   filters.status = '';
+  filters.search_nama_web = '';
   updateRouteParams()
   refresh()
   visibleDrawerFilter.value = false;

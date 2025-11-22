@@ -140,7 +140,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-    title: 'Perpanjang Web BerJangka',
+    title: 'Profit Iklan Kumulatif',
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
