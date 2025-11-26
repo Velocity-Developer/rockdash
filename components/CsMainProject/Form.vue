@@ -400,6 +400,10 @@ watch(() => form.nama_web, async (val) => {
     try {
       const response = await client(`/api/webhost_search/${form.nama_web}`) as any
       search_webhost.value = response;
+      //jika response.length == 1, auto select
+      if (response.length == 1) {
+        form.id_webhost = response[0].id_webhost;
+      }
     } catch (error) {
       console.log(error);
       search_webhost.value = {};
