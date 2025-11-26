@@ -382,27 +382,32 @@ watch(() => filters.value.status_pengerjaan, (newVal, oldVal) => {
 })
 
 function getRowClass(data: any) {
-
   let kelas = '';
 
   // Bandingkan dengan hari ini
   const deadline = dayjs(data.tgl_deadline).startOf('day')
   const today = dayjs().startOf('day')
 
-  //jika status_pengerjaan == 'Belum dikerjakan' dan tgl_deadline < tgl_today
-  if (filters.value.status_pengerjaan == 'Belum dikerjakan' && deadline.isBefore(today)) {
-    kelas += '!bg-amber-50 dark:!bg-gray-900 ';
-  } else if (filters.value.status_pengerjaan == 'Belum dikerjakan' && deadline.isSame(today)) {
-    kelas += '!bg-amber-100 dark:!bg-slate-700 ';
-  }
-
-  if (!data.wm_project) {
-    kelas += 'hover:!bg-emerald-50 dark:hover:!bg-emerald-800 ';
-  } else if (data.wm_project && data.wm_project.status_multi == 'pending') {
-    kelas += 'hover:!bg-amber-50 dark:hover:!bg-amber-800 ';
+  //jika project belum diambil (wm_project null) dan deadline < hari ini
+  if (!data.wm_project && deadline.isBefore(today)) {
+    kelas += '!bg-red-100 dark:!bg-red-700 ';
+  } else if (!data.wm_project && deadline.isSame(today)) {
+    kelas += '!bg-red-100 dark:!bg-red-700 ';
+  } else if (!data.wm_project && deadline.diff(today, 'day') <= 3 && deadline.diff(today, 'day') > 0) {
+    kelas += '!bg-red-100 dark:!bg-red-700 ';
+  } else if (!data.wm_project && deadline.diff(today, 'day') <= 5 && deadline.diff(today, 'day') > 3) {
+    kelas += '!bg-yellow-100 dark:!bg-yellow-700 ';
   } else {
     kelas += '';
   }
+
+  // if (!data.wm_project) {
+  //   kelas += 'hover:!bg-emerald-50 dark:hover:!bg-emerald-800 ';
+  // } else if (data.wm_project && data.wm_project.status_multi == 'pending') {
+  //   kelas += 'hover:!bg-amber-50 dark:hover:!bg-amber-800 ';
+  // } else {
+  //   kelas += '';
+  // }
 
   return kelas;
 }
