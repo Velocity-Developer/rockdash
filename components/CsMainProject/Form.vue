@@ -42,7 +42,7 @@
         v-model="form.kategori_web" 
         :options="dataOpsi.kategori_web"
         optionValue="value" optionLabel="label"
-        filter showClear required
+        filter showClear required editable
         class="w-full" />
       </div>
     </div>
