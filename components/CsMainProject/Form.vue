@@ -1,7 +1,22 @@
 <template>
-  <form @submit.prevent="handleSubmit">
-    <div class="grid grid-cols-4 gap-4">
 
+  <div v-if="loadingData">    
+    <div v-for="i in 10" :key="i" class="mb-2">
+      <Skeleton  width="20%" height="20px" class="mb-1 w-full"></Skeleton> 
+      <Skeleton  width="100%" height="40px" class="w-full"></Skeleton> 
+    </div>
+  </div>
+
+  <form v-if="!loadingData" @submit.prevent="handleSubmit" class="relative p-2">
+    
+      <!-- Informasi Web -->
+    <div class="mb-3">
+      <div class="flex items-center gap-1 font-bold mb-3 text-xl opacity-50 text-emerald-700">
+        <Icon name="lucide:globe" />
+        Website
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-4">
       <div class="col-span-4">
         <label class="mb-1 block" for="nama_web">Nama Web</label>
         <InputText id="nama_web" name="nama_web" v-model="form.nama_web" class="w-full" />
@@ -21,7 +36,26 @@
         </div>
 
       </div>
-
+      <div class="col-span-4">
+        <label class="mb-1 block" for="kategori_web">Kategori</label>
+        <Select name="kategori_web" id="kategori_web" 
+        v-model="form.kategori_web" 
+        :options="dataOpsi.kategori_web"
+        optionValue="value" optionLabel="label"
+        filter showClear required
+        class="w-full" />
+      </div>
+    </div>
+    
+    <!-- Informasi Project -->
+    <div class="mt-6">
+      <div class="flex items-center gap-1 font-bold mb-3 text-xl opacity-50 text-rose-700">
+        <Icon name="lucide:briefcase" />
+        Project
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-4">
+      
       <div class="col-start-1 col-end-3">
         <label class="mb-1 block" for="jenis">Jenis</label>
         <Select name="jenis" id="jenis" 
@@ -38,7 +72,7 @@
           filter showClear
         class="w-full" />
       </div>
-
+      
       <div class="col-span-4 md:col-start-1 md:col-end-3">
         <label class="mb-1 block" for="deskripsi">Deskripsi</label>
         <Textarea id="deskripsi" name="deskripsi" v-model="form.deskripsi" class="w-full"></Textarea>
@@ -56,7 +90,7 @@
         <label class="mb-1 block" for="tgl_deadline">Tanggal Deadline</label>
         <DatePicker id="tgl_deadline" v-model="form.tgl_deadline" dateFormat="yy-mm-dd" class="w-full"/>
       </div>
-
+      
       <div class="col-start-1 col-end-3">
         <label class="mb-1 block" for="biaya">Biaya</label>
         <InputNumber id="biaya" name="biaya" v-model="form.biaya" class="w-full" />
@@ -67,8 +101,7 @@
       </div>
 
       <div class="col-span-4">
-        <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>
-        
+        <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>        
         <MultiSelect name="dikerjakan_oleh" id="dikerjakan_oleh" v-model="form.dikerjakan_oleh" 
           :options="[
             {label:'Support (yuda)',value:28},
@@ -79,15 +112,19 @@
           optionValue="value" optionLabel="label"
           filter showClear
         class="w-full" />
-
       </div>
 
-      <!-- Informasi Klien -->
-      <div class="col-span-4 bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 rounded-md p-4 md:p-6 hover:shadow-md transition-shadow">
-        <div class="flex items-center gap-1 font-bold mb-3">
-          <Icon name="lucide:user" />
-          Informasi Klien
-        </div>
+    </div>
+
+    <!-- Informasi Klien -->
+    <div class="mt-6">
+      <div class="flex items-center gap-1 font-bold mb-3 text-xl opacity-50 text-sky-700">
+        <Icon name="lucide:users" />
+        Informasi Klien
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-4">
+
         <div v-if="selectedCustomer && form.customer_id">
           <div class="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 px-1 py-2 rounded mb-1 !flex !items-center !justify-between">
             <div class="text-xs ps-2 text-amber-700 dark:text-amber-300">
@@ -120,56 +157,56 @@
           v-if="!form.customer_id && form.nama"
           :q="form.nama || form.hp"
           @selectCustomer="selectedSearchCustomer"
+          class="col-span-4"
         />
-
-        <div class="grid grid-cols-4 gap-4">
-          <div class="col-span-4">
-            <label class="mb-1 text-sm block" for="email">Nama Klien</label>
-            <InputText type="text" id="nama" name="nama" v-model="form.nama" class="w-full" required/>
-            <Message v-if="!form.nama && form.email" severity="warn" size="small" class="mt-1">
-              Nama Klien wajib diisi, silahkan isi dari biodata pemilik web
-            </Message>
-          </div> 
-          <div class="col-span-2">
-            <label class="mb-1 text-sm block" for="email">Email</label>
-            <InputText type="text" id="email" name="email" v-model="form.email" class="w-full" />
-          </div>          
-          <div class="col-span-2">
-            <label class="mb-1 text-sm block" for="hp">No. HP</label>
-            <InputText type="text" id="hp" name="hp" v-model="form.hp" class="w-full" />
-          </div>
-          <div class="col-span-2">
-            <label class="mb-1 text-sm block" for="wa">No. WA</label>
-            <InputText type="text" id="wa" name="wa" v-model="form.wa" class="w-full" />
-          </div>
-          <div class="col-span-2">
-            <label class="mb-1 text-sm block" for="telegram">Telegram</label> 
-            <InputText type="text" id="telegram" name="telegram" v-model="form.telegram" class="w-full" />
-          </div>          
-          <div class="col-span-2">
-            <label class="mb-1 text-sm block" for="hpads">HP ads</label>
-            <Select name="hpads" id="hpads" 
-              v-model="form.hpads" 
-              :options="[{label:'Hp Ads',value:'ya'},{label:'Hp Web',value:'tidak'}]" 
-              optionValue="value" optionLabel="label"
-            class="w-full" />
-          </div>
-          <div class="col-span-2 ">
-            <label class="mb-1 text-sm block" for="saldo">Saldo</label>
-            <InputText type="text" id="saldo" name="saldo" v-model="form.saldo" class="w-full" />
-          </div>
-          <div class="col-span-4">
-            <label class="mb-1 text-sm block" for="alamat">Alamat</label>
-            <Textarea id="alamat" name="alamat" v-model="form.alamat" class="w-full"/>
-          </div>
+        
+        <div class="col-span-4">
+          <label class="mb-1 text-sm block" for="email">Nama Klien</label>
+          <InputText type="text" id="nama" name="nama" v-model="form.nama" class="w-full" required/>
+          <Message v-if="!form.nama && form.email" severity="warn" size="small" class="mt-1">
+            Nama Klien wajib diisi, silahkan isi dari biodata pemilik web
+          </Message>
+        </div> 
+        <div class="col-span-2">
+          <label class="mb-1 text-sm block" for="email">Email</label>
+          <InputText type="text" id="email" name="email" v-model="form.email" class="w-full" />
+        </div>          
+        <div class="col-span-2">
+          <label class="mb-1 text-sm block" for="hp">No. HP</label>
+          <InputText type="text" id="hp" name="hp" v-model="form.hp" class="w-full" />
         </div>
-        <Message v-if="!form.customer_id && form.nama" severity="warn" size="small" class="mt-2 mb-1 flex items-center justify-between">
+        <div class="col-span-2">
+          <label class="mb-1 text-sm block" for="wa">No. WA</label>
+          <InputText type="text" id="wa" name="wa" v-model="form.wa" class="w-full" />
+        </div>
+        <div class="col-span-2">
+          <label class="mb-1 text-sm block" for="telegram">Telegram</label> 
+          <InputText type="text" id="telegram" name="telegram" v-model="form.telegram" class="w-full" />
+        </div>          
+        <div class="col-span-2">
+          <label class="mb-1 text-sm block" for="hpads">HP ads</label>
+          <Select name="hpads" id="hpads" 
+            v-model="form.hpads" 
+            :options="[{label:'Hp Ads',value:'ya'},{label:'Hp Web',value:'tidak'}]" 
+            optionValue="value" optionLabel="label"
+          class="w-full" />
+        </div>
+        <div class="col-span-2 ">
+          <label class="mb-1 text-sm block" for="saldo">Saldo</label>
+          <InputText type="text" id="saldo" name="saldo" v-model="form.saldo" class="w-full" />
+        </div>
+        <div class="col-span-4">
+          <label class="mb-1 text-sm block" for="alamat">Alamat</label>
+          <Textarea id="alamat" name="alamat" v-model="form.alamat" class="w-full"/>
+        </div>
+          
+        <Message v-if="!form.customer_id && form.nama" severity="warn" size="small" class="col-span-4 mt-2 mb-1 flex items-center justify-between">
           <Icon name="lucide:info" /> Membuat data klien/Customer baru
         </Message>
-      </div>
 
-      <div class="col-span-4 text-right">
+    </div>
 
+    <div class="mt-6">
         <div>
           <Message v-for="item in errorSubmit" severity="error" text="true" class="mb-2" closable>
             {{ item[0] }}
@@ -181,16 +218,14 @@
             <label for="create_invoice"> Create Invoice </label>
             <ToggleSwitch v-model="form.create_invoice" />
           </div>
-
           <Button type="submit" :loading="loadingSubmit">
             <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
             <Icon v-else name="lucide:save"/>
             Simpan
           </Button>
-        </div>
-        
-      </div>
+        </div>        
     </div>
+
   </form>
 
   <div v-if="action == 'add'">
@@ -209,11 +244,13 @@ const props = defineProps(['action','data']);
 const action = props.action;
 const data = props.data;
 const lastDataComponent = ref(null as any);
+const loadingData = ref(false);
 
 const form = reactive({
   id: '',
   jenis: '',
   nama_web: '',
+  kategori_web: '',
   paket: '',
   deskripsi: '',
   trf: '',
@@ -241,34 +278,51 @@ const selectedCustomer = ref({} as any);
 //get opsi jenis
 const { data: dataOpsi} = await useAsyncData(
     'data_opsi-form-csmainproject',
-    () => client('/api/data_opsis?keys[]=paket&keys[]=jenis_project&keys[]=karyawan')
+    () => client('/api/data_opsis?keys[]=paket&keys[]=jenis_project&keys[]=karyawan&keys[]=kategori_web')
 ) as any
 
 //set data if action is edit
-onMounted(() => {
+onMounted( async () => {
   if (action == 'edit') {
-    form.id = data.id;
-    form.jenis = data.jenis;
-    form.nama_web = data.webhost.nama_web;
-    form.paket = data.webhost.paket?.id_paket;
-    form.deskripsi = data.deskripsi;
-    form.trf = data.trf;
-    form.tgl_masuk = data.tgl_masuk;
-    form.tgl_deadline = data.tgl_deadline;
-    form.biaya = data.biaya;
-    form.dibayar = data.dibayar;
-    form.saldo = data.webhost.saldo;
-    form.hp = data.webhost.hp;
-    form.telegram = data.webhost.telegram;
-    form.hpads = data.webhost.hpads;
-    form.wa = data.webhost.wa;
-    form.email = data.webhost.email;
-    form.dikerjakan_oleh = data.raw_dikerjakan;
-    form.karyawans = data.karyawans;
-    form.invoice_id = data.invoice_id || '';
-    form.customer_id = data.customer_id || '';
-    form.nama = data.webhost.customers[0].nama;
-    form.alamat = data.webhost.customers[0].alamat;
+    
+    try {
+      loadingData.value = true;
+      const res = await client(`/api/cs_main_project/${data.id}`) as any
+      form.id = res.id;
+      form.jenis = res.jenis;
+      form.kategori_web = res.webhost.kategori;
+      form.nama_web = res.webhost.nama_web;
+      form.paket = res.webhost.paket?.id_paket;
+      form.deskripsi = res.deskripsi;
+      form.trf = res.trf;
+      form.tgl_masuk = res.tgl_masuk;
+      form.tgl_deadline = res.tgl_deadline;
+      form.biaya = res.biaya;
+      form.dibayar = res.dibayar;
+      form.saldo = res.webhost.saldo;
+      form.hp = res.webhost.hp;
+      form.telegram = res.webhost.telegram;
+      form.hpads = res.webhost.hpads;
+      form.wa = res.webhost.wa;
+      form.email = res.webhost.email;
+      form.dikerjakan_oleh = res.raw_dikerjakan;
+      form.karyawans = res.karyawans;
+      form.invoice_id = res.invoice_id || '';
+      form.customer_id = res.customer_id || '';
+      form.nama = res.webhost.customers?.[0]?.nama || '';
+      form.alamat = res.webhost.customers?.[0]?.alamat || '';      
+    } catch (error) {
+      console.log(error);
+      toast.add({
+        severity: 'error',
+        summary: 'Gagal!',
+        detail: 'Data project gagal diambil',
+        life: 3000
+      });
+    } finally {
+      loadingData.value = false;
+    } 
+
   }
 })
 
