@@ -241,8 +241,8 @@ const toast = useToast();
 const client = useSanctumClient();
 const emit = defineEmits(['update']);
 const props = defineProps(['action','data']);
-const action = props.action;
-const data = props.data;
+const action = props.action as 'add' | 'edit';
+const data = props.data as any;
 const lastDataComponent = ref(null as any);
 const loadingData = ref(false);
 
