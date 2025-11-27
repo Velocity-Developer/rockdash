@@ -42,7 +42,7 @@
         v-model="form.kategori_web" 
         :options="dataOpsi.kategori_web"
         optionValue="value" optionLabel="label"
-        filter showClear required
+        filter showClear required editable
         class="w-full" />
       </div>
     </div>
@@ -241,8 +241,8 @@ const toast = useToast();
 const client = useSanctumClient();
 const emit = defineEmits(['update']);
 const props = defineProps(['action','data']);
-const action = props.action;
-const data = props.data;
+const action = props.action as 'add' | 'edit';
+const data = props.data as any;
 const lastDataComponent = ref(null as any);
 const loadingData = ref(false);
 
@@ -400,6 +400,10 @@ watch(() => form.nama_web, async (val) => {
     try {
       const response = await client(`/api/webhost_search/${form.nama_web}`) as any
       search_webhost.value = response;
+      //jika response.length == 1, auto select
+      if (response.length == 1) {
+        form.id_webhost = response[0].id_webhost;
+      }
     } catch (error) {
       console.log(error);
       search_webhost.value = {};

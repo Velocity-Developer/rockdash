@@ -157,6 +157,7 @@ const { data, status, error, refresh } = await useAsyncData(
 
 const fields_info = [
     {key: 'nama_web', label: 'Nama Web', value: data.value.nama_web},
+    {key: 'kategori', label: 'Kategori', value: data.value.kategori},
     {key: 'paket', label: 'Paket', value: data.value.paket?.paket},
     {key: 'tgl_mulai', label: 'Masuk Tanggal'},
     {key: 'saldo', label: 'Saldo'},

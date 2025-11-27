@@ -48,7 +48,7 @@
         </div>
       </Message>
 
-      <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
+      <DataTable @sort="handleSortTable" v-if="data.data?.length > 0" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" stripedRows scrollHeight="70vh" scrollable>
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
@@ -490,13 +490,13 @@ function copyToClipboard() {
   alert('Nama Web berhasil di copy ke clipboard');
 }
 
-const visibleDialog = ref(false);
-const actionDialog = ref('add');
-const dataDialog = ref({} as any);
-const openDialog = (action: string, data = {}) => {
-  visibleDialog.value = true;
-  actionDialog.value = action || 'add';
-  dataDialog.value = data || {};
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+const dataDialog = ref<any>({})
+const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
+  actionDialog.value = action
+  visibleDialog.value = true
+  dataDialog.value = data ? { ...data } : {}
 }
 
 const toast = useToast();
