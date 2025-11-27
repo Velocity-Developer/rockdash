@@ -389,25 +389,17 @@ function getRowClass(data: any) {
   const today = dayjs().startOf('day')
 
   //jika project belum diambil (wm_project null) dan deadline < hari ini
-  if (!data.wm_project && deadline.isBefore(today)) {
+  if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.isBefore(today)) {
     kelas += '!bg-red-100 dark:!bg-red-700 ';
-  } else if (!data.wm_project && deadline.isSame(today)) {
+  } else if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.isSame(today)) {
     kelas += '!bg-red-100 dark:!bg-red-700 ';
-  } else if (!data.wm_project && deadline.diff(today, 'day') <= 3 && deadline.diff(today, 'day') > 0) {
+  } else if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.diff(today, 'day') <= 3 && deadline.diff(today, 'day') > 0) {
     kelas += '!bg-red-100 dark:!bg-red-700 ';
-  } else if (!data.wm_project && deadline.diff(today, 'day') <= 5 && deadline.diff(today, 'day') > 3) {
+  } else if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.diff(today, 'day') <= 5 && deadline.diff(today, 'day') > 3) {
     kelas += '!bg-yellow-100 dark:!bg-yellow-700 ';
   } else {
     kelas += '';
   }
-
-  // if (!data.wm_project) {
-  //   kelas += 'hover:!bg-emerald-50 dark:hover:!bg-emerald-800 ';
-  // } else if (data.wm_project && data.wm_project.status_multi == 'pending') {
-  //   kelas += 'hover:!bg-amber-50 dark:hover:!bg-amber-800 ';
-  // } else {
-  //   kelas += '';
-  // }
 
   return kelas;
 }
@@ -446,4 +438,3 @@ onMounted(async () => {
 })
 
 </script>
-
