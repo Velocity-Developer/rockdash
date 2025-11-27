@@ -109,6 +109,20 @@
           </template>
         </Select>
       </div>
+
+      <!-- Filter Cari -->
+      <div>
+        <label class="text-sm block font-medium opacity-50">
+          Cari:
+        </label>
+        <InputText
+          v-model="filters.search" 
+          placeholder="Cari disini.." 
+          size="small"
+          class="md:w-[200px]"
+          @keyup.enter="getData()"
+        />
+      </div>
     </div>
 
 
@@ -282,6 +296,17 @@
   <!-- Filter Drawer untuk Mobile -->
   <Drawer v-model:visible="visibleFilterDrawer" header="Filter Jurnal Support" position="right" class="!w-80">
     <div class="flex flex-col gap-4">
+      
+      <div>
+        <label class="block text-sm font-medium mb-2">Cari</label>
+        <InputText
+          v-model="filters.search" 
+          placeholder="Cari disini.." 
+          size="small"
+          class="w-full"
+          @keyup.enter="getData()"
+        />
+      </div>
       <div>
         <label class="block text-sm font-medium mb-2">Kategori</label>
         <Select 
