@@ -38,7 +38,7 @@
 
             <tr class="bg-emerald-100 dark:bg-emerald-700">
                 <td class="align-top border-b border-gray-100 dark:border-gray-800 py-2 px-3">  
-                  {{ i+1 }}                
+                  {{ Number(i) + 1 }}               
                 </td>
                 <td class="align-top border-b border-gray-100 dark:border-gray-800 py-2 px-3">
                     {{ web.nama_web??'' }}
