@@ -33,6 +33,12 @@
   <Card class="my-4">
     <template #content>  
       
+      <div class="flex justify-end mb-3">
+        <Button type="button" label="Tambah" size="small" @click="openDialog('add', null)">
+          <Icon name="lucide:circle-plus"/> Tambah
+        </Button>
+      </div>
+
       <template v-if="dataRekapChats.data.length > 0">
         <DataTable 
           :value="dataRekapChats.data" 
@@ -83,10 +89,10 @@
           <Column field="action" header="">
             <template #body="slotProps">
               <div class="flex items-center gap-1 justify-end">
-                <Button size="small" severity="info">
+                <Button size="small" severity="info" @click="openDialog('edit', slotProps.data)">
                   <Icon name="lucide:pen"/>
                 </Button>
-                <Button size="small" severity="danger">
+                <Button size="small" severity="danger" @click="deleteData(slotProps.data.id)">
                   <Icon name="lucide:trash-2"/>
                 </Button>
               </div>
@@ -118,6 +124,10 @@
     </template>
   </Card>
 
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog === 'add' ? 'Tambah' : 'Edit'" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '55vw', '575px': '80vw' }">
+    <RekapChatForm :action="actionDialog" :dataRekapChat="dataDialog" @update="getData" />
+  </Dialog>
+
   <DashLoader :loading="loadingData"/>
 
 </template>
@@ -130,6 +140,8 @@ const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute();
+const toast = useToast();
+const confirm = useConfirm();
 
 const dataRekapChats = ref({
   data: [],
@@ -201,6 +213,35 @@ onMounted(() => {
   getData();
 })
 
+//delete data
+const deleteData = async (id: number) => {
+  confirm.require({
+    message: 'Apakah Anda yakin ingin menghapus data ini?',
+        header: 'Konfirmasi hapus',
+        rejectProps: {
+            label: 'Batal',
+            severity: 'secondary',
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+        },
+        accept: async () => {          
+          try {
+            await client(`/api/rekap-chat/${id}`,{
+              method: 'DELETE',
+            });
+            getData();
+            toast.add({ severity: 'success', summary: 'Success Message', detail: 'Data Berhasil Dihapus', life: 3000 });
+          } catch (error) {
+            const er = useSanctumError(error);
+            errors.value = er;
+            toast.add({ severity: 'error', summary: 'Error Message', detail: er, life: 3000 });
+          }
+        }
+  });
+}
+
 const opsiAlasan = ref([
   '-',
   'Pembayaran',
@@ -217,4 +258,13 @@ const opsiAlasan = ref([
 const opsiPertamaChat = ref([
   '-', 'Whatsapp', 'Whatsapp 2', 'Whatsapp 3', 'Whatsapp 4', 'Whatsapp 5', 'Tidio Chat', 'Tidio Chat 2', 'Tidio Chat 3', 'Telegram', 'Telegram 2'
 ])
+
+const visibleDialog = ref(false);
+const actionDialog = ref('' as string);
+const dataDialog = ref({} as any);
+const openDialog = (action : string, data : any) => {
+  visibleDialog.value = true;
+  actionDialog.value = action;
+  dataDialog.value = data;
+}
 </script>
