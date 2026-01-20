@@ -77,7 +77,7 @@
           </Column>
           <Column field="kk" header="Kata Kunci">
             <template #body="slotProps">
-              {{ slotProps.data.kk }}
+              {{ slotProps.data.kata_kunci }}
             </template>
           </Column>
           <Column field="action" header="">
