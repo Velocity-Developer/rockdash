@@ -40,29 +40,29 @@
     </template>
   </Card>
 
-  <Card>
+  <Card class="bg-emerald-100 dark:bg-emerald-900">
     <template #content>      
-      <form class="flex gap-4" action="" method="get" @submit.prevent="submitFilter">
-        <div>
-          <DatePicker v-model="filters.date_start" placeholder="Dari..." dateFormat="dd/mm/yy" size="small"/>
+      <form class="grid grid-cols-8 gap-2" action="" method="get" @submit.prevent="submitFilter">
+        <div class="col-span-4 md:col-span-1">
+          <DatePicker class="w-full" v-model="filters.date_start" placeholder="Dari..." dateFormat="dd/mm/yy" size="small"/>
         </div>
-        <div>
-          <DatePicker v-model="filters.date_end" placeholder="Sampai..." dateFormat="dd/mm/yy" size="small"/>
+        <div class="col-span-4 md:col-span-1">
+          <DatePicker class="w-full" v-model="filters.date_end" placeholder="Sampai..." dateFormat="dd/mm/yy" size="small"/>
         </div>
-        <div>
-          <InputText v-model="filters.keyword" placeholder="Keyword..." size="small"/>
+        <div class="col-span-4 md:col-span-1">
+          <InputText class="w-full" v-model="filters.no_hp" placeholder="WhatsApp/ID Tidio" size="small"/>
         </div>
-        <div>
-          <InputText v-model="filters.no_hp" placeholder="WhatsApp/ID Tidio" size="small"/>
+        <div class="col-span-4 md:col-span-1">
+          <Select class="w-full" v-model="filters.by_alasan" :options="opsiAlasan" showClear placeholder="Alasan..." size="small"/>
         </div>
-        <div>
-          <Select v-model="filters.by_alasan" :options="opsiAlasan" showClear placeholder="Alasan..." size="small"/>
-        </div>
-        <div>
+        <div class="col-span-4 md:col-span-1">
           <Select v-model="filters.pertama_chat" :options="opsiPertamaChat" showClear placeholder="Pertama Chat..." size="small"/>
         </div>
-        <div>
-          <Button type="submit" label="Filter" size="small">
+        <div class="col-span-4 md:col-span-2">
+          <InputText class="w-full" v-model="filters.keyword" placeholder="Keyword..." size="small"/>
+        </div>
+        <div class="col-span-8 md:col-span-1">
+          <Button class="w-full" type="submit" label="Filter" size="small">
             <Icon name="lucide:search"/> Filter
           </Button>
         </div>
