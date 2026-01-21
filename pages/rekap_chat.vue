@@ -322,8 +322,7 @@ const statsAlasan = computed(() => {
 
 const dailyChartData = computed(() => {
   const data = dataRekapChats.value.data || [];
-  if (data.length === 0) return { labels: [], datasets: [] };
-
+  
   const counts: Record<string, number> = {};
   data.forEach((item: any) => {
     if (item.chat_pertama) {
@@ -332,14 +331,25 @@ const dailyChartData = computed(() => {
     }
   });
 
-  const sortedDates = Object.keys(counts).sort();
+  const labels: string[] = [];
+  const chartData: number[] = [];
+  
+  let currentDate = dayjs(filters.date_start);
+  const endDate = dayjs(filters.date_end);
+
+  while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+    const dateStr = currentDate.format('YYYY-MM-DD');
+    labels.push(currentDate.format('DD/MM/YYYY'));
+    chartData.push(counts[dateStr] || 0);
+    currentDate = currentDate.add(1, 'day');
+  }
 
   return {
-    labels: sortedDates.map(date => dayjs(date).format('DD/MM/YYYY')),
+    labels: labels,
     datasets: [
       {
         label: 'Jumlah Chat',
-        data: sortedDates.map(date => counts[date]),
+        data: chartData,
         borderColor: '#36A2EB',
         borderWidth: 1,
         fill: true,
