@@ -50,13 +50,13 @@
           <DatePicker class="w-full" v-model="filters.date_end" placeholder="Sampai..." dateFormat="dd/mm/yy" size="small"/>
         </div>
         <div class="col-span-4 md:col-span-1">
-          <InputText class="w-full" v-model="filters.no_hp" placeholder="WhatsApp/ID Tidio" size="small"/>
+          <InputText class="w-full" v-model="filters.whatsapp" placeholder="WhatsApp/ID Tidio" size="small"/>
         </div>
         <div class="col-span-4 md:col-span-1">
           <Select class="w-full" v-model="filters.by_alasan" :options="opsiAlasan" showClear placeholder="Alasan..." size="small"/>
         </div>
         <div class="col-span-4 md:col-span-1">
-          <Select v-model="filters.pertama_chat" :options="opsiPertamaChat" showClear placeholder="Pertama Chat..." size="small"/>
+          <Select v-model="filters.via" :options="opsiPertamaChat" showClear placeholder="Pertama Chat..." size="small"/>
         </div>
         <div class="col-span-4 md:col-span-2">
           <InputText class="w-full" v-model="filters.keyword" placeholder="Keyword..." size="small"/>
@@ -198,9 +198,8 @@ const filters = reactive({
   keyword: '',
   by_alasan: '',
   by_perangkat: '',
-  pertama_chat: '',
   via: '',
-  no_hp: '',
+  whatsapp: '',
   page: 1,
   tgl_dari: '',
   tgl_sampai: '',
