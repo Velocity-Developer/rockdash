@@ -1,5 +1,37 @@
 <template>
 
+  <Card class="my-4" v-if="statsAlasan.length > 0">
+    <template #title>Detail Statistik Alasan</template>
+    <template #content> 
+      <DataTable 
+          :value="statsAlasan" 
+          size="small" class="text-xs" 
+          stripedRows scrollable
+        > 
+        <Column field="alasan" header="Alasan">
+          <template #body="slotProps">
+            {{ slotProps.data.alasan }}
+          </template>
+        </Column>
+        <Column field="count" header="Jumlah">
+          <template #body="slotProps">
+            {{ slotProps.data.count }}
+          </template>
+        </Column>
+        <Column field="percentage" header="Persentase">
+          <template #body="slotProps">
+            {{ slotProps.data.percentage }}
+          </template>
+        </Column>
+        <Column field="visual" header="Visual">
+          <template #body="slotProps">
+            <ProgressBar :value="slotProps.data.percentage"></ProgressBar>
+          </template>
+        </Column>
+        </DataTable>
+    </template>
+  </Card>
+
   <Card>
     <template #content>      
       <form class="flex gap-4" action="" method="get" @submit.prevent="submitFilter">
@@ -258,6 +290,26 @@ const opsiAlasan = ref([
 const opsiPertamaChat = ref([
   '-', 'Whatsapp', 'Whatsapp 2', 'Whatsapp 3', 'Whatsapp 4', 'Whatsapp 5', 'Tidio Chat', 'Tidio Chat 2', 'Tidio Chat 3', 'Telegram', 'Telegram 2'
 ])
+
+const statsAlasan = computed(() => {
+  const data = dataRekapChats.value.data || [];
+  if (data.length === 0) return [];
+
+  const total = data.length;
+  const counts = data.reduce((acc: any, item: any) => {
+    const alasan = item.alasan || '-';
+    acc[alasan] = (acc[alasan] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(counts).map(([alasan, count]) => {
+    return {
+      alasan,
+      count: count as number,
+      percentage: ((count as number / total) * 100).toFixed(1)
+    };
+  }).sort((a, b) => b.count - a.count);
+});
 
 const visibleDialog = ref(false);
 const actionDialog = ref('' as string);
