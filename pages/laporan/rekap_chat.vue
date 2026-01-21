@@ -1,6 +1,13 @@
 <template>
 
-  <Card class="my-4" v-if="statsAlasan.length > 0">
+  <Card class="mb-4" v-if="dailyChartData && dailyChartData.datasets">
+    <template #title>Statistik Harian</template>
+    <template #content>
+      <Chart type="line" :data="dailyChartData" :options="chartOptions" />
+    </template>
+  </Card>
+
+  <Card class="mb-4" v-if="statsAlasan.length > 0">
     <template #title>Detail Statistik Alasan</template>
     <template #content> 
       <DataTable 
@@ -25,7 +32,9 @@
         </Column>
         <Column field="visual" header="Visual">
           <template #body="slotProps">
-            <ProgressBar :value="slotProps.data.percentage"></ProgressBar>
+             <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" :style="{ width: slotProps.data.percentage + '%' }"></div>
+            </div>
           </template>
         </Column>
         </DataTable>
@@ -309,6 +318,69 @@ const statsAlasan = computed(() => {
       percentage: ((count as number / total) * 100).toFixed(1)
     };
   }).sort((a, b) => b.count - a.count);
+});
+
+const dailyChartData = computed(() => {
+  const data = dataRekapChats.value.data || [];
+  if (data.length === 0) return { labels: [], datasets: [] };
+
+  const counts: Record<string, number> = {};
+  data.forEach((item: any) => {
+    if (item.chat_pertama) {
+      const date = dayjs(item.chat_pertama).format('YYYY-MM-DD');
+      counts[date] = (counts[date] || 0) + 1;
+    }
+  });
+
+  const sortedDates = Object.keys(counts).sort();
+
+  return {
+    labels: sortedDates.map(date => dayjs(date).format('DD/MM/YYYY')),
+    datasets: [
+      {
+        label: 'Jumlah Chat',
+        data: sortedDates.map(date => counts[date]),
+        backgroundColor: '#10b981',
+        borderColor: '#10b981',
+        borderWidth: 1
+      }
+    ]
+  };
+});
+
+const chartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      callbacks: {
+        label: function(context: any) {
+          return `Jumlah: ${context.parsed.y}`;
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 1
+      },
+      title: {
+        display: true,
+        text: 'Jumlah Chat'
+      }
+    },
+    x: {
+      title: {
+        display: true,
+        text: 'Tanggal'
+      }
+    }
+  }
 });
 
 const visibleDialog = ref(false);
