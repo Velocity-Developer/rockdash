@@ -27,14 +27,13 @@
         </Column>
         <Column field="percentage" header="Persentase">
           <template #body="slotProps">
-            {{ slotProps.data.percentage }}
-          </template>
-        </Column>
-        <Column field="visual" header="Visual">
-          <template #body="slotProps">
-             <div class="w-full bg-gray-200 rounded-full h-2.5">
-              <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" :style="{ width: slotProps.data.percentage + '%' }"></div>
+            <div class="flex justify-between gap-1">
+             <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5">
+              <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" :style="{ width: slotProps.data.percentage + '%' }">
+              </div>
             </div>
+            <div class="min-w-[40px] text-right">{{ slotProps.data.percentage }}%</div>
+          </div>
           </template>
         </Column>
         </DataTable>
@@ -85,7 +84,8 @@
           :value="dataRekapChats.data" 
           size="small" class="text-xs" 
           :loading="loadingData"
-          stripedRows scrollable scrollHeight="50vh"
+          stripedRows scrollable scrollHeight="80vh"
+          paginator :rows="25" :rowsPerPageOptions="[25, 50, 100]"
         > 
           <Column field="no" header="#">
             <template #body="slotProps">
@@ -141,7 +141,7 @@
           </Column>
         </DataTable>
         
-        <div class="flex justify-between items-center text-xs mt-3">
+        <!-- <div class="flex justify-between items-center text-xs mt-3">
             <div>
               {{ dataRekapChats.from }} - {{ dataRekapChats.to }} dari {{ dataRekapChats.total }}
             </div>
@@ -159,7 +159,7 @@
                 }"
             >
             </Paginator>
-          </div>
+          </div> -->
       </template>
 
     </template>
@@ -204,6 +204,7 @@ const filters = reactive({
   page: 1,
   tgl_dari: '',
   tgl_sampai: '',
+  per_page: 100000,
 })
 
 // Fungsi untuk mengubah params filters menjadi query URL route
@@ -344,7 +345,7 @@ const dailyChartData = computed(() => {
         borderWidth: 1,
         fill: true,
         tension: 0.4,
-        backgroundColor: 'rgba(14, 84, 230, 0.5)'
+        backgroundColor: 'rgba(14, 84, 230, 0.25)'
       }
     ]
   };
@@ -352,8 +353,8 @@ const dailyChartData = computed(() => {
 
 const chartOptions = ref({
   responsive: true,
-  maintainAspectRatio: false,
-  aspectRatio: 0.6,
+  maintainAspectRatio: true,
+  aspectRatio: 4,
   plugins: {
     legend: {
       display: false
@@ -361,7 +362,7 @@ const chartOptions = ref({
     tooltip: {
       callbacks: {
         label: function(context: any) {
-          return `Jumlah: ${context.parsed.y}`;
+          return `Chat masuk: ${context.parsed.y}`;
         }
       }
     }
@@ -369,9 +370,9 @@ const chartOptions = ref({
   scales: {
     y: {
       beginAtZero: true,
-      // ticks: {
-      //   stepSize: 1
-      // },
+      ticks: {
+        stepSize: 1
+      },
       title: {
         display: true,
         text: 'Jumlah Chat'
