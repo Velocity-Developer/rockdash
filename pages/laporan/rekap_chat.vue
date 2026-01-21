@@ -8,7 +8,7 @@
   </Card>
 
   <Card class="mb-4" v-if="statsAlasan.length > 0">
-    <template #title>Detail Statistik Alasan</template>
+    <template class="!text-sm" #title>Detail Statistik Alasan</template>
     <template #content> 
       <DataTable 
           :value="statsAlasan" 
@@ -340,9 +340,11 @@ const dailyChartData = computed(() => {
       {
         label: 'Jumlah Chat',
         data: sortedDates.map(date => counts[date]),
-        backgroundColor: '#10b981',
-        borderColor: '#10b981',
-        borderWidth: 1
+        borderColor: '#36A2EB',
+        borderWidth: 1,
+        fill: true,
+        tension: 0.4,
+        backgroundColor: 'rgba(14, 84, 230, 0.5)'
       }
     ]
   };
@@ -351,6 +353,7 @@ const dailyChartData = computed(() => {
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
+  aspectRatio: 0.6,
   plugins: {
     legend: {
       display: false
@@ -366,9 +369,9 @@ const chartOptions = ref({
   scales: {
     y: {
       beginAtZero: true,
-      ticks: {
-        stepSize: 1
-      },
+      // ticks: {
+      //   stepSize: 1
+      // },
       title: {
         display: true,
         text: 'Jumlah Chat'
