@@ -29,7 +29,7 @@
           <template #body="slotProps">
             <div class="flex justify-between gap-1">
              <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5">
-              <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" :style="{ width: slotProps.data.percentage + '%' }">
+              <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" :style="{ width: slotProps.data.percentage + '%' }">
               </div>
             </div>
             <div class="min-w-[40px] text-right">{{ slotProps.data.percentage }}%</div>
@@ -40,7 +40,7 @@
     </template>
   </Card>
 
-  <Card class="bg-sky-100 dark:bg-sky-900">
+  <Card class="!bg-sky-100 dark:!bg-sky-900">
     <template #content>      
       <form class="grid grid-cols-8 gap-2" action="" method="get" @submit.prevent="submitFilter">
         <div class="col-span-4 md:col-span-1">
@@ -125,6 +125,16 @@
           <Column field="kk" header="Kata Kunci">
             <template #body="slotProps">
               {{ slotProps.data.kata_kunci }}
+            </template>
+          </Column>
+          <Column field="kk_ads" header="KK ADS">
+            <template #body="slotProps">
+              {{ slotProps.data.kk?.kata_kunci || '' }}
+            </template>
+          </Column>
+          <Column field="group_iklan" header="Group Iklan">
+            <template #body="slotProps">
+              {{ slotProps.data.kk?.grup_iklan || '' }}
             </template>
           </Column>
           <Column field="action" header="">
@@ -350,15 +360,14 @@ const dailyChartData = computed(() => {
       {
         label: 'Jumlah Chat',
         data: chartData,
-        borderColor: '#36A2EB',
-        borderWidth: 1,
+        borderColor: '#256bf7',
+        borderWidth: 2,
         fill: true,
         tension: 0.4,
         backgroundColor: function(context : any) {
           const ctx = context.chart.ctx;
           const chartArea = context.chart.chartArea;
           if (!chartArea) {
-            // This can happen when the chart is not yet rendered
             return null;
           }
           return getGradient(ctx, chartArea);
@@ -388,9 +397,9 @@ const chartOptions = ref({
   scales: {
     y: {
       beginAtZero: true,
-      ticks: {
-        stepSize: 1
-      },
+      // ticks: {
+      //   stepSize: 1
+      // },
       title: {
         display: true,
         text: 'Jumlah Chat'
@@ -407,7 +416,7 @@ const chartOptions = ref({
 
 function getGradient(ctx : any, chartArea: any) {
   const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-  gradient.addColorStop(0, 'rgba(14, 84, 230, 0.2)'); // Start color (bottom)
+  gradient.addColorStop(0, 'rgba(14, 84, 230, 0)'); // Start color (bottom)
   gradient.addColorStop(1, 'rgba(14, 84, 230, 0.6)');   // End color (top)
   return gradient;
 }
