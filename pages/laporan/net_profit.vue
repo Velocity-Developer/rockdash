@@ -25,7 +25,7 @@
     <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
       <Column field="label" header="Bulan">
         <template #body="slotProps">
-          <span @click="openPreview(slotProps.data)" class="cursor-pointer">
+          <span @click="openOrderPreview(slotProps.data)" class="cursor-pointer">
           {{ slotProps.data.label }}
           </span>
         </template>
@@ -37,12 +37,22 @@
       </Column>
       <Column field="chat_ads" header="Chat Ads">
         <template #body="slotProps">
-          {{ slotProps.data.chat_ads }}
+          <span 
+            @click="openChatPreview(slotProps.data)" 
+            class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
+          >
+            {{ slotProps.data.chat_ads }}
+          </span>
         </template>
       </Column>
       <Column field="order" header="Order">
         <template #body="slotProps">
-          {{ slotProps.data.order }}
+          <span 
+            @click="openOrderPreview(slotProps.data)" 
+            class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
+          >
+            {{ slotProps.data.order }}
+          </span>
         </template>
       </Column>
       <Column field="persen_order" header="%Order">
@@ -90,8 +100,8 @@
     </template>
   </Card>
 
-    <Dialog v-model:visible="dialogPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <DataTable :value="selectedPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>
+    <Dialog v-model:visible="dialogOrderPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <DataTable :value="selectedOrderPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>
         <Column field="no" header="#">
           <template #body="slotProps">
             {{ Number(slotProps.index) + 1 }}
@@ -165,10 +175,17 @@ onMounted(() => {
   getData()
 })
 
-const dialogPreview = ref(false)
-const selectedPreview = ref({} as any)
-const openPreview = (data: any) => {
-  dialogPreview.value = true
-  selectedPreview.value = data
+const dialogOrderPreview = ref(false)
+const selectedOrderPreview = ref({} as any)
+const openOrderPreview = (data: any) => {
+  dialogOrderPreview.value = true
+  selectedOrderPreview.value = data
+}
+
+const dialogChatPreview = ref(false)
+const selectedChatPreview = ref({} as any)
+const openChatPreview = (data: any) => {
+  dialogChatPreview.value = true
+  selectedChatPreview.value = data
 }
 </script>
