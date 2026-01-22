@@ -52,6 +52,9 @@ const props = defineProps({
 })
 const emit = defineEmits(['update']);
 
+const client = useSanctumClient();
+const toast = useToast();
+
 const forms = reactive({
   id: '',
   chat_pertama: '',
@@ -68,6 +71,27 @@ const forms = reactive({
 const loading = ref(false);
 const submitForm = async () => {
   loading.value = true;
+  try {
+    if (props.action === 'add') {
+      await client('/api/rekap-chat', {
+        method: 'POST',
+        body: forms
+      })
+      toast.add({ severity: 'success', summary: 'Berhasil', detail: 'Data berhasil ditambahkan', life: 3000 });
+    } else if (props.action === 'edit') {
+      await client(`/api/rekap-chat/${forms.id}`, {
+        method: 'PUT',
+        body: forms
+      })
+      toast.add({ severity: 'success', summary: 'Berhasil', detail: 'Data berhasil diperbarui', life: 3000 });
+    }
+    emit('update');
+  } catch (error) {
+    const er = useSanctumError(error);
+    toast.add({ severity: 'error', summary: 'Gagal', detail: er.msg || 'Terjadi kesalahan', life: 3000 });
+  } finally {
+    loading.value = false;
+  }
 }
 
 const opsiAlasan = ref([
@@ -87,19 +111,29 @@ const opsiPertamaChat = ref([
   '-', 'Whatsapp', 'Whatsapp 2', 'Whatsapp 3', 'Whatsapp 4', 'Whatsapp 5', 'Tidio Chat', 'Tidio Chat 2', 'Tidio Chat 3', 'Telegram', 'Telegram 2'
 ])
 
-onMounted(() => {
-  //jika action edit
-  if (props.action === 'edit') {
-    forms.id = props.dataRekapChat.id || ''
-    forms.chat_pertama = props.dataRekapChat.chat_pertama || ''
-    forms.whatsapp = props.dataRekapChat.whatsapp || ''
-    forms.via = props.dataRekapChat.via || ''
-    forms.alasan = props.dataRekapChat.alasan || ''
-    forms.perangkat = props.dataRekapChat.perangkat || ''
-    forms.detail = props.dataRekapChat.detail || ''
-    forms.kata_kunci = props.dataRekapChat.kata_kunci || ''
-    forms.tanggal_followup = props.dataRekapChat.tanggal_followup || ''
-    forms.status_followup = props.dataRekapChat.status_followup || ''
+watch(() => props.dataRekapChat, (val) => {
+  if (props.action === 'edit' && val) {
+    forms.id = val.id || ''
+    forms.chat_pertama = val.chat_pertama || ''
+    forms.whatsapp = val.whatsapp || ''
+    forms.via = val.via || ''
+    forms.alasan = val.alasan || ''
+    forms.perangkat = val.perangkat || ''
+    forms.detail = val.detail || ''
+    forms.kata_kunci = val.kata_kunci || ''
+    forms.tanggal_followup = val.tanggal_followup || ''
+    forms.status_followup = val.status_followup || ''
+  } else {
+    forms.id = ''
+    forms.chat_pertama = ''
+    forms.whatsapp = ''
+    forms.via = ''
+    forms.alasan = ''
+    forms.perangkat = ''
+    forms.detail = ''
+    forms.kata_kunci = ''
+    forms.tanggal_followup = ''
+    forms.status_followup = ''
   }
-})
+}, { immediate: true })
 </script>
