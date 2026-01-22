@@ -354,7 +354,16 @@ const dailyChartData = computed(() => {
         borderWidth: 1,
         fill: true,
         tension: 0.4,
-        backgroundColor: 'rgba(14, 84, 230, 0.25)'
+        backgroundColor: function(context : any) {
+          const ctx = context.chart.ctx;
+          const chartArea = context.chart.chartArea;
+          if (!chartArea) {
+            // This can happen when the chart is not yet rendered
+            return null;
+          }
+          return getGradient(ctx, chartArea);
+        },
+        // backgroundColor: 'rgba(14, 84, 230, 0.25)'
       }
     ]
   };
@@ -395,6 +404,13 @@ const chartOptions = ref({
     }
   }
 });
+
+function getGradient(ctx : any, chartArea: any) {
+  const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+  gradient.addColorStop(0, 'rgba(14, 84, 230, 0.2)'); // Start color (bottom)
+  gradient.addColorStop(1, 'rgba(14, 84, 230, 0.6)');   // End color (top)
+  return gradient;
+}
 
 const visibleDialog = ref(false);
 const actionDialog = ref('' as string);
