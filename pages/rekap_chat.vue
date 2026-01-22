@@ -1,6 +1,6 @@
 <template>
 
-  <Card class="mb-4" v-if="dailyChartData && dailyChartData.datasets">
+  <Card class="mb-4" v-if="dataRekapChats.data.length > 0 && dailyChartData && dailyChartData.datasets">
     <template #title>Statistik Harian</template>
     <template #content>
       <Chart type="line" :data="dailyChartData" :options="chartOptions" />
@@ -170,6 +170,11 @@
             >
             </Paginator>
           </div> -->
+      </template>
+      <template v-else>
+        <div class="flex justify-center items-center h-32 opacity-50 gap-2 border rounded-md">
+          <Icon name="lucide:alert-circle" class="w-10 h-10"/> Tidak ada data
+        </div>
       </template>
 
     </template>
