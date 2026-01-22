@@ -123,6 +123,23 @@
       </DataTable>
     </Dialog>
 
+    <Dialog v-model:visible="dialogChatPreview" modal header="Detail Chat" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <DataTable :value="selectedChatPreview.chat_details" class="text-xs mt-4" size="small" stripedRows scrollable>
+        <Column field="no" header="#">
+          <template #body="slotProps">
+            {{ Number(slotProps.index) + 1 }}
+          </template>
+        </Column>
+        <Column field="chat_pertama" header="Tanggal">
+          <template #body="slotProps">
+            {{ dayjs(slotProps.data.chat_pertama).format('DD-MM-YYYY HH:mm') }}
+          </template>
+        </Column>
+        <Column field="alasan" header="Alasan"></Column>
+        <Column field="via" header="Via"></Column>
+      </DataTable>
+    </Dialog>
+
   <DashLoader :loading="loading"/>
 </template>
 
