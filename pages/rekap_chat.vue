@@ -40,7 +40,7 @@
     </template>
   </Card>
 
-  <Card class="bg-emerald-100 dark:bg-emerald-900">
+  <Card class="bg-sky-100 dark:bg-sky-900">
     <template #content>      
       <form class="grid grid-cols-8 gap-2" action="" method="get" @submit.prevent="submitFilter">
         <div class="col-span-4 md:col-span-1">
@@ -63,7 +63,7 @@
         </div>
         <div class="col-span-8 md:col-span-1">
           <Button class="w-full" type="submit" label="Filter" size="small">
-            <Icon name="lucide:search"/> Filter
+            <Icon name="lucide:filter"/> Filter
           </Button>
         </div>
       </form>
