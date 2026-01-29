@@ -8,7 +8,7 @@
           <DashSidebar/>
         </div>
       </div>
-      <div class="body-wrapper flex flex-col w-full bg-gradient-to-tr from-blue-50 to-teal-50 dark:from-black dark:to-gray-950">
+      <div class="body-wrapper flex flex-col w-full bg-gray-100 dark:bg-black">
         <DashHeader />
         <div class="md:max-w-[1600px] w-full mx-auto px-4 py-4 relative flex-1">
           

@@ -21,13 +21,13 @@
     </form>
 
     <div class="flex justify-end items-center gap-2">
-      <Button @click="exportToExcel()" size="small" severity="success">
+      <Button @click="exportToExcel()" size="small" severity="success" variant="outlined" class="shadow-md">
         <Icon name="lucide:file-spreadsheet" /> Excel
       </Button>
       <Button @click="openDialog('add',{})" size="small" class="shadow-md">
         <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
       </Button>
-      <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
+      <Button @click="visibleDrawerFilter = true" size="small" severity="info" variant="outlined" class="shadow-md">
         <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
         <span
         class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
