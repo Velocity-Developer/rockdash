@@ -1,16 +1,23 @@
 <template>
 
-  <div v-if="data" class="border border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900 rounded p-3 mb-3">
-
-    <div v-if="loadingWmProject" class="my-2">
-      <Icon name="lucide:loader-circle" class="animate-spin"/> Memuat data...
-    </div>
-    <div v-else>
-      <div>
-        {{ data.jenis }} <a class="hover:underline font-bold" :href="'https://'+data.webhost.nama_web" target="_blank"> {{ data.webhost.nama_web }} </a>
+  <div v-if="data" class="bg-emerald-700 text-white dark:bg-emerald-900 rounded-lg shadow hover:shadow-lg transition-all p-3 md:p-5 mb-4 md:mb-6">
+  
+    <div class="grid grid-cols-4 gap-2 text-sm">
+      <div class="col-span-4 md:col-span-2 flex items-center gap-2">        
+        <span class="bg-white h-6 w-6 flex items-center justify-center text-sm rounded text-blue-700"><Icon name="lucide:globe" /></span>
+        <a class="hover:underline" :href="'https://'+data.webhost.nama_web" target="_blank"> {{ data.webhost.nama_web }} </a>
       </div>
-      <div>
-        Deadline : {{ formatTanggal(data.tgl_deadline) }}
+      <div class="col-span-4 md:col-span-2 flex items-center gap-2">
+        <span class="bg-white h-6 w-6 flex items-center justify-center text-sm rounded text-yellow-600"><Icon name="lucide:tags" /></span>
+        <span>{{ data.jenis }}</span>
+      </div>
+      <div class="col-span-4 md:col-span-2 flex items-center gap-2">
+          <span class="bg-white h-6 w-6 flex items-center justify-center text-sm rounded text-red-600"><Icon name="lucide:clock-alert" /></span>
+          <span>Deadline : {{ formatTanggal(data.tgl_deadline) }}</span>
+      </div>
+      <div v-if="csMainProjectInfo?.waktu_plus" class="col-span-4 md:col-span-2 flex items-center gap-2">
+        <span class="bg-white h-6 w-6 flex items-center justify-center text-sm rounded text-teal-600"><Icon name="lucide:calendar-plus" /></span>
+        <span>Waktu + : {{ csMainProjectInfo?.waktu_plus }} hari</span>
       </div>
     </div>
 
@@ -97,6 +104,11 @@
     </div>
 
     <div class="flex justify-end gap-2">
+
+      <Chip v-if="loadingWmProject" size="small">
+        <Icon name="lucide:loader-circle" class="animate-spin"/> Memuat data terbaru...
+      </Chip>
+
       <Button v-if="wm_project &&wm_project.id_wm_project" @click="confirmDelete(wm_project.id_wm_project)" severity="danger">
         <Icon name="lucide:trash-2"/>
         Hapus
@@ -159,6 +171,7 @@ const emit = defineEmits(['update']);
 const visibleDialog = ref(false);
 
 const wm_project = ref(data.wm_project as any);
+const csMainProjectInfo = ref({} as any);
 
 const form = reactive({
   user_id: wm_project.value?.user_id ?? useConfig.config.user.id,
@@ -209,6 +222,9 @@ onMounted(async () => {
       const res = await client('/api/cs_main_project/'+data.id) as any
       if(res.wm_project){
         wm_project.value = res.wm_project??null;
+      }
+      if(res.cs_main_project_info){
+        csMainProjectInfo.value = res.cs_main_project_info??null
       }
     } catch (error) {
       console.log(error);
