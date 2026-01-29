@@ -390,13 +390,13 @@ function getRowClass(data: any) {
 
   //jika project belum diambil (wm_project null) dan deadline < hari ini
   if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.isBefore(today)) {
-    kelas += '!bg-red-100 dark:!bg-red-700 ';
+    kelas += '!bg-red-100 dark:!bg-red-900 ';
   } else if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.isSame(today)) {
-    kelas += '!bg-red-100 dark:!bg-red-700 ';
+    kelas += '!bg-red-100 dark:!bg-red-900 ';
   } else if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.diff(today, 'day') <= 3 && deadline.diff(today, 'day') > 0) {
-    kelas += '!bg-red-100 dark:!bg-red-700 ';
+    kelas += '!bg-red-100 dark:!bg-red-900 ';
   } else if ( data.dikerjakan_oleh !== ',10[100]' && !data.wm_project && deadline.diff(today, 'day') <= 5 && deadline.diff(today, 'day') > 3) {
-    kelas += '!bg-yellow-100 dark:!bg-yellow-700 ';
+    kelas += '!bg-yellow-100 dark:!bg-yellow-900 ';
   } else {
     kelas += '';
   }
