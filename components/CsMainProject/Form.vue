@@ -100,6 +100,7 @@
         <InputNumber id="dibayar" name="dibayar" v-model="form.dibayar" class="w-full" />
       </div>
 
+
       <div class="col-span-4">
         <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>        
         <MultiSelect name="dikerjakan_oleh" id="dikerjakan_oleh" v-model="form.dikerjakan_oleh" 
@@ -112,6 +113,11 @@
           optionValue="value" optionLabel="label"
           filter showClear
         class="w-full" />
+      </div>
+
+      <div class="col-span-4">
+        <label class="mb-1 block" for="waktu_plus">Waktu Tambahan</label>
+        <InputNumber id="waktu_plus" name="waktu_plus" v-model="form.waktu_plus" class="w-full" />
       </div>
 
     </div>
@@ -258,6 +264,7 @@ const form = reactive({
   tgl_deadline: '',
   biaya: '',
   dibayar: '',
+  waktu_plus: null,
   saldo: '',
   hp: '',
   telegram: '',
@@ -310,7 +317,8 @@ onMounted( async () => {
       form.invoice_id = res.invoice_id || '';
       form.customer_id = res.customer_id || '';
       form.nama = res.webhost.customers?.[0]?.nama || '';
-      form.alamat = res.webhost.customers?.[0]?.alamat || '';      
+      form.alamat = res.webhost.customers?.[0]?.alamat || '';  
+      form.waktu_plus = res.cs_main_project_info?.waktu_plus || ''
     } catch (error) {
       console.log(error);
       toast.add({
