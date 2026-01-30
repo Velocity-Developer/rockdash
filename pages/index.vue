@@ -18,6 +18,22 @@
     </div>
 
   </template>
+  
+  <template v-else-if="isRoles('support')">
+
+    <div class="grid grid-cols-8 gap-3 md:gap-6">
+
+      <div class="col-span-8"> 
+        <DashDashboardWelcomeDefault />  
+      </div>
+
+      <div class="col-span-4 xl:col-span-3">
+        <DashDashboardSupportChartPaket /> 
+      </div> 
+
+    </div>
+
+  </template>
 
   <template v-else-if="isRoles('admin') || isRoles('manager_advertising') || isRoles('manager_project')  || isRoles('customer_service')">
     <div class="flex flex-col md:flex-row gap-5 mb-5">
