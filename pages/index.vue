@@ -26,6 +26,10 @@
       <div class="col-span-8"> 
         <DashDashboardWelcomeDefault />  
       </div>
+      
+      <div class="col-span-8"> 
+        <DashDashboardSupportCounts />  
+      </div>
 
       <div class="col-span-8 md:col-span-4 xl:col-span-5">
         <DashDashboardSupportChartJournalDaily /> 
