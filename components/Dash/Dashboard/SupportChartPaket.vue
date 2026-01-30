@@ -23,8 +23,8 @@ const setChartData = () => {
 
     // Generate random colors or use a palette
     const backgroundColors = [
-        '#34ad8d', '#106951', '#053025', '#0c7d87', '#3dd3e0',
-        '#3bed74', '#2fa136', '#328030', '#336327', '#1a4023'
+        '#FFB0B0', '#FFD09B', '#FFECC8', '#FFF7D1', '#A594F9',
+        '#CDC1FF', '#F5EFFF', '#295F98', '#D2DCB6', '#F1F3E0'
     ];
 
     return {
@@ -67,7 +67,7 @@ const setChartOptions = () => {
         </div>
     </template>
     <template #content>
-      <div class="p-2 h-[300px]">
+      <div class="p-2 h-[450px]">
         <Chart v-if="chartData" type="doughnut" :data="chartData" :options="chartOptions" class="h-full w-full" />
         <div v-else class="flex items-center justify-center h-full text-zinc-500">
             No data available

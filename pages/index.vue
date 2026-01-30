@@ -27,7 +27,11 @@
         <DashDashboardWelcomeDefault />  
       </div>
 
-      <div class="col-span-4 xl:col-span-3">
+      <div class="col-span-8 md:col-span-4 xl:col-span-5">
+        <DashDashboardSupportChartJournalDaily /> 
+      </div> 
+
+      <div class="col-span-8 md:col-span-4 xl:col-span-3">
         <DashDashboardSupportChartPaket /> 
       </div> 
 
