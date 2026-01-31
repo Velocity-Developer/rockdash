@@ -62,7 +62,7 @@
   </div>
 
 
-  <Tabs value="1" class="shadow rounded-lg overflow-hidden bg-zinc-100 mt-5">
+  <Tabs v-model:value="activeTab" class="shadow rounded-lg overflow-hidden bg-zinc-100 mt-5">
       <TabList>
           <Tab v-for="tab in data.users" :key="tab.id" :value="tab.id">
             <div class="flex items-center text-xs font-normal">          
@@ -163,6 +163,7 @@ function updateRouteParams() {
 
 const data = ref([] as any) ;
 const loading = ref(false);
+const activeTab = ref(null as any);
 const getData = async () => {
   updateRouteParams() 
   loading.value = true;
@@ -173,6 +174,9 @@ const getData = async () => {
       params: filters.value,
     });
     data.value = response;
+    if (data.value.users && data.value.users.length > 0) {
+        activeTab.value = data.value.users[0].id;
+    }
     loading.value = false;
   } catch (error) {
     const er = useSanctumError(error);
