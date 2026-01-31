@@ -413,15 +413,17 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const client = useSanctumClient();
 const route = useRoute();
+const router = useRouter();
 const useConfig = useConfigStore()
 
 const filters = reactive({
-  date_start: '',
-  date_end: '',
+  search: route.query.search || '',
+  date_start: route.query.date_start || '',
+  date_end: route.query.date_end || '',
   role: 'support',
-  user_id: '',
-  journal_category_id: null,
-  status: null,
+  user_id: route.query.user_id || '',
+  journal_category_id: route.query.journal_category_id ? Number(route.query.journal_category_id) : null,
+  status: route.query.status || null,
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
   order: 'desc',
@@ -489,6 +491,21 @@ const getData = async () => {
     if(filters.date_end) {
       filters.date_end = dayjs(filters.date_end).local().format('YYYY-MM-DD')
     }
+
+    const query = { ...filters }
+    if (!query.search) delete query.search
+    if (!query.date_start) delete query.date_start
+    if (!query.date_end) delete query.date_end
+    if (!query.user_id) delete query.user_id
+    if (!query.journal_category_id) delete query.journal_category_id
+    if (!query.status) delete query.status
+    if (query.page === 1) delete query.page
+    
+    delete query.pagination
+    delete query.order
+    delete query.role
+
+    router.push({ query })
 
     try {
       const res = await client('/api/journal',{
