@@ -33,7 +33,7 @@
           >
             <Column field="name" header="Nama">
               <template #body="slotProps">
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer hover:text-primary" @click="activeTab = slotProps.data.id">
                   <Avatar 
                   :image="slotProps.data.avatar" 
                   class="w-7 h-7 mr-2" 
@@ -52,7 +52,13 @@
               </template>
             </Column>
             <Column field="progress" header="Pengerjaan"></Column>
-            <Column field="selesai" header="Selesai" class="text-green-500 dark:text-green-400 font-bold"></Column>
+            <Column field="selesai" header="Selesai">
+              <template #body="slotProps">
+                <div class="text-green-500 dark:text-green-400 font-bold cursor-pointer hover:text-primary" @click="activeTab = slotProps.data.id">
+                  {{ slotProps.data.selesai }}
+                </div>
+              </template>
+            </Column>
             <Column field="total" header="Total"></Column>
           </DataTable>
         </template>
