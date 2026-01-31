@@ -20,21 +20,21 @@ const chartOptions = ref({} as any);
 
 const setChartData = () => {
   const labels = props.datachart?.map((item: { name?: string }) => item.name?.trim()) ?? ['(kosong)'];
-  const datas = props.datachart?.map((item: { total_dibayar: number }) => item.total_dibayar) ?? [100];
+  const datas = props.datachart?.map((item: { total_bobot: number }) => item.total_bobot) ?? [100];
 
   return {
     labels,
     datasets: [
       {
         data: datas,
-        backgroundColor: [
-          '#42A5F5',
-          '#66BB6A',
-          '#FFA726',
-          '#AB47BC',
-          '#EC407A',
-          '#FF7043'
-        ]
+        // backgroundColor: [
+        //   '#42A5F5',
+        //   '#66BB6A',
+        //   '#FFA726',
+        //   '#AB47BC',
+        //   '#EC407A',
+        //   '#FF7043'
+        // ]
       }
     ]
   };
