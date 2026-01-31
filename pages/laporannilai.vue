@@ -117,7 +117,13 @@
                     </div>
                   </template>
                 </Column>
-                <!-- <Column field="deskripsi" header="Deskripsi"></Column> -->
+                <Column field="bobot" header="Bobot">
+                  <template #body="slotProps">
+                    <Badge>
+                    {{ slotProps.data.cs_main_project?.cs_main_project_info?.bobot }}
+                    </Badge>
+                  </template>
+                </Column>
                 <Column field="status_multi" header="Status"></Column>
                 <Column field="date_mulai_formatted" header="Mulai"></Column>
                 <Column field="date_selesai_formatted" header="Selesai"></Column>
