@@ -232,8 +232,11 @@ onMounted(async () => {
   } else {
     //ambil data wm_project, jika ada ambil dari wm_project
     try {
-      const res = await client('/api/wm_project/'+data.wm_project.id_wm_project)
+      const res = await client('/api/wm_project/'+data.wm_project.id_wm_project) as any
       wm_project.value = res;
+      if(res.cs_main_project?.cs_main_project_info){
+        csMainProjectInfo.value = res.cs_main_project?.cs_main_project_info
+      }
     } catch (error) {
       console.log(error);
     }

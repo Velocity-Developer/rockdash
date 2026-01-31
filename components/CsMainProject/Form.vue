@@ -100,7 +100,6 @@
         <InputNumber id="dibayar" name="dibayar" v-model="form.dibayar" class="w-full" />
       </div>
 
-
       <div class="col-span-4">
         <label class="mb-1 block" for="dikerjakan_oleh">Di Kerjakan Oleh</label>        
         <MultiSelect name="dikerjakan_oleh" id="dikerjakan_oleh" v-model="form.dikerjakan_oleh" 
@@ -115,9 +114,9 @@
         class="w-full" />
       </div>
 
-      <div class="col-span-4">
-        <label class="mb-1 block" for="waktu_plus">Waktu Tambahan</label>
-        <InputNumber id="waktu_plus" name="waktu_plus" v-model="form.waktu_plus" class="w-full" />
+      <div class="col-span-4" :class="!form.dikerjakan_oleh.includes(10) && !form.dikerjakan_oleh.includes(12) ?'opacity-50':''">
+        <label class="mb-1 block" for="waktu_plus">Waktu Tambahan (hari)</label>
+        <InputNumber id="waktu_plus" name="waktu_plus" v-model="form.waktu_plus" showButtons class="w-full" />
       </div>
 
     </div>
