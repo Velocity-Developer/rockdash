@@ -38,6 +38,8 @@ const chartData = ref();
 const chartOptions = ref();
 const userChartData = ref();
 const userChartOptions = ref();
+const userDailyChartData = ref();
+const userDailyChartOptions = ref();
 
 const setChartData = () => {
     if (!data.value?.data) return null;
@@ -203,6 +205,106 @@ const setUserLineChartOptions = () => {
     };
 };
 
+const setUserDailyChartData = () => {
+    if (!data.value?.data_daily) return null;
+    
+    const items = data.value.data_daily;
+    const labels = items.map((item: any) => dayjs(item.date).format('DD/MM'));
+    
+    return {
+        labels,
+        datasets: [
+            {
+                type: 'line',
+                label: 'Response Time (Menit)',
+                data: items.map((item: any) => item.avg_minutes ? Number(item.avg_minutes).toFixed(1) : 0),
+                backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emerald
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                yAxisID: 'y'
+            },
+            {
+                type: 'line',
+                label: 'Total Jurnal',
+                data: items.map((item: any) => item.total_journal),
+                backgroundColor: '#64748b', // Slate-500
+                borderColor: '#64748b',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.4,
+                fill: false,
+                yAxisID: 'y1'
+            }
+        ]
+    };
+};
+
+const setUserDailyChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                },
+                title: {
+                    display: true,
+                    text: 'Response Time (Menit)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    drawOnChartArea: false,
+                    color: surfaceBorder
+                },
+                title: {
+                    display: true,
+                    text: 'Total Jurnal'
+                }
+            }
+        }
+    };
+};
+
 const setChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
@@ -266,6 +368,7 @@ const setChartOptions = () => {
 watch(data, () => {
     chartData.value = setChartData();
     userChartData.value = setUserChartData();
+    userDailyChartData.value = setUserDailyChartData();
 }, { deep: true });
 
 const uniqueUsers = computed(() => {
@@ -298,8 +401,10 @@ onMounted(() => {
     console.log('Tim Support Rangkuman Loaded');
     chartOptions.value = setChartOptions();
     userChartOptions.value = setUserLineChartOptions();
+    userDailyChartOptions.value = setUserDailyChartOptions();
     chartData.value = setChartData();
     userChartData.value = setUserChartData();
+    userDailyChartData.value = setUserDailyChartData();
 });
 </script>
 
@@ -373,6 +478,23 @@ onMounted(() => {
         <template #content>
             <div class="h-[400px] p-2">
                 <Chart v-if="chartData" type="bar" :data="chartData" :options="chartOptions" class="h-full w-full" />
+                <div v-else class="flex justify-center items-center h-full opacity-50 text-sm">
+                    <Icon name="lucide:bar-chart-2" /> Belum ada data
+                </div>
+            </div>
+        </template>
+      </Card>
+
+      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim') && filters.user_id">
+        <template #header>
+          <div class="flex pt-4 px-4 justify-start items-center gap-2">
+            <Icon name="lucide:line-chart" />
+            <span class="text-sm">Grafik Response Time Harian</span>
+          </div>
+        </template>
+        <template #content>
+            <div class="h-[400px] p-2">
+                <Chart v-if="userDailyChartData" type="line" :data="userDailyChartData" :options="userDailyChartOptions" class="h-full w-full" />
                 <div v-else class="flex justify-center items-center h-full opacity-50 text-sm">
                     <Icon name="lucide:bar-chart-2" /> Belum ada data
                 </div>
