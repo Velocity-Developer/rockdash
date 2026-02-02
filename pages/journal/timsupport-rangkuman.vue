@@ -7,10 +7,23 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const client = useSanctumClient();
 
+const route = useRoute();
+const router = useRouter();
+
 const filters = reactive({
-  month: dayjs().startOf('month').toDate(),
-  user_id: null,
+  month: route.query.month ? dayjs(String(route.query.month)).toDate() : dayjs().startOf('month').toDate(),
+  user_id: route.query.user_id ? String(route.query.user_id) : null,
 })
+
+watch(filters, () => {
+  router.replace({
+    query: {
+      ...route.query,
+      month: dayjs(filters.month).format('YYYY-MM'),
+      user_id: filters.user_id || undefined,
+    }
+  })
+}, { deep: true })
 
 const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () => 
   client("/api/journal_timsupport_rangkuman",{
