@@ -36,6 +36,8 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
 
 const chartData = ref();
 const chartOptions = ref();
+const userChartData = ref();
+const userChartOptions = ref();
 
 const setChartData = () => {
     if (!data.value?.data) return null;
@@ -63,6 +65,87 @@ const setChartData = () => {
                 yAxisID: 'y1'
             }
         ]
+    };
+};
+
+const setUserChartData = () => {
+    if (!data.value?.data_user_details) return null;
+    
+    const items = data.value.data_user_details;
+    // Get unique users and categories
+    const users = Array.from(new Set(items.map((item: any) => item.user_name))).sort();
+    const categories = Array.from(new Set(items.map((item: any) => item.category_name))).sort();
+    
+    const colors = [
+        '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', 
+        '#ec4899', '#06b6d4', '#84cc16', '#6366f1', '#14b8a6'
+    ];
+    
+    const datasets = categories.map((cat: any, index: number) => {
+        return {
+            type: 'bar',
+            label: cat,
+            backgroundColor: colors[index % colors.length],
+            data: users.map((user: any) => {
+                const item = items.find((i: any) => i.user_name === user && i.category_name === cat);
+                return item ? Number(item.avg_minutes).toFixed(1) : 0;
+            })
+        };
+    });
+
+    return {
+        labels: users,
+        datasets
+    };
+};
+
+const setUserStackedChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false
+            }
+        },
+        scales: {
+            x: {
+                stacked: true,
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                stacked: true,
+                type: 'linear',
+                display: true,
+                position: 'left',
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                },
+                title: {
+                    display: true,
+                    text: 'Response Time (Menit)'
+                }
+            }
+        }
     };
 };
 
@@ -128,6 +211,7 @@ const setChartOptions = () => {
 
 watch(data, () => {
     chartData.value = setChartData();
+    userChartData.value = setUserChartData();
 }, { deep: true });
 
 const uniqueUsers = computed(() => {
@@ -156,7 +240,9 @@ const pivotData = computed(() => {
 onMounted(() => {
     console.log('Tim Support Rangkuman Loaded');
     chartOptions.value = setChartOptions();
+    userChartOptions.value = setUserStackedChartOptions();
     chartData.value = setChartData();
+    userChartData.value = setUserChartData();
 });
 </script>
 
@@ -228,6 +314,10 @@ onMounted(() => {
         </template>
       </Card>
 
+      <div class="col-span-4 mt-6 text-xl md:text-2xl" v-if="isPermissions('timsupport-journal-perform-tim')">
+        Performa Tim Support
+      </div>
+
       <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim')">
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
@@ -254,6 +344,23 @@ onMounted(() => {
             </div>
             <div v-else class="flex justify-center items-center gap-2 p-4 opacity-50 text-sm">
               <Icon name="lucide:clock-fading" /> Belum ada data
+            </div>
+        </template>
+      </Card>
+      
+      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim')">
+        <template #header>
+          <div class="flex pt-4 px-4 justify-start items-center gap-2">
+            <Icon name="lucide:users" />
+            <span class="text-sm">Grafik Response Time per User</span>
+          </div>
+        </template>
+        <template #content>
+            <div class="h-[400px] p-2">
+                <Chart v-if="userChartData" type="bar" :data="userChartData" :options="userChartOptions" class="h-full w-full" />
+                <div v-else class="flex justify-center items-center h-full opacity-50 text-sm">
+                    <Icon name="lucide:bar-chart-2" /> Belum ada data
+                </div>
             </div>
         </template>
       </Card>
