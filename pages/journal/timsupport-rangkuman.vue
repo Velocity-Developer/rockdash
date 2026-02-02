@@ -12,7 +12,7 @@ const router = useRouter();
 
 const filters = reactive({
   month: route.query.month ? dayjs(String(route.query.month)).toDate() : dayjs().startOf('month').toDate(),
-  user_id: route.query.user_id ? String(route.query.user_id) : null,
+  user_id: route.query.user_id ? Number(route.query.user_id) : null,
 })
 
 watch(filters, () => {
@@ -309,6 +309,15 @@ onMounted(() => {
     <div class="grid grid-cols-4 gap-4">
 
       <div class="col-span-4 flex justify-end items-center gap-2">
+        <Select 
+          v-if="isPermissions('timsupport-journal-perform-tim')"  
+          v-model="filters.user_id" 
+          :options="data.data_user_support" 
+          size="small" 
+          placeholder="Pilih User" 
+          optionLabel="name"
+          optionValue="id"
+        />
         <DatePicker view="month" size="small" dateFormat="mm/yy" v-model="filters.month" @change="refresh()" />
         <Button size="small" @click="refresh()">
           <Icon name="lucide:refresh-cw" :class="status=='pending'?'animate-spin':''"/> Refresh
@@ -371,15 +380,15 @@ onMounted(() => {
         </template>
       </Card>
 
-      <div class="col-span-4 mt-6 text-xl md:text-2xl" v-if="isPermissions('timsupport-journal-perform-tim')">
+      <div class="col-span-4 mt-6 text-xl md:text-2xl" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
         Performa Tim Support
       </div>
 
-      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim')">
+      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:users" />
-            <span class="text-sm">Response Time per User (Pivot)</span>
+            <span class="text-sm">Response Time per User</span>
           </div>
         </template>
         <template #content>
@@ -394,9 +403,9 @@ onMounted(() => {
                 <Column field="category" header="Kategori" frozen style="min-width: 200px"></Column>
                 <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
                   <template #body="slotProps">
-                    <div v-if="slotProps.data[String(user)]" class="flex flex-col">
-                        <span class="font-bold">{{ Number(slotProps.data[String(user)].avg).toFixed(1) }} m</span>
-                        <span class="text-xs text-muted-foreground">{{ slotProps.data[String(user)].total }} Jurnal</span>
+                    <div v-if="slotProps.data[String(user)]" class="flex items-center gap-2">
+                        <span class="font-bold whitespace-nowrap">{{ Number(slotProps.data[String(user)].avg).toFixed(1) }} m</span>
+                        <span class="text-xs text-muted-foreground whitespace-nowrap">({{ slotProps.data[String(user)].total }} Jurnal)</span>
                     </div>
                     <span v-else>-</span>
                   </template>
@@ -409,7 +418,7 @@ onMounted(() => {
         </template>
       </Card>
       
-      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim')">
+      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:users" />
