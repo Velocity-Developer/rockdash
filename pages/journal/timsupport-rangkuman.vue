@@ -54,6 +54,10 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
                 </Column>
               </DataTable>
 
+              <div class="px-3 py-3">
+                Total: <span class="font-bold">{{ data.total_avg?Number(data.total_avg).toFixed(1):'-' }} Menit</span>
+              </div>
+
             </div>
 
             <div v-else class="flex justify-center items-center gap-2 p-4 opacity-50 text-sm">
