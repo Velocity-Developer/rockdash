@@ -72,6 +72,8 @@ const setUserChartData = () => {
     if (!data.value?.data_user_details) return null;
     
     const items = data.value.data_user_details;
+    const userTotals = data.value.data_user || [];
+
     // Get unique users and categories
     const users = Array.from(new Set(items.map((item: any) => item.user_name))).sort();
     const categories = Array.from(new Set(items.map((item: any) => item.category_name))).sort();
@@ -81,16 +83,54 @@ const setUserChartData = () => {
         '#ec4899', '#06b6d4', '#84cc16', '#6366f1', '#14b8a6'
     ];
     
+    const hexToRgba = (hex: string, alpha: number) => {
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+
     const datasets = categories.map((cat: any, index: number) => {
+        const color = colors[index % colors.length] || '#000000';
         return {
-            type: 'bar',
+            type: 'line',
             label: cat,
-            backgroundColor: colors[index % colors.length],
+            backgroundColor: (context: any) => {
+                const chart = context.chart;
+                const {ctx, chartArea} = chart;
+                if (!chartArea) return null;
+                
+                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                gradient.addColorStop(0, hexToRgba(color, 0));
+                gradient.addColorStop(1, hexToRgba(color, 0.5));
+                return gradient;
+            },
+            borderColor: color,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true,
+            yAxisID: 'y',
             data: users.map((user: any) => {
                 const item = items.find((i: any) => i.user_name === user && i.category_name === cat);
                 return item ? Number(item.avg_minutes).toFixed(1) : 0;
             })
         };
+    });
+
+    // Add Total Journal Count on Secondary Axis
+    datasets.push({
+        type: 'line',
+        label: 'Total Jurnal',
+        backgroundColor: () => '#64748b', // Slate-500
+        borderColor: '#64748b',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'y1',
+        data: users.map((user: any) => {
+            const item = userTotals.find((i: any) => i.user_name === user);
+            return item ? item.total_journal : 0;
+        })
     });
 
     return {
@@ -99,7 +139,7 @@ const setUserChartData = () => {
     };
 };
 
-const setUserStackedChartOptions = () => {
+const setUserLineChartOptions = () => {
     const documentStyle = getComputedStyle(document.documentElement);
     const textColor = documentStyle.getPropertyValue('--p-text-color');
     const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
@@ -121,7 +161,6 @@ const setUserStackedChartOptions = () => {
         },
         scales: {
             x: {
-                stacked: true,
                 ticks: {
                     color: textColorSecondary
                 },
@@ -130,7 +169,6 @@ const setUserStackedChartOptions = () => {
                 }
             },
             y: {
-                stacked: true,
                 type: 'linear',
                 display: true,
                 position: 'left',
@@ -143,6 +181,22 @@ const setUserStackedChartOptions = () => {
                 title: {
                     display: true,
                     text: 'Response Time (Menit)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    drawOnChartArea: false,
+                    color: surfaceBorder
+                },
+                title: {
+                    display: true,
+                    text: 'Total Jurnal'
                 }
             }
         }
@@ -240,7 +294,7 @@ const pivotData = computed(() => {
 onMounted(() => {
     console.log('Tim Support Rangkuman Loaded');
     chartOptions.value = setChartOptions();
-    userChartOptions.value = setUserStackedChartOptions();
+    userChartOptions.value = setUserLineChartOptions();
     chartData.value = setChartData();
     userChartData.value = setUserChartData();
 });
