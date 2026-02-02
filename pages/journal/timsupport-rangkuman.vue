@@ -316,7 +316,7 @@ onMounted(() => {
           size="small" 
           placeholder="Pilih User" 
           optionLabel="name"
-          optionValue="id"
+          optionValue="id" showClear
         />
         <DatePicker view="month" size="small" dateFormat="mm/yy" v-model="filters.month" @change="refresh()" />
         <Button size="small" @click="refresh()">
