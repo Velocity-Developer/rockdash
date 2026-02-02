@@ -228,7 +228,7 @@ onMounted(() => {
         </template>
       </Card>
 
-      <Card class="col-span-4">
+      <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim')">
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:users" />
