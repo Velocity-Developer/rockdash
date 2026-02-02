@@ -166,7 +166,7 @@ watch(data, () => {
                     {{ slotProps.data.avg_minutes?Number(slotProps.data.avg_minutes).toFixed(1):'-' }} Menit
                   </template>
                 </Column>         
-                <Column field="total_journal" header="Total"></Column>
+                <Column field="total_journal" sortable header="Total"></Column>
               </DataTable>
 
               <div class="flex justify-end items-center gap-2 px-3 py-3">
