@@ -33,6 +33,107 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
     },
   }) as any
 ) as any
+
+const chartData = ref();
+const chartOptions = ref();
+
+const setChartData = () => {
+    if (!data.value?.data) return null;
+    
+    const items = data.value.data;
+    const labels = items.map((item: any) => item.category);
+    
+    return {
+        labels,
+        datasets: [
+            {
+                label: 'Response Time (Menit)',
+                data: items.map((item: any) => item.avg_minutes ? Number(item.avg_minutes).toFixed(1) : 0),
+                backgroundColor: 'rgba(249, 115, 22, 0.5)', // Orange
+                borderColor: 'rgba(249, 115, 22, 1)',
+                borderWidth: 1,
+                yAxisID: 'y'
+            },
+            {
+                label: 'Total Jurnal',
+                data: items.map((item: any) => item.total_journal),
+                backgroundColor: 'rgba(6, 182, 212, 0.5)', // Cyan
+                borderColor: 'rgba(6, 182, 212, 1)',
+                borderWidth: 1,
+                yAxisID: 'y1'
+            }
+        ]
+    };
+};
+
+const setChartOptions = () => {
+    const documentStyle = getComputedStyle(document.documentElement);
+    const textColor = documentStyle.getPropertyValue('--p-text-color');
+    const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+    const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+    return {
+        maintainAspectRatio: false,
+        aspectRatio: 0.6,
+        plugins: {
+            legend: {
+                labels: {
+                    color: textColor
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                }
+            },
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    color: surfaceBorder
+                },
+                title: {
+                    display: true,
+                    text: 'Response Time (Menit)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                ticks: {
+                    color: textColorSecondary
+                },
+                grid: {
+                    drawOnChartArea: false,
+                    color: surfaceBorder
+                },
+                title: {
+                    display: true,
+                    text: 'Total Jurnal'
+                }
+            }
+        }
+    };
+};
+
+onMounted(() => {
+    chartOptions.value = setChartOptions();
+    chartData.value = setChartData();
+});
+
+watch(data, () => {
+    chartData.value = setChartData();
+}, { deep: true });
 </script>
 
 <template>
@@ -85,6 +186,24 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
 
         </template>
       </Card>
+
+      <Card class="col-span-4 md:col-span-2">
+        <template #header>
+          <div class="flex pt-4 px-4 justify-start items-center gap-2">
+            <Icon name="lucide:headset" />
+            <span class="text-sm">Grafik Total Response Time</span>
+          </div>
+        </template>
+        <template #content>
+            <div class="h-[400px] p-2">
+                <Chart v-if="chartData" type="bar" :data="chartData" :options="chartOptions" class="h-full w-full" />
+                <div v-else class="flex justify-center items-center h-full opacity-50 text-sm">
+                    <Icon name="lucide:bar-chart-2" /> Belum ada data
+                </div>
+            </div>
+        </template>
+      </Card>
+
     </div>
 
 
