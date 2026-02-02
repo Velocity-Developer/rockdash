@@ -428,6 +428,17 @@ onMounted(() => {
           <Icon name="lucide:refresh-cw" :class="status=='pending'?'animate-spin':''"/> Refresh
         </Button>
       </div>
+      
+      <div class="col-span-4 mt-6 text-xl md:text-2xl flex items-center gap-2">
+        <template v-if="data && data.user_id">
+          <span class="w-8 h-8 rounded bg-primary text-white flex justify-center items-center"><Icon name="lucide:user" /></span>
+          Performa {{ data.data_user[0]?.user_name || '-' }}
+        </template>
+        <template v-else>
+          <span class="w-8 h-8 rounded bg-blue-500 text-white flex justify-center items-center"><Icon name="lucide:users" /></span>
+          Performa Seluruh Tim Support
+        </template>
+      </div>
 
       <Card class="col-span-4 md:col-span-2">
         <template #header>
@@ -502,8 +513,8 @@ onMounted(() => {
         </template>
       </Card>
 
-      <div class="col-span-4 mt-6 text-xl md:text-2xl" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
-        Performa Tim Support
+      <div class="col-span-4 mt-6 text-xl" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
+        Rincian Performa Tim Support
       </div>
 
       <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
