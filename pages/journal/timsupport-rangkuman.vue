@@ -23,6 +23,7 @@ watch(filters, () => {
       user_id: filters.user_id || undefined,
     }
   })
+  refresh();
 }, { deep: true })
 
 const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () => 
@@ -423,7 +424,7 @@ onMounted(() => {
           optionLabel="name"
           optionValue="id" showClear
         />
-        <DatePicker view="month" size="small" dateFormat="mm/yy" v-model="filters.month" @change="refresh()" />
+        <DatePicker view="month" size="small" dateFormat="mm/yy" v-model="filters.month" />
         <Button size="small" @click="refresh()">
           <Icon name="lucide:refresh-cw" :class="status=='pending'?'animate-spin':''"/> Refresh
         </Button>
@@ -482,7 +483,7 @@ onMounted(() => {
       <Card class="col-span-4 md:col-span-2">
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
-            <Icon name="lucide:headset" />
+            <Icon name="lucide:chart-column-stacked" />
             <span class="text-sm">Grafik Total Response Time</span>
           </div>
         </template>
