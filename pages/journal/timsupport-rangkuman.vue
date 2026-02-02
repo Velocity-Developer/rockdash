@@ -38,7 +38,7 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
 <template>
 
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-4 gap-4">
 
       <div class="col-span-4 flex justify-end items-center gap-2">
         <DatePicker view="month" size="small" dateFormat="mm/yy" v-model="filters.month" @change="refresh()" />
@@ -47,7 +47,7 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
         </Button>
       </div>
 
-      <Card class="md:col-span-2">
+      <Card class="col-span-4 md:col-span-2">
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:headset" />
@@ -64,11 +64,17 @@ const { data, status, refresh } = await useAsyncData('rangkuman_timsupport', () 
                   <template #body="slotProps">
                     {{ slotProps.data.avg_minutes?Number(slotProps.data.avg_minutes).toFixed(1):'-' }} Menit
                   </template>
-                </Column>
+                </Column>         
+                <Column field="total_journal" header="Total"></Column>
               </DataTable>
 
-              <div class="px-3 py-3">
-                Total: <span class="font-bold">{{ data.total_avg?Number(data.total_avg).toFixed(1):'-' }} Menit</span>
+              <div class="flex justify-end items-center gap-2 px-3 py-3">
+                <span class="border rounded-lg p-4">
+                  Total Rata2 waktu: <span class="font-bold">{{ data.total_avg?Number(data.total_avg).toFixed(1):'-' }} Menit</span>
+                </span>
+                <span class="border rounded-lg p-4">
+                  Total Jurnal: <span class="font-bold">{{ data.total_journal || '-' }}</span>
+                </span> 
               </div>
 
             </div>
