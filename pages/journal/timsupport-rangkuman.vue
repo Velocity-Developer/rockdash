@@ -284,7 +284,10 @@ const pivotData = computed(() => {
         if (!rows[item.category_name]) {
             rows[item.category_name] = { category: item.category_name };
         }
-        rows[item.category_name][item.user_name] = item.avg_minutes;
+        rows[item.category_name][item.user_name] = {
+            avg: item.avg_minutes,
+            total: item.total_journal
+        };
     });
     
     return Object.values(rows);
@@ -391,7 +394,11 @@ onMounted(() => {
                 <Column field="category" header="Kategori" frozen style="min-width: 200px"></Column>
                 <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
                   <template #body="slotProps">
-                    {{ slotProps.data[String(user)] ? Number(slotProps.data[String(user)]).toFixed(1) + ' m' : '-' }}
+                    <div v-if="slotProps.data[String(user)]" class="flex flex-col">
+                        <span class="font-bold">{{ Number(slotProps.data[String(user)].avg).toFixed(1) }} m</span>
+                        <span class="text-xs text-muted-foreground">{{ slotProps.data[String(user)].total }} Jurnal</span>
+                    </div>
+                    <span v-else>-</span>
                   </template>
                 </Column>
               </DataTable>
