@@ -126,14 +126,38 @@ const setChartOptions = () => {
     };
 };
 
-onMounted(() => {
-    chartOptions.value = setChartOptions();
-    chartData.value = setChartData();
-});
-
 watch(data, () => {
     chartData.value = setChartData();
 }, { deep: true });
+
+const uniqueUsers = computed(() => {
+    if (!data.value?.data_user_details) return [];
+    const users = new Set(data.value.data_user_details.map((item: any) => item.user_name));
+    return Array.from(users).sort();
+});
+
+const pivotData = computed(() => {
+    if (!data.value?.data_user_details) return [];
+    
+    const rows = {} as any;
+    
+    // Initialize rows for all categories
+    data.value.data_user_details.forEach((item: any) => {
+        if (!rows[item.category_name]) {
+            rows[item.category_name] = { category: item.category_name };
+        }
+        rows[item.category_name][item.user_name] = item.avg_minutes;
+    });
+    
+    return Object.values(rows);
+});
+
+// Force refresh check
+onMounted(() => {
+    console.log('Tim Support Rangkuman Loaded');
+    chartOptions.value = setChartOptions();
+    chartData.value = setChartData();
+});
 </script>
 
 <template>
@@ -200,6 +224,36 @@ watch(data, () => {
                 <div v-else class="flex justify-center items-center h-full opacity-50 text-sm">
                     <Icon name="lucide:bar-chart-2" /> Belum ada data
                 </div>
+            </div>
+        </template>
+      </Card>
+
+      <Card class="col-span-4">
+        <template #header>
+          <div class="flex pt-4 px-4 justify-start items-center gap-2">
+            <Icon name="lucide:users" />
+            <span class="text-sm">Response Time per User (Pivot)</span>
+          </div>
+        </template>
+        <template #content>
+            <div v-if="pivotData && pivotData.length > 0">
+              <DataTable 
+                :value="pivotData" 
+                class="text-sm" 
+                stripedRows
+                scrollable 
+                scrollHeight="600px"
+              >
+                <Column field="category" header="Kategori" frozen style="min-width: 200px"></Column>
+                <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
+                  <template #body="slotProps">
+                    {{ slotProps.data[String(user)] ? Number(slotProps.data[String(user)]).toFixed(1) + ' m' : '-' }}
+                  </template>
+                </Column>
+              </DataTable>
+            </div>
+            <div v-else class="flex justify-center items-center gap-2 p-4 opacity-50 text-sm">
+              <Icon name="lucide:clock-fading" /> Belum ada data
             </div>
         </template>
       </Card>
