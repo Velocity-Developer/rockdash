@@ -10,7 +10,7 @@ const props = defineProps({
     },
     user_id: {
         type: Number,
-        default: '',
+        default: null,
     },
 });
 import { useDayjs } from '#dayjs'
