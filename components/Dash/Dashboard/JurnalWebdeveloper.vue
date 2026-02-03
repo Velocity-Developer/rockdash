@@ -9,11 +9,11 @@
     <template #content>
       <div>
         
-        <DataTable :value="data.data" :loading="loading">
+        <DataTable :value="data.data" class="text-xs" :loading="loading">
           <Column field="title" header="Judul"></Column>
           <Column field="description" header="Desk.">
             <template #body="slotProps">
-              <div v-html="sanitizeHtml(slotProps.data.description)"></div>
+              <div v-html="purifyHtml(slotProps.data.description)"></div>
             </template>
           </Column>
           <Column field="user.name" header="User" style="width: 60px">
@@ -58,7 +58,7 @@ const dayjs = useDayjs()
 const filters = reactive({
   date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
   date_end: dayjs().format('YYYY-MM-DD'),
-  role: '',
+  role: 'webdeveloper',
   user_id: '',
   page: 1,
   pagination: false,
@@ -86,73 +86,4 @@ onMounted(() => {
   getData();
 })
 
-// Fungsi sanitization HTML custom tanpa library eksternal
-const sanitizeHtml = (html: string) => {
-  if (!html) return '';
-  
-  // Hapus tag berbahaya lengkap dengan isinya
-  html = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
-  html = html.replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '');
-  html = html.replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '');
-  html = html.replace(/<embed[^>]*>/gi, '');
-  html = html.replace(/<form[^>]*>[\s\S]*?<\/form>/gi, '');
-  html = html.replace(/<input[^>]*>/gi, '');
-  html = html.replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '');
-  
-  // Hapus event handlers berbahaya dan javascript:
-  html = html.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
-  html = html.replace(/javascript:[^"']*["']/gi, '');
-  html = html.replace(/javascript:/gi, '');
-  
-  // Tag yang diizinkan
-  const allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'span', 'div', 'code', 'pre', 'blockquote'];
-  
-  // Atribut yang diizinkan
-  const allowedAttrs = ['href', 'title', 'target', 'rel', 'class', 'style'];
-  
-  // Proses setiap tag yang diizinkan untuk membersihkan atributnya
-  allowedTags.forEach(tag => {
-    const tagRegex = new RegExp(`<${tag}([^>]*)>([\s\S]*?)<\/${tag}>`, 'gi');
-    html = html.replace(tagRegex, (match, attrs, content) => {
-      // Bersihkan atribut
-      const cleanAttrs = attrs.replace(/\w+\s*=\s*["'][^"']*["']/gi, (attrMatch) => {
-        const attrName = attrMatch.split('=')[0].trim();
-        if (allowedAttrs.includes(attrName.toLowerCase())) {
-          return attrMatch;
-        }
-        return '';
-      });
-      
-      // Hapus spasi ekstra di awal atribut
-      const finalAttrs = cleanAttrs.replace(/^\s+/, '');
-      return `<${tag}${finalAttrs}>${content}</${tag}>`;
-    });
-    
-    // Handle self-closing tags
-    const selfClosingRegex = new RegExp(`<${tag}([^>]*)\s*\/?>`, 'gi');
-    html = html.replace(selfClosingRegex, (match, attrs) => {
-      const cleanAttrs = attrs.replace(/\w+\s*=\s*["'][^"']*["']/gi, (attrMatch) => {
-        const attrName = attrMatch.split('=')[0].trim();
-        if (allowedAttrs.includes(attrName.toLowerCase())) {
-          return attrMatch;
-        }
-        return '';
-      });
-      
-      const finalAttrs = cleanAttrs.replace(/^\s+/, '');
-      return finalAttrs ? `<${tag}${finalAttrs} />` : `<${tag} />`;
-    });
-  });
-  
-  // Hapus tag yang tidak diizinkan (tapi pertahankan isinya)
-  const disallowedTagRegex = new RegExp('<\\/ ?([^>\\s]+)([^>]*)>([\\s\\S]*?)(<\\/?\\1[^>]*>|$)', 'gi');
-  html = html.replace(disallowedTagRegex, (match, tagName, attrs, content, nextTag) => {
-    if (!allowedTags.includes(tagName.toLowerCase())) {
-      return content; // Hapus tag tapi pertahankan isinya
-    }
-    return match;
-  });
-  
-  return html;
-}
 </script>
