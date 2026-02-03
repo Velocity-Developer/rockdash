@@ -44,6 +44,14 @@ const openPreviewDialog = (item: any) => {
   visiblePreviewDialog.value = true;
   selectedPreviewItem.value = item;
 }
+
+const calculateDuration = (start: string, end: string) => {
+  if (!start || !end) return '-';
+  const startDate = dayjs(start);
+  const endDate = dayjs(end);
+  const diffInMinutes = endDate.diff(startDate, 'minute', true);
+  return diffInMinutes.toFixed(1);
+}
 </script>
 
 <template>
@@ -92,6 +100,13 @@ const openPreviewDialog = (item: any) => {
           <template #body="slotProps">
             <template v-if="slotProps.data.end">
               {{ formatDate(slotProps.data.end,'DD/MM/YY HH:mm') }}
+            </template>
+          </template>
+        </Column>
+        <Column header="Waktu (Menit)" :sortable="false">
+          <template #body="slotProps">
+            <template v-if="slotProps.data.start && slotProps.data.end">
+              {{ calculateDuration(slotProps.data.start, slotProps.data.end) }}
             </template>
           </template>
         </Column>
