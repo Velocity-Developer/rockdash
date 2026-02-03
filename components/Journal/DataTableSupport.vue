@@ -36,6 +36,14 @@ const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1;
     refresh()
 };
+
+// Preview Dialog
+const visiblePreviewDialog = ref(false);
+const selectedPreviewItem = ref({} as any);
+const openPreviewDialog = (item: any) => {
+  visiblePreviewDialog.value = true;
+  selectedPreviewItem.value = item;
+}
 </script>
 
 <template>
@@ -43,13 +51,13 @@ const onPaginate = (event: { page: number }) => {
   <div v-if="data.data?.length > 0">
     <DataTable :value="data.data" stripedRows scrollable scrollHeight="70vh" responsiveLayout="scroll" size="small" class="text-sm" :loading="status === 'pending'">
       <Column field="no" header="No">
-        <template #body="slotProps">
-          {{ data.from + slotProps.index }}
+        <template #body="slotProps">          
+          <span class="hover:underline cursor-pointer" @click="openPreviewDialog(slotProps.data)">{{ data.from + slotProps.index }}</span>
         </template>
       </Column>
       <Column field="journal_category" header="Kategori" :sortable="false">
           <template #body="slotProps">            
-            {{ slotProps.data.journal_category?.name }}
+            <span class="hover:underline cursor-pointer" @click="openPreviewDialog(slotProps.data)">{{ slotProps.data.journal_category?.name }}</span>
           </template>
         </Column>
         <Column field="hp" header="Hp" :sortable="false">
@@ -114,12 +122,12 @@ const onPaginate = (event: { page: number }) => {
         </Column>
         <Column field="user.name" header="User" style="width: 60px">
           <template #body="slotProps">
-            <div class="flex justify-center">
+            <div class="flex justify-center" @click="openPreviewDialog(slotProps.data)">
               <Avatar
                 :image="slotProps.data.user?.avatar_url"
                 shape="circle"
                 size="small"
-                class="w-8 h-8"
+                class="w-8 h-8 cursor-pointer"
                 v-tooltip.top="slotProps.data.user?.name"
               />
             </div>
@@ -157,6 +165,11 @@ const onPaginate = (event: { page: number }) => {
       </div>
     </div>
   </div>
+
+  <!-- Preview Dialog -->
+  <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+    <JournalPreview :journal="selectedPreviewItem" />
+  </Dialog>
 
 </template>
 
