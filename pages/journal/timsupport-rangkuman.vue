@@ -52,7 +52,7 @@ const setChartData = () => {
         labels,
         datasets: [
             {
-                label: 'Response Time (Menit)',
+                label: 'Waktu penyelesaian (Menit)',
                 data: items.map((item: any) => item.avg_minutes ? Number(item.avg_minutes).toFixed(1) : 0),
                 backgroundColor: 'rgba(249, 115, 22, 0.5)', // Orange
                 borderColor: 'rgba(249, 115, 22, 1)',
@@ -183,7 +183,7 @@ const setUserLineChartOptions = () => {
                 },
                 title: {
                     display: true,
-                    text: 'Response Time (Menit)'
+                    text: 'Waktu Penyelesaian (Menit)'
                 }
             },
             y1: {
@@ -217,7 +217,7 @@ const setUserDailyChartData = () => {
         datasets: [
             {
                 type: 'line',
-                label: 'Response Time (Menit)',
+                label: 'Waktu penyelesaian (Menit)',
                 data: items.map((item: any) => item.avg_minutes ? Number(item.avg_minutes).toFixed(1) : 0),
                 backgroundColor: 'rgba(16, 185, 129, 0.2)', // Emerald
                 borderColor: 'rgba(16, 185, 129, 1)',
@@ -283,7 +283,7 @@ const setUserDailyChartOptions = () => {
                 },
                 title: {
                     display: true,
-                    text: 'Response Time (Menit)'
+                    text: 'Waktu Penyelesaian (Menit)'
                 }
             },
             y1: {
@@ -343,7 +343,7 @@ const setChartOptions = () => {
                 },
                 title: {
                     display: true,
-                    text: 'Response Time (Menit)'
+                    text: 'Waktu Penyelesaian (Menit)'
                 }
             },
             y1: {
@@ -452,7 +452,7 @@ onMounted(() => {
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:headset" />
-            <span class="text-sm">Total Response Time</span>
+            <span class="text-sm">Total Waktu Penyelesaian</span>
           </div>
         </template>
         <template #content>
@@ -467,7 +467,7 @@ onMounted(() => {
                     </Button>
                   </template>
                 </Column>
-                <Column field="avg_minutes" sortable header="Response Time">                  
+                <Column field="avg_minutes" sortable header="Waktu Penyelesaian">                  
                   <template #body="slotProps">
                     {{ slotProps.data.avg_minutes?Number(slotProps.data.avg_minutes).toFixed(1):'-' }} Menit
                   </template>
@@ -497,7 +497,7 @@ onMounted(() => {
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:chart-column-stacked" />
-            <span class="text-sm">Grafik Total Response Time</span>
+            <span class="text-sm">Grafik Total Waktu Penyelesaian</span>
           </div>
         </template>
         <template #content>
@@ -514,7 +514,7 @@ onMounted(() => {
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:line-chart" />
-            <span class="text-sm">Grafik Response Time Harian</span>
+            <span class="text-sm">Grafik Waktu Penyelesaian Harian</span>
           </div>
         </template>
         <template #content>
@@ -535,7 +535,7 @@ onMounted(() => {
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:users" />
-            <span class="text-sm">Response Time per User</span>
+            <span class="text-sm">Waktu Penyelesaian per User</span>
           </div>
         </template>
         <template #content>
@@ -569,7 +569,7 @@ onMounted(() => {
         <template #header>
           <div class="flex pt-4 px-4 justify-start items-center gap-2">
             <Icon name="lucide:users" />
-            <span class="text-sm">Grafik Response Time per User</span>
+            <span class="text-sm">Grafik Waktu Penyelesaian per User</span>
           </div>
         </template>
         <template #content>
