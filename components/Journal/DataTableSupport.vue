@@ -22,13 +22,12 @@ const { data, status, refresh } = await useAsyncData('rincian_journal_timsupport
   client("/api/journal",{
     params: {
       journal_category_id: props.category_id,
-      date_start: dayjs(props.month).startOf('month').format('YYYY-MM-DD'),
-      date_end: dayjs(props.month).endOf('month').format('YYYY-MM-DD'),
+      month: dayjs(props.month).format('YYYY-MM'),
       user_id: props.user_id,
       page: page.value,
-      per_page: 100,
-      status: 'completed',
-      role: 'support',
+      per_page: 50,
+      journal_role: 'support',
+      has_end_date: true,
     },
   }) as any
 ) as any
