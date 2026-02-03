@@ -573,6 +573,14 @@ const getDialogHeader = () => {
 // Filter Drawer (mobile)
 const visibleFilterDrawer = ref(false);
 
+watch(() => route.query.status, (newStatus) => {
+    const status = newStatus || null;
+    if(status != filters.status){
+        filters.status = status;
+        getData();
+    }
+})
+
 // Initialize on component mount
 onMounted(() => {
   getCategories();
