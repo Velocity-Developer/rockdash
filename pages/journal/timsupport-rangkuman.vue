@@ -397,6 +397,13 @@ const pivotData = computed(() => {
     return Object.values(rows);
 });
 
+const visibleDialogDatatable = ref(false);
+const selectedCategoryId = ref<number>(0);
+const openDialogDatatable = (category_id: number) => {
+    visibleDialogDatatable.value = true;
+    selectedCategoryId.value = category_id;
+}
+
 // Force refresh check
 onMounted(() => {
     console.log('Tim Support Rangkuman Loaded');
@@ -453,7 +460,13 @@ onMounted(() => {
             <div v-if="data && data.data.length > 0">
 
               <DataTable :value="data.data" class="text-sm" stripedRows>                
-                <Column field="category" header="Kategori"></Column>
+                <Column field="category" header="Kategori">   
+                  <template #body="slotProps">
+                    <Button class="!p-0" variant="text" severity="contrast" size="small" @click="openDialogDatatable(slotProps.data.category_id)"> 
+                        {{ slotProps.data.category || '-' }}
+                    </Button>
+                  </template>
+                </Column>
                 <Column field="avg_minutes" sortable header="Response Time">                  
                   <template #body="slotProps">
                     {{ slotProps.data.avg_minutes?Number(slotProps.data.avg_minutes).toFixed(1):'-' }} Menit
@@ -571,6 +584,9 @@ onMounted(() => {
 
     </div>
 
+    <Dialog v-model:visible="visibleDialogDatatable" modal header="Rincian jurnal" :style="{ width: '90vw' }">
+        <JournalDataTableSupport :category_id="selectedCategoryId?Number(selectedCategoryId):undefined" :month="filters.month?filters.month:undefined" :user_id="filters.user_id?Number(filters.user_id):undefined" />
+    </Dialog>
 
     <DashLoader :loading="status=='pending'" />
 
