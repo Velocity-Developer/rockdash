@@ -404,6 +404,15 @@ const openDialogDatatable = (category_id: number) => {
     selectedCategoryId.value = category_id;
 }
 
+const formatDuration = (minutes: any) => {
+  if (!minutes) return '-';
+  const val = Number(minutes);
+  if (val > 60) {
+    return (val / 60).toFixed(1) + ' Jam';
+  }
+  return val.toFixed(1) + ' Menit';
+}
+
 // Force refresh check
 onMounted(() => {
     console.log('Tim Support Rangkuman Loaded');
@@ -469,7 +478,7 @@ onMounted(() => {
                 </Column>
                 <Column field="avg_minutes" sortable header="Waktu Penyelesaian">                  
                   <template #body="slotProps">
-                    {{ slotProps.data.avg_minutes?Number(slotProps.data.avg_minutes).toFixed(1):'-' }} Menit
+                    {{ formatDuration(slotProps.data.avg_minutes) }}
                   </template>
                 </Column>         
                 <Column field="total_journal" sortable header="Total"></Column>
@@ -477,7 +486,7 @@ onMounted(() => {
 
               <div class="flex justify-end items-center gap-2 px-3 py-3">
                 <span class="border rounded-lg p-4">
-                  Total Rata2 waktu: <span class="font-bold">{{ data.total_avg?Number(data.total_avg).toFixed(1):'-' }} Menit</span>
+                  Total Rata2 waktu: <span class="font-bold">{{ formatDuration(data.total_avg) }}</span>
                 </span>
                 <span class="border rounded-lg p-4">
                   Total Jurnal: <span class="font-bold">{{ data.total_journal || '-' }}</span>
