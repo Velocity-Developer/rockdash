@@ -41,6 +41,22 @@ const userChartData = ref();
 const userChartOptions = ref();
 const userDailyChartData = ref();
 const userDailyChartOptions = ref();
+const selectedCategories = ref([] as any[]);
+
+const filteredTotalJournal = computed(() => {
+    if (!selectedCategories.value || selectedCategories.value.length === 0) return 0;
+    return selectedCategories.value.reduce((sum, item: any) => sum + Number(item.total_journal), 0);
+});
+
+const filteredTotalAvg = computed(() => {
+    if (!selectedCategories.value || selectedCategories.value.length === 0 || filteredTotalJournal.value === 0) return 0;
+    
+    const totalMinutes = selectedCategories.value.reduce((sum, item: any) => {
+        return sum + (Number(item.avg_minutes) * Number(item.total_journal));
+    }, 0);
+
+    return totalMinutes / filteredTotalJournal.value;
+});
 
 const setChartData = () => {
     if (!data.value?.data) return null;
@@ -367,6 +383,9 @@ const setChartOptions = () => {
 };
 
 watch(data, () => {
+    if (data.value?.data) {
+        selectedCategories.value = [...data.value.data];
+    }
     chartData.value = setChartData();
     userChartData.value = setUserChartData();
     userDailyChartData.value = setUserDailyChartData();
@@ -450,6 +469,9 @@ const formatDuration = (minutes: any) => {
 // Force refresh check
 onMounted(() => {
     console.log('Tim Support Rangkuman Loaded');
+    if (data.value?.data) {
+        selectedCategories.value = [...data.value.data];
+    }
     chartOptions.value = setChartOptions();
     userChartOptions.value = setUserLineChartOptions();
     userDailyChartOptions.value = setUserDailyChartOptions();
@@ -502,7 +524,8 @@ onMounted(() => {
           
             <div v-if="data && data.data.length > 0">
 
-              <DataTable :value="data.data" class="text-sm" stripedRows>                
+              <DataTable :value="data.data" v-model:selection="selectedCategories" class="text-sm" stripedRows>
+                <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
                 <Column field="category" header="Kategori">   
                   <template #body="slotProps">
                     <Button class="!p-0" variant="text" severity="contrast" size="small" @click="openDialogDatatable(slotProps.data.category_id)"> 
@@ -520,10 +543,10 @@ onMounted(() => {
 
               <div class="flex justify-end items-center gap-2 px-3 py-3">
                 <span class="border rounded-lg p-4">
-                  Total Rata2 waktu: <span class="font-bold">{{ formatDuration(data.total_avg) }}</span>
+                  Total Rata2 waktu: <span class="font-bold">{{ formatDuration(filteredTotalAvg) }}</span>
                 </span>
                 <span class="border rounded-lg p-4">
-                  Total Jurnal: <span class="font-bold">{{ data.total_journal || '-' }}</span>
+                  Total Jurnal: <span class="font-bold">{{ filteredTotalJournal || '-' }}</span>
                 </span> 
               </div>
 
