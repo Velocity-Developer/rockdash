@@ -15,7 +15,7 @@
     <div class="md:col-span-2">
       <Card>
         <template #content>
-          <LaporanNilaiChart :datachart="data.users" class="mx-auto"/>
+          <LaporanNilaiChart :datachart="data.users" />
         </template>
       </Card>
     </div>
