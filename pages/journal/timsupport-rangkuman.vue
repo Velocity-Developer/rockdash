@@ -587,7 +587,7 @@ onMounted(() => {
                 <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
                   <template #body="slotProps">
                     <div v-if="slotProps.data[String(user)]" class="flex items-center gap-2">
-                        <span class="font-bold whitespace-nowrap">{{ Number(slotProps.data[String(user)].avg).toFixed(1) }} m</span>
+                        <span class="font-bold whitespace-nowrap">{{ formatDuration(slotProps.data[String(user)].avg) }}</span>
                         <span class="text-xs text-muted-foreground whitespace-nowrap">({{ slotProps.data[String(user)].total }} Jurnal)</span>
                     </div>
                     <span v-else>-</span>
