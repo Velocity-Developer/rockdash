@@ -3,7 +3,12 @@
   <Card>
     <template #content>
 
-      <div class="text-end mb-3">
+      <div class="flex justify-end items-center gap-1 mb-3">
+        <Select v-model="filters.role" showClear :options="optionsRoles" optionLabel="label" optionValue="value" size="small" @change="getData" placeholder="Filter by role">
+          <Option value="admin">Admin</Option>
+          <Option value="user">User</Option>
+        </Select>
+        <Select v-model="filters.status" showClear :options="['active','deactive']" placeholder="Filter by status" size="small" @change="getData" />
         <Button type="button" @click="openDialog(null,'add')" size="small">
             <Icon name="lucide:plus" mode="svg"/> Tambah
         </Button>
@@ -116,13 +121,19 @@ const dialogAction = ref('view');
 const selectedItem = ref();
 const op = ref();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
+const filters = ref({
+  role: '',
+  status: 'active',
+})
+
+const { data: optionsRoles } = await useAsyncData( 'options-roles', () => client('/api/option/roles')) as any
 
 const dataUs = ref([] as any);
 const loading = ref(false);
 const getData = async () => {
   try {
     loading.value = true;
-    const res = await client('/api/users?page='+page.value);
+    const res = await client('/api/users?page='+page.value+'&role='+filters.value.role+'&status='+filters.value.status);
     dataUs.value = res
     loading.value = false;
   } catch (error) {
