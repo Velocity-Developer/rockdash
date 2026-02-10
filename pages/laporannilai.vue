@@ -30,6 +30,7 @@
             class="mb-5" 
             stripedRows
             scrollable
+            :loading="loading"
           >
             <Column field="name" header="Nama">
               <template #body="slotProps">
@@ -68,7 +69,7 @@
   </div>
 
 
-  <Tabs v-model:value="activeTab" class="shadow rounded-lg overflow-hidden bg-zinc-100 mt-5">
+  <Tabs v-model:value="activeTab" class="shadow rounded-lg overflow-hidden mt-5">
       <TabList>
           <Tab v-for="tab in data.users" :key="tab.id" :value="tab.id">
             <div class="flex items-center text-xs font-normal">          
@@ -89,7 +90,7 @@
             </div>
           </Tab>
       </TabList>
-      <TabPanels>
+      <TabPanels v-if="!loading">
           <TabPanel v-for="tab in data.users" :key="tab.id" :value="tab.id">
               
              <DataTable
@@ -137,6 +138,15 @@
               
           </TabPanel>
       </TabPanels>
+
+      <div v-if="loading" class="px-4">
+        <div v-for="n in 10" class="flex justify-between gap-2 mt-2">
+          <Skeleton height="2rem"></Skeleton>
+          <Skeleton height="2rem"></Skeleton>
+          <Skeleton height="2rem"></Skeleton>
+          <Skeleton height="2rem"></Skeleton>
+        </div>
+      </div>
   </Tabs>
 
   <DashLoader :loading="loading"/>
