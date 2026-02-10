@@ -387,16 +387,20 @@ const pivotData = computed(() => {
     // Initialize rows for all categories
     data.value.data_user_details.forEach((item: any) => {
         if (!rows[item.category_name]) {
-            rows[item.category_name] = { category: item.category_name };
+            rows[item.category_name] = { 
+                category: item.category_name,
+                category_id: item.category_id 
+            };
         }
         rows[item.category_name][item.user_name] = {
             avg: item.avg_minutes,
-            total: item.total_journal
+            total: item.total_journal,
+            user_id: item.user_id
         };
 
         // Calculate totals
         if (!userTotals[item.user_name]) {
-            userTotals[item.user_name] = { minutes: 0, journals: 0 };
+            userTotals[item.user_name] = { minutes: 0, journals: 0, user_id: item.user_id };
         }
         
         const minutes = Number(item.avg_minutes || 0);
@@ -410,11 +414,12 @@ const pivotData = computed(() => {
 
     // Add Total Row
     if (result.length > 0) {
-        const totalRow = { category: 'TOTAL' } as any;
+        const totalRow = { category: 'TOTAL', category_id: null } as any;
         Object.keys(userTotals).forEach(user => {
             totalRow[user] = {
                 avg: userTotals[user].minutes,
-                total: userTotals[user].journals
+                total: userTotals[user].journals,
+                user_id: userTotals[user].user_id
             };
         });
         result.push(totalRow);
@@ -425,9 +430,12 @@ const pivotData = computed(() => {
 
 const visibleDialogDatatable = ref(false);
 const selectedCategoryId = ref<number>(0);
-const openDialogDatatable = (category_id: number) => {
+const selectedDialogUserId = ref<number | null>(null);
+
+const openDialogDatatable = (category_id: number, user_id: number | null = null) => {
     visibleDialogDatatable.value = true;
     selectedCategoryId.value = category_id;
+    selectedDialogUserId.value = user_id;
 }
 
 const formatDuration = (minutes: any) => {
@@ -586,10 +594,17 @@ onMounted(() => {
                 <Column field="category" header="Kategori" frozen style="min-width: 200px"></Column>
                 <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
                   <template #body="slotProps">
-                    <div v-if="slotProps.data[String(user)]" class="flex items-center gap-2">
+                    <Button 
+                        v-if="slotProps.data[String(user)]" 
+                        class="!p-0 flex items-center gap-2 !no-underline hover:bg-muted/50 rounded cursor-pointer" 
+                        variant="text" 
+                        severity="contrast" 
+                        size="small" 
+                        @click="openDialogDatatable(slotProps.data.category_id, slotProps.data[String(user)].user_id)"
+                    >
                         <span class="font-bold whitespace-nowrap">{{ formatDuration(slotProps.data[String(user)].avg) }}</span>
                         <span class="text-xs text-muted-foreground whitespace-nowrap">({{ slotProps.data[String(user)].total }} Jurnal)</span>
-                    </div>
+                    </Button>
                     <span v-else>-</span>
                   </template>
                 </Column>
@@ -621,7 +636,7 @@ onMounted(() => {
     </div>
 
     <Dialog v-model:visible="visibleDialogDatatable" modal header="Rincian jurnal" :style="{ width: '90vw' }">
-        <JournalDataTableSupport :category_id="selectedCategoryId?Number(selectedCategoryId):undefined" :month="filters.month?filters.month:undefined" :user_id="filters.user_id?Number(filters.user_id):undefined" />
+        <JournalDataTableSupport :category_id="selectedCategoryId?Number(selectedCategoryId):undefined" :month="filters.month?filters.month:undefined" :user_id="selectedDialogUserId ? Number(selectedDialogUserId) : (filters.user_id ? Number(filters.user_id) : undefined)" />
     </Dialog>
 
     <DashLoader :loading="status=='pending'" />
