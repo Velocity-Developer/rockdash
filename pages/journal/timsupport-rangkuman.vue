@@ -382,6 +382,7 @@ const pivotData = computed(() => {
     if (!data.value?.data_user_details) return [];
     
     const rows = {} as any;
+    const userTotals = {} as any;
     
     // Initialize rows for all categories
     data.value.data_user_details.forEach((item: any) => {
@@ -392,9 +393,34 @@ const pivotData = computed(() => {
             avg: item.avg_minutes,
             total: item.total_journal
         };
+
+        // Calculate totals
+        if (!userTotals[item.user_name]) {
+            userTotals[item.user_name] = { minutes: 0, journals: 0 };
+        }
+        
+        const minutes = Number(item.avg_minutes || 0);
+        const count = Number(item.total_journal || 0);
+        
+        userTotals[item.user_name].minutes += (minutes * count);
+        userTotals[item.user_name].journals += count;
     });
     
-    return Object.values(rows);
+    const result = Object.values(rows);
+
+    // Add Total Row
+    if (result.length > 0) {
+        const totalRow = { category: 'TOTAL' } as any;
+        Object.keys(userTotals).forEach(user => {
+            totalRow[user] = {
+                avg: userTotals[user].minutes,
+                total: userTotals[user].journals
+            };
+        });
+        result.push(totalRow);
+    }
+    
+    return result;
 });
 
 const visibleDialogDatatable = ref(false);
@@ -555,6 +581,7 @@ onMounted(() => {
                 stripedRows
                 scrollable 
                 scrollHeight="600px"
+                :rowClass="(data) => data.category === 'TOTAL' ? '!font-extrabold !bg-muted/30' : ''"
               >
                 <Column field="category" header="Kategori" frozen style="min-width: 200px"></Column>
                 <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
