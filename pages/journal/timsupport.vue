@@ -123,6 +123,18 @@
           @keyup.enter="getData()"
         />
       </div>
+      <div>
+        <label class="text-sm block font-medium opacity-50">
+          Per Hal.:
+        </label>
+        <Select 
+          v-model="filters.per_page" 
+          :options="[15,25,50,100]"
+          placeholder="25"
+          @change="getData()"
+          size="small"
+        />
+      </div>
     </div>
 
 
@@ -159,22 +171,21 @@
         </Column>
         <Column field="hp" header="Hp" :sortable="false">
           <template #body="slotProps">            
-            <template v-if="slotProps.data.detail_support?.hp">
-              {{ slotProps.data.detail_support?.hp }}
-            </template>
+            {{ slotProps.data.detail_support?.hp || '-' }}
           </template>
         </Column>
         <Column field="wa" header="WA"  class="hidden md:table-cell">
-          <template #body="slotProps">           
-            <template v-if="slotProps.data.detail_support?.wa">
-              {{ slotProps.data.detail_support?.wa }}
-            </template>
+          <template #body="slotProps">          
+            {{ slotProps.data.detail_support?.wa || '-' }}
           </template>
         </Column>
         <Column field="webhost.nama_web" header="Web" :sortable="false">
           <template #body="slotProps">           
             <template v-if="slotProps.data.webhost?.nama_web">
               {{ slotProps.data.webhost?.nama_web }}
+            </template> 
+            <template v-else>
+              -
             </template>
           </template>
         </Column>
@@ -190,6 +201,9 @@
             <template v-if="slotProps.data.end">
               {{ formatDate(slotProps.data.end,'DD/MM/YY HH:mm') }}
             </template>
+            <div v-if="!slotProps.data.end && slotProps.data.status === 'ongoing'" class="opacity-50 flex items-center gap-1 group">
+              <Icon name="lucide:hourglass" class="group-hover:animate-spin"/> <span class="text-xs opacity-0 group-hover:opacity-100">pengerjaan</span>
+            </div>
           </template>
         </Column>
         <Column field="description" header="Detail" class="hidden md:table-cell">
@@ -427,6 +441,7 @@ const filters = reactive({
   page: route.query.page ? Number(route.query.page) : 1,
   pagination: true,
   order: 'desc',
+  per_page: 25,
 }) as any
 
 const loading = ref(false);
