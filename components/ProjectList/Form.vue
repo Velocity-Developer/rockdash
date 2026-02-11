@@ -62,7 +62,7 @@
       <Textarea v-model="form.catatan" class="w-full" />
     </div>
 
-    <div class="flex gap-4 justify-between items-end">
+    <div class="flex gap-4 justify-between" :class="form.id_karyawan == 28?'items-start':'items-end'">
       <div class="flex-1" :class="{'!hidden': form.id_karyawan == 28}">
         <ProgressBar 
           v-if="form.progress" 
@@ -78,7 +78,22 @@
           <Icon name="lucide:square-check"/> Quality Control
         </Button>
       </div>
-      <div class="flex-1 flex justify-end">
+      <div class="flex-1" :class="{'!hidden': form.id_karyawan !== 28}">
+        <div class="bg-indigo-50 dark:bg-indigo-900 border border-indigo-200 p-4 rounded-md">
+          <div class="text-indigo-700 dark:text-indigo-100 font-medium">Info Klien</div>
+          <div>
+            <div class="block text-sm font-medium opacity-70">No.HP</div>
+            <Skeleton v-if="loadingWmProject" height="2.5rem" />
+            <InputText v-else v-model="form.journal_support_klien_hp" class="w-full"/>
+          </div>
+          <div>
+            <div class="block text-sm font-medium opacity-70">WhatsApp</div>
+            <Skeleton v-if="loadingWmProject" height="2.5rem" />
+            <Select v-else v-model="form.journal_support_klien_wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" placeholder="Pilih WA/Tsel" optionValue="value" class="w-full"/>
+          </div>
+        </div>
+      </div>
+      <div class="flex-2 flex justify-end">
         <div>          
           <label for="status_project">Status Project</label>
             <Select
@@ -98,6 +113,7 @@
         </div>
       </div>  
     </div>
+            
 
     <div v-if="errors && errors.value" class="mb-2">
       <Message v-for="error of errors.value" :key="error" severity="warn" class="mt-1">{{ error[0] }}</Message>
@@ -185,6 +201,8 @@ const form = reactive({
   id_karyawan: data.raw_dikerjakan?data.raw_dikerjakan[0]:23,
   status_project: 'Belum dikerjakan',
   jenis_project: props.jenis_project,
+  journal_support_klien_hp: data.journal_support_klien_hp ?? '',
+  journal_support_klien_wa: data.journal_support_klien_wa ?? '',
 });
 
 // Watch agar form terisi saat wm_project ter-update
@@ -236,6 +254,10 @@ onMounted(async () => {
       wm_project.value = res;
       if(res.cs_main_project?.cs_main_project_info){
         csMainProjectInfo.value = res.cs_main_project?.cs_main_project_info
+      }
+      if(res.journal && res.journal.detail_support){
+        form.journal_support_klien_hp = res.journal?.detail_support?.hp ?? ''
+        form.journal_support_klien_wa = res.journal?.detail_support?.wa ?? ''
       }
     } catch (error) {
       console.log(error);
