@@ -1,19 +1,26 @@
 <template>
-  <Card>
+  <Card class="group">
     <template #header>
-      <div class="px-4 py-2 flex items-center gap-1 font-bold">
-        <Icon name="lucide:file-check-2" />
-        Jurnal terbaru
+      <div class="px-4 py-2 flex items-center justify-between gap-1 font-bold">
+        <div class="flex items-center gap-1">
+          <Icon name="lucide:hourglass" class="group-hover:animate-spin"/> Jurnal pengerjaan terbaru
+        </div>
+        <Button size="small" variant="text" @click="getData">
+          <span :class="loading?'animate-spin':''"><Icon name="lucide:refresh-cw" mode="svg"/></span>
+        </Button>
       </div>
     </template>
     <template #content>
       <div>
         
-        <DataTable :value="data.data" class="text-xs" :loading="loading">
+        <DataTable :value="data.data" class="text-xs" stripedRows :loading="loading">
+          <Column field="no" header="No">
+            <template #body="slotProps">{{ slotProps.index + 1 }}</template>
+          </Column>
           <Column field="title" header="Judul"></Column>
-          <Column field="description" header="Desk.">
+          <Column field="description" header="Desc.">
             <template #body="slotProps">
-              <div v-html="purifyHtml(slotProps.data.description)"></div>
+              <div class="truncate max-w-[200px]" :title="purifyHtml(slotProps.data.description)" v-html="purifyHtml(slotProps.data.description)"></div>
             </template>
           </Column>
           <Column field="user.name" header="User" style="width: 60px">
@@ -56,19 +63,21 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 
 const filters = reactive({
-  date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
-  date_end: dayjs().format('YYYY-MM-DD'),
+  // date_start: dayjs().startOf('month').format('YYYY-MM-DD'),
+  // date_end: dayjs().format('YYYY-MM-DD'),
   role: 'webdeveloper',
   user_id: '',
   page: 1,
   pagination: false,
-  order: 'asc',
+  order: 'desc',
   status: 'ongoing',
+  per_page: 10,
 }) as any
 
 const loading = ref(false);
 const data = ref({} as any);
 const getData = async () => {
+  loading.value = true;
   try {
       const res = await client('/api/journal',{
         params: filters,
