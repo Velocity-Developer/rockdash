@@ -61,6 +61,22 @@
       <label for="catatan">Catatan</label>
       <Textarea v-model="form.catatan" class="w-full" />
     </div>
+         
+    <div :class="{'!hidden': form.id_karyawan !== 28}" class="bg-indigo-50 dark:bg-indigo-900 border border-indigo-200 p-4 rounded-md">
+      <div class="text-indigo-700 dark:text-indigo-100 font-medium">Info Klien</div>
+      <div class="grid grid-cols-2 gap-3 mt-2">
+        <div>
+          <div class="block text-sm font-medium opacity-70">No.HP</div>
+          <Skeleton v-if="loadingWmProject" height="2.5rem" />
+          <InputText v-else v-model="form.journal_support_klien_hp" class="w-full"/>
+        </div>
+        <div>
+          <div class="block text-sm font-medium opacity-70">WhatsApp</div>
+          <Skeleton v-if="loadingWmProject" height="2.5rem" />
+          <Select v-else v-model="form.journal_support_klien_wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" placeholder="Pilih WA/Tsel" optionValue="value" class="w-full"/>
+        </div>
+      </div>
+    </div>
 
     <div class="flex gap-4 justify-between" :class="form.id_karyawan == 28?'items-start':'items-end'">
       <div class="flex-1" :class="{'!hidden': form.id_karyawan == 28}">
@@ -78,22 +94,7 @@
           <Icon name="lucide:square-check"/> Quality Control
         </Button>
       </div>
-      <div class="flex-1" :class="{'!hidden': form.id_karyawan !== 28}">
-        <div class="bg-indigo-50 dark:bg-indigo-900 border border-indigo-200 p-4 rounded-md">
-          <div class="text-indigo-700 dark:text-indigo-100 font-medium">Info Klien</div>
-          <div>
-            <div class="block text-sm font-medium opacity-70">No.HP</div>
-            <Skeleton v-if="loadingWmProject" height="2.5rem" />
-            <InputText v-else v-model="form.journal_support_klien_hp" class="w-full"/>
-          </div>
-          <div>
-            <div class="block text-sm font-medium opacity-70">WhatsApp</div>
-            <Skeleton v-if="loadingWmProject" height="2.5rem" />
-            <Select v-else v-model="form.journal_support_klien_wa" :options="[{ label: 'XL', value: 'XL' },{ label: 'Tsel', value: 'Tsel' }]" optionLabel="label" placeholder="Pilih WA/Tsel" optionValue="value" class="w-full"/>
-          </div>
-        </div>
-      </div>
-      <div class="flex-2 flex justify-end">
+      <div class="flex-1 flex justify-end">
         <div>          
           <label for="status_project">Status Project</label>
             <Select
