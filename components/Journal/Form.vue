@@ -34,7 +34,7 @@
           Info Klien
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <div v-if="isDetailSupport" class="col-span-2 md:col-span-1">
+          <div v-if="isDetailSupport || isDetailAdvertising" class="col-span-2 md:col-span-1">
             <div class="block text-sm font-medium opacity-70">No.HP</div>
             <InputText v-model="form.detail_support.hp" class="w-full"/>
             <Message v-if="errors.detail_support?.hp" severity="error" size="small" class="mt-1" closable>{{ errors.detail_support.hp[0] }}</Message>
@@ -55,7 +55,7 @@
             <FormSelectWebhost v-model="form.webhost_id" />
             <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
           </div>
-          <div v-if="isDetailSupport == false" class="mb-3 col-span-2 md:col-span-1">
+          <div v-if="isDetailSupport == false && isDetailAdvertising == false" class="mb-3 col-span-2 md:col-span-1">
             <div class="block text-sm font-medium opacity-70">Project</div>
             <FormSelectCsMainProject 
               v-model="form.cs_main_project_id" 
@@ -591,6 +591,19 @@ const isDetailSupport = computed(() => {
   }
   //jika role != support dan isi detail_support ada maka true
   else if(form.role !== 'support' && form.detail_support !== null && form.detail_support.hp) {
+    return true
+  } else {
+    return false
+  }
+})
+
+const isDetailAdvertising = computed(() => {
+  //jika role = advertising maka true
+  if(form.role === 'advertising') {
+    return true
+  }
+  //jika role != advertising dan isi detail_support ada maka true
+  else if(form.role !== 'advertising' && form.detail_support !== null && form.detail_support.hp) {
     return true
   } else {
     return false
