@@ -63,7 +63,7 @@
           </div>
         </div>
       </div>
-      <div v-if="isDetailSupport" class="col-span-6 md:col-span-3 flex items-center gap-3">
+      <div v-if="isDetailSupport || props.journal.detail_support?.hp" class="col-span-6 md:col-span-3 flex items-center gap-3">
         <div class="w-10 h-10 p-2 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg">
           <Icon name="lucide:phone" class="text-sky-600 dark:text-indigo-400" />
         </div>
