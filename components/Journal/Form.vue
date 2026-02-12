@@ -265,7 +265,9 @@ const getCategories = async () => {
   try {
     const res = await client('/api/journal_category',{
         params: {
-          role: form.role
+          role: form.role,
+          per_page: 100,
+          pagination: false
         },
     }) as any
     opsiCategories.value = res.data
@@ -397,7 +399,7 @@ onMounted( async () => {
       await getCategories()
 
       // Set kategoriSelectedInfo after categories are loaded
-      if (form.journal_category_id) {
+      if (form.journal_category_id && opsiCategories) {
         kategoriSelectedInfo.value = opsiCategories.value.find((category: any) => category.id === form.journal_category_id)
       }
 
@@ -514,27 +516,41 @@ const handleSubmit = async () => {
 
   loading.value = true;
   errors.value = ''
-  
-  //ubah form.start dan form.end ke format yyyy-mm-dd h:m:s
-  form.start = dayjs(form.start).format('YYYY-MM-DD HH:mm:ss')
-  if(form.end) {
-    form.end = dayjs(form.end).format('YYYY-MM-DD HH:mm:ss')
-  } else {
-    form.end = null
-  }
 
+  const body_form = ({
+    title: form.title,
+    description: form.description,
+    start: form.start?dayjs(form.start).format('YYYY-MM-DD HH:mm:ss'):null,
+    end: form.end?dayjs(form.end).format('YYYY-MM-DD HH:mm:ss'):null,
+    status: form.status,
+    priority: form.priority,
+    user_id: form.user_id,
+    webhost_id: form.webhost_id,
+    cs_main_project_id: form.cs_main_project_id,
+    journal_category_id: form.journal_category_id,
+    id: form.id,
+    role: form.role,
+    detail_support: {
+      hp: form.detail_support?.hp,
+      wa: form.detail_support?.wa,
+      email: form.detail_support?.email,
+      biaya: form.detail_support?.biaya,
+      tanggal_bayar: form.detail_support?.tanggal_bayar
+    } 
+  });
+  
   //if detail_support .tanggal_bayar is not empty, then format it to yyyy-mm-dd
   if(form.detail_support && form.detail_support.tanggal_bayar && form.detail_support.tanggal_bayar !== '') {
-    form.detail_support.tanggal_bayar = dayjs(form.detail_support.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss')
+    body_form.detail_support.tanggal_bayar = dayjs(form.detail_support.tanggal_bayar).format('YYYY-MM-DD HH:mm:ss')
   } else if(form.detail_support && form.detail_support.tanggal_bayar === '') {
-    form.detail_support.tanggal_bayar = null
+    body_form.detail_support.tanggal_bayar = null
   }
 
   if(props.action === 'add' || props.action === 'clone') {
     try {
       await client('/api/journal', {
         method: 'POST',
-        body: form
+        body: body_form
       })
       toast.add({
         severity: 'success',
@@ -558,7 +574,7 @@ const handleSubmit = async () => {
     try {
       await client('/api/journal/' + form.id, {
         method: 'PUT',
-        body: form
+        body: body_form
       })
       toast.add({
         severity: 'success',
