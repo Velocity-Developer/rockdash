@@ -29,7 +29,7 @@
     "nuxt": "^4.0.3",
     "nuxt-auth-sanctum": "^1.1.2",
     "pinia": "^3.0.3",
-    "primevue": "^4.3.5",
+    "primevue": "^4.5.4",
     "print-js": "^1.6.0",
     "quill": "^2.0.3",
     "vue": "^3.5.18",
