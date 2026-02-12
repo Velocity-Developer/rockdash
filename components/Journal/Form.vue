@@ -100,12 +100,7 @@
         <div class="flex items-center gap-2 justify-between">
           <SelectButton 
             v-model="form.status" 
-            :options="[
-              { label: 'Proses', value: 'ongoing' },
-              { label: 'Selesai', value: 'completed' },
-              { label: 'Follow Up', value: 'followup' },
-              { label: 'Batal', value: 'cancelled' }
-            ]" 
+            :options="opsiStatus" 
             optionLabel="label" optionValue="value" placeholder="Semua Status"
             class="w-full h-[55px]"
           />          
@@ -248,6 +243,21 @@ const { data: opsiRoles } = await useAsyncData(
   () => client('/api/option/roles'),
   { default: () => [] }
 ) as any
+
+const opsiStatus = computed(() => {
+  const options = [
+    { label: 'Proses', value: 'ongoing' },
+    { label: 'Selesai', value: 'completed' },
+  ]
+
+  if (form.role === 'support') {
+    options.push({ label: 'Follow Up', value: 'followup' })
+  }
+
+  options.push({ label: 'Batal', value: 'cancelled' })
+
+  return options
+})
 
 const opsiCategories = ref([] as any)
 const getCategories = async () => {
