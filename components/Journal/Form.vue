@@ -108,7 +108,7 @@
         <Message v-if="errors.status" severity="error" size="small" class="mt-1" closable>{{ errors.status[0] }}</Message>
       </div>
             
-      <div v-if="isDetailSupport == false" class="col-span-6 mt-6">
+      <div v-if="isDetailSupport == false && isDetailAdvertising == false" class="col-span-6 mt-6">
         <div class="block text-sm font-medium opacity-70">Judul</div>
         <InputText v-model="form.title" class="w-full" required/>
         <Message v-if="errors.title" severity="error" size="small" class="mt-1" closable>{{ errors.title[0] }}</Message>
@@ -135,7 +135,7 @@
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
       
-      <div class="col-span-6">
+      <div class="col-span-6 mt-4">
         <div class="block text-sm font-medium opacity-70">Deskripsi</div>
 
         <Editor v-model="form.description" class="w-full" editorStyle="height: 320px">
@@ -286,7 +286,7 @@ const form = reactive({
   journal_category_id: '',
   id: '',
   role: props.action === 'add' ? (props.defaultRole || useConfig.config?.role) : '',
-  detail_support: (props.defaultRole === 'support' || useConfig.config?.role === 'support') ? {
+  detail_support: (props.defaultRole === 'support' || useConfig.config?.role === 'support' || props.defaultRole === 'advertising' || useConfig.config?.role === 'advertising') ? {
     hp: '',
     wa: '',
     email: '',
@@ -303,6 +303,11 @@ watch(() => form.journal_category_id, (newCategoryId) => {
   //jika form.role = support, isi title dengan kategoriSelectedInfo.value.name + nama webhost
   if(form.role == 'support' && kategoriSelectedInfo.value) {
     form.title = 'Support '+kategoriSelectedInfo.value.name 
+  }
+
+  //jika form.role = advertising, isi title dengan kategoriSelectedInfo.value.name + nama webhost
+  if(form.role == 'advertising' && kategoriSelectedInfo.value) {
+    form.title = 'Ads '+kategoriSelectedInfo.value.name 
   }
 })
 
@@ -471,6 +476,34 @@ onMounted( async () => {
 const errors = ref('' as any)
 const loading = ref(false);
 const handleSubmit = async () => {
+
+  const validations = [
+    {
+      condition: !form.user_id,
+      message: 'Wajib pilih User'
+    },
+    {
+      condition: form.role === 'advertising' && !form.webhost_id,
+      message: 'Wajib pilih website'
+    },
+    {
+      condition: form.role === 'advertising' && !form.detail_support?.hp,
+      message: 'Wajib isi no hp klien'
+    }
+  ]
+
+  const error = validations.find(v => v.condition)
+
+  if (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Form belum lengkap !',
+      detail: error.message,
+      life: 3000
+    })
+    return
+  }
+
   loading.value = true;
   errors.value = ''
   
@@ -590,9 +623,9 @@ const isDetailSupport = computed(() => {
     return true
   }
   //jika role != support dan isi detail_support ada maka true
-  else if(form.role !== 'support' && form.detail_support !== null && form.detail_support.hp) {
-    return true
-  } else {
+  // else if(form.role !== 'support' && form.detail_support !== null && form.detail_support.hp) {
+  //   return true
+  else {
     return false
   }
 })
@@ -603,9 +636,9 @@ const isDetailAdvertising = computed(() => {
     return true
   }
   //jika role != advertising dan isi detail_support ada maka true
-  else if(form.role !== 'advertising' && form.detail_support !== null && form.detail_support.hp) {
-    return true
-  } else {
+  // else if(form.role !== 'advertising' && form.detail_support !== null && form.detail_support.hp) {
+  //   return true
+  else {
     return false
   }
 })
