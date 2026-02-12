@@ -103,6 +103,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:modelValue', value: string | number | null): void;
+  (e: 'update', value: Webhost | null): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -153,8 +154,10 @@ watch(() => props.modelValue, async (newValue) => {
 watch(selectedWebhost, (newValue) => {
   if (newValue) {
     emit('update:modelValue', newValue.id_webhost);
+    emit('update', newValue);
   } else {
     emit('update:modelValue', null);
+    emit('update', null);
   }
 });
 

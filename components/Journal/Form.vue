@@ -52,7 +52,7 @@
 
           <div class="mb-3 col-span-2 md:col-span-1">
             <div class="block text-sm font-medium opacity-70">Website</div>
-            <FormSelectWebhost v-model="form.webhost_id" />
+            <FormSelectWebhost v-model="form.webhost_id" @update="handleWebhostUpdate" />
             <Message v-if="errors.webhost_id" severity="error" size="small" class="mt-1" closable>{{ errors.webhost_id[0] }}</Message>
           </div>
           <div v-if="isDetailSupport == false && isDetailAdvertising == false" class="mb-3 col-span-2 md:col-span-1">
@@ -228,6 +228,7 @@ const toast = useToast();
 const confirm = useConfirm();
 const dateNow = new Date();
 const useConfig = useConfigStore()
+const namaWeb = ref('' as string)
 
 const { data: opsiUsers } = await useAsyncData(
   'opsi-users-formjournal', 
@@ -302,12 +303,15 @@ watch(() => form.journal_category_id, (newCategoryId) => {
 
   //jika form.role = support, isi title dengan kategoriSelectedInfo.value.name + nama webhost
   if(form.role == 'support' && kategoriSelectedInfo.value) {
-    form.title = 'Support '+kategoriSelectedInfo.value.name 
+    form.title = 'Support '+kategoriSelectedInfo.value.name+' '+namaWeb.value
   }
 
   //jika form.role = advertising, isi title dengan kategoriSelectedInfo.value.name + nama webhost
   if(form.role == 'advertising' && kategoriSelectedInfo.value) {
-    form.title = 'Ads '+kategoriSelectedInfo.value.name 
+    form.title = 'Ads '+kategoriSelectedInfo.value.name +' '+namaWeb.value
+  }
+  if(form.role == 'advertising' && kategoriSelectedInfo.value && !form.description) {
+    form.description = 'Ads '+kategoriSelectedInfo.value.name +' untuk '+namaWeb.value
   }
 })
 
@@ -338,6 +342,10 @@ watch(() => form.role, (newRole) => {
   // Update categories berdasarkan role baru
   getCategories()
 })
+
+const handleWebhostUpdate = (data: any) => {
+  namaWeb.value = data.nama_web
+}
 
 onMounted( async () => {
   if(props.action === 'edit') {
