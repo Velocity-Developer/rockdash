@@ -214,6 +214,7 @@ const props = defineProps({
     default: () => {}
   }
 })
+import('quill')
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const emit = defineEmits(['update','delete']);
