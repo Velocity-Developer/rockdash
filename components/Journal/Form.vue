@@ -142,7 +142,17 @@
       
       <div class="col-span-6">
         <div class="block text-sm font-medium opacity-70">Deskripsi</div>
-        <Editor v-model="form.description" class="w-full" editorStyle="height: 320px"/>
+
+        <Editor v-model="form.description" class="w-full" editorStyle="height: 320px">
+          <template v-slot:toolbar>
+              <span class="ql-formats">
+                  <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+                  <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+                  <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+              </span>
+          </template>
+        </Editor>
+
         <Message v-if="errors.description" severity="error" size="small" class="mt-1" closable>{{ errors.description[0] }}</Message>
       </div>
       
