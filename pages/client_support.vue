@@ -1,6 +1,7 @@
 <template>
 
   <div class="w-full flex flex-col md:flex-row gap-2 md:justify-between items-end text-xs mb-5">
+
     <form @submit.prevent="getData()" class="hidden md:flex items-end gap-2">
       <div>
         <div class="mb-1 opacity-50">Per Page : </div>            
@@ -122,6 +123,7 @@
     </div>
   </div>
 
+
   <Drawer v-model:visible="visibleDrawerFilter" header="Filters" position="right">
     <form @submit.prevent="filterSubmit" class="space-y-3">
         <div>
@@ -186,18 +188,18 @@ const dayjs = useDayjs()
 const route = useRoute();
 const client = useSanctumClient();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
-const tglStartQuery = route.query.tgl_start as string | undefined
-const tglEndQuery = route.query.tgl_end as string | undefined
+const tglStartQuery = route.query.tanggal_start as string | undefined
+const tglEndQuery = route.query.tanggal_end as string | undefined
 
 const filters = reactive({
   per_page: route.query.per_page || 50,
   page: computed(() => page.value),
-  tgl_start: route.query.tgl_start
+  tgl_start: tglStartQuery
     ? dayjs(tglStartQuery, 'YYYY-MM-DD').toDate()
     : dayjs().toDate(),
   tgl_end: tglEndQuery
     ? dayjs(tglEndQuery, 'YYYY-MM-DD').toDate()
-    : null,
+    : '',
   nama_web: route.query.nama_web || '',
   jenis: route.query.jenis || '',
 } as any);
@@ -208,10 +210,10 @@ function updateRouteParams() {
   
   // ubah format tgl_start dan tgl_end menjadi YYYY-MM-DD
   if (filters.tgl_start) {
-      filters.tgl_start = dayjs(filters.tgl_start).format('YYYY-MM-DD');
+      filters.tanggal_start = dayjs(filters.tgl_start).format('YYYY-MM-DD');
   }
   if (filters.tgl_end) {
-      filters.tgl_end = dayjs(filters.tgl_end).format('YYYY-MM-DD');
+      filters.tanggal_end = dayjs(filters.tgl_end).format('YYYY-MM-DD');
   }
   
   router.push({
@@ -227,7 +229,11 @@ const getData = async () => {
 
     try {
       const res = await client('/api/client_support',{
-        params: filters
+        params: {
+          ...filters,
+          tgl_start: filters.tanggal_start,
+          tgl_end: filters.tanggal_end,
+        }
       })
       dataClientSupport.value = res
     } catch (error) {
