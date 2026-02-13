@@ -393,7 +393,7 @@ const handleSubmit = async () => {
 }
 
 //watch form.nama_web
-const search_webhost = ref({} as any);
+const search_webhost = ref([] as any);
 const loadingSearchWebhost = ref(false);
 watch(() => form.nama_web, async (val) => {
   //bersihkan dari http:// atau https://
@@ -418,7 +418,7 @@ watch(() => form.nama_web, async (val) => {
     }
     loadingSearchWebhost.value = false;
   } else {
-    search_webhost.value = {};
+    search_webhost.value = [];
     form.id_webhost = '';
   }
 })

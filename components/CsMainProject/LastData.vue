@@ -23,7 +23,7 @@
 <script setup lang="ts">
 const client = useSanctumClient();
 
-const data = ref({} as any)
+const data = ref([] as any)
 const getData = async () => {
   try {
     const res = await client('api/cs_main_project_lastdata');

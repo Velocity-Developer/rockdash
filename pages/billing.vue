@@ -31,7 +31,7 @@
         <Icon name="lucide:filter" /> <span class="hidden md:inline-block">Filter</span>
         <span
         class="w-2 h-2 bg-yellow-300 rounded-full inline-block absolute top-0 right-0 m-1"
-        v-if="filters.nama_web || filters.paket || filters.jenis || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
+        v-if="filters.nama_web || filters.paket && filters.paket.length > 0 || filters.jenis && filters.jenis.length > 0 || filters.deskripsi || filters.trf || filters.hp || filters.telegram || filters.hpads || filters.wa || filters.email"
         ></span>
       </Button>
     </div>
@@ -285,8 +285,8 @@ const filters = reactive({
     tgl_masuk_start: route.query.tgl_masuk_start || '',
     tgl_masuk_end: route.query.tgl_masuk_end || '',
     nama_web: '',
-    paket: '',
-    jenis: '',
+    paket: [],
+    jenis: [],
     deskripsi: '',
     trf: '',
     hp: '',
@@ -388,8 +388,8 @@ function resetFilters() {
   filters.tgl_masuk_start = '';
   filters.tgl_masuk_end = '';
   filters.nama_web = '';
-  filters.paket = '';
-  filters.jenis = '';
+  filters.paket = [];
+  filters.jenis = [];
   filters.deskripsi = '';
   filters.trf = '';
   filters.hp = '';
@@ -433,7 +433,7 @@ onMounted(() => {
 })
 
 
-const selectedRows = ref();
+const selectedRows = ref([]);
 const selectedRowsNamaWeb = ref('');
 //watch
 watch(selectedRows, (newValue, oldValue) => {
