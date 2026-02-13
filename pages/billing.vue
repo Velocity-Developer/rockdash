@@ -220,6 +220,7 @@
             :options="dataOpsiPaket"
             optionLabel="label"
             optionValue="value"
+            showClear
           />
           
           <MultiSelect
@@ -229,6 +230,7 @@
             size="small"
             :placeholder="item.label" 
             :options="dataOpsiJenis"
+            showClear
           />
 
           <InputText 
