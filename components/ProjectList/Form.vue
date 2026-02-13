@@ -192,8 +192,8 @@ const csMainProjectInfo = ref({} as any);
 
 const form = reactive({
   user_id: wm_project.value?.user_id ?? useConfig.config.user.id,
-  date_mulai: dayjs().format('YYYY-MM-DD HH:mm') as any,
-  date_selesai: '' as any,
+  date_mulai: new Date(),
+  date_selesai: null as Date | null,
   catatan: '',
   status_multi: 'pending',
   qc: '',
@@ -210,8 +210,8 @@ const form = reactive({
 watch(wm_project, (newVal) => {
   if (newVal) {
     form.user_id = newVal.user_id ?? null;
-    form.date_mulai = newVal.date_mulai_formatted ?dayjs(newVal.date_mulai_formatted).format('YYYY-MM-DD HH:mm'): dayjs().format('YYYY-MM-DD HH:mm');
-    form.date_selesai = newVal.date_selesai_formatted ?dayjs(newVal.date_selesai_formatted).format('YYYY-MM-DD HH:mm'): '';
+    form.date_mulai = newVal.date_mulai_formatted ?dayjs(newVal.date_mulai_formatted).toDate(): new Date();
+    form.date_selesai = newVal.date_selesai_formatted ?dayjs(newVal.date_selesai_formatted).toDate(): null;
     form.catatan = newVal.catatan ?? '';
     form.status_multi = newVal.status_multi ?? 'pending';
     form.qc = newVal.quality_control ?? '';
@@ -275,15 +275,27 @@ const handleSubmit = async () => {
   loadingSubmit.value = true;
   errors.value = {};
 
-  //date
-  form.date_mulai = dayjs(form.date_mulai).format('YYYY-MM-DD HH:mm:ss');
-  form.date_selesai = form.date_selesai?dayjs(form.date_selesai).format('YYYY-MM-DD HH:mm:ss'):'';
+  const body_form = {
+      user_id: form.user_id,
+      date_mulai: dayjs(form.date_mulai).format('YYYY-MM-DD HH:mm:ss'),
+      date_selesai: form.date_selesai?dayjs(form.date_selesai).format('YYYY-MM-DD HH:mm:ss'):'',
+      catatan: form.catatan,
+      status_multi: form.status_multi,
+      qc: form.qc,
+      id_cs_main_project: form.id_cs_main_project,
+      progress: form.progress,
+      id_karyawan: form.id_karyawan,
+      status_project: form.status_project,
+      jenis_project: form.jenis_project,
+      journal_support_klien_hp: form.journal_support_klien_hp ?? '',
+      journal_support_klien_wa: form.journal_support_klien_wa ?? '',
+  }
 
   if(!wm_project.value) {
     try {
       const res = await client('/api/wm_project', {
         method: 'POST',
-        body: form
+        body: body_form
       }) as any
       emit('update');
       toast.add({
@@ -307,7 +319,7 @@ const handleSubmit = async () => {
     try {
       const res = await client('/api/wm_project/'+wm_project.value.id_wm_project, {
         method: 'PUT',
-        body: form
+        body: body_form
       }) as any
       emit('update');
       toast.add({
