@@ -1,6 +1,6 @@
 <template>
 
-  <footer class="p-4 md:px-8 text-xs flex justify-end items-center gap-2 opacity-75">
+  <footer class="p-4 md:px-8 text-[0.6rem] flex justify-end items-center gap-2 opacity-75">
     <span class="flex justify-end items-center gap-1" v-tooltip="`IP Address: ${userIP}`">
       <Icon name="lucide:globe" />
       <span>IP: {{ userIP || 'Loading...' }}</span>
