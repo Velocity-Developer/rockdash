@@ -44,6 +44,21 @@ function updateRouteParams() {
 onMounted(() => {
   getData()
 })
+
+// Dialog states
+const visiblePreviewDialog = ref(false);
+const previewId = ref(null as any);
+const openPreviewDialog = (item: any) => {
+  previewId.value = item.id;
+  visiblePreviewDialog.value = true;
+}
+
+const visibleFormDialog = ref(false);
+const selectedItem = ref({} as any);
+const openFormDialog = (item: any) => {
+  selectedItem.value = item;
+  visibleFormDialog.value = true;
+}
 </script>
 
 <template>
@@ -121,6 +136,18 @@ onMounted(() => {
               </div>
             </template>
           </Column>
+          <Column header="Aksi" headerStyle="width:7rem" bodyStyle="width:7rem">
+            <template #body="slotProps">
+              <div class="flex items-center gap-2 justify-end">
+                <Button size="small" severity="contrast" @click="openPreviewDialog(slotProps.data)" v-tooltip.top="'Preview'">
+                  <Icon name="lucide:eye" />
+                </Button>
+                <Button size="small" severity="secondary" @click="openFormDialog(slotProps.data)" v-tooltip.top="'Edit'">
+                  <Icon name="lucide:pen" />
+                </Button>
+              </div>
+            </template>
+          </Column>
       </DataTable>
       
       <div v-if="data.total > 0" class="flex flex-col md:flex-row justify-center md:justify-between md:items-center text-xs mt-4">
@@ -145,6 +172,14 @@ onMounted(() => {
 
     </template>
   </Card>
+
+  <Dialog v-model:visible="visibleFormDialog" modal header="Edit Project" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+    <CsMainProjectForm :action="'edit'" :data="selectedItem" @update="getData()" />
+  </Dialog>
+
+  <Dialog v-model:visible="visiblePreviewDialog" modal header="Preview Project" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+    <CsMainProjectPreview :id="previewId" />
+  </Dialog>
 
   <DashLoader :loading="loading"/>
 </template>
