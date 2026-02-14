@@ -1,13 +1,19 @@
 <template>
   <div class="border p-4 rounded-md mt-4">
-    <div class="text-sm font-bold mb-4 border-b pb-3">
-      Billing project terbaru
+    
+    <div class="flex justify-between mb-4 border-b pb-3">
+      <div class="text-sm font-bold">
+        Billing project terbaru
+      </div>
+      <Button variant="text" size="small" class="py-0" @click="getData">
+        <Icon name="lucide:refresh-ccw" />
+      </Button>
     </div>
 
     <DataTable v-if="!loading" :value="data" size="small" class="text-xs">
       <Column field="webhost.nama_web" header="web">
         <template #body="slotProps">
-          <span :class="isNew(slotProps.data.cs_main_project_info.created_at)?'text-green-600':''">{{ slotProps.data.webhost.nama_web }}</span>
+          <span :class="isNew(slotProps.data.cs_main_project_info.created_at)?'text-green-600':''">{{ slotProps.data?.webhost?.nama_web }}</span>
         </template>
       </Column>
       <Column field="jenis" header="jenis" />
@@ -15,13 +21,17 @@
         <template #body="slotProps">
             <template v-if="slotProps.data.cs_main_project_info?.created_at">
               {{ formatDate(slotProps.data.cs_main_project_info.created_at,'YYYY-MM-DD HH:mm:ss') }}
-
-              <!-- Jika created_at kurang dari 1 jam, maka tampilkan "baru" -->
               <span v-if="isNew(slotProps.data.cs_main_project_info.created_at)" class="text-green-600 ml-1">
                 <Icon name="lucide:star" />
-              </span>
-              
+              </span>              
             </template>
+        </template>
+      </Column>
+      <Column field="cs_main_project_info.author.name" header="User">
+        <template #body="slotProps">
+          <div class="truncate w-10">
+            {{ slotProps.data?.cs_main_project_info?.author?.name }}
+          </div>
         </template>
       </Column>
     </DataTable>
