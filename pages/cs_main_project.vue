@@ -177,7 +177,7 @@ const openFormDialog = (item: any) => {
     <CsMainProjectForm :action="'edit'" :data="selectedItem" @update="getData()" />
   </Dialog>
 
-  <Dialog v-model:visible="visiblePreviewDialog" modal header="Preview Project" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+  <Dialog v-model:visible="visiblePreviewDialog" modal header="Preview Project" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
     <CsMainProjectPreview :id="previewId" />
   </Dialog>
 
