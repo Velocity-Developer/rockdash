@@ -101,13 +101,13 @@ const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics 
 
 <template>
   <div class="flex justify-end items-center mb-2">
-    <Button @click="getData()" size="small" :loading="loading" severity="info">
+    <Button @click="getData();refreshAnalytics" size="small" :loading="loading" severity="info">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin': loading }" />
       Refresh
     </Button>
   </div>
 
-  <div class="overflow-x-auto mb-4 py-1">
+  <div v-if="dataAnalytics && dataAnalytics.status" class="overflow-x-auto mb-4 py-1">
     <div class="flex items-start gap-2">
       <Card  class="min-w-[150px]">
         <template #content>
