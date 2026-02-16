@@ -155,12 +155,21 @@ const route = useRoute()
 const router = useRouter()
 
 const filter = reactive({
-    bulan_dari: route.query.bulan_dari || dayjs().subtract(1, 'year').format(''),
-    bulan_sampai: route.query.bulan_sampai || dayjs().format(''),
-} as any)
+  bulan_dari: route.query.dari
+    ? dayjs(route.query.dari as string).toDate()
+    : dayjs().subtract(1, 'year').toDate(),
+
+  bulan_sampai: route.query.sampai
+    ? dayjs(route.query.sampai as string).toDate()
+    : dayjs().toDate(),
+});
+
 function updateRouteParams() {
   router.push({
-    query: { ...filter },
+    query: { 
+      dari: dayjs(filter.bulan_dari).format('YYYY-MM').toString(),
+      sampai: dayjs(filter.bulan_sampai).format('YYYY-MM').toString(),
+     },
   });
 }
 
@@ -169,13 +178,12 @@ const data = ref([] as any);
 const getData = async () => {
   loading.value = true;
   
-  //ubah bulan ke format YYYY-MM
-  filter.bulan_dari = dayjs(filter.bulan_dari).utc().local().format('YYYY-MM');
-  filter.bulan_sampai = dayjs(filter.bulan_sampai).utc().local().format('YYYY-MM');
-
   try {
     const response = await client('/api/laporan/net_profit',{
-      params: filter,
+      params: {
+        bulan_dari: dayjs(filter.bulan_dari).utc().local().format('YYYY-MM'),
+        bulan_sampai: dayjs(filter.bulan_sampai).utc().local().format('YYYY-MM'),
+      },
     });
     data.value = response;
     loading.value = false;
