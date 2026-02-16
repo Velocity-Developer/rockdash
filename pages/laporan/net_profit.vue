@@ -157,7 +157,7 @@ const router = useRouter()
 const filter = reactive({
   bulan_dari: route.query.dari
     ? dayjs(route.query.dari as string).toDate()
-    : dayjs().subtract(1, 'year').toDate(),
+    : dayjs().subtract(6, 'month').toDate(),
 
   bulan_sampai: route.query.sampai
     ? dayjs(route.query.sampai as string).toDate()
