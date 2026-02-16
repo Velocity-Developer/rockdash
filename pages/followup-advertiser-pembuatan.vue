@@ -13,7 +13,7 @@ const toast = useToast();
 const filters = reactive({
   page: route.query.page ? Number(route.query.page) : 1,
   per_page: 20,
-  order_by: 'id',
+  order_by: 'tgl_masuk',
   order: 'desc',
 }) as any
 
@@ -92,14 +92,42 @@ const onStatusChange = async (item: object,index: Number) => {
 onMounted(() => {
   getData();
 });
+
+const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics } = await useAsyncData(
+  'followup_advertiser_analytics',
+  (_nuxtApp, { signal }) => client('/api/followup_advertiser_analytics', { signal }),
+) as any
 </script>
 
 <template>
-  <div class="flex justify-end items-center mb-4">
+  <div class="flex justify-end items-center mb-2">
     <Button @click="getData()" size="small" :loading="loading" severity="info">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin': loading }" />
       Refresh
     </Button>
+  </div>
+
+  <div class="overflow-x-auto mb-4 py-1">
+    <div class="flex items-start gap-2">
+      <Card  class="min-w-[150px]">
+        <template #content>
+          <div class="opacity-75 text-sm mb-1">Ringkasan status :</div>
+          <div class="font-bold">{{ dataAnalytics.bulan }}</div>
+        </template>
+      </Card>
+      <Card  class="min-w-[150px]">
+        <template #content>
+          <div class="opacity-75 text-sm mb-1">Blm di Followup</div>
+          <div class="font-bold text-right">{{ dataAnalytics.blm_followup }}</div>
+        </template>
+      </Card>
+      <Card v-for="(d,i) in dataAnalytics.status" class="min-w-[150px]">
+        <template #content>
+          <div class="opacity-75 text-sm mb-1">{{ i }}</div>
+          <div class="font-bold text-right">{{ d }}</div>
+        </template>
+      </Card>
+    </div>
   </div>
 
   <Card class="shadow mt-4">
@@ -112,7 +140,12 @@ onMounted(() => {
         </Column>
         <Column field="tgl_masuk" header="Tgl order" />
         <Column field="webhost.wa" header="WhatsApp"/>
-        <Column field="webhost.paket.paket" header="Paket"/>
+        <Column field="webhost.paket.paket" header="Paket">
+          <template #body="slotProps">
+            {{ slotProps.data.webhost?.paket?.paket }}
+            <div class="text-xs text-emerald-600">{{ slotProps.data?.jenis }}</div>
+          </template>
+        </Column>
         <Column field="webhost.nama_web" header="Nama Domain"/>
          <Column field="status" header="Status">
           <template #body="slotProps">
