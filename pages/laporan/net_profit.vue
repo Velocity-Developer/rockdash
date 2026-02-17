@@ -238,25 +238,23 @@ const exportExcel = (row: any) => {
     return
   }
 
-  const summaryData = [
-    {
-      Bulan: row.label ?? '',
-      'Biaya Iklan': row.biaya_iklan ?? 0,
-      'Chat Ads': row.chat_ads ?? 0,
-      Order: row.order ?? 0,
-      '% Order': row.persen_order ?? 0,
-      Omzet: row.omzet ?? 0,
-      'Harga Domain': row.harga_domain ?? 0,
-      'Biaya Domain': row.biaya_domain ?? 0,
-      'Profit Kotor': row.profit_kotor ?? 0,
-      'Profit Kotor / Order': row.profit_kotor_order ?? 0,
-      'Net Profit': row.net_profit ?? 0,
-      'Biaya / Order': row.biaya_per_order ?? 0,
-    },
+  const summaryRows = [
+    ['Bulan', row.label ?? ''],
+    ['Biaya Iklan', row.biaya_iklan ?? 0],
+    ['Chat Ads', row.chat_ads ?? 0],
+    ['Order', row.order ?? 0],
+    ['% Order', row.persen_order ?? 0],
+    ['Omzet', row.omzet ?? 0],
+    ['Harga Domain', row.harga_domain ?? 0],
+    ['Biaya Domain', row.biaya_domain ?? 0],
+    ['Profit Kotor', row.profit_kotor ?? 0],
+    ['Profit Kotor / Order', row.profit_kotor_order ?? 0],
+    ['Net Profit', row.net_profit ?? 0],
+    ['Biaya / Order', row.biaya_per_order ?? 0],
   ]
 
   const wb = XLSX.utils.book_new()
-  const wsSummary = XLSX.utils.json_to_sheet(summaryData)
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows)
   XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan')
 
   if (Array.isArray(row.projects) && row.projects.length > 0) {
@@ -269,7 +267,7 @@ const exportExcel = (row: any) => {
       'Tgl Masuk': item.tgl_masuk ?? '',
     }))
     const wsProjects = XLSX.utils.json_to_sheet(projectsData)
-    XLSX.utils.book_append_sheet(wb, wsProjects, 'Projects')
+    XLSX.utils.book_append_sheet(wb, wsProjects, 'Detail Order')
   }
 
   if (Array.isArray(row.chat_details) && row.chat_details.length > 0) {
@@ -280,7 +278,7 @@ const exportExcel = (row: any) => {
       Via: item.via ?? '',
     }))
     const wsChat = XLSX.utils.json_to_sheet(chatData)
-    XLSX.utils.book_append_sheet(wb, wsChat, 'Chat')
+    XLSX.utils.book_append_sheet(wb, wsChat, 'Detail Chat')
   }
 
   const rawLabel = (row.label ?? '').toString()
