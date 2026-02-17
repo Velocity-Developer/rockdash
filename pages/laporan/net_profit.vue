@@ -18,10 +18,12 @@
   </div>
 
   <Card>
+    <template #header>
+      <div class="px-5 pt-3 font-bold">
+        Pembuatan
+      </div>
+    </template>
     <template #content>
-    <div class="mb-2">
-      Pembuatan
-    </div>
     <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
       <Column field="label" header="Bulan">
         <template #body="slotProps">
@@ -95,6 +97,21 @@
           {{ formatMoney(slotProps.data.biaya_per_order,'',0) }}
         </template>
       </Column>
+      <Column field="act" header="" class="text-right">
+        <template #body="slotProps">
+          <ButtonGroup>
+            <Button size="small" severity="info" @click="openChatPreview(slotProps.data)">
+              <Icon name="lucide:message-circle" />
+            </Button>
+            <Button size="small" severity="contrast" @click="openOrderPreview(slotProps.data)">
+              <Icon name="lucide:shopping-cart" />
+            </Button>
+            <Button size="small" severity="success">
+              <Icon name="lucide:download" />
+            </Button>
+          </ButtonGroup>
+        </template>
+      </Column>
     </DataTable>
     
     </template>
@@ -146,6 +163,7 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Net Profit',
+    page_key:'net_profit',
     development: true
 })
 const client = useSanctumClient();
