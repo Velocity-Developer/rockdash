@@ -70,7 +70,12 @@
         </Column>
         <Column field="harga_domain" header="Harga Domain">
           <template #body="slotProps">
-            {{ formatMoney(slotProps.data.harga_domain,'',0) }}
+            <span
+              @click="openHargaDomainForm(slotProps.data)"
+              class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
+            >
+              {{ formatMoney(slotProps.data.harga_domain,'',0) }}
+            </span>
           </template>
         </Column>
         <Column field="biaya_domain" header="Biaya Domain">
@@ -156,6 +161,21 @@
           <Column field="alasan" header="Alasan"></Column>
           <Column field="via" header="Via"></Column>
         </DataTable>
+      </Dialog>
+
+      <Dialog
+        v-model:visible="dialogHargaDomain"
+        modal
+        header="Harga Domain"
+        :style="{ width: '26rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+      >
+        <HargaDomainForm
+          :action="hargaDomainFormAction"
+          :id="hargaDomainId"
+          :default-bulan="hargaDomainBulan"
+          @update="handleHargaDomainUpdated"
+        />
       </Dialog>
 
       <Card>
@@ -244,6 +264,49 @@ const selectedChatPreview = ref({} as any)
 const openChatPreview = (row: any) => {
   dialogChatPreview.value = true
   selectedChatPreview.value = row
+}
+
+const dialogHargaDomain = ref(false)
+const hargaDomainFormAction = ref<'add' | 'edit'>('add')
+const hargaDomainId = ref<string | number | ''>('')
+const hargaDomainBulan = ref('')
+
+const openHargaDomainForm = async (row: any) => {
+  if (!row || !row.label) {
+    return
+  }
+
+  try {
+    const res = await client('/api/harga-domain', {
+      params: {
+        bulan: row.label,
+        per_page: 1,
+        pagination: false
+      }
+    }) as any
+
+    const list = res.data || []
+
+    if (Array.isArray(list) && list.length > 0) {
+      hargaDomainFormAction.value = 'edit'
+      hargaDomainId.value = list[0].id
+      hargaDomainBulan.value = list[0].bulan || row.label
+    } else {
+      hargaDomainFormAction.value = 'add'
+      hargaDomainId.value = ''
+      hargaDomainBulan.value = row.label
+    }
+
+    dialogHargaDomain.value = true
+  } catch (error) {
+    const er = useSanctumError(error)
+    console.error(er)
+  }
+}
+
+const handleHargaDomainUpdated = () => {
+  dialogHargaDomain.value = false
+  getData()
 }
 
 const exportExcel = (row: any) => {

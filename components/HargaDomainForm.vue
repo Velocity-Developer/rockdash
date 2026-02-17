@@ -59,6 +59,10 @@ const props = defineProps({
   id: {
     type: [String, Number],
     default: ''
+  },
+  defaultBulan: {
+    type: String,
+    default: ''
   }
 })
 
@@ -79,8 +83,15 @@ const submitLabel = computed(() => {
   return props.action === 'edit' ? 'Update' : 'Simpan'
 })
 
+const applyDefaultBulan = () => {
+  if (props.action === 'add' && props.defaultBulan) {
+    form.bulan = props.defaultBulan
+  }
+}
+
 const loadData = async () => {
   if (props.action !== 'edit' || !props.id) {
+    applyDefaultBulan()
     return
   }
 
@@ -109,9 +120,15 @@ const loadData = async () => {
 watch(
   () => props.id,
   () => {
-    if (props.action === 'edit') {
-      loadData()
-    }
+    loadData()
+  },
+  { immediate: true }
+)
+
+watch(
+  () => props.defaultBulan,
+  () => {
+    applyDefaultBulan()
   },
   { immediate: true }
 )
