@@ -177,17 +177,8 @@
           @update="handleHargaDomainUpdated"
         />
       </Dialog>
-
-      <Card>
-        <template #header>
-          <div class="px-5 pt-3 font-bold">
-            Pembuatan dari 
-          </div>
-        </template>
-        <template #content>
-          <NetProfitPembuatan />
-        </template>
-      </Card>
+      
+      <NetProfitPembuatan :dataNetProfit="data"/>
 
   </div>
   <DashLoader :loading="loading"/>
