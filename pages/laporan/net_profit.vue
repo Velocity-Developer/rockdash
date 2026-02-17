@@ -106,7 +106,7 @@
             <Button size="small" severity="contrast" @click="openOrderPreview(slotProps.data)">
               <Icon name="lucide:shopping-cart" />
             </Button>
-            <Button size="small" severity="success">
+            <Button size="small" severity="success" @click="exportExcel(slotProps.data)">
               <Icon name="lucide:download" />
             </Button>
           </ButtonGroup>
@@ -168,6 +168,7 @@ definePageMeta({
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
+import * as XLSX from 'xlsx'
 const dayjs = useDayjs()
 const route = useRoute()
 const router = useRouter()
@@ -227,8 +228,65 @@ const openOrderPreview = (data: any) => {
 
 const dialogChatPreview = ref(false)
 const selectedChatPreview = ref({} as any)
-const openChatPreview = (data: any) => {
+const openChatPreview = (row: any) => {
   dialogChatPreview.value = true
-  selectedChatPreview.value = data
+  selectedChatPreview.value = row
+}
+
+const exportExcel = (row: any) => {
+  if (!row) {
+    return
+  }
+
+  const summaryData = [
+    {
+      Bulan: row.label ?? '',
+      'Biaya Iklan': row.biaya_iklan ?? 0,
+      'Chat Ads': row.chat_ads ?? 0,
+      Order: row.order ?? 0,
+      '% Order': row.persen_order ?? 0,
+      Omzet: row.omzet ?? 0,
+      'Harga Domain': row.harga_domain ?? 0,
+      'Biaya Domain': row.biaya_domain ?? 0,
+      'Profit Kotor': row.profit_kotor ?? 0,
+      'Profit Kotor / Order': row.profit_kotor_order ?? 0,
+      'Net Profit': row.net_profit ?? 0,
+      'Biaya / Order': row.biaya_per_order ?? 0,
+    },
+  ]
+
+  const wb = XLSX.utils.book_new()
+  const wsSummary = XLSX.utils.json_to_sheet(summaryData)
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan')
+
+  if (Array.isArray(row.projects) && row.projects.length > 0) {
+    const projectsData = row.projects.map((item: any, index: number) => ({
+      No: index + 1,
+      Web: item.webhost?.nama_web ?? '',
+      Biaya: item.biaya ?? 0,
+      Dibayar: item.dibayar ?? 0,
+      'Chat Pertama': item.waktu_chat_pertama ?? '',
+      'Tgl Masuk': item.tgl_masuk ?? '',
+    }))
+    const wsProjects = XLSX.utils.json_to_sheet(projectsData)
+    XLSX.utils.book_append_sheet(wb, wsProjects, 'Projects')
+  }
+
+  if (Array.isArray(row.chat_details) && row.chat_details.length > 0) {
+    const chatData = row.chat_details.map((item: any, index: number) => ({
+      No: index + 1,
+      Tanggal: item.chat_pertama ? dayjs(item.chat_pertama).format('DD-MM-YYYY HH:mm') : '',
+      Alasan: item.alasan ?? '',
+      Via: item.via ?? '',
+    }))
+    const wsChat = XLSX.utils.json_to_sheet(chatData)
+    XLSX.utils.book_append_sheet(wb, wsChat, 'Chat')
+  }
+
+  const rawLabel = (row.label ?? '').toString()
+  const safeLabel = rawLabel.replace(/[\\\/:*?"<>|]/g, '-')
+  const fileName = `NetProfit_${safeLabel || dayjs().format('YYYY-MM-DD')}.xlsx`
+
+  XLSX.writeFile(wb, fileName)
 }
 </script>
