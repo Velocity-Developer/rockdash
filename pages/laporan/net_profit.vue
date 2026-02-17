@@ -1,162 +1,175 @@
 <template>
+  <div class="space-y-6">
 
-  <div class="flex flex-col md:flex-row md:items-end gap-1 mb-3">
-    <div>
-      <label class="mb-1 block text-xs">Dari :</label>
-      <DatePicker v-model="filter.bulan_dari" view="month" dateFormat="mm/yy" size="small"/>
-    </div>
-    <div>
-      <label class="mb-1 block text-xs">Sampai :</label>
-      <DatePicker v-model="filter.bulan_sampai" view="month" dateFormat="mm/yy" size="small"/>
-    </div>
-    <div>
-      <Button @click="getData">
-        <Icon v-if="loading" name="lucide:loader-circle" class="animate-spin"/>
-        <Icon v-else name="lucide:search"/>
-      </Button>
-    </div>
-  </div>
-
-  <Card>
-    <template #header>
-      <div class="px-5 pt-3 font-bold">
-        Pembuatan
+    <div class="flex flex-col md:flex-row md:items-end gap-1 mb-3">
+      <div>
+        <label class="mb-1 block text-xs">Dari :</label>
+        <DatePicker v-model="filter.bulan_dari" view="month" dateFormat="mm/yy" size="small"/>
       </div>
-    </template>
-    <template #content>
-    <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
-      <Column field="label" header="Bulan">
-        <template #body="slotProps">
-          <span @click="openOrderPreview(slotProps.data)" class="cursor-pointer">
-          {{ slotProps.data.label }}
-          </span>
-        </template>
-      </Column>
-      <Column field="biaya_iklan" header="Biaya Iklan">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.biaya_iklan,'',0) }}
-        </template>
-      </Column>
-      <Column field="chat_ads" header="Chat Ads">
-        <template #body="slotProps">
-          <span 
-            @click="openChatPreview(slotProps.data)" 
-            class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
-          >
-            {{ slotProps.data.chat_ads }}
-          </span>
-        </template>
-      </Column>
-      <Column field="order" header="Order">
-        <template #body="slotProps">
-          <span 
-            @click="openOrderPreview(slotProps.data)" 
-            class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
-          >
-            {{ slotProps.data.order }}
-          </span>
-        </template>
-      </Column>
-      <Column field="persen_order" header="%Order">
-        <template #body="slotProps">
-          {{ slotProps.data.persen_order }}
-        </template>
-      </Column>
-      <Column field="omzet" header="Omzet">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.omzet,'',0) }}
-        </template>
-      </Column>
-      <Column field="harga_domain" header="Harga Domain">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.harga_domain,'',0) }}
-        </template>
-      </Column>
-      <Column field="biaya_domain" header="Biaya Domain">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.biaya_domain,'',0) }}
-        </template>
-      </Column>
-      <Column field="profit_kotor" header="Profit Kotor">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.profit_kotor,'',0) }}
-        </template>
-      </Column>
-      <Column field="profit_kotor" header="Profit Kotor /Order">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.profit_kotor_order,'',0) }}
-        </template>
-      </Column>
-      <Column field="profit_kotor" header="Net Profit">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.net_profit,'',0) }}
-        </template>
-      </Column>
-      <Column field="profit_kotor" header="Biaya / Order">
-        <template #body="slotProps">
-          {{ formatMoney(slotProps.data.biaya_per_order,'',0) }}
-        </template>
-      </Column>
-      <Column field="act" header="" class="text-right">
-        <template #body="slotProps">
-          <ButtonGroup>
-            <Button size="small" severity="info" @click="openChatPreview(slotProps.data)">
-              <Icon name="lucide:message-circle" />
-            </Button>
-            <Button size="small" severity="contrast" @click="openOrderPreview(slotProps.data)">
-              <Icon name="lucide:shopping-cart" />
-            </Button>
-            <Button size="small" severity="success" @click="exportExcel(slotProps.data)">
-              <Icon name="lucide:download" />
-            </Button>
-          </ButtonGroup>
-        </template>
-      </Column>
-    </DataTable>
-    
-    </template>
-  </Card>
+      <div>
+        <label class="mb-1 block text-xs">Sampai :</label>
+        <DatePicker v-model="filter.bulan_sampai" view="month" dateFormat="mm/yy" size="small"/>
+      </div>
+      <div>
+        <Button @click="getData">
+          <Icon v-if="loading" name="lucide:loader-circle" class="animate-spin"/>
+          <Icon v-else name="lucide:search"/>
+        </Button>
+      </div>
+    </div>
 
-    <Dialog v-model:visible="dialogOrderPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <DataTable :value="selectedOrderPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>
-        <Column field="no" header="#">
+    <Card>
+      <template #header>
+        <div class="px-5 pt-3 font-bold">
+          Pembuatan
+        </div>
+      </template>
+      <template #content>
+      <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
+        <Column field="label" header="Bulan">
           <template #body="slotProps">
-            {{ Number(slotProps.index) + 1 }}
+            <span @click="openOrderPreview(slotProps.data)" class="cursor-pointer">
+            {{ slotProps.data.label }}
+            </span>
           </template>
         </Column>
-        <Column field="webhost.nama_web" header="Web"></Column>
-        <Column field="biaya" header="Biaya">
+        <Column field="biaya_iklan" header="Biaya Iklan">
           <template #body="slotProps">
-            {{ formatMoney(slotProps.data.biaya,'',0) }}
+            {{ formatMoney(slotProps.data.biaya_iklan,'',0) }}
           </template>
         </Column>
-        <Column field="dibayar" header="Dibayar">
+        <Column field="chat_ads" header="Chat Ads">
           <template #body="slotProps">
-            {{ formatMoney(slotProps.data.dibayar,'',0) }}
+            <span 
+              @click="openChatPreview(slotProps.data)" 
+              class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
+            >
+              {{ slotProps.data.chat_ads }}
+            </span>
           </template>
         </Column>
-        <Column field="waktu_chat_pertama" header="Chat pertama"></Column>
-        <Column field="tgl_masuk" header="Tgl Masuk"></Column>
+        <Column field="order" header="Order">
+          <template #body="slotProps">
+            <span 
+              @click="openOrderPreview(slotProps.data)" 
+              class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
+            >
+              {{ slotProps.data.order }}
+            </span>
+          </template>
+        </Column>
+        <Column field="persen_order" header="%Order">
+          <template #body="slotProps">
+            {{ slotProps.data.persen_order }}
+          </template>
+        </Column>
+        <Column field="omzet" header="Omzet">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.omzet,'',0) }}
+          </template>
+        </Column>
+        <Column field="harga_domain" header="Harga Domain">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.harga_domain,'',0) }}
+          </template>
+        </Column>
+        <Column field="biaya_domain" header="Biaya Domain">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.biaya_domain,'',0) }}
+          </template>
+        </Column>
+        <Column field="profit_kotor" header="Profit Kotor">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.profit_kotor,'',0) }}
+          </template>
+        </Column>
+        <Column field="profit_kotor" header="Profit Kotor /Order">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.profit_kotor_order,'',0) }}
+          </template>
+        </Column>
+        <Column field="profit_kotor" header="Net Profit">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.net_profit,'',0) }}
+          </template>
+        </Column>
+        <Column field="profit_kotor" header="Biaya / Order">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.biaya_per_order,'',0) }}
+          </template>
+        </Column>
+        <Column field="act" header="" class="text-right">
+          <template #body="slotProps">
+            <ButtonGroup>
+              <Button size="small" severity="info" @click="openChatPreview(slotProps.data)">
+                <Icon name="lucide:message-circle" />
+              </Button>
+              <Button size="small" severity="contrast" @click="openOrderPreview(slotProps.data)">
+                <Icon name="lucide:shopping-cart" />
+              </Button>
+              <Button size="small" severity="success" @click="exportExcel(slotProps.data)">
+                <Icon name="lucide:download" />
+              </Button>
+            </ButtonGroup>
+          </template>
+        </Column>
       </DataTable>
-    </Dialog>
+      
+      </template>
+    </Card>
 
-    <Dialog v-model:visible="dialogChatPreview" modal header="Detail Chat" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <DataTable :value="selectedChatPreview.chat_details" class="text-xs mt-4" size="small" stripedRows scrollable>
-        <Column field="no" header="#">
-          <template #body="slotProps">
-            {{ Number(slotProps.index) + 1 }}
-          </template>
-        </Column>
-        <Column field="chat_pertama" header="Tanggal">
-          <template #body="slotProps">
-            {{ dayjs(slotProps.data.chat_pertama).format('DD-MM-YYYY HH:mm') }}
-          </template>
-        </Column>
-        <Column field="alasan" header="Alasan"></Column>
-        <Column field="via" header="Via"></Column>
-      </DataTable>
-    </Dialog>
+      <Dialog v-model:visible="dialogOrderPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <DataTable :value="selectedOrderPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>
+          <Column field="no" header="#">
+            <template #body="slotProps">
+              {{ Number(slotProps.index) + 1 }}
+            </template>
+          </Column>
+          <Column field="webhost.nama_web" header="Web"></Column>
+          <Column field="biaya" header="Biaya">
+            <template #body="slotProps">
+              {{ formatMoney(slotProps.data.biaya,'',0) }}
+            </template>
+          </Column>
+          <Column field="dibayar" header="Dibayar">
+            <template #body="slotProps">
+              {{ formatMoney(slotProps.data.dibayar,'',0) }}
+            </template>
+          </Column>
+          <Column field="waktu_chat_pertama" header="Chat pertama"></Column>
+          <Column field="tgl_masuk" header="Tgl Masuk"></Column>
+        </DataTable>
+      </Dialog>
 
+      <Dialog v-model:visible="dialogChatPreview" modal header="Detail Chat" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+        <DataTable :value="selectedChatPreview.chat_details" class="text-xs mt-4" size="small" stripedRows scrollable>
+          <Column field="no" header="#">
+            <template #body="slotProps">
+              {{ Number(slotProps.index) + 1 }}
+            </template>
+          </Column>
+          <Column field="chat_pertama" header="Tanggal">
+            <template #body="slotProps">
+              {{ dayjs(slotProps.data.chat_pertama).format('DD-MM-YYYY HH:mm') }}
+            </template>
+          </Column>
+          <Column field="alasan" header="Alasan"></Column>
+          <Column field="via" header="Via"></Column>
+        </DataTable>
+      </Dialog>
+
+      <Card>
+        <template #header>
+          <div class="px-5 pt-3 font-bold">
+            Pembuatan dari 
+          </div>
+        </template>
+        <template #content>
+          <NetProfitPembuatan />
+        </template>
+      </Card>
+
+  </div>
   <DashLoader :loading="loading"/>
 </template>
 
