@@ -47,7 +47,7 @@ const getData = async () => {
         label: item.label,
         biaya_domain: item.harga_domain*orders,
         order: orders,
-        order_persen: ((orders/chat_ads)*100).toFixed(2),
+        order_persen: ((orders/chat_ads)*100).toFixed(1),
         total_dibayar: totalDibayar,
         omzet: totalDibayar-(item.harga_domain*orders),
         chat_ads
