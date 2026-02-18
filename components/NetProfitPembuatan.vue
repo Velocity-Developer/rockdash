@@ -37,11 +37,15 @@ const getData = async () => {
         //jika tgl_masuk lebih dari day, return
         if(day > filter.tgl_sampai) return total;
 
-        const clean = String(project.dibayar).replace(/[^\d]/g, '');
-        const dibayar = Number(clean);
+        const raw = String(project.dibayar);
+        const value = parseInt(raw.replace(/\D/g, ''), 10);
 
-        return isNaN(dibayar) ? total : total + dibayar;
+        if (Number.isNaN(value)) return total;
+        return total + value;
       }, 0);
+
+      const omzet = totalDibayar
+      const profit_kotor = omzet - (item.harga_domain*orders)
 
       return {
         label: item.label,
@@ -49,7 +53,9 @@ const getData = async () => {
         order: orders,
         order_persen: ((orders/chat_ads)*100).toFixed(1),
         total_dibayar: totalDibayar,
-        omzet: totalDibayar-(item.harga_domain*orders),
+        omzet: omzet,
+        profit_kotor: profit_kotor,
+        profit_per_order: profit_kotor/orders,
         chat_ads
       };
     });
@@ -69,7 +75,7 @@ watch(() => props.dataNetProfit, (newValue, oldValue) => {
     <Card>
       <template #header>
         <div class="px-5 pt-3 font-bold">
-          Pembuatan dari tanggal {{ filter.tgl_dari }} - {{ filter.tgl_sampai }}
+          Pembuatan dari tanggal {{ filter.tgl_dari }} sampai {{ filter.tgl_sampai }}
         </div>
       </template>
       <template #content>
@@ -110,9 +116,14 @@ watch(() => props.dataNetProfit, (newValue, oldValue) => {
                   {{ formatMoney(slotProps.data.biaya_domain,'',0) }}
                 </template>
             </Column>
-            <Column field="label" header="Biaya Domain">        
+            <Column field="profit_kotor" header="Profit Kotor">        
                 <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.omzet,'',0) }}
+                  {{ formatMoney(slotProps.data.profit_kotor,'',0) }}
+                </template>
+            </Column>
+            <Column field="profit_per_order" header="Profit Kotor/Order">        
+                <template #body="slotProps">
+                  {{ formatMoney(slotProps.data.profit_per_order,'',0) }}
                 </template>
             </Column>
           </DataTable>          
