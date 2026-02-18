@@ -65,8 +65,8 @@ const getUsers = async () => {
   try {
     const res = await client('/api/users', {
       params: {
-        role: 'support',
-        per_page: 100 // Ambil semua user support
+        role: 'advertising',
+        per_page: 100 // Ambil semua user advertising
       }
     }) as any;
     users.value = res.data || [];
