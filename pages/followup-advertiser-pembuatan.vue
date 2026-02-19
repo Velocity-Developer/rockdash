@@ -109,22 +109,48 @@ const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics 
 
   <div v-if="dataAnalytics && dataAnalytics.status" class="overflow-x-auto mb-4 py-1">
     <div v-if="statusAnalytics !== 'pending'" class="flex items-start gap-2">
-      <Card class="min-w-[150px]">
+      <Card class="min-w-[220px] md:min-w-[180px]">
         <template #content>
           <div class="opacity-75 text-sm mb-1">Ringkasan status :</div>
-          <div class="font-bold">{{ dataAnalytics.bulan }}</div>
+          <div class="font-bold text-xl">{{ dataAnalytics.bulan }}</div>
         </template>
       </Card>
-      <Card  class="min-w-[150px]">
+      <Card  class="min-w-[220px] md:min-w-[180px]">
         <template #content>
-          <div class="opacity-75 text-sm mb-1">Blm di Followup</div>
-          <div class="font-bold text-right">{{ dataAnalytics.blm_followup }}</div>
+          <div class="flex justify-between gap-3">
+            <div>
+            <div class="opacity-75 text-sm mb-1">Blm di Followup</div>
+            <div class="font-bold text-xl">{{ dataAnalytics.blm_followup }}</div>
+            </div>
+            <span class="p-2 w-8 h-8 text-sm flex items-center justify-center rounded-xl text-white bg-zinc-400">
+              <Icon name="lucide:circle-question-mark" width="2rem" />  
+            </span>
+          </div>
         </template>
       </Card>
-      <Card v-for="(d,i) in dataAnalytics.status" class="min-w-[150px]">
+      <Card v-for="(d,i) in dataAnalytics.status" class="min-w-[220px] md:min-w-[180px]">
         <template #content>
-          <div class="opacity-75 text-sm mb-1">{{ i }}</div>
-          <div class="font-bold text-right">{{ d }}</div>
+          <div class="flex justify-between gap-3">
+            <div>
+              <div class="opacity-75 text-sm mb-1">{{ i }}</div>
+              <div class="font-bold text-xl">{{ d }}</div>
+            </div>
+            <div>
+              <span 
+                class="p-2 w-8 h-8 text-sm flex items-center justify-center rounded-xl text-white bg-zinc-300"
+                :class="{
+                  '!bg-green-600': i === 'Sudah difollowup',
+                  '!bg-blue-600': i === 'Sudah iklan',
+                  '!bg-red-600': i === 'Tidak'
+                }"
+              >
+                <Icon v-if="i === 'Sudah difollowup'" name="lucide:check-check" width="2rem" />  
+                <Icon v-else-if="i === 'Sudah iklan'" name="lucide:laptop-minimal-check" width="2rem" />  
+                <Icon v-else-if="i === 'Tidak'" name="lucide:x" width="2rem" />   
+                <Icon v-else name="lucide:circle-question-mark" width="2rem" /> 
+              </span>
+            </div>
+          </div>
         </template>
       </Card>
     </div>
