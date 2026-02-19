@@ -410,6 +410,7 @@ watch(() => form.nama_web, async (val) => {
       //jika response.length == 1, auto select
       if (response.length == 1) {
         form.id_webhost = response[0].id_webhost;
+        form.kategori_web = response[0].kategori||'';
       }
     } catch (error) {
       console.log(error);
