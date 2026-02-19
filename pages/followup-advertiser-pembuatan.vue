@@ -152,6 +152,7 @@ const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics 
           </template>
         </Column>
         <Column field="webhost.nama_web" header="Nama Domain"/>
+        <Column field="webhost.kategori" header="Kategori" />
          <Column field="status" header="Status">
           <template #body="slotProps">
             <div 
