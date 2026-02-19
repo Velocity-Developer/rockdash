@@ -6,6 +6,7 @@ definePageMeta({
 
 const client = useSanctumClient()
 const toast = useToast()
+const confirm = useConfirm()
 
 const loading = ref(false)
 const items = ref<{ id: number; detail: string }[]>([])
@@ -105,6 +106,45 @@ async function handleSubmit() {
     loadingSubmit.value = false
   }
 }
+
+const confirmDelete = (id: any) => {
+  confirm.require({
+    message: 'Anda yakin hapus data ini?',
+    header: 'Hapus Data',
+    accept: async () => {
+      try {
+        await client(`/api/quality/${id}`, {
+          method: 'DELETE',
+        })
+        toast.add({
+          severity: 'success',
+          summary: 'Berhasil!',
+          detail: 'Data berhasil dihapus',
+          life: 3000,
+        })
+        await loadQuality()
+      } catch (error) {
+        const er = useSanctumError(error)
+        toast.add({
+          severity: 'error',
+          summary: 'Gagal!',
+          detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+          life: 3000,
+        })
+      }
+    },
+    rejectProps: {
+      label: 'Batal',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Hapus',
+      severity: 'danger',
+      outlined: false,
+    },
+  })
+}
 </script>
 <template>
   <div class="space-y-4">
@@ -138,6 +178,7 @@ async function handleSubmit() {
           :loading="loading"
           scrollable
           scrollHeight="70vh"
+          class="text-sm"
         >
           <Column
             header="#"
@@ -158,6 +199,13 @@ async function handleSubmit() {
                   @click="openDialog('edit', slotProps.data)"
                 >
                   <Icon name="lucide:pen"/>
+                </Button>
+                <Button
+                  size="small"
+                  severity="danger"
+                  @click="confirmDelete(slotProps.data.id)"
+                >
+                  <Icon name="lucide:trash-2" />
                 </Button>
               </div>
             </template>
