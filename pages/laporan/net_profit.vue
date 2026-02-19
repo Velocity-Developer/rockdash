@@ -180,6 +180,8 @@
       
       <NetProfitPembuatan :dataNetProfit="data"/>
 
+      <NetProfitPerpanjangan :dari="filter.bulan_dari" :sampai="filter.bulan_sampai"/>
+
   </div>
   <DashLoader :loading="loading"/>
 </template>

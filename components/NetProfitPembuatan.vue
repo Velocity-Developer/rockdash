@@ -97,7 +97,7 @@ watch(() => props.dataNetProfit, (newValue, oldValue) => {
         </div>
 
         <div v-if="!loading && data">
-          <DataTable :value="data" class="text-xs mt-4" size="small" stripedRows scrollable>
+          <DataTable :value="data" class="text-sm mt-4" size="small" stripedRows scrollable>
             <Column field="label" header="Bulan" />
             <Column field="chat_ads" header="Chat Ads" />
             <Column field="order" header="Order" />
