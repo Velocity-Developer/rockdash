@@ -101,15 +101,15 @@ const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics 
 
 <template>
   <div class="flex justify-end items-center mb-2">
-    <Button @click="getData();refreshAnalytics" size="small" :loading="loading" severity="info">
+    <Button @click="getData();refreshAnalytics()" size="small" :loading="loading" severity="info">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin': loading }" />
       Refresh
     </Button>
   </div>
 
   <div v-if="dataAnalytics && dataAnalytics.status" class="overflow-x-auto mb-4 py-1">
-    <div class="flex items-start gap-2">
-      <Card  class="min-w-[150px]">
+    <div v-if="statusAnalytics !== 'pending'" class="flex items-start gap-2">
+      <Card class="min-w-[150px]">
         <template #content>
           <div class="opacity-75 text-sm mb-1">Ringkasan status :</div>
           <div class="font-bold">{{ dataAnalytics.bulan }}</div>
@@ -128,11 +128,16 @@ const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics 
         </template>
       </Card>
     </div>
+
+    <div v-if="statusAnalytics == 'pending'" class="flex items-start gap-2">
+      <Skeleton v-for="i in 6" height="5rem" width="152px"/>
+    </div>
+
   </div>
 
   <Card class="shadow mt-4">
     <template #content>
-      <DataTable :value="data.data" stripedRows responsiveLayout="scroll" size="small" class="text-sm">
+      <DataTable :value="data.data" :loading="loading" stripedRows responsiveLayout="scroll" size="small" class="text-sm">
         <Column field="no" header="No" style="width: 50px">
           <template #body="slotProps">
             {{ data.from + slotProps.index }}
