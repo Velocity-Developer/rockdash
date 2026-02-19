@@ -430,6 +430,14 @@ watch(() => form.id_webhost, async (val) => {
   selectedCustomer.value = {};
   //ambilkan data webhost
   if(val) {
+    //set kategori_web dari hasil search_webhost jika tersedia
+    const foundFromSearch = Array.isArray(search_webhost.value)
+      ? search_webhost.value.find((item: any) => String(item.id_webhost) == String(val))
+      : null;
+    if (foundFromSearch) {
+      form.kategori_web = foundFromSearch.kategori || '';
+    }
+
     try {
       const res = await client(`/api/webhost/${val}`) as any;
       selectedWebhost.value = res;
@@ -442,6 +450,7 @@ watch(() => form.id_webhost, async (val) => {
       form.wa = selectedWebhost.value.wa;
       form.email = selectedWebhost.value.email;
       form.saldo = selectedWebhost.value.saldo;
+      form.kategori_web = selectedWebhost.value.kategori || form.kategori_web;
       
       //if response.customer
       if(res.customers && res.customers.length > 0) {
