@@ -119,7 +119,7 @@ watch(
     
     <div class="col-span-4 flex justify-end items-center gap-2">
       <Select 
-        v-if="isPermissions('timsupport-journal-perform-tim')"  
+        v-if="isPermissions('timads-journal-perform-tim')"  
         v-model="filters.user_id" 
         :options="dataAnalytics.users_ads" 
         size="small" 
@@ -132,6 +132,19 @@ watch(
         <Icon name="lucide:refresh-cw" :class="status=='pending'?'animate-spin':''"/> Refresh
       </Button>
     </div>
+
+    <div class="col-span-4 mt-6 text-xl md:text-2xl flex items-center gap-2">
+        <template v-if="dataAnalytics && dataAnalytics.user_data?.name">
+          <div class="flex justify-center items-center gap-2">
+            <Avatar :image="dataAnalytics.user_data.avatar_url" shape="circle"/>
+            Performa {{ dataAnalytics.user_data.name || '-' }}
+          </div>
+        </template>
+        <template v-else>
+          <span class="w-8 h-8 rounded bg-blue-500 text-white flex justify-center items-center"><Icon name="lucide:users" /></span>
+          Performa Seluruh Tim Ads
+        </template>
+      </div>
 
     <Card class="col-span-4 md:col-span-2">
         <template #header>
