@@ -23,6 +23,95 @@ const { data : dataAnalytics, status, refresh } = await useAsyncData('rangkuman_
   }) as any
 ) as any
 
+const chartData = ref();
+const chartOptions = ref();
+
+const setChartData = () => {
+  if (!dataAnalytics.value || !dataAnalytics.value.by_category) return null;
+
+  const labels = dataAnalytics.value.by_category.map(
+    (item: any) => item.journal_category?.name ?? '(kosong)'
+  );
+
+  const totals = dataAnalytics.value.by_category.map(
+    (item: any) => item.total ?? 0
+  );
+
+  const backgroundColors = [
+    '#FFB0B0',
+    '#FFD09B',
+    '#FFECC8',
+    '#FFF7D1',
+    '#A594F9',
+    '#CDC1FF',
+    '#F5EFFF',
+    '#295F98',
+    '#D2DCB6',
+    '#F1F3E0',
+  ];
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Total',
+        data: totals,
+        backgroundColor: backgroundColors.slice(0, labels.length),
+        borderWidth: 1,
+      },
+    ],
+  };
+};
+
+const setChartOptions = () => {
+  const documentStyle = getComputedStyle(document.documentElement);
+  const textColor = documentStyle.getPropertyValue('--p-text-color');
+  const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+  const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
+
+  return {
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: textColor,
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: textColorSecondary,
+        },
+        grid: {
+          color: surfaceBorder,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        ticks: {
+          color: textColorSecondary,
+        },
+        grid: {
+          color: surfaceBorder,
+        },
+      },
+    },
+  };
+};
+
+onMounted(() => {
+  chartData.value = setChartData();
+  chartOptions.value = setChartOptions();
+});
+
+watch(
+  () => dataAnalytics.value?.by_category,
+  () => {
+    chartData.value = setChartData();
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -81,7 +170,11 @@ const { data : dataAnalytics, status, refresh } = await useAsyncData('rangkuman_
           </div>
         </template>
         <template #content>
-            <div class="h-[400px] p-2">
+            <div class="h-[400px] p-2">              
+                <Chart v-if="chartData" type="bar" :data="chartData" :options="chartOptions" class="h-full w-full" />
+                <div v-else class="flex justify-center items-center h-full gap-2 opacity-50 text-sm">
+                    <Icon name="lucide:bar-chart-2" /> Belum ada data
+                </div>
             </div>
         </template>
     </Card>
