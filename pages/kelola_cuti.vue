@@ -2,6 +2,7 @@
 definePageMeta({
   title: 'Kelola Data Cuti',
   description: 'Catatan cuti karyawan',
+  development: true
 })
 
 import { useDayjs } from '#dayjs'
@@ -33,7 +34,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 pt-20">
     <div class="flex justify-between items-center">
       <h1 class="text-lg font-semibold">
         Kelola Data Cuti
@@ -69,7 +70,8 @@ onMounted(() => {
           stripedRows
           :loading="loading"
           scrollable
-          scrollHeight="70vh"
+          scrollHeight="80vh"
+          class="text-xs"
         >
           <Column
             header="#"
@@ -80,7 +82,15 @@ onMounted(() => {
             </template>
           </Column>
           <Column field="nama" header="Nama" />
-          <Column field="total" header="Total Cuti" />
+          <Column field="total" header="Total Cuti">
+            <template #body="slotProps">
+              <ul>
+                <li v-for="it,i in slotProps.data.detail">
+                  {{ i }}: {{ it }}
+                </li>
+              </ul>
+            </template>
+          </Column>
           <Column header="Detail">
             <template #body="slotProps">
               <DataTable
@@ -94,9 +104,9 @@ onMounted(() => {
                   </template>
                 </Column>
                 <Column field="jenis" header="Jenis" />
-                <Column field="tipe" header="Tipe" />
-                <Column field="time" header="Time" />
                 <Column field="detail" header="Detail" />
+                <Column field="time" header="Time" />
+                <Column field="tipe" header="Tipe" />
               </DataTable>
             </template>
           </Column>
