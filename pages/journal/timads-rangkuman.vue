@@ -157,8 +157,10 @@ watch(
 
           <table class="table-fixed w-full">
             <thead class="text-left">
-              <th class="p-2 bg-gray-100 dark:bg-gray-800">Kategori</th>
-              <th class="p-2 bg-gray-100 dark:bg-gray-800">Total</th>
+              <tr>
+                <th class="p-2 bg-gray-100 dark:bg-gray-800">Kategori</th>
+                <th class="p-2 bg-gray-100 dark:bg-gray-800">Total</th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="item in dataAnalytics.by_category">
