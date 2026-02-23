@@ -46,6 +46,34 @@ const getUserCategoryTotal = (categoryId: number, userId: number) => {
   return item ? item.total ?? 0 : 0;
 };
 
+const getRowTotal = (categoryId: number) => {
+  const analytics = dataAnalytics.value as any;
+  if (!analytics || !analytics.by_category_user || !analytics.users_ads) return 0;
+
+  return analytics.users_ads.reduce((sum: number, user: any) => {
+    return sum + getUserCategoryTotal(categoryId, user.id);
+  }, 0);
+};
+
+const getUserTotal = (userId: number) => {
+  const analytics = dataAnalytics.value as any;
+  if (!analytics || !analytics.by_category_user) return 0;
+
+  return analytics.by_category_user
+    .filter((i: any) => Number(i.user_id) === Number(userId))
+    .reduce((sum: number, i: any) => sum + (i.total ?? 0), 0);
+};
+
+const getGrandTotal = () => {
+  const analytics = dataAnalytics.value as any;
+  if (!analytics || !analytics.by_category_user) return 0;
+
+  return analytics.by_category_user.reduce(
+    (sum: number, i: any) => sum + (i.total ?? 0),
+    0
+  );
+};
+
 const setChartData = () => {
   if (!dataAnalytics.value || !dataAnalytics.value.by_category) return null;
 
@@ -260,6 +288,17 @@ watch(
           >
             <template #body="slotProps">
               {{ getUserCategoryTotal(slotProps.data.id, col.id) }}
+            </template>
+            <template #footer>
+              {{ getUserTotal(col.id) }}
+            </template>
+          </Column>
+          <Column field="total" header="Total">
+            <template #body="slotProps">
+              {{ getRowTotal(slotProps.data.id) }}
+            </template>
+            <template #footer>
+              {{ getGrandTotal() }}
             </template>
           </Column>
         </DataTable>
