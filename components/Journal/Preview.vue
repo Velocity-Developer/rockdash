@@ -4,7 +4,7 @@
     <div class="grid grid-cols-6 gap-2">
       <div class="col-span-6 md:col-span-3">
          <div class="flex items-center gap-3">
-          <div class="w-10 h-10 md:w-15 md:h-15 text-xl p-2 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg">
+          <div class="noto-emoji w-10 h-10 md:w-15 md:h-15 text-xl p-2 flex items-center justify-center bg-white dark:bg-gray-900 rounded-lg">
             {{ journal.journal_category?.icon }}
           </div>
           <div>
