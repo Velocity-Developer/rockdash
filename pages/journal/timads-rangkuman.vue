@@ -33,6 +33,19 @@ const totalSelected = computed(() =>
   )
 );
 
+const getUserCategoryTotal = (categoryId: number, userId: number) => {
+  const analytics = dataAnalytics.value as any;
+  if (!analytics || !analytics.by_category_user) return 0;
+
+  const item = analytics.by_category_user.find(
+    (i: any) =>
+      Number(i.journal_category_id) === Number(categoryId) &&
+      Number(i.user_id) === Number(userId)
+  );
+
+  return item ? item.total ?? 0 : 0;
+};
+
 const setChartData = () => {
   if (!dataAnalytics.value || !dataAnalytics.value.by_category) return null;
 
@@ -233,19 +246,22 @@ watch(
       </template>
       <template #content>
         <DataTable
-              :value="dataAnalytics.categories"
-              size="small"
-              class="text-sm"
-              stripedRows
-            >
-            <Column field="name" header="Kategori" frozen style="min-width: 200px"/>
-            <Column v-for="col of dataAnalytics.users_ads" :key="col.id" :field="col.id" :header="col.name">
-              <template #body="slotProps">
-                {{ slotProps.data }}
-                
-                {{ col }}
-              </template>
-            </Column>
+          :value="dataAnalytics.categories"
+          size="small"
+          class="text-sm"
+          stripedRows
+        >
+          <Column field="name" header="Kategori" frozen style="min-width: 200px" />
+          <Column
+            v-for="col of dataAnalytics.users_ads"
+            :key="col.id"
+            :field="String(col.id)"
+            :header="col.name"
+          >
+            <template #body="slotProps">
+              {{ getUserCategoryTotal(slotProps.data.id, col.id) }}
+            </template>
+          </Column>
         </DataTable>
         
       </template>
