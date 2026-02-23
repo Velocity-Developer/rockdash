@@ -155,24 +155,32 @@ watch(
         </template>
         <template #content>
 
-          <table class="table-fixed w-full">
-            <thead class="text-left">
-              <tr>
-                <th class="p-2 bg-gray-100 dark:bg-gray-800">Kategori</th>
-                <th class="p-2 bg-gray-100 dark:bg-gray-800">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in dataAnalytics.by_category">
-                <td class="p-2 border-t">
-                  {{ item.journal_category.name }}
-                </td>
-                <td class="p-2 border-t">
-                  {{ item.total }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <DataTable
+            v-if="dataAnalytics && dataAnalytics.by_category && dataAnalytics.by_category.length"
+            :value="dataAnalytics.by_category"
+            size="small"
+            class="text-sm"
+            stripedRows
+          >
+            <Column field="journal_category.name" header="Kategori">
+              <template #body="slotProps">
+                {{ slotProps.data.journal_category?.name ?? '(kosong)' }}
+              </template>
+            </Column>
+            <Column field="total" header="Total">
+              <template #body="slotProps">
+                {{ slotProps.data.total }}
+              </template>
+            </Column>
+          </DataTable>
+
+          <div
+            v-else
+            class="flex justify-center items-center h-32 gap-2 opacity-50 text-sm"
+          >
+            <Icon name="lucide:alert-triangle" />
+            Belum ada data kategori
+          </div>
 
         </template>
       </Card>
