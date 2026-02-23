@@ -25,6 +25,13 @@ const { data : dataAnalytics, status, refresh } = await useAsyncData('rangkuman_
 
 const chartData = ref();
 const chartOptions = ref();
+const selectedCategories = ref([] as any[]);
+const totalSelected = computed(() =>
+  selectedCategories.value.reduce(
+    (sum, item: any) => sum + (item.total ?? 0),
+    0
+  )
+);
 
 const setChartData = () => {
   if (!dataAnalytics.value || !dataAnalytics.value.by_category) return null;
@@ -107,10 +114,11 @@ onMounted(() => {
 
 watch(
   () => dataAnalytics.value?.by_category,
-  () => {
+  (newVal) => {
     chartData.value = setChartData();
+    selectedCategories.value = newVal ? [...newVal] : [];
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 </script>
 
@@ -155,24 +163,34 @@ watch(
         </template>
         <template #content>
 
-          <DataTable
+          <div
             v-if="dataAnalytics && dataAnalytics.by_category && dataAnalytics.by_category.length"
-            :value="dataAnalytics.by_category"
-            size="small"
-            class="text-sm"
-            stripedRows
           >
-            <Column field="journal_category.name" header="Kategori">
-              <template #body="slotProps">
-                {{ slotProps.data.journal_category?.name ?? '(kosong)' }}
-              </template>
-            </Column>
-            <Column field="total" header="Total">
-              <template #body="slotProps">
-                {{ slotProps.data.total }}
-              </template>
-            </Column>
-          </DataTable>
+            <DataTable
+              :value="dataAnalytics.by_category"
+              v-model:selection="selectedCategories"
+              size="small"
+              class="text-sm"
+              stripedRows
+            >
+              <Column selectionMode="multiple" headerStyle="width: 3rem" />
+              <Column field="journal_category.name" header="Kategori">
+                <template #body="slotProps">
+                  {{ slotProps.data.journal_category?.name ?? '(kosong)' }}
+                </template>
+              </Column>
+              <Column field="total" header="Total">
+                <template #body="slotProps">
+                  {{ slotProps.data.total }}
+                </template>
+              </Column>
+            </DataTable>
+
+            <div class="mt-3 text-sm font-semibold flex justify-end">
+              <span class="mr-1">Total:</span>
+              <span>{{ totalSelected }}</span>
+            </div>
+          </div>
 
           <div
             v-else
