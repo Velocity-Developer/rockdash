@@ -220,6 +220,37 @@ watch(
         </template>
     </Card>
 
+    <div class="col-span-4 mt-6 text-xl" v-if="isPermissions('timads-journal-perform-tim') && !filters.user_id">
+        Rincian Tim
+    </div>
+
+    <Card class="col-span-4" v-if="isPermissions('timads-journal-perform-tim') && !filters.user_id">
+      <template #header>
+        <div class="flex pt-4 px-4 justify-start items-center gap-2">
+          <Icon name="lucide:users" />
+          <span class="text-sm">Total jurnal per User</span>
+        </div>
+      </template>
+      <template #content>
+        <DataTable
+              :value="dataAnalytics.categories"
+              size="small"
+              class="text-sm"
+              stripedRows
+            >
+            <Column field="name" header="Kategori" frozen style="min-width: 200px"/>
+            <Column v-for="col of dataAnalytics.users_ads" :key="col.id" :field="col.id" :header="col.name">
+              <template #body="slotProps">
+                {{ slotProps.data }}
+                
+                {{ col }}
+              </template>
+            </Column>
+        </DataTable>
+        
+      </template>
+    </Card>
+
   </div>
 </template>
 
