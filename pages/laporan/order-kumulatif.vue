@@ -39,7 +39,14 @@
         </div>
       </template>
       <template #content>
-      <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
+      <DataTable 
+        :value="data.data" 
+        class="text-xs mt-4" 
+        size="small" 
+        stripedRows 
+        scrollable
+        :loading="loading"
+      >
         <Column field="label" header="Bulan">
           <template #body="slotProps">
             <span @click="openOrderPreview(slotProps.data)" class="cursor-pointer">
