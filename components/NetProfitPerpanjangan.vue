@@ -23,11 +23,14 @@ const props = defineProps(['data','loading']);
             <Column field="biaya_domain" header="Biaya Domain">        
                 <template #body="slotProps">
                   {{ formatMoney(slotProps.data.biaya_domain,'',0) }}
+                  <div class="text-xs opacity-75">
+                  Harga Domain: {{ formatMoney(slotProps.data.harga_domain,'',0) }}
+                  </div>
                 </template>
             </Column>
             <Column field="profit" header="Net Profit">        
                 <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.profit,'',0) }}
+                 {{ formatMoney(slotProps.data.profit,'',0) }}
                 </template>
             </Column>
           </DataTable> 
