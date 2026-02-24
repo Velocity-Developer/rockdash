@@ -3,7 +3,7 @@ export function formatMoney(value: number, currency: string = 'Rp', minimumFract
   // const v = new Intl.NumberFormat().format(value);
 
   //jika value = kosong maka return 0
-  if(value === null || value === undefined || value === 0){
+  if(value === null || value === undefined){
     return '-';
   }
 
