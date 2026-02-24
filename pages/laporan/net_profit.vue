@@ -63,6 +63,11 @@
             {{ slotProps.data.persen_order }}
           </template>
         </Column>
+        <Column field="biaya_per_chat" header="Biaya/ Chat">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.biaya_per_chat,'',0) }}
+          </template>
+        </Column>
         <Column field="omzet" header="Omzet">
           <template #body="slotProps">
             {{ formatMoney(slotProps.data.omzet,'',0) }}
