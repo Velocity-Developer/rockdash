@@ -11,6 +11,20 @@
         <DatePicker v-model="filter.bulan_sampai" view="month" dateFormat="mm/yy" size="small"/>
       </div>
       <div>
+        <label class="mb-1 block text-xs">Campaign :</label>
+        <Select 
+          v-model="filter.campaign" 
+          :options="[
+            {key:'ads', label:'Original (Whatsapp, Tidio Chat, Telegram)'},
+            {key:'ads_k2', label:'K2 (Whatsapp K2, Tidio Chat K2)'},
+            {key:'ads_k3', label:'K3 (Whatsapp K3, Tidio Chat K3)'}
+          ]" 
+          optionLabel="label"
+          optionValue="key"
+          size="small"
+        />
+      </div>
+      <div>
         <Button @click="getData">
           <Icon v-if="loading" name="lucide:loader-circle" class="animate-spin"/>
           <Icon v-else name="lucide:search"/>
@@ -179,6 +193,9 @@
       </Dialog>
     
   </div>
+
+  <DashLoader :loading="loading" />
+
 </template>
 
 <script setup lang="ts">
@@ -203,6 +220,7 @@ const filter = reactive({
   bulan_sampai: route.query.sampai
     ? dayjs(route.query.sampai as string).toDate()
     : dayjs().toDate(),
+  campaign: route.query.campaign || 'ads'
 });
 
 function updateRouteParams() {
@@ -210,6 +228,7 @@ function updateRouteParams() {
     query: { 
       dari: dayjs(filter.bulan_dari).format('YYYY-MM').toString(),
       sampai: dayjs(filter.bulan_sampai).format('YYYY-MM').toString(),
+      campaign: filter.campaign
      },
   });
 }
@@ -220,10 +239,11 @@ const getData = async () => {
   loading.value = true;
   
   try {
-    const response = await client('/api/laporan/net_profit',{
+    const response = await client('/api/laporan/order_kumulatif',{
       params: {
         bulan_dari: dayjs(filter.bulan_dari).utc().local().format('YYYY-MM'),
         bulan_sampai: dayjs(filter.bulan_sampai).utc().local().format('YYYY-MM'),
+        campaign: filter.campaign
       },
     });
     data.value = response;
