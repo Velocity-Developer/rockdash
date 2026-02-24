@@ -185,10 +185,12 @@
       
       <NetProfitPembuatan :dataNetProfit="data"/>
 
-      <NetProfitPerpanjangan :dari="filter.bulan_dari" :sampai="filter.bulan_sampai"/>
+      <NetProfitPerpanjangan :data="dataPerpanjangan" :loading="loadingPerpanjangan"/>
 
   </div>
+
   <DashLoader :loading="loading"/>
+
 </template>
 
 <script setup lang="ts">
@@ -240,10 +242,11 @@ const getData = async () => {
   } catch (error) {
     const er = useSanctumError(error);
     loading.value = false;
+  } finally {
+    updateRouteParams()
+    loading.value = false;
+    getDataPerpanjangan()
   }
-
-  updateRouteParams()
-  loading.value = false;
 }
 
 onMounted(() => {
@@ -360,5 +363,26 @@ const exportExcel = (row: any) => {
   const fileName = `NetProfit_${safeLabel || dayjs().format('YYYY-MM-DD')}.xlsx`
 
   XLSX.writeFile(wb, fileName)
+}
+
+const loadingPerpanjangan = ref(false);
+const dataPerpanjangan = ref([] as any);
+const getDataPerpanjangan = async () => {
+  loadingPerpanjangan.value = true;
+  try {
+    const response = await client('/api/laporan/net_profit_perpanjangan',{
+      params: {
+        bulan_dari: dayjs(filter.bulan_dari).utc().local().format('YYYY-MM'),
+        bulan_sampai: dayjs(filter.bulan_sampai).utc().local().format('YYYY-MM'),
+      },
+    });
+    dataPerpanjangan.value = response;
+    loadingPerpanjangan.value = false;
+  } catch(err){
+    const er = useSanctumError(err)
+    console.error(er)
+  } finally {
+    loadingPerpanjangan.value = false;
+  }
 }
 </script>
