@@ -50,7 +50,16 @@
         </Column>
         <Column field="biaya_iklan" header="Biaya Iklan">
           <template #body="slotProps">
-            {{ formatMoney(slotProps.data.biaya_iklan,'',0) }}
+            
+            <span
+            v-if="data?.campaign !== 'ads'"
+              @click="openBiayaAdsForm(slotProps.data.bulan,data?.campaign)"
+              class="cursor-pointer text-blue-600 hover:text-blue-800 underline decoration-dotted"
+            >
+              {{ formatMoney(slotProps.data.biaya_iklan,'',0) }}
+            </span>
+            <span v-else>{{ formatMoney(slotProps.data.biaya_iklan,'',0) }}</span>
+
           </template>
         </Column>
         <Column field="chat_ads" header="Chat Ads">
@@ -129,10 +138,10 @@
               <Button size="small" severity="info" @click="openChatPreview(slotProps.data)">
                 <Icon name="lucide:message-circle" />
               </Button>
-              <Button size="small" severity="contrast" @click="openOrderPreview(slotProps.data)">
+              <Button size="small" severity="success" @click="openOrderPreview(slotProps.data)">
                 <Icon name="lucide:shopping-cart" />
               </Button>
-              <Button size="small" severity="success" @click="exportExcel(slotProps.data)">
+              <Button size="small" severity="warn" @click="exportExcel(slotProps.data)">
                 <Icon name="lucide:download" />
               </Button>
             </ButtonGroup>
@@ -143,7 +152,7 @@
       </template>
     </Card>
 
-      <Dialog v-model:visible="dialogOrderPreview" modal header="Detail Projects" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <Dialog v-model:visible="dialogOrderPreview" modal header="Detail Order" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
         <DataTable :value="selectedOrderPreview.projects" class="text-xs mt-4" size="small" stripedRows scrollable>
           <Column field="no" header="#">
             <template #body="slotProps">
@@ -195,6 +204,21 @@
           :id="hargaDomainId"
           :default-bulan="hargaDomainBulan"
           @update="handleHargaDomainUpdated"
+        />
+      </Dialog>
+
+      <Dialog
+        v-model:visible="dialogBiayaAds"
+        modal
+        header="Biaya Iklan"
+        :style="{ width: '26rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+      >
+        <BiayaAdsForm
+          :action="biayaAdsFormAction"
+          :bulan="biayaAdsFormParams.bulan"
+          :kategori="biayaAdsFormParams.kategori"
+          @update="handleBiayaAdsUpdated"
         />
       </Dialog>
       
@@ -324,6 +348,24 @@ const openHargaDomainForm = async (row: any) => {
 
 const handleHargaDomainUpdated = () => {
   dialogHargaDomain.value = false
+  getData()
+}
+
+const dialogBiayaAds = ref(false)
+const biayaAdsFormAction = ref<'add' | 'edit'>('edit')
+const biayaAdsFormParams = ref({
+  bulan: '',
+  kategori: ''
+} as any)
+const openBiayaAdsForm  = async (bulan: String,campaign: String) => {
+  dialogBiayaAds.value = true
+  biayaAdsFormParams.value = {
+    bulan: bulan,
+    kategori: campaign
+  }
+}
+const handleBiayaAdsUpdated = () => {
+  dialogBiayaAds.value = false
   getData()
 }
 
