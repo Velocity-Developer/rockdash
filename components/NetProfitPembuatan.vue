@@ -33,7 +33,7 @@ const getData = async () => {
       const totalDibayar = projects.reduce((total: number, project: any) => {
         if (!project?.dibayar) return total;
 
-        const day = new Date(project.tgl_masuk).getDate();
+        const day = new Date(project.webhost.waktu).getDate();
         //jika tgl_masuk lebih dari day, return
         if(day > filter.tgl_sampai) return total;
 
@@ -97,7 +97,7 @@ watch(() => props.dataNetProfit, (newValue, oldValue) => {
         </div>
 
         <div v-if="!loading && data">
-          <DataTable :value="data" class="text-sm mt-4" size="small" stripedRows scrollable>
+          <DataTable :value="data" class="text-sm mt-4" size="small" :loading="loading" stripedRows scrollable>
             <Column field="label" header="Bulan" />
             <Column field="chat_ads" header="Chat Ads" />
             <Column field="order" header="Order" />

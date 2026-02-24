@@ -25,7 +25,7 @@
         </div>
       </template>
       <template #content>
-      <DataTable :value="data.data" class="text-xs mt-4" size="small" stripedRows scrollable>
+      <DataTable :value="data.data" :loading="loading" class="text-xs mt-4" size="small" stripedRows scrollable>
         <Column field="label" header="Bulan">
           <template #body="slotProps">
             <span @click="openOrderPreview(slotProps.data)" class="cursor-pointer">
@@ -196,8 +196,7 @@
 <script setup lang="ts">
 definePageMeta({
     title: 'Net Profit',
-    page_key:'net_profit',
-    development: true
+    page_key:'net_profit'
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
