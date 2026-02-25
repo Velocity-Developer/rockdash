@@ -1,7 +1,7 @@
 <template>
   <div>
     
-    <div class="flex gap-2 justify-end items-center">      
+    <div class="flex gap-2 justify-end items-center mb-3">      
       <Button @click="dialogPermissions = true" size="small" severity="info">
         <Icon name="lucide:user-round-check" size="small"/> Permissions
       </Button>    
@@ -10,38 +10,44 @@
       </Button>
     </div>
     
-    <DataTable :value="data" size="small" stripedRows scrollable>
-      <Column field="name" header="Name Role"></Column>
-      <Column field="guard_name" header="Guard Name"></Column>
-      <Column field="user_count" header="Users"></Column>
-      <Column field="permissions" header="Permissions">
-        <template #body="slotProps">
-          <div class="truncate text-xs max-w-[200px] md:max-w-[300px]">
-            <span v-for="item in slotProps.data.permissions" :key="item">
-              {{ item }},
-            </span>
-          </div>
-        </template>
-      </Column>
-      <Column field="options" header="">
-        <template #body="slotProps">
-          <div v-if="slotProps.data.name != 'admin'" class="flex gap-2 justify-end items-center">
+    <Card>
+      <template #content>
+        
+        <DataTable :value="data" size="small" stripedRows scrollable>
+          <Column field="name" header="Name Role"></Column>
+          <Column field="guard_name" header="Guard Name"></Column>
+          <Column field="user_count" header="Users"></Column>
+          <Column field="permissions" header="Permissions">
+            <template #body="slotProps">
+              <div class="truncate text-xs max-w-[200px] md:max-w-[300px]">
+                <span v-for="item in slotProps.data.permissions" :key="item">
+                  {{ item }},
+                </span>
+              </div>
+            </template>
+          </Column>
+          <Column field="options" header="">
+            <template #body="slotProps">
+              <div v-if="slotProps.data.name != 'admin'" class="flex gap-2 justify-end items-center">
 
-            <Button @click="openDialog(slotProps.data,'edit')" severity="secondary" size="small">
-              <Icon name="lucide:pen" size="small"/>
-            </Button>
-            <Button @click="confirmDelete(slotProps.data.name)" severity="danger" size="small">
-              <Icon name="lucide:trash-2" size="small"/>
-            </Button>
+                <Button @click="openDialog(slotProps.data,'edit')" severity="secondary" size="small">
+                  <Icon name="lucide:pen" size="small"/>
+                </Button>
+                <Button @click="confirmDelete(slotProps.data.name)" severity="danger" size="small">
+                  <Icon name="lucide:trash-2" size="small"/>
+                </Button>
 
-          </div>
-        </template>
-      </Column>
-    </DataTable>
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+
+      </template>
+    </Card>
 
   </div>  
   
-  <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit Role' : 'Add Role'" :style="{ width: '30rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
+  <Dialog v-model:visible="dialog" :header="selectedItem ? 'Edit Role' : 'Add Role'" :style="{ width: '50rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
       <form @submit.prevent="handleSubmit"> 
         <div class="mb-4">
           <label for="name" class="form-label">Name</label>
@@ -51,7 +57,7 @@
         <div class="mb-4">
           <label for="permissions" class="form-label">Permissions</label>
 
-          <div class="grid grid-cols-2 gap-4 mt-2 mb-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border dark:border-zinc-600 rounded-md p-3 md:p-5 bg-gray-100 dark:bg-zinc-950 mt-2 mb-3">
             <div v-for="item in OptionPermissions" :key="item.value">
               <div class="flex items-center gap-1">
                 <Checkbox :id="item.value" v-model="form.permissions" :value="item.value" />
