@@ -61,7 +61,9 @@ const getUserTotal = (userId: number) => {
 
   return analytics.by_category_user
     .filter((i: any) => Number(i.user_id) === Number(userId))
-    .reduce((sum: number, i: any) => sum + (i.total ?? 0), 0);
+    .reduce((sum: number, i: any) => {
+      return sum + Number(i.total ?? 0);
+    }, 0);
 };
 
 const getGrandTotal = () => {
@@ -290,15 +292,21 @@ watch(
               {{ getUserCategoryTotal(slotProps.data.id, col.id) }}
             </template>
             <template #footer>
+              <span class="font-bold">
               {{ getUserTotal(col.id) }}
+              </span>
             </template>
           </Column>
           <Column field="total" header="Total">
             <template #body="slotProps">
+              <span class="font-bold">
               {{ getRowTotal(slotProps.data.id) }}
+              </span>
             </template>
             <template #footer>
+              <span class="font-bold">
               {{ getGrandTotal() }}
+              </span>
             </template>
           </Column>
         </DataTable>
