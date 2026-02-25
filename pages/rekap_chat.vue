@@ -29,7 +29,11 @@
           <template #body="slotProps">
             <div class="flex justify-between gap-1">
              <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5">
-              <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" :style="{ width: slotProps.data.percentage + '%' }">
+              <div 
+                class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                :style="{ width: slotProps.data.percentage + '%' }" 
+                v-tooltip="slotProps.data.alasan+' : '+slotProps.data.percentage+'%'"
+                >
               </div>
             </div>
             <div class="min-w-[40px] text-right">{{ slotProps.data.percentage }}%</div>
