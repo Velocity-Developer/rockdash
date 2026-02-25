@@ -103,17 +103,6 @@ const filters = reactive({
     order: 'desc',
 } as any);
 
-//watch filters tgl_masuk_start dan tgl_masuk_end
-// watch(filters, () => {
-//     if(filters.tgl_masuk_start) {
-//         filters.tgl_masuk_start = dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD');
-//     }
-//     if(filters.tgl_masuk_end) {
-//         filters.tgl_masuk_end = dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD');
-//     }
-// })
-
-
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
 function updateRouteParams() {

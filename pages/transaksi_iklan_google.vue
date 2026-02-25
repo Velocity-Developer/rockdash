@@ -197,8 +197,12 @@ const page = ref(route.query.page ? Number(route.query.page) : 1);
 const filters = reactive({
     per_page: route.query.per_page || 50,
     page: computed(() => page.value),
-    tgl_masuk_start: route.query.tgl_masuk_start || dayjs().subtract(1, 'month').format('YYYY-MM-DD'),
-    tgl_masuk_end: route.query.tgl_masuk_end || dayjs().format('YYYY-MM-DD'),
+    tgl_masuk_start: route.query.tgl_masuk_start
+      ? dayjs(String(route.query.tgl_masuk_start)).toDate()
+      : dayjs().subtract(1, 'month').toDate(),
+    tgl_masuk_end: route.query.tgl_masuk_end
+      ? dayjs(String(route.query.tgl_masuk_end)).toDate()
+      : dayjs().toDate(),
     nama_web: '',
     jenis: '',
     deskripsi: '',
@@ -215,15 +219,34 @@ const filters = reactive({
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
 function updateRouteParams() {
+  const payload = { ...filters }
+  payload.tgl_masuk_start = filters.tgl_masuk_start ?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):null,
+  payload.tgl_masuk_end = filters.tgl_masuk_end ?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):null,
   router.push({
-    query: { ...filters },
+    query: { ...payload },
   });
 }
 
 const { data, status, error, refresh } = await useAsyncData(
     'transaksi_iklan_google-page-'+page.value,
     () => client('/api/transaksi_iklan_google',{
-        params: filters
+        params: {          
+          per_page: filters.per_page || 50,
+          page: filters.per_page || 1,
+          tgl_masuk_start: filters.tgl_masuk_start ?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):null,
+          tgl_masuk_end: filters.tgl_masuk_end ?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):null,
+          nama_web: filters.nama_web || '',
+          jenis: filters.jenis || '',
+          deskripsi: filters.deskripsi || '',
+          trf: filters.trf || '',
+          hp: filters.hp || '',
+          telegram: filters.telegram || '',
+          hpads: filters.hpads || '',
+          wa: filters.wa || '',
+          email: filters.email || '',
+          order_by: filters.order_by || '',
+          order: filters.order || '',
+        }
     })
 ) as any
 const onPaginate = (event: { page: number }) => {
@@ -231,13 +254,6 @@ const onPaginate = (event: { page: number }) => {
     updateRouteParams()
     refresh()
 };
-
-//watch filters.tgl_masuk_start dan filters.tgl_masuk_end
-watch(filters, () => {
-    //ubah format date dayjs
-    filters.tgl_masuk_start = filters.tgl_masuk_start?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):'';
-    filters.tgl_masuk_end = filters.tgl_masuk_end?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):'';
-})
 
 //watch status
 const isLoadingDash = ref(false)
@@ -285,7 +301,7 @@ function split_comma(text: string) {
 function resetFilters() {
   filters.per_page = 150;
   filters.tgl_masuk_start = dayjs().subtract(1, 'month').format('YYYY-MM-DD');
-  filters.tgl_masuk_end = dayjs().format('YYYY-MM-DD');
+  filters.tgl_masuk_end = dayjs().toDate();
   filters.nama_web = '';
   filters.paket = '';
   filters.jenis = '';
