@@ -23,10 +23,10 @@
 
     <div class="flex justify-end items-center gap-2">
       <Button @click="openActionDialog('add',{})" size="small" class="shadow-md">
-        <Icon name="lucide:plus-circle" /> <span class="hidden md:inline-block">Tambah</span>
+        <Icon name="lucide:plus-circle" mode="svg"/> <span class="hidden md:inline-block">Tambah</span>
       </Button>
       <Button @click="visibleDrawerFilter = true" size="small" severity="info" class="shadow-md">
-        <Icon name="lucide:filter" /> Filter
+        <Icon name="lucide:filter" mode="svg"/> Filter
         <span
         class="w-2 h-2 bg-red-300 rounded-full inline-block absolute top-0 right-0 m-1"
         v-if="filters.nama_web || filters.jenis"
@@ -104,10 +104,10 @@
           <template #body="slotProps">            
             <div class="flex items-center justify-center gap-1">
               <Button @click="openActionDialog('preview',slotProps.data)" size="small" severity="primary">
-                <Icon name="lucide:eye" />
+                <Icon name="lucide:eye" mode="svg"/>
               </Button>
               <Button @click="openActionDialog('edit',slotProps.data)" size="small" severity="info">
-                <Icon name="lucide:edit" />
+                <Icon name="lucide:edit" mode="svg"/>
               </Button>
             </div>
           </template>
@@ -118,7 +118,7 @@
 
   <div v-if="!dataClientSupport || dataClientSupport.length === 0">
     <div class="flex justify-center items-center py-5 gap-2 opacity-50 border rounded-md">
-      <Icon name="lucide:inbox" size="45" />
+      <Icon name="lucide:inbox" size="45" mode="svg"/>
       Tidak ada data
     </div>
   </div>
@@ -188,17 +188,15 @@ const dayjs = useDayjs()
 const route = useRoute();
 const client = useSanctumClient();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
-const tglStartQuery = route.query.tanggal_start as string | undefined
-const tglEndQuery = route.query.tanggal_end as string | undefined
 
 const filters = reactive({
   per_page: route.query.per_page || 50,
   page: computed(() => page.value),
-  tgl_start: tglStartQuery
-    ? dayjs(tglStartQuery, 'YYYY-MM-DD').toDate()
+  tgl_start: route.query.tgl_start
+    ? dayjs(String(route.query.tgl_start), 'YYYY-MM-DD').toDate()
     : dayjs().toDate(),
-  tgl_end: tglEndQuery
-    ? dayjs(tglEndQuery, 'YYYY-MM-DD').toDate()
+  tgl_end: route.query.tgl_end
+    ? dayjs(String(route.query.tgl_end), 'YYYY-MM-DD').toDate()
     : '',
   nama_web: route.query.nama_web || '',
   jenis: route.query.jenis || '',
@@ -206,18 +204,16 @@ const filters = reactive({
 
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
-function updateRouteParams() {
-  
-  // ubah format tgl_start dan tgl_end menjadi YYYY-MM-DD
-  if (filters.tgl_start) {
-      filters.tanggal_start = dayjs(filters.tgl_start).format('YYYY-MM-DD');
-  }
-  if (filters.tgl_end) {
-      filters.tanggal_end = dayjs(filters.tgl_end).format('YYYY-MM-DD');
-  }
-  
+function updateRouteParams() {  
   router.push({
-    query: { ...filters },
+    query: { 
+      per_page: filters.per_page || 50,
+      page: filters.value,
+      tgl_start : filters.tgl_start ?dayjs(filters.tgl_start).format('YYYY-MM-DD'):null,
+      tgl_end : filters.tgl_end ?dayjs(filters.tgl_end).format('YYYY-MM-DD'):null,
+      nama_web: filters.nama_web || '',
+      jenis: filters.jenis || '',
+     },
   });
 }
 
@@ -230,9 +226,12 @@ const getData = async () => {
     try {
       const res = await client('/api/client_support',{
         params: {
-          ...filters,
-          tgl_start: filters.tanggal_start,
-          tgl_end: filters.tanggal_end,
+          per_page: filters.per_page || 50,
+          page: filters.value,
+          tgl_start : filters.tgl_start ?dayjs(filters.tgl_start).format('YYYY-MM-DD'):null,
+          tgl_end : filters.tgl_end ?dayjs(filters.tgl_end).format('YYYY-MM-DD'):null,
+          nama_web: filters.nama_web || '',
+          jenis: filters.jenis || '',
         }
       })
       dataClientSupport.value = res
