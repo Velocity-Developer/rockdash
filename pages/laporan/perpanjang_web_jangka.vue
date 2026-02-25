@@ -149,12 +149,19 @@ const route = useRoute()
 const router = useRouter()
 
 const filter = reactive({
-    bulan_start: route.query.bulan_start || dayjs().subtract(1, 'month').format(''),
-    bulan_end: route.query.bulan_end || dayjs().format(''),
+    bulan_start: route.query.bulan_start
+      ? dayjs(String(route.query.bulan_start)).toDate()
+      : dayjs().subtract(1, 'month').toDate(),
+    bulan_end: route.query.bulan_end
+      ? dayjs(String(route.query.bulan_end)).toDate()
+      : dayjs().toDate(),
 } as any)
 function updateRouteParams() {
   router.push({
-    query: { ...filter },
+    query: { 
+      bulan_start: filter.bulan_start ?dayjs(filter.bulan_start).format('YYYY-MM-DD'):null,
+      bulan_end: filter.bulan_end ?dayjs(filter.bulan_end).format('YYYY-MM-DD'):null,
+     },
   });
 }
 
@@ -162,15 +169,14 @@ const loading = ref(false);
 const data = ref([] as any);
 const getData = async () => {
   loading.value = true;
-
-  //ubah bulan ke format YYYY-MM
-  filter.bulan_start = dayjs(filter.bulan_start).utc().local().format('YYYY-MM');
-  filter.bulan_end = dayjs(filter.bulan_end).utc().local().format('YYYY-MM');
   updateRouteParams()
 
   try {
     const response = await client('/api/laporan/perpanjang_web_jangka',{
-      params: filter,
+      params: {        
+        bulan_start: filter.bulan_start ?dayjs(filter.bulan_start).format('YYYY-MM-DD'):null,
+        bulan_end: filter.bulan_end ?dayjs(filter.bulan_end).format('YYYY-MM-DD'):null,
+      },
     });
     data.value = response;
     loading.value = false;
