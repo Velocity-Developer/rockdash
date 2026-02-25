@@ -462,11 +462,13 @@ const route = useRoute();
 const kategori = computed(() => route.params.kategori);
 
 const filters = reactive({
-    bank: route.query.bank || "",
-    bulan: route.query.bulan || dayjs().format("YYYY-MM"),
-    kategori: kategori || "umum",
-    search: route.query.search || "",
-} as any);
+  bank: route.query.bank || "",
+  bulan: route.query.bulan
+    ? dayjs(String(route.query.bulan)).toDate()
+    : dayjs().startOf('month').toDate(),
+  kategori: kategori || "umum",
+  search: route.query.search || "",
+}) as any;
 
 //get opsi bank
 const banks = ref([] as any);
@@ -503,7 +505,12 @@ const refresh = async () => {
     status.value = "pending";
     try {
         const res = (await client("/api/bank_transaksi", {
-            params: filters,
+            params: {                
+                bank: filters.bank || "",
+                bulan: filters.bulan?dayjs(filters.bulan).format('YYYY-MM'):null,
+                kategori: filters.kategori || "umum",
+                search: filters.search || "",
+            },
         })) as any;
         data.value = res;
         dataSaldo.value = res.saldo;
@@ -518,7 +525,12 @@ const refresh = async () => {
 const router = useRouter();
 function updateRouteParams() {
     router.push({
-        query: { ...filters },
+        query: {             
+            bank: filters.bank || "",
+            bulan: filters.bulan?dayjs(filters.bulan).format('YYYY-MM'):null,
+            kategori: filters.kategori || "umum",
+            search: filters.search || "",
+         },
     });
 }
 
@@ -526,8 +538,6 @@ function updateRouteParams() {
 watch(
     () => ({ bank: filters.bank, bulan: filters.bulan, kategori: filters.kategori }),
     () => {
-        //ubah format date dayjs
-        filters.bulan = filters.bulan ? dayjs(filters.bulan).format("YYYY-MM") : "";
         updateRouteParams();
         refresh();
     }
