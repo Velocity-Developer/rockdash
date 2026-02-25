@@ -110,11 +110,15 @@ const route = useRoute();
 const router = useRouter()
 
 const filter = reactive({
-    bulan: route.query.bulan_end || dayjs().format(''),
+    bulan: route.query.bulan
+      ? dayjs(String(route.query.bulan)).toDate()
+      : dayjs().toDate(),
 } as any)
 function updateRouteParams() {
   router.push({
-    query: { ...filter },
+    query: {       
+      bulan: filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null,
+     },
   });
 }
 
@@ -122,14 +126,13 @@ const loading = ref(false);
 const data = ref([] as any);
 const getData = async () => {
   loading.value = true;
-
-  //ubah bulan ke format YYYY-MM
-  filter.bulan = dayjs(filter.bulan).utc().local().format('YYYY-MM');
   updateRouteParams()
 
   try {
     const response = await client('/api/laporan/siklus_layanan',{
-      params: filter,
+      params: {
+        bulan: filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null,
+      },
     });
     data.value = response;
     loading.value = false;
