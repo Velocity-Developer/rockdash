@@ -93,35 +93,53 @@ const client = useSanctumClient();
 const filters = reactive({
     per_page: route.query.per_page || 50,
     page: route.query.page || 1,
-    tgl_masuk_start: route.query.tgl_masuk_start || dayjs().format('YYYY-MM-01'),
-    tgl_masuk_end: route.query.tgl_masuk_end || dayjs().format('YYYY-MM-DD'),
+    tgl_masuk_start: route.query.tgl_masuk_start
+    ? dayjs(String(route.query.tgl_masuk_start)).toDate()
+    : dayjs().startOf('month').toDate(),
+    tgl_masuk_end: route.query.tgl_masuk_end
+    ? dayjs(String(route.query.tgl_masuk_end)).toDate()
+    : dayjs().toDate(),
     order_by: 'tgl_masuk',
     order: 'desc',
 } as any);
 
 //watch filters tgl_masuk_start dan tgl_masuk_end
-watch(filters, () => {
-    if(filters.tgl_masuk_start) {
-        filters.tgl_masuk_start = dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD');
-    }
-    if(filters.tgl_masuk_end) {
-        filters.tgl_masuk_end = dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD');
-    }
-})
+// watch(filters, () => {
+//     if(filters.tgl_masuk_start) {
+//         filters.tgl_masuk_start = dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD');
+//     }
+//     if(filters.tgl_masuk_end) {
+//         filters.tgl_masuk_end = dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD');
+//     }
+// })
 
 
 // Fungsi untuk mengubah params filters menjadi query URL route
 const router = useRouter();
 function updateRouteParams() {
   router.push({
-    query: { ...filters },
+    query: {       
+      per_page: filters.per_page || 50,
+      page: filters.page || 1,
+      tgl_masuk_start: filters.tgl_masuk_start ?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):null,
+      tgl_masuk_end: filters.tgl_masuk_end ?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):null,
+      order_by: filters.order_by,
+      order: filters.order,
+     },
   });
 }
 
 const { data, status, error, refresh } = await useAsyncData(
     'jenis_blm_terpilih_page_'+filters.page,
     () => client('/api/jenis_blm_terpilih',{
-        params: filters
+        params: {
+          per_page: filters.per_page || 50,
+          page: filters.page || 1,
+          tgl_masuk_start: filters.tgl_masuk_start ?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):null,
+          tgl_masuk_end: filters.tgl_masuk_end ?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):null,
+          order_by: filters.order_by,
+          order: filters.order,
+        }
     })
 ) as any
 const onPaginate = (event: { page: number }) => {
