@@ -17,28 +17,28 @@
         <hr class="mb-5">
 
         
-        <div class="flex flex-col md:flex-row gap-5 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
           
-          <div class="flex flex-col mb-4">
+          <div>
             <label class="text-sm mb-2" for="app_logo">Logo Aplikasi</label>
             <img v-if="previewLogo" :src="previewLogo" alt="Image" class="mb-2 shadow-md rounded-md w-full sm:w-64" />
-            <div class="w-[6rem]">
+            <div class="w-[8rem]">
               <FileUpload mode="basic" @select="onFileSelect" customUpload auto severity="secondary" class="!justify-end"/>
             </div>
           </div>
 
-          <div class="flex flex-col mb-4">
+          <div>
             <label class="text-sm mb-2" for="app_logo_small">Logo Aplikasi (small)</label>
             <img v-if="previewLogoSmall" :src="previewLogoSmall" alt="Image" class="mb-2 shadow-md rounded-md max-w-[80px] aspect-square" />
-            <div class="w-[6rem]">
+            <div class="w-[8rem]">
               <FileUpload mode="basic" @select="onLogoSmallSelect" customUpload auto severity="secondary" class="!justify-end"/>
             </div>
           </div>
             
-          <div class="flex flex-col mb-4">
+          <div>
             <label class="text-sm mb-2" for="app_favicon">Favicon Aplikasi</label>
             <img v-if="previewFavicon" :src="previewFavicon" alt="Image" class="mb-2 max-w-[80px] shadow-md rounded-md w-auto aspect-square" />
-            <div class="w-[6rem]">
+            <div class="w-[8rem]">
               <FileUpload mode="basic" @select="onFaviconSelect" customUpload auto severity="secondary" class="!justify-end"/>
             </div>
           </div>
@@ -48,7 +48,7 @@
         <div class="flex flex-col mb-4">
           <label class="text-sm mb-2" for="bg_welcome">Background Welcome</label>
           <img v-if="previewBGwelcome" :src="previewBGwelcome" alt="Image" class="mb-2 shadow-md rounded-md w-full" />
-          <div class="w-[6rem]">
+          <div class="w-[8rem]">
             <FileUpload mode="basic" @select="onBGwelcomeSelect" customUpload auto severity="secondary" class="!justify-end"/>
           </div>
         </div>
@@ -116,7 +116,7 @@ onMounted(async () => {
   const { data } = await useAsyncData(
     'config',
     () => client('/api/dash/config')
-  )
+  ) as any
   form.app_name = data.value.app_name
   form.app_description = data.value.app_description
   previewLogo.value = data.value.app_logo
@@ -158,7 +158,7 @@ const handleSubmit = async () => {
       life: 3000
     });
     
-    const getconfig = await client('/api/dash/config');
+    const getconfig = await client('/api/dash/config') as any
     useConfig.setConfig(getconfig);
 
   } catch (error) {
