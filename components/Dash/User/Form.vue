@@ -37,7 +37,7 @@
             <SelectButton :id="item.key" v-model="form[item.key]" :options="item.options" optionLabel="label" optionValue="value" class="w-full" :required="item.required"/>
           </div>
 
-          <DatePicker v-else-if="item.type=='date'" :id="item.key" v-model="form[item.key]" class="w-full" :required="item.required"/>
+          <DatePicker v-else-if="item.type=='date'" :id="item.key" v-model="form[item.key]" class="w-full" dateFormat="dd/mm/yy" :required="item.required"/>
 
           <Textarea v-else-if="item.type=='textarea'" :type="item.type" v-model="form[item.key]" class="w-full" :required="item.required"/>
           
@@ -222,7 +222,7 @@ const getData = async () => {
       form.email = res.email
       form.hp = res.hp
       form.alamat = res.alamat
-      form.tgl_masuk = res.tgl_masuk
+      form.tgl_masuk = res.tgl_masuk ? dayjs(String(res.tgl_masuk)).toDate() : dayjs().toDate(),
       form.status = res.status
       form.role = res.user_roles?res.user_roles[0]:''
       form.avatar = res.avatar
@@ -251,15 +251,17 @@ const handleSubmit = async () => {
     isLoading.value = true
     errors.value = ''
 
+    const payload = {... form}
+
     if(form.tgl_masuk){
-      form.tgl_masuk = dayjs(form.tgl_masuk).format('YYYY-MM-DD')
+      payload.tgl_masuk = dayjs(form.tgl_masuk).format('YYYY-MM-DD')
     }
 
     if(action.value == 'add'){
       try {          
         const response = await client(`/api/users`, {
           method: 'POST',
-          body: form
+          body: payload
         })
         toast.add({
           severity: 'success',
@@ -283,7 +285,7 @@ const handleSubmit = async () => {
       try {          
         const response = await client(`/api/users/`+idUser, {
           method: 'PUT',
-          body: form
+          body: payload
         })
         toast.add({
           severity: 'success',
