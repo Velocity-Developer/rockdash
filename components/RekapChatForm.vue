@@ -108,7 +108,7 @@ const opsiAlasan = ref([
   'Sudah Order'
 ])
 const opsiPertamaChat = ref([
-  '-', 'Whatsapp', 'Whatsapp 2', 'Whatsapp 3', 'Whatsapp 4', 'Whatsapp 5', 'Tidio Chat', 'Tidio Chat 2', 'Tidio Chat 3', 'Telegram', 'Telegram 2'
+  '-', 'Whatsapp', 'Whatsapp K2','Whatsapp K3','Whatsapp 2', 'Whatsapp 3', 'Whatsapp 4', 'Whatsapp 5', 'Tidio Chat', 'Tidio Chat K2', 'Tidio Chat K3', 'Tidio Chat 2', 'Tidio Chat 3', 'Telegram', 'Telegram 2'
 ])
 
 watch(() => props.dataRekapChat, (val) => {
