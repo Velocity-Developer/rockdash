@@ -39,6 +39,29 @@
       
     </template>
   </Card>
+  
+  <Card v-if="dataExpiryDomains" class="mt-4">
+    <template #header>
+      <div class="px-6 pt-4 font-bold">
+        Domain Expired : {{ theBulan }}
+      </div>
+    </template>
+    <template #content>
+
+      <DataTable :value="dataExpiryDomains" size="small" class="text-sm" stripedRows scrollHeight="70vh" scrollable :loading="statusDataExpiryDomains === 'pending'">
+        <Column field="no" header="No">
+          <template #body="slotProps">
+            {{ slotProps.index + 1}}
+          </template>
+        </Column>
+        <Column field="domain" header="Domain" />
+        <Column field="expirydate" header="Expiry Date" />
+        <Column field="registrationdate" header="Registration Date" />
+        <Column field="status" header="Status" />
+      </DataTable>
+
+    </template>
+  </Card>
 
   <Dialog v-model:visible="visibleDialog" modal :header="titleDialog" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     
@@ -94,6 +117,8 @@
     </div>
 
   </Dialog>
+
+  <DashLoader :loading="loading"/>
 
 </template>
 
@@ -215,4 +240,19 @@ const exportToExcel = () => {
   XLSX.writeFile(wb, filename);
 }
 
+const theBulan = computed(() => {
+  return filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null
+});
+
+const { data: dataExpiryDomains, status: statusDataExpiryDomains} = await useAsyncData(
+    'expired-domains-'+theBulan,
+    () => client('/api/whmcs-custom/expired-domains',{
+      params: {
+        month: theBulan.value
+      }
+    }),
+    {
+      watch: [data],
+    },
+) as any
 </script>
