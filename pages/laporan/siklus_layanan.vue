@@ -48,16 +48,40 @@
     </template>
     <template #content>
 
-      <DataTable :value="dataExpiryDomains" size="small" class="text-sm" stripedRows scrollHeight="70vh" scrollable :loading="statusDataExpiryDomains === 'pending'">
+      <DataTable 
+      :value="dataExpiryDomains.data" 
+      size="small" class="text-sm" 
+      stripedRows scrollHeight="70vh" scrollable 
+      :loading="statusDataExpiryDomains === 'pending'"
+       paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100]"
+      >
         <Column field="no" header="No">
           <template #body="slotProps">
             {{ slotProps.index + 1}}
           </template>
         </Column>
-        <Column field="domain" header="Domain" />
-        <Column field="expirydate" header="Expiry Date" />
-        <Column field="registrationdate" header="Registration Date" />
-        <Column field="status" header="Status" />
+        <Column field="domain" header="Domain">
+          <template #body="slotProps">
+            <span :class="isToday(slotProps.data.expirydate)?'text-green-600':''">              
+              {{ slotProps.data.domain }}
+            </span>
+          </template>
+        </Column>
+        <Column field="expirydate" :sortable="true" header="Expiry Date">
+          <template #body="slotProps">
+            <span :class="isToday(slotProps.data.expirydate)?'text-green-600':''">              
+              {{ slotProps.data.expirydate }}
+            </span>
+          </template>
+        </Column>
+        <Column field="registrationdate" sortable header="Registration Date" />
+        <Column field="status" sortable header="Status">
+          <template #body="slotProps">
+            <Badge :severity="slotProps.data.status === 'Active'?'success':slotProps.data.status === 'Grace'?'warn':'contrast'">
+              {{ slotProps.data.status }}
+            </Badge>
+          </template>
+        </Column>
       </DataTable>
 
     </template>
@@ -255,4 +279,8 @@ const { data: dataExpiryDomains, status: statusDataExpiryDomains} = await useAsy
       watch: [data],
     },
 ) as any
+
+const isToday = (date: string) => {
+  return dayjs(date).isSame(dayjs(), 'day')
+}
 </script>
