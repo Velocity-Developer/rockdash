@@ -40,19 +40,21 @@
     </template>
   </Card>
   
-  <Card v-if="dataExpiryDomains" class="mt-4">
+  <Card v-if="dataExpiredWHMCS" class="mt-4">
     <template #header>
       <div class="px-6 pt-4 font-bold">
-        Domain Expired : {{ theBulan }}
+        Layanan Expired : {{ theBulan }}
       </div>
     </template>
     <template #content>
 
+      {{ dataExpiredWHMCS.data }}
+
       <DataTable 
-      :value="dataExpiryDomains.data" 
+      :value="dataExpiredWHMCS" 
       size="small" class="text-sm" 
       stripedRows scrollHeight="70vh" scrollable 
-      :loading="statusDataExpiryDomains === 'pending'"
+      :loading="statusDataExpiredWHMCS === 'pending'"
        paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100]"
       >
         <Column field="no" header="No">
@@ -62,24 +64,33 @@
         </Column>
         <Column field="domain" header="Domain">
           <template #body="slotProps">
-            <span :class="isToday(slotProps.data.expirydate)?'text-green-600':''">              
-              {{ slotProps.data.domain }}
+            <span v-if="slotProps.data.domain" :class="isToday(slotProps.data.domain.expirydate)?'text-green-600':''">              
+              {{ slotProps.data.domain?.domain }}
+            </span>            
+            <span v-if="!slotProps.data.domain && slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
+              {{ slotProps.data.hosting?.domain }}
             </span>
           </template>
         </Column>
-        <Column field="expirydate" :sortable="true" header="Expiry Date">
+        <Column field="domain.expirydate" :sortable="true" header="Expiry Date domain">
           <template #body="slotProps">
-            <span :class="isToday(slotProps.data.expirydate)?'text-green-600':''">              
-              {{ slotProps.data.expirydate }}
+            <span v-if="slotProps.data.domain" :class="isToday(slotProps.data.domain.expirydate)?'text-green-600':''">              
+              {{ slotProps.data.domain.expirydate }}
             </span>
           </template>
         </Column>
-        <Column field="registrationdate" sortable header="Registration Date" />
-        <Column field="status" sortable header="Status">
+        <Column field="domain.status" sortable header="Status Domain">
           <template #body="slotProps">
-            <Badge :severity="slotProps.data.status === 'Active'?'success':slotProps.data.status === 'Grace'?'warn':'contrast'">
-              {{ slotProps.data.status }}
+            <Badge v-if="slotProps.data.domain" :severity="slotProps.data.domain.status === 'Active'?'success':slotProps.data.domain.status === 'Grace'?'warn':'contrast'">
+              {{ slotProps.data.domain.status }}
             </Badge>
+          </template>
+        </Column>
+        <Column field="hosting.nextduedate" :sortable="true" header="Expiry Date Hosting">
+          <template #body="slotProps">
+            <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
+              {{ slotProps.data.hosting.nextduedate }}
+            </span>
           </template>
         </Column>
       </DataTable>
@@ -268,9 +279,9 @@ const theBulan = computed(() => {
   return filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null
 });
 
-const { data: dataExpiryDomains, status: statusDataExpiryDomains} = await useAsyncData(
-    'expired-domains-'+theBulan,
-    () => client('/api/whmcs-custom/expired-domains',{
+const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS} = await useAsyncData(
+    'expired-whmcs-month-'+theBulan,
+    () => client('/api/whmcs-custom/expired-month',{
       params: {
         month: theBulan.value
       }
