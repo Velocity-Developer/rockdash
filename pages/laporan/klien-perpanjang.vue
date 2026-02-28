@@ -64,12 +64,14 @@
         </Column>
         <Column field="domain" header="Domain">
           <template #body="slotProps">
-            <span v-if="slotProps.data.domain" :class="isToday(slotProps.data.domain.expirydate)?'text-green-600':''">              
-              {{ slotProps.data.domain?.domain }}
-            </span>            
-            <span v-if="!slotProps.data.domain && slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
-              {{ slotProps.data.hosting?.domain }}
-            </span>
+            <div class="hover:underline cursor-pointer">
+              <span v-if="slotProps.data.domain" :class="isToday(slotProps.data.domain.expirydate)?'text-green-600':''" @click="openDialogPerpanjang(slotProps.data,'Detail '+slotProps.data.domain?.domain)">              
+                {{ slotProps.data.domain?.domain }}
+              </span>            
+              <span v-if="!slotProps.data.domain && slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''" @click="openDialogPerpanjang(slotProps.data,'Detail '+slotProps.data.hosting?.domain)">              
+                {{ slotProps.data.hosting?.domain }}
+              </span>
+            </div>
           </template>
         </Column>
         <Column field="domain.expirydate" :sortable="true" header="Expiry Date domain">
@@ -158,6 +160,40 @@
       </DataTable>
     </div>
 
+  </Dialog>
+
+  <Dialog v-model:visible="visibleDialogPerpanjang" modal :header="titleDialogPerpanjang" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <div class="space-y-5">
+        <template v-if="dataDialogPerpanjang.domain">
+          <div class="border p-5 rounded">
+            <div class="flex items-center gap-2 mb-4 text-blue-600">
+              <Icon name="lucide:globe" /> Domain
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3">
+              <template v-for="(d, i) in dataDialogPerpanjang.domain" :key="i">
+                <div v-if="i !== 'id'">
+                  {{ i }} : <span class="font-bold"> {{ d }} </span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <template v-if="dataDialogPerpanjang.hosting">
+          <div class="border p-5 rounded">
+            <div class="flex items-center gap-2 mb-4 text-emerald-600">
+              <Icon name="lucide:database" /> Hosting
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3">
+              <template v-for="(d, i) in dataDialogPerpanjang.hosting" :key="i">
+                <div v-if="i !== 'id'">
+                  {{ i }} : <span class="font-bold"> {{ d }} </span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+    </div>
   </Dialog>
 
   <DashLoader :loading="loading"/>
@@ -300,5 +336,14 @@ const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS} = await useAsync
 
 const isToday = (date: string) => {
   return dayjs(date).isSame(dayjs(), 'day')
+}
+
+const visibleDialogPerpanjang = ref(false);
+const dataDialogPerpanjang = ref({} as any);
+const titleDialogPerpanjang = ref('');
+const openDialogPerpanjang = async (data = {} as any,title = '') => {
+  visibleDialogPerpanjang.value = true;
+  dataDialogPerpanjang.value = data;
+  titleDialogPerpanjang.value = title;
 }
 </script>
