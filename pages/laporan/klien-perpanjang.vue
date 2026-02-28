@@ -48,18 +48,17 @@
     </template>
     <template #content>
 
-      {{ dataExpiredWHMCS.data }}
-
       <DataTable 
       :value="dataExpiredWHMCS" 
       size="small" class="text-sm" 
       stripedRows scrollHeight="70vh" scrollable 
       :loading="statusDataExpiredWHMCS === 'pending'"
        paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100]"
+       @page="onPage"
       >
         <Column field="no" header="No">
           <template #body="slotProps">
-            {{ slotProps.index + 1}}
+            {{ first + slotProps.index + 1}}
           </template>
         </Column>
         <Column field="domain" header="Domain">
@@ -223,6 +222,11 @@ function updateRouteParams() {
       bulan: filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null,
      },
   });
+}
+
+const first = ref(0);
+const onPage = (event: any) => {
+  first.value = event.first
 }
 
 const loading = ref(false);
