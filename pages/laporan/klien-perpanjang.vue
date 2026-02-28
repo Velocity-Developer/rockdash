@@ -93,6 +93,13 @@
             </span>
           </template>
         </Column>
+        <Column field="hosting.package_name" :sortable="true" header="Hosting">
+          <template #body="slotProps">
+            <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
+              {{ slotProps.data.hosting.package_name }}
+            </span>
+          </template>
+        </Column>
       </DataTable>
 
     </template>
