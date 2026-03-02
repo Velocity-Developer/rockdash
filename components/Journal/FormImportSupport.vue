@@ -4,7 +4,16 @@
     <div class="flex justify-between">
       <div>
         <div class="card flex flex-wrap gap-6 items-center justify-between">
-            <FileUpload ref="fileupload" mode="basic" name="demo[]" url="/api/upload" accept=".xlsx" :maxFileSize="1000000" @upload="onUpload" />
+            <FileUpload 
+              ref="fileupload" 
+              mode="basic" 
+              name="demo[]" 
+              accept=".xlsx" 
+              :maxFileSize="1000000" 
+              @select="onFileSelect" 
+              :auto="true"
+              chooseLabel="Upload Excel"
+            />
         </div>
       </div>
       <div>
@@ -37,7 +46,7 @@
               <Select
                 :id="`wa-${form.id}`"
                 v-model="form.wa"
-                :options="['WA','Tsel']"
+                :options="['XL','Tsel']"
                 placeholder="Pilih" size="small"
               />
             </td>
@@ -95,6 +104,7 @@
 
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
+import * as XLSX from 'xlsx';
 const dayjs = useDayjs()
 const toast = useToast();
 const client = useSanctumClient();
@@ -102,9 +112,50 @@ const client = useSanctumClient();
 const date = ref(dayjs().toDate())
 
 const fileupload = ref();
-const onUpload = () => {
-    fileupload.value.upload();
-    toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+const onFileSelect = (event: any) => {
+    const file = event.files[0];
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0] as any;
+        const worksheet = workbook.Sheets[firstSheetName] as XLSX.WorkSheet;
+        
+        // Konversi ke array of arrays (header: 1)
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+        
+        // Ambil data (asumsi baris pertama adalah header, jadi kita lewati)
+        const rows = jsonData.slice(1);
+        
+        // Bersihkan forms yang ada dan reset nextFormId
+        forms.splice(0, forms.length);
+        nextFormId = 1;
+        
+        rows.forEach((row: any[]) => {
+             // Pastikan baris memiliki setidaknya satu data yang tidak kosong
+             if (row.some(cell => cell !== null && cell !== undefined && cell !== '')) {
+                 // Urutan: HP, WA, Website, Kategori, Mulai, Selesai, Deskripsi
+                 forms.push({
+                     id: nextFormId++,
+                     hp: row[0] ? String(row[0]) : '',
+                     wa: row[1] || 'WA',
+                     website: row[2] || '',
+                     kategori: row[3] || null,
+                     mulai: row[4] || '',
+                     selesai: row[5] || '',
+                     deskripsi: row[6] || '',
+                 });
+             }
+         });
+         
+         if (forms.length === 0) {
+            // Jika tidak ada data yang berhasil diimpor, tambahkan satu form kosong
+            addForm();
+         }
+        
+        toast.add({ severity: 'success', summary: 'Success', detail: `${forms.length} data berhasil diimpor`, life: 3000 });
+    };
+    reader.readAsArrayBuffer(file);
 }
 
 const forms = reactive([
