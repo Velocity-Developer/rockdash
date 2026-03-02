@@ -14,6 +14,10 @@
       <Icon name="lucide:plus" />
       Tambah
     </Button>
+    <Button @click="visibleImportDialog = true" size="small" severity="warn">
+      <Icon name="lucide:upload" />
+      Import
+    </Button>
   </div>
 
   <!-- Desktop filters -->
@@ -147,6 +151,10 @@
       <Button @click="openFormDialog('add','')" size="small" :loading="loading">
         <Icon name="lucide:plus" />
         Tambah
+      </Button>
+      <Button @click="visibleImportDialog = true" size="small" severity="warn">
+        <Icon name="lucide:upload" />
+        Import
       </Button>
     </div>
   </div>
@@ -415,6 +423,11 @@
     </div>
   </Drawer>
 
+  <!-- Import Dialog -->
+  <Dialog v-model:visible="visibleImportDialog" modal header="Import Jurnal Tim Support" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+    <JournalFormImportSupport />   
+  </Dialog>
+
   <DashLoader :loading="loading" />
 </template>
 
@@ -602,4 +615,7 @@ onMounted(() => {
   getUsers();
   getData();
 });
+
+// Import Dialog
+const visibleImportDialog = ref(false);
 </script>
