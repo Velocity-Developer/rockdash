@@ -48,7 +48,15 @@
     </template>
     <template #content>
       
-      <div class="flex aligns-center justify-end mb-3">
+      <div class="flex items-center justify-end mb-3 gap-2">
+        <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+          <div class="text-xs">Total Hosting</div>
+          <div class="text-end font-bold">{{ totalHosting }}</div>
+        </div>
+        <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+          <div class="text-xs">Total Domain</div>
+          <div class="text-end font-bold">{{ totalDomain }}</div>
+        </div>
         <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950">
           <div class="text-xs">Total</div>
           <div class="text-end font-bold">{{ dataExpiredWHMCS.length }}</div>
@@ -344,6 +352,16 @@ const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS} = await useAsync
       watch: [data],
     },
 ) as any
+
+const totalHosting = computed(() => {
+  if (!dataExpiredWHMCS.value || !Array.isArray(dataExpiredWHMCS.value)) return 0;
+  return dataExpiredWHMCS.value.filter((item: any) => item.hosting).length;
+});
+
+const totalDomain = computed(() => {
+  if (!dataExpiredWHMCS.value || !Array.isArray(dataExpiredWHMCS.value)) return 0;
+  return dataExpiredWHMCS.value.filter((item: any) => item.domain).length;
+});
 
 const isToday = (date: string) => {
   return dayjs(date).isSame(dayjs(), 'day')
