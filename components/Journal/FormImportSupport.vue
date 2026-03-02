@@ -30,7 +30,7 @@
 
       <table class="w-full text-sm">
         <thead>
-          <tr class="bg-zinc-200 text-left">
+          <tr class="bg-blue-600 text-left text-white">
             <th class="px-2 py-1">HP</th>
             <th class="px-2 py-1">WA</th>
             <th class="px-2 py-1">Website</th>
@@ -42,7 +42,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(form, index) in forms" :key="form.id">
+          <tr v-for="(form, index) in forms" :key="form.id" class="odd:bg-white dark:odd:bg-zinc-900 even:bg-zinc-100 dark:even:bg-zinc-800">
             <td class="border-b px-2 py-1">
               <InputText :id="`hp-${form.id}`" v-model="form.hp" size="small" />
             </td>
@@ -55,7 +55,7 @@
               />
             </td>
             <td class="border-b px-2 py-1">
-              <InputText :id="`website-${form.id}`" v-model="form.website" size="small" />
+              <FormSelectWebhost :id="`website-${form.id}`" v-model="form.webhost_id" />
             </td>
             <td class="border-b px-2 py-1">
               <Select
@@ -114,59 +114,89 @@ const theDate = ref(dayjs().toDate())
 
 const fileupload = ref();
 const loadingUploadFile = ref(false);
-const onFileSelect = (event: any) => {
+
+const onFileSelect = async (event: any) => {
     loadingUploadFile.value = true;
-    const file = event.files[0];
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0] as any;
-        const worksheet = workbook.Sheets[firstSheetName] as XLSX.WorkSheet;
-        
-        // Konversi ke array of arrays (header: 1)
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
-        
-        // Ambil data (asumsi baris pertama adalah header, jadi kita lewati)
-        const rows = jsonData.slice(1);
-        
-        // Bersihkan forms yang ada dan reset nextFormId
-        forms.splice(0, forms.length);
-        nextFormId = 1;
-        
-        rows.forEach((row: any[]) => {
-             // Pastikan baris memiliki setidaknya satu data yang tidak kosong
-             if (row.some(cell => cell !== null && cell !== undefined && cell !== '')) {
-                 // Urutan: HP, WA, Website, Kategori, Mulai, Selesai, Deskripsi
-                 const kategoriName = row[3] ? String(row[3]).trim() : '';
-                 const categories = (dataJournalCategory?.value?.data) || [];
-                 const kategoriId = kategoriName
-                   ? (categories.find((c: any) => String(c.name).trim() === kategoriName)?.id ?? null)
-                   : null;
-                 forms.push({
-                     id: nextFormId++,
-                     hp: row[0] ? String(row[0]) : '',
-                     wa: row[1] || 'XL',
-                     website: row[2] || '',
-                     kategori: kategoriId,
-                     mulai: row[4]?dayjs(theDate.value).format('YYYY-MM-DD')+ ' ' + row[4]+ ':00' : '',
-                     selesai: row[5]?dayjs(theDate.value).format('YYYY-MM-DD')+ ' ' + row[5]+ ':00' : '',
-                     deskripsi: row[6] || '',
-                 });
-                 
-             }
-         });
-         
-         if (forms.length === 0) {
-            // Jika tidak ada data yang berhasil diimpor, tambahkan satu form kosong
-            addForm();
-         }
-        
-        toast.add({ severity: 'success', summary: 'Success', detail: `${forms.length} data berhasil diimpor`, life: 3000 });
-    };
-    reader.readAsArrayBuffer(file);
-    loadingUploadFile.value = false;
-}
+
+    try {
+        const file = event.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async (e: any) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0] as any;
+                const worksheet = workbook.Sheets[firstSheetName] as any;
+
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+                const rows = jsonData.slice(1);
+
+                forms.splice(0, forms.length);
+                nextFormId = 1;
+
+                for (const row of rows) {
+                    if (!row.some(cell => cell !== null && cell !== undefined && cell !== '')) {
+                        continue;
+                    }
+
+                    const kategoriName = row[3]?.toString().trim() || '';
+                    const categories = dataJournalCategory?.value?.data || [];
+                    const kategoriId = kategoriName
+                        ? categories.find((c: any) => c.name.trim() === kategoriName)?.id ?? null
+                        : null;
+
+                    let webhostId = null;
+                    if (row[2]) {
+                        const res: any = await client('/api/webhost_search/' + row[2]);
+                        webhostId = res?.[0]?.id_webhost ?? null;
+                    }
+
+                    forms.push({
+                        id: nextFormId++,
+                        hp: row[0]?.toString() || '',
+                        wa: row[1] || 'XL',
+                        website: row[2] || '',
+                        webhost_id: webhostId,
+                        kategori: kategoriId,
+                        mulai: row[4]
+                            ? `${dayjs(theDate.value).format('YYYY-MM-DD')} ${row[4]}:00`
+                            : '',
+                        selesai: row[5]
+                            ? `${dayjs(theDate.value).format('YYYY-MM-DD')} ${row[5]}:00`
+                            : '',
+                        deskripsi: row[6] || '',
+                    });
+                }
+
+                if (forms.length === 0) {
+                    addForm();
+                }
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: `${forms.length} data berhasil diimpor`,
+                    life: 3000,
+                });
+            } catch (err) {
+                console.error(err);
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Gagal memproses file',
+                    life: 3000,
+                });
+            } finally {
+                loadingUploadFile.value = false;
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    } catch (error) {
+        loadingUploadFile.value = false;
+    }
+};
 
 const forms = reactive([
   {
@@ -174,6 +204,7 @@ const forms = reactive([
     hp: '',
     wa: 'XL',
     website: 'select',
+    webhost_id: null,
     kategori: null,
     mulai:'',
     selesai:'',
@@ -189,6 +220,7 @@ const addForm = () => {
     hp: lastForm.hp || '',
     wa: lastForm.wa || '',
     website: lastForm.website || '',
+    webhost_id: lastForm.webhost_id || null,
     kategori: lastForm.kategori || null,
     mulai: lastForm.mulai || '',
     selesai: lastForm.selesai || '',
