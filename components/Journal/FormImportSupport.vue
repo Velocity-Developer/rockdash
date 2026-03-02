@@ -138,12 +138,17 @@ const onFileSelect = (event: any) => {
              // Pastikan baris memiliki setidaknya satu data yang tidak kosong
              if (row.some(cell => cell !== null && cell !== undefined && cell !== '')) {
                  // Urutan: HP, WA, Website, Kategori, Mulai, Selesai, Deskripsi
+                 const kategoriName = row[3] ? String(row[3]).trim() : '';
+                 const categories = (dataJournalCategory?.value?.data) || [];
+                 const kategoriId = kategoriName
+                   ? (categories.find((c: any) => String(c.name).trim() === kategoriName)?.id ?? null)
+                   : null;
                  forms.push({
                      id: nextFormId++,
                      hp: row[0] ? String(row[0]) : '',
-                     wa: row[1] || 'WA',
+                     wa: row[1] || 'XL',
                      website: row[2] || '',
-                     kategori: row[3] || null,
+                     kategori: kategoriId,
                      mulai: row[4]?dayjs(theDate.value).format('YYYY-MM-DD')+ ' ' + row[4]+ ':00' : '',
                      selesai: row[5]?dayjs(theDate.value).format('YYYY-MM-DD')+ ' ' + row[5]+ ':00' : '',
                      deskripsi: row[6] || '',
