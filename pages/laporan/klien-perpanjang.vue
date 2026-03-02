@@ -47,6 +47,13 @@
       </div>
     </template>
     <template #content>
+      
+      <div class="flex aligns-center justify-end mb-3">
+        <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950">
+          <div class="text-xs">Total</div>
+          <div class="text-end font-bold">{{ dataExpiredWHMCS.length }}</div>
+        </div>
+      </div>
 
       <DataTable 
       :value="dataExpiredWHMCS" 
