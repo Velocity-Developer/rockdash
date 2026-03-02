@@ -18,8 +18,12 @@
       </div>
       <div>
         <label for="date" class="block w-full">Tanggal</label>
-        <DatePicker v-model="date" dateFormat="dd/mm/yy"/>
+        <DatePicker v-model="theDate" dateFormat="dd/mm/yy"/>
       </div>
+    </div>
+
+    <div v-if="loadingUploadFile">
+      <Icon name="lucide:loader-circle" class="animate-spin" /> Memproses file...
     </div>
 
     <form @submit.prevent="submit">
@@ -92,9 +96,6 @@
       <Button @click="submit" severity="contrast">
         <Icon name="lucide:x" /> Reset
       </Button>
-      <Button @click="submit" severity="info">
-        <Icon name="lucide:upload" /> Proses CSV
-      </Button>
       <Button @click="submit">
         <Icon name="lucide:save" /> Submit
       </Button>
@@ -109,10 +110,12 @@ const dayjs = useDayjs()
 const toast = useToast();
 const client = useSanctumClient();
 
-const date = ref(dayjs().toDate())
+const theDate = ref(dayjs().toDate())
 
 const fileupload = ref();
+const loadingUploadFile = ref(false);
 const onFileSelect = (event: any) => {
+    loadingUploadFile.value = true;
     const file = event.files[0];
     const reader = new FileReader();
     reader.onload = (e: any) => {
@@ -141,10 +144,11 @@ const onFileSelect = (event: any) => {
                      wa: row[1] || 'WA',
                      website: row[2] || '',
                      kategori: row[3] || null,
-                     mulai: row[4] || '',
-                     selesai: row[5] || '',
+                     mulai: row[4]?dayjs(theDate.value).format('YYYY-MM-DD')+ ' ' + row[4]+ ':00' : '',
+                     selesai: row[5]?dayjs(theDate.value).format('YYYY-MM-DD')+ ' ' + row[5]+ ':00' : '',
                      deskripsi: row[6] || '',
                  });
+                 
              }
          });
          
@@ -156,6 +160,7 @@ const onFileSelect = (event: any) => {
         toast.add({ severity: 'success', summary: 'Success', detail: `${forms.length} data berhasil diimpor`, life: 3000 });
     };
     reader.readAsArrayBuffer(file);
+    loadingUploadFile.value = false;
 }
 
 const forms = reactive([
