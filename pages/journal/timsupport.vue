@@ -424,7 +424,7 @@
   </Drawer>
 
   <!-- Import Dialog -->
-  <Dialog v-model:visible="visibleImportDialog" modal header="Import Jurnal Tim Support" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+  <Dialog v-model:visible="visibleImportDialog" modal header="Import Jurnal Tim Support" :style="{ width: '90vw' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
     <JournalFormImportSupport />   
   </Dialog>
 
