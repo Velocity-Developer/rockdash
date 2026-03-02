@@ -41,27 +41,33 @@
   </Card>
   
   <Card v-if="dataExpiredWHMCS" class="mt-4">
-    <template #header>
-      <div class="px-6 pt-4 font-bold">
-        Layanan Expired : {{ theBulan }}
+    <template #header>      
+      <div class="md:flex md:items-start md:justify-between gap-2 px-6 pt-4">
+        <div class="font-bold">
+          Layanan Expired : {{ theBulan }}
+        </div>
+
+        <div class="overflow-x-scroll md:overflow-auto">
+          <div class="flex items-center md:justify-end mt-3 md:mt-0 gap-2">
+            <div class=" border rounded py-2 px-4 w-[150px] border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
+              <div class="text-xs">Total</div>
+              <div class="text-end font-bold">{{ dataExpiredWHMCS.length }}</div>
+            </div>
+            <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
+              <div class="text-xs">Total Hosting</div>
+              <div class="text-end font-bold">{{ totalHosting }}</div>
+            </div>
+            <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
+              <div class="text-xs">Total Domain</div>
+              <div class="text-end font-bold">{{ totalDomain }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </template>
     <template #content>
       
-      <div class="flex items-center justify-end mb-3 gap-2">
-        <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
-          <div class="text-xs">Total Hosting</div>
-          <div class="text-end font-bold">{{ totalHosting }}</div>
-        </div>
-        <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
-          <div class="text-xs">Total Domain</div>
-          <div class="text-end font-bold">{{ totalDomain }}</div>
-        </div>
-        <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950">
-          <div class="text-xs">Total</div>
-          <div class="text-end font-bold">{{ dataExpiredWHMCS.length }}</div>
-        </div>
-      </div>
+      
 
       <DataTable 
       :value="dataExpiredWHMCS" 
