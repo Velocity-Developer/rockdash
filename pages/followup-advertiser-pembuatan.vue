@@ -15,6 +15,8 @@ const filters = reactive({
   per_page: 20,
   order_by: 'tgl_masuk',
   order: 'desc',
+  search: route.query.search || '',
+  kategori: route.query.kategori || '',
 }) as any
 
 const loading = ref(false);
@@ -97,10 +99,29 @@ const { data: dataAnalytics, status: statusAnalytics, refresh: refreshAnalytics 
   'followup_advertiser_analytics',
   (_nuxtApp, { signal }) => client('/api/followup_advertiser_analytics', { signal }),
 ) as any
+
+const { data: dataOpsiKategoriWeb, status: statusOpsiKategoriWeb, refresh: refreshOpsiKategoriWeb } = await useAsyncData(
+  'opsi_kategori_web',
+  (_nuxtApp, { signal }) => client('/api/data_opsi/kategori_web', { signal }),
+) as any
 </script>
 
 <template>
-  <div class="flex justify-end items-center mb-2">
+  <div class="flex justify-end items-center gap-2 mb-2">
+    <div class="flex items-center gap-2">
+      <InputText v-model="filters.search" placeholder="Cari web/no.wa" size="small" />
+      <Select 
+        v-model="filters.kategori" 
+        :options="dataOpsiKategoriWeb" 
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Pilih"
+        size="small"
+        showClear
+        :loading="statusOpsiKategoriWeb === 'pending'"
+        @change="getData"
+      />
+    </div>
     <Button @click="getData();refreshAnalytics()" size="small" :loading="loading" severity="info">
       <Icon name="lucide:refresh-ccw" :class="{ 'animate-spin': loading }" />
       Refresh
