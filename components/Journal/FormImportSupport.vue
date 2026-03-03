@@ -117,6 +117,7 @@ const dayjs = useDayjs()
 const toast = useToast();
 const client = useSanctumClient();
 const useConfig = useConfigStore()
+const emit = defineEmits(['submit'])
 
 const theDate = ref(dayjs().toDate())
 
@@ -264,7 +265,7 @@ const submit = async (data: any) => {
   try {
     //loop forms
     for (const form of forms) {
-      if (form.hp && form.wa && form.website) {
+      if (form.mulai && form.kategori) {
         
         //submit form
         const res: any = await client('/api/journal', {
@@ -295,6 +296,8 @@ const submit = async (data: any) => {
       detail: 'Data berhasil disimpan',
       life: 3000,
     });
+
+    emit('submit')
   } catch (err) {
     console.error(err);
     toast.add({

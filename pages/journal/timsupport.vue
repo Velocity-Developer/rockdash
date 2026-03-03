@@ -425,7 +425,7 @@
 
   <!-- Import Dialog -->
   <Dialog v-model:visible="visibleImportDialog" modal header="Import Jurnal Tim Support" :style="{ width: '90vw' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
-    <JournalFormImportSupport />   
+    <JournalFormImportSupport @submit="getData" />   
   </Dialog>
 
   <DashLoader :loading="loading" />
