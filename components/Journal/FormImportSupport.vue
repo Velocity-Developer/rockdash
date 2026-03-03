@@ -97,10 +97,17 @@
         <Icon name="lucide:x" /> Reset
       </Button>
       <Button @click="submit" :loading="loadingSubmit">
-        <Icon name="lucide:save" /> Submit
+        <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin" />
+        <Icon v-else name="lucide:save" />
+        Submit
       </Button>
     </div>
   </div>
+
+  <div v-if="loadingSubmit" class="text-md p-5 fixed bottom-0 end-0 start-0 flex items-center justify-start gap-2">
+    <Icon name="lucide:loader-circle" class="animate-spin" /> Data sedang diImport, mohon tunggu...
+  </div>
+
 </template>
 
 <script setup lang="ts">
@@ -109,6 +116,7 @@ import * as XLSX from 'xlsx';
 const dayjs = useDayjs()
 const toast = useToast();
 const client = useSanctumClient();
+const useConfig = useConfigStore()
 
 const theDate = ref(dayjs().toDate())
 
@@ -176,7 +184,7 @@ const onFileSelect = async (event: any) => {
                 toast.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: `${forms.length} data berhasil diimpor`,
+                    detail: `${forms.length} data excel berhasil dikonversi, periksa data yang akan diimpor lalu klik Submit`,
                     life: 3000,
                 });
             } catch (err) {
@@ -268,10 +276,14 @@ const submit = async (data: any) => {
             end: form.selesai || '',
             status: 'completed',
             priority: 'medium',
-            user_id: data.user_id || null,
+            user_id: useConfig.config?.user?.id,
             role: 'support',
             webhost_id: form.webhost_id || null,
             journal_category_id: form.kategori || null,
+            detail_support: {
+              hp: form.hp || '',
+              wa: form.wa || '',
+            }
           },
         });
       }
