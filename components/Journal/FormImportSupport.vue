@@ -165,7 +165,7 @@ const onFileSelect = async (event: any) => {
                         selesai: row[5]
                             ? `${dayjs(theDate.value).format('YYYY-MM-DD')} ${row[5]}:00`
                             : '',
-                        deskripsi: row[6] || '',
+                        deskripsi: row[6]?row[6]:kategoriName+' '+row[2],
                     });
                 }
 
