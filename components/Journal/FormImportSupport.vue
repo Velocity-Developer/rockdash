@@ -96,7 +96,7 @@
       <Button @click="submit" severity="contrast">
         <Icon name="lucide:x" /> Reset
       </Button>
-      <Button @click="submit">
+      <Button @click="submit" :loading="loadingSubmit">
         <Icon name="lucide:save" /> Submit
       </Button>
     </div>
@@ -238,13 +238,64 @@ const removeForm = (id: number) => {
   }
 };
 
-const submit = (data: any) => {
+const loadingSubmit = ref(false);
+const submit = async (data: any) => {
+
+  if (forms.length === 0) {
     toast.add({
       severity: 'error',
-      summary: 'Fitur belum tersedia !',
-      detail: 'Mohon maaf, fitur sedang dalam pengembangan',
+      summary: 'Data import kosong',
+      detail: 'Silahkan tambahkan data import',
       life: 3000
     })
+    return;
+  }
+
+  loadingSubmit.value = true;
+
+  try {
+    //loop forms
+    for (const form of forms) {
+      if (form.hp && form.wa && form.website) {
+        
+        //submit form
+        const res: any = await client('/api/journal', {
+          method: 'POST',
+          body: {
+            title: form.deskripsi,
+            description: form.deskripsi || '',
+            start: form.mulai || '',
+            end: form.selesai || '',
+            status: 'completed',
+            priority: 'medium',
+            user_id: data.user_id || null,
+            role: 'support',
+            webhost_id: form.webhost_id || null,
+            journal_category_id: form.kategori || null,
+          },
+        });
+      }
+    }
+
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Data berhasil disimpan',
+      life: 3000,
+    });
+  } catch (err) {
+    console.error(err);
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Gagal menyimpan data',
+      life: 3000,
+    });
+  } finally {
+    loadingSubmit.value = false;
+  }
+  
+
 }
 
 const { data: dataJournalCategory, status: statusDataJournalCategory} = await useAsyncData(
