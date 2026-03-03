@@ -128,7 +128,13 @@ const form = reactive({
 // Function untuk mengambil data webhost berdasarkan ID
 const fetchWebhostById = async (id: string | number) => {
   try {
-    const response = await client(`/api/webhost/${id}`) as Webhost;
+    const response = await client(`/api/webhost/${id}`,{
+      method: 'GET',
+      params: {
+        select: 'id_webhost,nama_web',
+        with: 'false'
+      }
+    }) as Webhost;
     return response;
   } catch (error) {
     console.error('Error fetching webhost:', error);
