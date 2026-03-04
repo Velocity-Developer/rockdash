@@ -93,7 +93,7 @@
     </form>
 
     <div class="flex items-center justify-end gap-1 mt-6">
-      <Button @click="submit" severity="contrast">
+      <Button @click="resetForm" severity="contrast">
         <Icon name="lucide:x" /> Reset
       </Button>
       <Button @click="submit" :loading="loadingSubmit">
@@ -157,8 +157,32 @@ const onFileSelect = async (event: any) => {
 
                     let webhostId = null;
                     if (row[2]) {
-                        const res: any = await client('/api/webhost_search/' + row[2]);
-                        webhostId = res?.[0]?.id_webhost ?? null;
+                      if (isUrl(row[2])) {
+                          try {
+                              const res: any = await client('/api/webhost_search/' + row[2]);
+                              webhostId = res?.[0]?.id_webhost ?? null;
+                          } catch (error: any) {
+                              if (error?.response?.status === 404) {
+                                  // Data tidak ditemukan → lanjut saja                                
+                                  toast.add({
+                                      severity: 'error',
+                                      summary: 'Web tidak ditemukan',
+                                      detail: 'Website '+row[2]+' tidak ditemukan',
+                                      life: 3000,
+                                  });
+                                  webhostId = null;
+                              } else {
+                                  console.error('Error webhost search:', error);
+                              }
+                          }
+                      } else {                           
+                          toast.add({
+                              severity: 'error',
+                              summary: 'Nama Web salah',
+                              detail: 'Nama Web '+row[2]+' tidak benar, ini mungkin bukan format domain website',
+                              life: 3000,
+                          });
+                      }
                     }
 
                     forms.push({
@@ -247,6 +271,12 @@ const removeForm = (id: number) => {
   }
 };
 
+const resetForm = () => {
+  forms.splice(0, forms.length);
+  nextFormId = 1;
+  addForm();
+}
+
 const loadingSubmit = ref(false);
 const submit = async (data: any) => {
 
@@ -322,4 +352,20 @@ const { data: dataJournalCategory, status: statusDataJournalCategory} = await us
       }
     })
 ) as any
+
+const isUrl = (url: string) => {
+  let urlString = url.trim();
+  
+  // Jika tidak ada protokol, tambahkan https:// secara default
+  if (!/^https?:\/\//i.test(urlString)) {
+    urlString = 'https://' + urlString;
+  }
+
+  try {
+    new URL(urlString);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
 </script>
