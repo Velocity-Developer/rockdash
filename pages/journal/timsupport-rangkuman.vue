@@ -425,7 +425,7 @@ const pivotData = computed(() => {
         const minutes = Number(item.avg_minutes || 0);
         const count = Number(item.total_journal || 0);
         
-        userTotals[item.user_name].minutes += (minutes * count);
+        userTotals[item.user_name].minutes += minutes;
         userTotals[item.user_name].journals += count;
     });
     
@@ -457,7 +457,9 @@ const openDialogDatatable = (category_id: number, user_id: number | null = null)
     selectedDialogUserId.value = user_id;
 }
 
+const durationFormatJam = ref(true); 
 const formatDuration = (minutes: any) => {
+  if (!durationFormatJam.value) return minutes+ ' Menit';
   if (!minutes) return '-';
   const val = Number(minutes);
   if (val > 60) {
@@ -599,9 +601,12 @@ onMounted(() => {
 
       <Card class="col-span-4" v-if="isPermissions('timsupport-journal-perform-tim') && !filters.user_id">
         <template #header>
-          <div class="flex pt-4 px-4 justify-start items-center gap-2">
-            <Icon name="lucide:users" />
-            <span class="text-sm">Waktu Penyelesaian per User</span>
+          <div class="flex pt-4 px-4 justify-between items-center gap-2">
+            <div class="flex justify-start items-center gap-2">
+                <Icon name="lucide:users" />
+                <span class="text-sm">Waktu Penyelesaian per User</span>
+            </div>
+            <ToggleButton v-model="durationFormatJam" class="w-24" onLabel="Jam" offLabel="Menit" size="small"/>
           </div>
         </template>
         <template #content>
@@ -617,7 +622,7 @@ onMounted(() => {
                 <Column field="category" header="Kategori" frozen style="min-width: 200px"></Column>
                 <Column v-for="user in uniqueUsers" :key="String(user)" :field="String(user)" :header="String(user)">
                   <template #body="slotProps">
-                    <Button 
+                    <span 
                         v-if="slotProps.data[String(user)]" 
                         class="!p-0 flex items-center gap-2 !no-underline hover:bg-muted/50 rounded cursor-pointer" 
                         variant="text" 
@@ -627,7 +632,7 @@ onMounted(() => {
                     >
                         <span class="font-bold whitespace-nowrap">{{ formatDuration(slotProps.data[String(user)].avg) }}</span>
                         <span class="text-xs text-muted-foreground whitespace-nowrap">({{ slotProps.data[String(user)].total }} Jurnal)</span>
-                    </Button>
+                    </span>
                     <span v-else>-</span>
                   </template>
                 </Column>
