@@ -310,7 +310,7 @@ const submit = async (data: any) => {
             description: form.deskripsi || '',
             start: form.mulai || '',
             end: form.selesai || '',
-            status: 'completed',
+            status: form.selesai?'completed':'ongoing',
             priority: 'medium',
             user_id: useConfig.config?.user?.id,
             role: 'support',
