@@ -121,7 +121,7 @@
           </template>
           <template v-else>Waktu</template> Mulai
         </div>
-        <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" showIcon/>
+        <DatePicker showTime hourFormat="24" v-model="form.start" :key="form.start" class="w-full" dateFormat="dd/mm/yy" fluid showIcon/>
         <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
       </div>
       <div class="col-span-3 md:col-span-3">
@@ -131,7 +131,7 @@
           </template>
           <template v-else>Waktu</template> Selesai
         </div>
-        <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" showIcon/>
+        <DatePicker showTime hourFormat="24" v-model="form.end" :key="form.end" class="w-full" dateFormat="dd/mm/yy" fluid showIcon/>
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
       
@@ -360,8 +360,8 @@ onMounted( async () => {
       form.id = res.id
       form.title = res.title || ''
       form.description = res.description || ''
-      form.start = res.start ? new Date(res.start) : new Date()
-      form.end = res.end ? new Date(res.end) : ''
+      form.start = res.start ? dayjs(res.start).toDate() : dayjs().toDate()
+      form.end = res.end ? dayjs(res.end).toDate() : null
       form.status = res.status || 'ongoing'
       form.priority = res.priority || 'medium'
       form.user_id = res.user_id
@@ -394,6 +394,8 @@ onMounted( async () => {
           tanggal_bayar: ''
         }
       }
+
+      console.log('Loaded form data:', form)
 
       // Load categories first, then set kategoriSelectedInfo
       await getCategories()
