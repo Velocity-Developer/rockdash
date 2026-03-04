@@ -185,10 +185,15 @@ const onFileSelect = async (event: any) => {
                       }
                     }
 
+                    let wa = row[1]?.toString() || '';
+                    if(wa === 'TSEL'){
+                        wa = 'Tsel'
+                    }
+
                     forms.push({
                         id: nextFormId++,
                         hp: row[0]?.toString() || '',
-                        wa: row[1] || 'XL',
+                        wa: wa || 'XL',
                         website: row[2] || '',
                         webhost_id: webhostId,
                         kategori: kategoriId,
