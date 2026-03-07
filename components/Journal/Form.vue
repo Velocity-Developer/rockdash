@@ -495,12 +495,12 @@ const handleSubmit = async () => {
       message: 'Wajib pilih User'
     },
     {
-      condition: form.role === 'advertising' && !form.webhost_id,
-      message: 'Wajib pilih website'
+      condition: !form.start,
+      message: 'Wajib pilih tanggal mulai'
     },
     {
-      condition: form.role === 'advertising' && !form.detail_support?.hp,
-      message: 'Wajib isi no hp klien'
+      condition: !form.journal_category_id,
+      message: 'Wajib pilih Kategori'
     }
   ]
 
