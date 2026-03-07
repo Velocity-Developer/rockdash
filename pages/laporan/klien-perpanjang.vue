@@ -43,8 +43,14 @@
   <Card v-if="dataExpiredWHMCS" class="mt-4">
     <template #header>      
       <div class="md:flex md:items-start md:justify-between gap-2 px-6 pt-4">
-        <div class="font-bold">
-          Layanan Expired : {{ theBulan }}
+        <div>
+          <div class="font-bold mb-1">
+            Layanan Expired : {{ theBulan }}
+          </div>
+          <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
+            <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
+            Re-Sync Domain Hosting
+          </Button>
         </div>
 
         <div class="overflow-x-scroll md:overflow-auto">
@@ -345,7 +351,7 @@ const theBulan = computed(() => {
   return filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null
 });
 
-const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS} = await useAsyncData(
+const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS, refresh: refreshDataExpiredWHMCS} = await useAsyncData(
     'siklus_layanan_expired_whmcs-'+theBulan,
     () => client('/api/laporan/siklus_layanan_expired_whmcs',{
       params: {
@@ -378,5 +384,22 @@ const openDialogPerpanjang = async (data = {} as any,title = '') => {
   visibleDialogPerpanjang.value = true;
   dataDialogPerpanjang.value = data;
   titleDialogPerpanjang.value = title;
+}
+
+const loadingReSync = ref(false);
+const reSyncDomainHosting = async () => {
+  loadingReSync.value = true;
+  try {
+    const response = await client('/api/whmcs-custom/sync-domains-hostings',{
+      params: {
+        month: theBulan.value
+      }
+    });
+    refreshDataExpiredWHMCS()
+  } catch (error) {
+    const er = useSanctumError(error);
+  } finally {
+    loadingReSync.value = false;
+  }
 }
 </script>
