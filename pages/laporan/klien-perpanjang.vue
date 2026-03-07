@@ -57,15 +57,15 @@
           <div class="flex items-center md:justify-end mt-3 md:mt-0 gap-2">
             <div class=" border rounded py-2 px-4 w-[150px] border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
               <div class="text-xs">Total</div>
-              <div class="text-end font-bold">{{ dataExpiredWHMCS.length }}</div>
+              <div class="text-end font-bold">{{ dataExpiredWHMCS.total }}</div>
             </div>
             <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
               <div class="text-xs">Total Hosting</div>
-              <div class="text-end font-bold">{{ totalHosting }}</div>
+              <div class="text-end font-bold">{{ dataExpiredWHMCS.total_hosting }}</div>
             </div>
             <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
               <div class="text-xs">Total Domain</div>
-              <div class="text-end font-bold">{{ totalDomain }}</div>
+              <div class="text-end font-bold">{{ dataExpiredWHMCS.total_domain }}</div>
             </div>
           </div>
         </div>
@@ -74,7 +74,7 @@
     <template #content>    
 
       <DataTable 
-        :value="dataExpiredWHMCS" 
+        :value="dataExpiredWHMCS.data" 
         size="small" class="text-sm" 
         stripedRows scrollHeight="70vh" scrollable 
         :loading="statusDataExpiredWHMCS === 'pending'"
@@ -362,16 +362,6 @@ const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS, refresh: refresh
       watch: [data],
     },
 ) as any
-
-const totalHosting = computed(() => {
-  if (!dataExpiredWHMCS.value || !Array.isArray(dataExpiredWHMCS.value)) return 0;
-  return dataExpiredWHMCS.value.filter((item: any) => item.hosting).length;
-});
-
-const totalDomain = computed(() => {
-  if (!dataExpiredWHMCS.value || !Array.isArray(dataExpiredWHMCS.value)) return 0;
-  return dataExpiredWHMCS.value.filter((item: any) => item.domain).length;
-});
 
 const isToday = (date: string) => {
   return dayjs(date).isSame(dayjs(), 'day')
