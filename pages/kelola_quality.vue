@@ -148,25 +148,20 @@ const confirmDelete = (id: any) => {
 </script>
 <template>
   <div class="space-y-4">
-    <div class="flex justify-between items-center">
-      <h1 class="text-lg font-semibold">
-        Kelola Quality
-      </h1>
-      <div class="flex items-center gap-2">
-        <Button
+    <div class="flex justify-end items-center gap-1">
+      <Button
           size="small"
           @click="openDialog('add')"
         >
           <Icon name="lucide:plus-circle" /> Tambah
-        </Button>
-        <Button
+      </Button>
+      <Button
           size="small"
           :loading="loading"
           @click="loadQuality"
         >
           <Icon name="lucide:refresh-ccw" /> Refresh
-        </Button>
-      </div>
+      </Button>
     </div>
 
     <Card>
@@ -177,7 +172,7 @@ const confirmDelete = (id: any) => {
           stripedRows
           :loading="loading"
           scrollable
-          scrollHeight="70vh"
+          scrollHeight="90vh"
           class="text-sm"
         >
           <Column
