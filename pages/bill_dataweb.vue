@@ -59,6 +59,18 @@
       <Column field="hpads" header="HP Ads"></Column>
       <Column field="wa" header="WA"></Column>
       <Column field="email" header="Email"></Column>
+      <Column field="act" header="">
+          <template #body="slotProps">
+            <div class="flex item-center gap-1 justify-end">
+              <Button @click="openDialog('edit',slotProps.data)" severity="info" size="small">
+                <Icon name="lucide:pencil" />
+              </Button>
+              <!-- <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
+                <Icon name="lucide:trash-2" />
+              </Button> -->
+            </div>
+          </template>
+      </Column>
     </DataTable>
     
     <div class="flex justify-between items-center text-xs mt-3">
@@ -122,6 +134,10 @@
       </div>
     </form>
   </Drawer>
+
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <WebhostForm :action="actionDialog" :id="idDialog" @update="refresh();visibleDialog = false" @delete="refresh();visibleDialog = false" />
+  </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
 
@@ -243,4 +259,12 @@ function handleSortTable(event: any) {
   refresh()
 }
 
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+const idDialog = ref<number>(0)
+const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
+  actionDialog.value = action
+  visibleDialog.value = true
+  idDialog.value = data?.id_webhost || 0
+}
 </script>
