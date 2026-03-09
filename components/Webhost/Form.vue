@@ -15,7 +15,7 @@
 
         <div class="flex flex-col">
           <label for="tgl_mulai" class="text-sm font-medium mb-1">Tanggal Mulai</label>
-          <DatePicker v-model="form.tgl_mulai" id="tgl_mulai" class="w-full" />
+          <DatePicker v-model="form.tgl_mulai" dateFormat="dd-mm-yy" id="tgl_mulai" class="w-full"/>
         </div>
         
         <div class="flex flex-col">
@@ -163,7 +163,7 @@ onMounted(async () => {
 
     form.nama_web = res?.nama_web || ''
     form.id_paket = res.id_paket?Number(res.id_paket):null
-    form.tgl_mulai = res.tgl_mulai?dayjs(res.tgl_mulai).toDate():null
+    form.tgl_mulai = res.tgl_mulai?dayjs(res.tgl_mulai as string).toDate():null
     form.hp = res?.hp || ''
     form.telegram = res?.telegram || ''
     form.hpads = res?.hpads || ''
