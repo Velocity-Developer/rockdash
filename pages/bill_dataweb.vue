@@ -37,7 +37,7 @@
     <DataTable @sort="handleSortTable" :value="data.data" size="small" class="text-xs" v-model:selection="selectedRows" selectionMode="single" stripedRows scrollHeight="70vh" scrollable>
       <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
-              {{ slotProps.index + 1 }}
+              {{ data.from + slotProps.index }}
           </template>
       </Column>
       <Column field="nama_web" header="Nama Web" frozen>
