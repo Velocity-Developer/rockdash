@@ -121,7 +121,7 @@
           </template>
           <template v-else>Waktu</template> Mulai
         </div>
-        <DatePicker showTime hourFormat="24" v-model="form.start" :key="form.start" class="w-full" dateFormat="dd/mm/yy" fluid showIcon/>
+        <DatePicker showTime hourFormat="24" v-model="form.start" class="w-full" dateFormat="dd/mm/yy" fluid showIcon/>
         <Message v-if="errors.start" severity="error" size="small" class="mt-1" closable>{{ errors.start[0] }}</Message>
       </div>
       <div class="col-span-3 md:col-span-3">
@@ -131,7 +131,7 @@
           </template>
           <template v-else>Waktu</template> Selesai
         </div>
-        <DatePicker showTime hourFormat="24" v-model="form.end" :key="form.end" class="w-full" dateFormat="dd/mm/yy" fluid showIcon/>
+        <DatePicker showTime hourFormat="24" v-model="form.end" class="w-full" dateFormat="dd/mm/yy" fluid showIcon/>
         <Message v-if="errors.end" severity="error" size="small" class="mt-1" closable>{{ errors.end[0] }}</Message>
       </div>
       
@@ -226,7 +226,6 @@ const emit = defineEmits(['update','delete']);
 const client = useSanctumClient();
 const toast = useToast();
 const confirm = useConfirm();
-const dateNow = new Date();
 const useConfig = useConfigStore()
 const namaWeb = ref('' as string)
 
@@ -276,11 +275,12 @@ const getCategories = async () => {
   }
 }
 
+const dateNow = new Date();
 const form = reactive({
   title: '',
   description: '',
-  start: dateNow,
-  end: props.action === 'add' ? dateNow : '',
+  start: dayjs().toDate(),
+  end: props.action === 'add' ? dayjs().toDate() : null,
   status: 'ongoing',
   priority: 'medium',
   user_id: useConfig.config?.user?.id,
@@ -289,13 +289,13 @@ const form = reactive({
   journal_category_id: '',
   id: '',
   role: props.action === 'add' ? (props.defaultRole || useConfig.config?.role) : '',
-  detail_support: (props.defaultRole === 'support' || useConfig.config?.role === 'support' || props.defaultRole === 'advertising' || useConfig.config?.role === 'advertising') ? {
+  detail_support:  {
     hp: '',
     wa: '',
     email: '',
     biaya: '',
     tanggal_bayar: ''
-  } : null
+  }
 }) as any
 
 const kategoriSelectedInfo = ref({} as any)
@@ -360,8 +360,8 @@ onMounted( async () => {
       form.id = res.id
       form.title = res.title || ''
       form.description = res.description || ''
-      form.start = res.start ? dayjs(res.start).toDate() : dayjs().toDate()
-      form.end = res.end ? dayjs(res.end).toDate() : null
+      form.start = res.start ? dayjs(res.start.replace(" ", "T")).toDate() : dayjs().toDate()
+      form.end = res.end ? dayjs(res.end.replace(" ", "T")).toDate() : null
       form.status = res.status || 'ongoing'
       form.priority = res.priority || 'medium'
       form.user_id = res.user_id
@@ -379,11 +379,11 @@ onMounted( async () => {
       // Handle detail_support
       if (res.detail_support) {
         form.detail_support = {
-          hp: res.detail_support.hp || '',
-          wa: res.detail_support.wa || '',
-          email: res.detail_support.email || '',
-          biaya: res.detail_support.biaya || '',
-          tanggal_bayar: res.detail_support.tanggal_bayar || ''
+          hp: res.detail_support?.hp || '',
+          wa: res.detail_support?.wa || '',
+          email: res.detail_support?.email || '',
+          biaya: res.detail_support?.biaya || '',
+          tanggal_bayar: res.detail_support?.tanggal_bayar || ''
         }
       } else if (form.role === 'support') {
         form.detail_support = {
@@ -394,8 +394,6 @@ onMounted( async () => {
           tanggal_bayar: ''
         }
       }
-
-      console.log('Loaded form data:', form)
 
       // Load categories first, then set kategoriSelectedInfo
       await getCategories()
@@ -452,8 +450,8 @@ onMounted( async () => {
 
       // Set default values for new entry
       form.title = '' // Reset title
-      form.start = dateNow
-      form.end = dateNow // Set default end time untuk clone
+      form.start = dayjs().toDate()
+      form.end = dayjs().toDate() // Set default end time untuk clone
       form.status = 'ongoing'
       form.priority = 'medium'
       form.id = '' // Reset ID untuk data baru
