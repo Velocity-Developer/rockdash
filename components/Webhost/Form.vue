@@ -52,7 +52,12 @@
     </div>
 
     <hr class="mb-4 mt-6">
-    <div class="flex items-center justify-end">
+    <div class="flex items-center justify-end gap-1">      
+      <Button type="button" :loading="loadingDeleted" @click="confirmDelete(form.id)" severity="danger">
+        <Icon v-if="loadingDeleted" name="lucide:loader-circle" class="animate-spin"/>
+        <Icon v-else name="lucide:trash-2"/>
+        Hapus
+      </Button>
       <Button type="submit" :loading="loadingSubmit">
         <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin"/>
         <Icon v-else name="lucide:save"/>
@@ -70,6 +75,7 @@ const dayjs = useDayjs()
 const emit = defineEmits(['update','delete']);
 const client = useSanctumClient();
 const toast = useToast();
+const confirm = useConfirm()
 const props = defineProps({
   action: {
     type: String,
@@ -120,7 +126,7 @@ const submitForm = async () => {
         });
       emit('update')
     } else if (props.action === 'edit') {
-      await client(`/api/webhost/${form.id}`, {
+      await client(`/api/webhost/${props.id}`, {
         method: 'PUT',
         body: payload.value
       })
@@ -173,4 +179,48 @@ const { data: dataOpsi} = await useAsyncData(
     'data_opsi-form-webhost',
     () => client('/api/data_opsis?keys[]=paket&keys[]=jenis_project&keys[]=kategori_web')
 ) as any
+
+const loadingDeleted = ref(false)
+const confirmDelete = async (id: number) => {
+    confirm.require({
+        message: 'Anda yakin hapus data webhost ini?',
+        header: 'Hapus data',
+        accept: async () => {
+            try {
+              loadingDeleted.value = true
+              await client(`/api/webhost/${props.id}`,
+              {method: 'DELETE'})    
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Data webhost berhasil dihapus',
+                life: 3000
+              });
+              emit('delete')
+            } catch (error) {
+              console.log(error)
+              toast.add({
+                severity: 'error',
+                summary: 'Gagal menghapus data webhost',
+                life: 3000
+              })
+            } finally {
+              loadingDeleted.value = false
+            }
+        },
+        rejectProps: {
+            label: 'Batal',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+}
 </script>
