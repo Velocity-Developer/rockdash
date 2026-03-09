@@ -261,7 +261,7 @@
   </Drawer>
 
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh()" />
+    <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh();visibleDialog = false" />
   </Dialog>
 
   <DashLoader :loading="isLoadingDash"/>
@@ -380,8 +380,8 @@ const fieldsFilter = [
   { key: 'email', label: 'Email', type: 'text' },
 ]
 
-function split_comma(text: string) {
-  return text?text.split(',').join('\n'):'';
+function split_comma(text: string | null | undefined) {
+  return text?.split(',').join('\n') ?? '';
 }
 
 //reset filters

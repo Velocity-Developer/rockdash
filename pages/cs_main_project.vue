@@ -174,7 +174,7 @@ const openFormDialog = (item: any) => {
   </Card>
 
   <Dialog v-model:visible="visibleFormDialog" modal header="Edit Project" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
-    <CsMainProjectForm :action="'edit'" :data="selectedItem" @update="getData()" />
+    <CsMainProjectForm :action="'edit'" :data="selectedItem" @update="getData();visibleFormDialog = false" />
   </Dialog>
 
   <Dialog v-model:visible="visiblePreviewDialog" modal header="Preview Project" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">

@@ -375,6 +375,7 @@ const handleSubmit = async () => {
       detail: 'Data berhasil disimpan',
       life: 3000
     });
+    resetForm();
     
   } catch (error) {
 
@@ -391,6 +392,35 @@ const handleSubmit = async () => {
 
   loadingSubmit.value = false;
 }
+
+const resetForm = () => {
+  form.id = undefined;
+  form.alamat = '';
+  form.biaya = null;
+  form.create_invoice = true;
+  form.customer_id = '';
+  form.deskripsi = '';
+  form.dibayar = null;
+  form.dikerjakan_oleh = [];
+  form.email = '';
+  form.hp = '';
+  form.hpads = '';
+  form.id_webhost = null;
+  form.invoice_id = '';
+  form.jenis = '';
+  form.karyawans = [];
+  form.kategori_web = '';
+  form.nama = '';
+  form.nama_web = '';
+  form.paket = null;
+  form.saldo = null;
+  form.telegram = '';
+  form.tgl_masuk = '';
+  form.tgl_deadline = '';
+  form.trf = '';
+  form.wa = '';
+  form.waktu_plus = '';
+};
 
 //watch form.nama_web
 const search_webhost = ref([] as any);

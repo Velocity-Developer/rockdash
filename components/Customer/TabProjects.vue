@@ -146,7 +146,7 @@
 
     <!-- Dialog for Add/Edit -->
     <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Project':'Edit Project'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh()" />
+      <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh();visibleDialog = false" />
     </Dialog>
 
     <!-- Loading Overlay -->
