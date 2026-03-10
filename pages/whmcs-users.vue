@@ -23,7 +23,7 @@
           <Column header="" headerStyle="width:3rem">
             <template #body="slotProps">
                 <div class="flex justify-end items-center gap-1">
-                  <Button size="small" severity="info">
+                  <Button size="small" severity="info" @click="openDialog('edit', slotProps.data)">
                     <Icon name="lucide:edit" />
                   </Button>
                   <Button size="small" severity="danger" @click="deleteItem(slotProps.data)">
@@ -58,6 +58,10 @@
     </Card>
 
   </div>
+
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <WhmcsUserForm :action="actionDialog" :id="idDialog" @submit="refresh();visibleDialog = false" @close="refresh();visibleDialog = false"/>
+  </Dialog>
 
   <DashLoader :loading="loading || status === 'pending'"/>
 
@@ -146,5 +150,14 @@ const deleteItem = (item: any) => {
             //callback to execute when user rejects to delete
         }
     });
+}
+
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+const idDialog = ref<number>(0)
+const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
+  actionDialog.value = action
+  visibleDialog.value = true
+  idDialog.value = data?.id || 0
 }
 </script>
