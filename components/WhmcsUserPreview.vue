@@ -34,7 +34,7 @@
 
       <div v-if="dataWhmcsUser.hostings && dataWhmcsUser.hostings.length > 0" class="p-4 rounded border border-grey-400 dark:border-grey-600">
         <div class="mb-3 text-amber-600">
-          <Icon name="lucide:server"/> <span class="font-bold text-lg">Hostings</span>
+          <Icon name="lucide:server"/> <span class="ml-1 font-bold text-lg">Hostings</span>
         </div>
        
         <div v-for="item in dataWhmcsUser.hostings" :key="item.id" class="grid grid-cols-1 md:grid-cols-2 gap-1">
