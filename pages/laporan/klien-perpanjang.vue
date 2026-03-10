@@ -187,37 +187,7 @@
   </Dialog>
 
   <Dialog v-model:visible="visibleDialogPerpanjang" modal :header="titleDialogPerpanjang" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <div class="space-y-5">
-        <template v-if="dataDialogPerpanjang.domain">
-          <div class="border p-5 rounded">
-            <div class="flex items-center gap-2 mb-4 text-blue-600">
-              <Icon name="lucide:globe" /> Domain
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3">
-              <template v-for="(d, i) in dataDialogPerpanjang.domain" :key="i">
-                <div v-if="i !== 'id'">
-                  {{ i }} : <span class="font-bold"> {{ d }} </span>
-                </div>
-              </template>
-            </div>
-          </div>
-        </template>
-
-        <template v-if="dataDialogPerpanjang.hosting">
-          <div class="border p-5 rounded">
-            <div class="flex items-center gap-2 mb-4 text-emerald-600">
-              <Icon name="lucide:database" /> Hosting
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3">
-              <template v-for="(d, i) in dataDialogPerpanjang.hosting" :key="i">
-                <div v-if="i !== 'id'">
-                  {{ i }} : <span class="font-bold"> {{ d }} </span>
-                </div>
-              </template>
-            </div>
-          </div>
-        </template>
-    </div>
+    <WhmcsUserPreview :id="dataDialogPerpanjang.user.id"/>
   </Dialog>
 
   <DashLoader :loading="loading"/>

@@ -6,7 +6,7 @@
 
   <div class="space-y-4">
 
-      <div class="p-4 rounded border border-teal-600">
+      <div class="p-4 rounded border border-grey-400 dark:border-grey-600">
         <div class="mb-3 text-emerald-600">
           <Icon name="lucide:circle-user"/> <span class="ml-1 font-bold text-lg">User</span>
         </div>
@@ -16,7 +16,7 @@
         </div>
       </div>
 
-      <div v-if="dataWhmcsUser.domains" class="p-4 rounded border border-blue-600">
+      <div v-if="dataWhmcsUser.domains && dataWhmcsUser.domains.length > 0" class="p-4 rounded border border-grey-400 dark:border-grey-600">
         <div class="mb-3 text-blue-600">
           <Icon name="lucide:globe"/> <span class="ml-1 font-bold text-lg">Domains</span>
         </div>
@@ -32,7 +32,7 @@
 
       </div>
 
-       <div v-if="dataWhmcsUser.hostings" class="p-4 rounded border border-amber-600">
+      <div v-if="dataWhmcsUser.hostings && dataWhmcsUser.hostings.length > 0" class="p-4 rounded border border-grey-400 dark:border-grey-600">
         <div class="mb-3 text-amber-600">
           <Icon name="lucide:server"/> <span class="font-bold text-lg">Hostings</span>
         </div>
