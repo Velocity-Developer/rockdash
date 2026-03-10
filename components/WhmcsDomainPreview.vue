@@ -6,7 +6,12 @@
           <Icon name="lucide:circle-user"/> <span class="ml-1 font-bold text-md">User</span>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-          <div> <span class="font-bold">Name</span> : {{ dataWhmcsDomain?.whmcs_user.firstname }} {{ dataWhmcsDomain?.whmcs_user.lastname }} </div> 
+          <div> <span class="font-bold">Name</span> : 
+            {{ dataWhmcsDomain?.whmcs_user.firstname }} {{ dataWhmcsDomain?.whmcs_user.lastname }} 
+            <NuxtLink v-if="dataWhmcsDomain.whmcs_user" :to="`/whmcs_user/${dataWhmcsDomain.whmcs_user.id}`" target="_blank" class="hover:underline text-blue-500">
+              <Icon name="lucide:external-link" />
+            </NuxtLink>
+          </div> 
           <div> <span class="font-bold">Email</span> : {{ dataWhmcsDomain?.whmcs_user.email }} </div> 
         </div>
     </div>
@@ -46,7 +51,12 @@
         </div>
        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-          <div> <span class="font-bold">Domain</span> : {{ dataWhmcsDomain.hosting.domain }} </div> 
+          <div> <span class="font-bold">Domain</span> : 
+            {{ dataWhmcsDomain.hosting.domain }} 
+            <NuxtLink v-if="dataWhmcsDomain.webhost" :to="`/webhost/${dataWhmcsDomain.webhost.id_webhost}`" target="_blank" class="hover:underline text-blue-500">
+              <Icon name="lucide:external-link" />
+            </NuxtLink>
+          </div> 
           <div> <span class="font-bold">Next Duedate</span> : {{ dataWhmcsDomain.hosting.nextduedate }} </div> 
           <div> <span class="font-bold">Billing Cycle</span> : {{ dataWhmcsDomain.hosting.billingcycle }} </div> 
           <div> <span class="font-bold">Package Name</span> : {{ dataWhmcsDomain.hosting.package_name }} </div> 
