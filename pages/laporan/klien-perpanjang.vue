@@ -187,7 +187,7 @@
   </Dialog>
 
   <Dialog v-model:visible="visibleDialogPerpanjang" modal :header="titleDialogPerpanjang" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <WhmcsUserPreview :id="dataDialogPerpanjang.user.id"/>
+    <WhmcsDomainPreview :id="dataDialogPerpanjang.domain.id"/>
   </Dialog>
 
   <DashLoader :loading="loading"/>
