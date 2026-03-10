@@ -1,13 +1,13 @@
 <template>
   <div class="space-y-4">
     
-    <div class="flex justify-end items-end gap-1">
+    <form @submit.prevent="refresh()" class="flex justify-end items-end gap-1">
       <InputText v-model="filters.search" placeholder="Cari user.." class="w-40" size="small"/>
-      <Select v-model="filters.per_page" :options="[20,50,100]" size="small"/>
-      <Button @click="refresh()" size="small" severity="info">
+      <Select @change="refresh()" v-model="filters.per_page" :options="[20,50,100]" size="small"/>
+      <Button type="submit" size="small" severity="info">
         <Icon name="lucide:refresh-cw" :class="status==='pending'?'animate-spin':''" /> Refresh
       </Button>
-    </div>
+    </form>
 
     <Card>
       <template #content>
@@ -20,6 +20,18 @@
           <Column field="firstname" header="Firstname"></Column>
           <Column field="lastname" header="Lastname"></Column>
           <Column field="email" header="Email"></Column>
+          <Column header="" headerStyle="width:3rem">
+            <template #body="slotProps">
+                <div class="flex justify-end items-center gap-1">
+                  <Button size="small" severity="info">
+                    <Icon name="lucide:edit" />
+                  </Button>
+                  <Button size="small" severity="danger" @click="deleteItem(slotProps.data)">
+                    <Icon name="lucide:trash-2" />
+                  </Button>
+              </div>
+            </template>
+          </Column>
         </DataTable>
 
         <div class="flex justify-between items-center text-xs mt-3">
@@ -46,6 +58,9 @@
     </Card>
 
   </div>
+
+  <DashLoader :loading="loading || status === 'pending'"/>
+
 </template>
 
 <script setup lang="ts">
@@ -53,13 +68,13 @@ definePageMeta({
     title: 'Data Users WHMCS',
     description: 'Whmcs Users',
 })
-import { useDayjs } from '#dayjs'
-const dayjs = useDayjs()
 const route = useRoute();
+const confirm = useConfirm()
+const toast = useToast()
 const client = useSanctumClient();
 const page = ref(route.query.page ? Number(route.query.page) : 1);
 const filters = reactive({
-    per_page: route.query.per_page || 50,
+    per_page: route.query.per_page?Number(route.query.per_page):50,
     page: computed(() => page.value),
     tgl_mulai_start: route.query.tgl_mulai_start || '',
     tgl_mulai_end: route.query.tgl_mulai_end || '',
@@ -86,5 +101,50 @@ function updateRouteParams() {
   router.push({
     query: { ...filters },
   });
+}
+
+const loading = ref(false)
+const deleteItem = (item: any) => {
+    confirm.require({
+        message: `Anda yakin hapus data user : ${item.firstname} ${item.lastname}?`,
+        header: 'Hapus data',
+        accept: async () => {
+            try {
+              loading.value = true
+              await client(`/api/whmcs-user/${item.id}`,{
+                method: 'DELETE'
+              })    
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Data berhasil dihapus',
+                life: 3000
+              });
+              refresh()
+            } catch (error) {
+              console.log(error)
+              toast.add({
+                severity: 'error',
+                summary: 'Gagal menghapus data',
+                life: 3000
+              })
+            } finally {
+              loading.value = false
+            }
+        },
+        rejectProps: {
+            label: 'Batal',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
 }
 </script>
