@@ -17,8 +17,20 @@
                 {{ data.from + slotProps.index }}
             </template>
           </Column>
-          <Column field="firstname" header="Firstname"></Column>
-          <Column field="lastname" header="Lastname"></Column>
+          <Column field="firstname" header="Firstname">
+            <template #body="slotProps">
+              <span @click="openPreviewDialog(slotProps.data)" class="cursor-pointer">
+                {{ slotProps.data.firstname }}
+              </span>
+            </template>
+          </Column>
+          <Column field="lastname" header="Lastname">
+            <template #body="slotProps">
+              <span @click="openPreviewDialog(slotProps.data.id)" class="cursor-pointer">
+                {{ slotProps.data.lastname }}
+              </span>
+            </template>
+          </Column>
           <Column field="email" header="Email"></Column>
           <Column header="" headerStyle="width:3rem">
             <template #body="slotProps">
@@ -62,6 +74,10 @@
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <WhmcsUserForm :action="actionDialog" :id="idDialog" @submit="refresh();visibleDialog = false" @close="refresh();visibleDialog = false"/>
   </Dialog>
+  
+  <Dialog v-model:visible="visiblePreviewDialog" modal :header="headerPreviewDialog" :style="{ width: '70rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <WhmcsUserPreview :id="idPreviewDialog"/>
+  </Dialog>
 
   <DashLoader :loading="loading || status === 'pending'"/>
 
@@ -80,8 +96,6 @@ const page = ref(route.query.page ? Number(route.query.page) : 1);
 const filters = reactive({
     per_page: route.query.per_page?Number(route.query.per_page):50,
     page: computed(() => page.value),
-    tgl_mulai_start: route.query.tgl_mulai_start || '',
-    tgl_mulai_end: route.query.tgl_mulai_end || '',
     search: '',
     order_by: 'id',
     order: 'desc',
@@ -159,5 +173,14 @@ const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
   actionDialog.value = action
   visibleDialog.value = true
   idDialog.value = data?.id || 0
+}
+
+const visiblePreviewDialog = ref(false)
+const idPreviewDialog = ref<number>(0)
+const headerPreviewDialog = ref<string>('Preview User')
+const openPreviewDialog = (data: any = null) => {
+  visiblePreviewDialog.value = true
+  idPreviewDialog.value = data?.id || 0
+  headerPreviewDialog.value = data?.firstname ? `${data.firstname} ${data.lastname}` : 'Preview User'
 }
 </script>
