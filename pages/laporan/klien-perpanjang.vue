@@ -144,7 +144,7 @@
         </Column>
         <Column field="status" sortable header="Status">
           <template #body="slotProps">
-            <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang '+slotProps.data.domain_name)">
+            <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
               {{ slotProps.data.status?'Perpanjang':'Tidak' }}
             </Badge>
           </template>
