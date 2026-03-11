@@ -50,9 +50,13 @@
 
         <div class="overflow-x-scroll md:overflow-auto">
           <div class="flex items-center md:justify-end mt-3 md:mt-0 gap-2">
-            <div class="border rounded py-2 px-4 w-[150px] border-green-200 dark:border-green-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
+            <div class="border rounded py-2 px-4 w-[150px] border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-950 hover:shadow-md">
               <div class="text-xs">Total Perpanjang</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total_perpanjang }}</div>
+            </div>
+            <div class="border rounded py-2 px-4 w-[150px] border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-950 hover:shadow-md">
+              <div class="text-xs">Tidak Perpanjang</div>
+              <div class="text-end font-bold">{{ dataExpiredWHMCS.total_tidak_perpanjang }}</div>
             </div>
             <div class="border rounded py-2 px-4 w-[150px] border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
               <div class="text-xs">Total</div>
