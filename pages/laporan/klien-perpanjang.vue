@@ -132,6 +132,13 @@
             </span>
           </template>
         </Column>
+        <Column field="status" header="Status">
+          <template #body="slotProps">
+            <Badge severity="success" v-if="slotProps.data.domain && isPerbarui(slotProps.data.domain?.expirydate) || !slotProps.data.domain && slotProps.data.hosting && isPerbarui(slotProps.data.hosting?.nextduedate)">
+              Perpanjang
+            </Badge>
+          </template>
+        </Column>
       </DataTable>
 
     </template>
@@ -255,6 +262,7 @@ const getData = async () => {
 
 onMounted(()=>{
   getData()
+  reSyncDomainHosting()
 })
 
 const visibleDialog = ref(false);
@@ -375,5 +383,11 @@ const reSyncDomainHosting = async () => {
   } finally {
     loadingReSync.value = false;
   }
+}
+
+const isPerbarui = (dateE: any) => {
+  const dateYear = dayjs(dateE).format('YYYY').toString()
+  const bulanYear = dayjs(theBulan.value).format('YYYY').toString()
+  return Number(dateYear)>Number(bulanYear);
 }
 </script>
