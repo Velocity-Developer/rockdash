@@ -15,27 +15,28 @@
   
   <Card>
     <template #content>
-
-      <table class="w-full">
-        <thead>
-          <tr class="border border-b">
-            <th class="px-3 py-2 text-left">Jenis</th>
-            <th class="px-3 py-2 text-left">Total</th>
-            <th class="px-3 py-2 text-right">Nominal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="data.data" v-for="item in data.data" :key="item.jenis" class="border border-b">
-            <td class="px-3 py-2 text-left">
-              <span class="cursor-pointer hover:underline" @click="openDialog(item,item.label)">
-              {{ item.label }}
-              </span>
-            </td>
-            <td class="px-3 py-2 text-left">{{ item.total }}</td>
-            <td class="px-3 py-2 text-right">{{ formatMoney(item.nominal,'Rp',0) }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border border-b">
+              <th class="px-3 py-2 text-left">Jenis</th>
+              <th class="px-3 py-2 text-left">Total</th>
+              <th class="px-3 py-2 text-right">Nominal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="data.data" v-for="item in data.data" :key="item.jenis" class="border border-b">
+              <td class="px-3 py-2 text-left">
+                <span class="cursor-pointer hover:underline" @click="openDialog(item,item.label)">
+                {{ item.label }}
+                </span>
+              </td>
+              <td class="px-3 py-2 text-left">{{ item.total }}</td>
+              <td class="px-3 py-2 text-right">{{ formatMoney(item.nominal,'Rp',0) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       
     </template>
   </Card>
@@ -49,7 +50,7 @@
           </div>
           <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
             <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
-            Re-Sync Domain Hosting
+            Re-Sync WHMCS
           </Button>
         </div>
 
