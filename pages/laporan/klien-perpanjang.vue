@@ -43,33 +43,26 @@
   
   <Card v-if="dataExpiredWHMCS" class="mt-4">
     <template #header>      
-      <div class="md:flex md:items-start md:justify-between gap-2 px-6 pt-4">
-        <div>
-          <div class="font-bold mb-1">
-            Layanan Expired : {{ theBulan }}
-          </div>
-          <div class="gap-1 flex items-center">
-            <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
-              <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
-              Re-Sync WHMCS
-            </Button>
-            <Button @click="refreshDataExpiredWHMCS()" :loading="statusDataExpiredWHMCS==='pending'" size="small">
-              <Icon name="lucide:refresh-cw" :class="statusDataExpiredWHMCS==='pending' ? 'animate-spin' : ''"/>
-            </Button>
-          </div>
+      <div class="md:flex md:items-center md:justify-between gap-2 px-6 pt-4">
+        <div class="font-bold mb-1">
+          Layanan Expired : {{ theBulan }}
         </div>
 
         <div class="overflow-x-scroll md:overflow-auto">
           <div class="flex items-center md:justify-end mt-3 md:mt-0 gap-2">
-            <div class=" border rounded py-2 px-4 w-[150px] border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
+            <div class="border rounded py-2 px-4 w-[150px] border-green-200 dark:border-green-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
+              <div class="text-xs">Total Perpanjang</div>
+              <div class="text-end font-bold">{{ dataExpiredWHMCS.total_perpanjang }}</div>
+            </div>
+            <div class="border rounded py-2 px-4 w-[150px] border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
               <div class="text-xs">Total</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total }}</div>
             </div>
-            <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
+            <div class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
               <div class="text-xs">Total Hosting</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total_hosting }}</div>
             </div>
-            <div class=" border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
+            <div class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
               <div class="text-xs">Total Domain</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total_domain }}</div>
             </div>
@@ -85,8 +78,21 @@
         stripedRows scrollHeight="70vh" scrollable 
         :loading="statusDataExpiredWHMCS === 'pending'"
         paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100]"
+        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        currentPageReportTemplate="{first} to {last} of {totalRecords}"
         @page="onPage"
       >
+      <template #header>
+            <div class="flex justify-end gap-1">                
+              <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
+                <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
+                Re-Sync WHMCS
+              </Button>
+              <Button @click="refreshDataExpiredWHMCS()" :loading="statusDataExpiredWHMCS==='pending'" size="small">
+                <Icon name="lucide:refresh-cw" :class="statusDataExpiredWHMCS==='pending' ? 'animate-spin' : ''"/>
+              </Button>
+            </div>
+        </template>
         <Column field="no" header="No">
           <template #body="slotProps">
             {{ first + slotProps.index + 1}}
