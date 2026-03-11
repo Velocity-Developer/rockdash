@@ -118,24 +118,24 @@
             </Badge>
           </template>
         </Column>
-        <Column field="hosting.nextduedate" :sortable="true" header="Expiry Date Hosting">
+        <Column field="hosting.nextduedate" sortable header="Expiry Date Hosting">
           <template #body="slotProps">
             <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
               {{ slotProps.data.hosting.nextduedate }}
             </span>
           </template>
         </Column>
-        <Column field="hosting.package_name" :sortable="true" header="Hosting">
+        <Column field="hosting.package_name" sortable header="Hosting">
           <template #body="slotProps">
             <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
               {{ slotProps.data.hosting.package_name }}
             </span>
           </template>
         </Column>
-        <Column field="status" header="Status">
+        <Column field="status" sortable header="Status">
           <template #body="slotProps">
-            <Badge severity="success" v-if="slotProps.data.domain && isPerbarui(slotProps.data.domain?.expirydate) || !slotProps.data.domain && slotProps.data.hosting && isPerbarui(slotProps.data.hosting?.nextduedate)">
-              Perpanjang
+            <Badge :severity="slotProps.data.status?'success':'contrast'">
+              {{ slotProps.data.status?'Perpanjang':'Tidak' }}
             </Badge>
           </template>
         </Column>
