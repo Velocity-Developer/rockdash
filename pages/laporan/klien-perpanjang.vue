@@ -352,9 +352,16 @@ const loadingReSync = ref(false);
 const reSyncDomainHosting = async () => {
   loadingReSync.value = true;
   try {
-    const response = await client('/api/whmcs-custom/sync-domains-hostings',{
+    await client('/api/whmcs-custom/sync-domains-hostings',{
       params: {
         month: theBulan.value
+      }
+    });
+
+    const newTheBulan = dayjs(theBulan.value).add(1, 'year').format('YYYY-MM');    
+    await client('/api/whmcs-custom/sync-domains-hostings',{
+      params: {
+        month: newTheBulan
       }
     });
     refreshDataExpiredWHMCS()
