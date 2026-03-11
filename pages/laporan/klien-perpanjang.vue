@@ -140,7 +140,7 @@
         </Column>
         <Column field="status" sortable header="Status">
           <template #body="slotProps">
-            <Badge :severity="slotProps.data.status?'success':'contrast'">
+            <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang '+slotProps.data.domain_name)">
               {{ slotProps.data.status?'Perpanjang':'Tidak' }}
             </Badge>
           </template>
@@ -208,6 +208,30 @@
   <Dialog v-model:visible="visibleDialogPerpanjang" modal :header="titleDialogPerpanjang" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <WhmcsDomainPreview v-if="dataDialogPerpanjang.domain" :id="dataDialogPerpanjang.domain.id"/>
     <WhmcsHostingPreview v-else="!dataDialogPerpanjang.domain && dataDialogPerpanjang.hosting" :id="dataDialogPerpanjang.hosting.id"/>
+  </Dialog>
+
+  <Dialog v-model:visible="visibleDialogStatusPerpanjang" modal :header="titleDialogStatusPerpanjang" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <div v-if="dataDialogStatusPerpanjang.project" class="grid grid-cols-1 gap-2">
+      <div class="flex flex-row border-b pb-1">
+        <div class="basis-1/3">Jenis : </div>
+        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-2 w-full rounded">{{ dataDialogStatusPerpanjang.project.jenis }}</div>
+      </div>
+      <div class="flex flex-row border-b pb-1">
+        <div class="basis-1/3">Tanggal Masuk : </div>
+        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-2 w-full rounded">{{ dataDialogStatusPerpanjang.project.tgl_masuk }}</div>
+      </div>
+      <div class="flex flex-row border-b pb-1">
+        <div class="basis-1/3">Deskripsi : </div>
+        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-2 w-full rounded">{{ dataDialogStatusPerpanjang.project.deskripsi }}</div>
+      </div>
+      <div class="flex flex-row border-b pb-1">
+        <div class="basis-1/3">Dibayar : </div>
+        <div class="bg-gray-100 dark:bg-gray-800 px-3 py-2 w-full rounded">{{ formatMoney(dataDialogStatusPerpanjang.project.dibayar,'Rp',0) }}</div>
+      </div>
+    </div>
+    <div v-else class="flex items-center justify-center">
+      Tidak ada data perpanjang
+    </div>
   </Dialog>
 
   <DashLoader :loading="loading"/>
@@ -391,9 +415,12 @@ const reSyncDomainHosting = async () => {
   }
 }
 
-const isPerbarui = (dateE: any) => {
-  const dateYear = dayjs(dateE).format('YYYY').toString()
-  const bulanYear = dayjs(theBulan.value).format('YYYY').toString()
-  return Number(dateYear)>Number(bulanYear);
+const visibleDialogStatusPerpanjang = ref(false);
+const dataDialogStatusPerpanjang = ref({} as any);
+const titleDialogStatusPerpanjang = ref('');
+const openDialogStatusPerpanjang = async (data = {} as any,title = '') => {
+  visibleDialogStatusPerpanjang.value = true;
+  dataDialogStatusPerpanjang.value = data;
+  titleDialogStatusPerpanjang.value = title;
 }
 </script>
