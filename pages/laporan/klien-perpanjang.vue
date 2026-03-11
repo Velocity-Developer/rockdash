@@ -48,10 +48,15 @@
           <div class="font-bold mb-1">
             Layanan Expired : {{ theBulan }}
           </div>
-          <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
-            <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
-            Re-Sync WHMCS
-          </Button>
+          <div class="gap-1 flex items-center">
+            <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
+              <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
+              Re-Sync WHMCS
+            </Button>
+            <Button @click="refreshDataExpiredWHMCS()" :loading="statusDataExpiredWHMCS==='pending'" size="small">
+              <Icon name="lucide:refresh-cw" :class="statusDataExpiredWHMCS==='pending' ? 'animate-spin' : ''"/>
+            </Button>
+          </div>
         </div>
 
         <div class="overflow-x-scroll md:overflow-auto">
