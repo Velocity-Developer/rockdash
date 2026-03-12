@@ -114,7 +114,7 @@
             </div>
           </template>
         </Column>
-        <Column field="domain.expirydate" :sortable="true" header="Expiry Date domain">
+        <Column field="domain.expirydate" sortable header="Expiry Date domain">
           <template #body="slotProps">
             <span v-if="slotProps.data.domain" :class="isToday(slotProps.data.domain.expirydate)?'text-green-600':''">              
               {{ slotProps.data.domain.expirydate }}
