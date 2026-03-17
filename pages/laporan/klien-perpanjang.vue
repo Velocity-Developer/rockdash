@@ -142,6 +142,13 @@
             </span>
           </template>
         </Column>
+        <Column field="webhost_available" sortable header="Webhost">
+          <template #body="slotProps">
+            <Badge :severity="slotProps.data.webhost_available?'success':'contrast'">
+              {{ slotProps.data.webhost_available?'ada':'tidak' }}
+            </Badge>
+          </template>
+        </Column>
         <Column field="status" sortable header="Status">
           <template #body="slotProps">
             <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
