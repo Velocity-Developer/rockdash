@@ -88,6 +88,10 @@
       >
       <template #header>
             <div class="flex justify-end gap-1">                
+              <Button @click="exportDataExpiredToExcel" size="small" severity="success">
+                <Icon name="lucide:download" />
+                Export Excel
+              </Button>
               <Button @click="reSyncDomainHosting" :loading="loadingReSync" size="small">
                 <Icon name="lucide:globe" :class="loadingReSync ? 'animate-spin' : ''"/>
                 Re-Sync WHMCS
@@ -368,6 +372,57 @@ const exportToExcel = () => {
 
   // Generate filename with filter bulan
   const filename = `Klien_Perpanjang_${titleDialog.value.replace(/[^a-zA-Z0-9]/g, '_')}_${filter.bulan}.xlsx`;
+
+  // Save file
+  XLSX.writeFile(wb, filename);
+}
+
+const exportDataExpiredToExcel = () => {
+  if (!dataExpiredWHMCS.value || !dataExpiredWHMCS.value.data) {
+    return;
+  }
+
+  // Prepare data for Excel export
+  const excelData: any[] = [];
+  
+  // Add header row
+  excelData.push(['No', 'Domain', 'Expiry Date domain', 'Status Domain', 'Expiry Date Hosting', 'Hosting', 'Webhost', 'Status']);
+  
+  // Process each item
+  dataExpiredWHMCS.value.data.forEach((item: any, index: number) => {
+    excelData.push([
+      index + 1,
+      item.domain_name,
+      item.domain ? item.domain.expirydate : '-',
+      item.domain ? item.domain.status : '-',
+      item.hosting ? item.hosting.nextduedate : '-',
+      item.hosting ? item.hosting.package_name : '-',
+      item.webhost_available ? 'ada' : 'tidak',
+      item.status ? 'Perpanjang' : 'Tidak'
+    ]);
+  });
+
+  // Create workbook and worksheet
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(excelData);
+
+  // Set column widths
+  ws['!cols'] = [
+    { wch: 5 },   // No
+    { wch: 30 },  // Domain
+    { wch: 20 },  // Expiry Date domain
+    { wch: 15 },  // Status Domain
+    { wch: 20 },  // Expiry Date Hosting
+    { wch: 25 },  // Hosting
+    { wch: 10 },  // Webhost
+    { wch: 10 }   // Status
+  ];
+
+  // Add worksheet to workbook
+  XLSX.utils.book_append_sheet(wb, ws, 'Data Expired');
+
+  // Generate filename with filter bulan
+  const filename = `Data_Expired_${theBulan.value}.xlsx`;
 
   // Save file
   XLSX.writeFile(wb, filename);
