@@ -81,7 +81,7 @@
         size="small" class="text-sm" 
         stripedRows scrollHeight="70vh" scrollable 
         :loading="statusDataExpiredWHMCS === 'pending'"
-        paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100]"
+        paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100, 500]"
         paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
         currentPageReportTemplate="{first} to {last} of {totalRecords}"
         @page="onPage"
