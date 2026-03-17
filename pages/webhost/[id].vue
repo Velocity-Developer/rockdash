@@ -78,7 +78,11 @@
               </template>
             </div>
           </div>
-
+          <div class="text-end">
+            <Button @click="openDialog('edit',data)" severity="info" size="small">
+              <Icon name="lucide:pencil" /> <span class="hidden md:inline-block">edit</span>
+            </Button>
+          </div>
         </template>
       </Card>
     </div>
@@ -139,6 +143,10 @@
     </template>
   </Card>
 
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <WebhostForm :action="actionDialog" :id="idDialog" @update="refresh();visibleDialog = false" @delete="refresh();visibleDialog = false" />
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -184,4 +192,13 @@ const totalProjects = computed(() => {
         return data.value.cs_main_projects.length
     }
 })
+
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+const idDialog = ref<number>(0)
+const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
+  actionDialog.value = action
+  visibleDialog.value = true
+  idDialog.value = data?.id_webhost || 0
+}
 </script>
