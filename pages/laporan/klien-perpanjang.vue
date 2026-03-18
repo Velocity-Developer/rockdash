@@ -503,6 +503,8 @@ const openDialogPerpanjang = async (data = {} as any,title = '') => {
   ['Pembuatan', 'Perpanjangan'].forEach(val => {
     params.append('webhost_jenis[]', val);
   });
+  params.append('with', 'webhost:id_webhost,nama_web,id_paket');
+  params.append('select', 'dibayar,tgl_masuk,id_webhost,jenis');
 
   loadingDataProjects.value = true;
   try {
