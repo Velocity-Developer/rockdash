@@ -126,7 +126,7 @@
             >
               <span>{{ slotProps.data.domain.expirydate }}</span>
             </div>
-            <div v-if="slotProps.data.hosting" class="text-xs" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
+            <div v-if="slotProps.data.hosting && String(slotProps.data.domain) !== String(slotProps.data.hosting)" class="text-xs" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
               <span>Host : {{ slotProps.data.hosting.nextduedate }}</span>
             </div>
           </template>
