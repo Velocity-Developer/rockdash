@@ -223,6 +223,42 @@
   <Dialog v-model:visible="visibleDialogPerpanjang" modal :header="titleDialogPerpanjang" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <WhmcsDomainPreview v-if="dataDialogPerpanjang.domain" :id="dataDialogPerpanjang.domain.id"/>
     <WhmcsHostingPreview v-else="!dataDialogPerpanjang.domain && dataDialogPerpanjang.hosting" :id="dataDialogPerpanjang.hosting.id"/>
+
+    <div v-if="loadingDataProjects" class="card flex justify-center">
+      <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="8"/>
+    </div>
+
+    <div v-if="visibleDialogPerpanjang && !loadingDataProjects" class="border p-4 mt-4 rounded">
+      <div class="mb-3 text-teal-600 flex items-center gap-1 text-sm">
+        <Icon name="lucide:briefcase" mode="svg"/> <span class="font-bold">Projects</span>
+      </div>
+      <DataTable
+        stripedRows scrollHeight="70vh" scrollable 
+        :value="dataProjects.data" 
+        size="small" class="text-sm"
+      >
+         <Column field="jenis" header="Jenis">
+          <template #body="slotProps">
+              {{ slotProps.data.jenis }}
+          </template>
+        </Column>
+        <Column field="tgl_masuk" header="Tgl Masuk">
+          <template #body="slotProps">
+              {{ slotProps.data.tgl_masuk }}
+          </template>
+        </Column>
+        <Column field="dibayar" header="Biaya">
+          <template #body="slotProps">
+              {{ formatMoney(slotProps.data.dibayar,'Rp',0) }}
+          </template>
+        </Column>
+        <Column field="webhost.nama_web" header="Web">
+          <template #body="slotProps">
+              {{ slotProps.data.webhost?.nama_web }}
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </Dialog>
 
   <Dialog v-model:visible="visibleDialogStatusPerpanjang" modal :header="titleDialogStatusPerpanjang" :style="{ width: '40rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
@@ -448,6 +484,8 @@ const isToday = (date: string) => {
   return dayjs(date).isSame(dayjs(), 'day')
 }
 
+const loadingDataProjects = ref(false)
+const dataProjects = ref([] as any)
 const visibleDialogPerpanjang = ref(false);
 const dataDialogPerpanjang = ref({} as any);
 const titleDialogPerpanjang = ref('');
@@ -455,6 +493,27 @@ const openDialogPerpanjang = async (data = {} as any,title = '') => {
   visibleDialogPerpanjang.value = true;
   dataDialogPerpanjang.value = data;
   titleDialogPerpanjang.value = title;
+
+  const params = new URLSearchParams();
+  const idWebhost = dataDialogPerpanjang.value?.webhost?.id_webhost;
+  if (idWebhost) {
+    params.append('id_webhost', idWebhost);
+  }
+  params.append('per_page', '10');
+  ['Pembuatan', 'Perpanjangan'].forEach(val => {
+    params.append('webhost_jenis[]', val);
+  });
+
+  loadingDataProjects.value = true;
+  try {
+    const response = await client(`/api/cs_main_project?${params.toString()}`);
+    dataProjects.value = response;
+  } catch (error) {
+    const er = useSanctumError(error);
+  } finally {
+    loadingDataProjects.value = false
+  }
+
 }
 
 const loadingReSync = ref(false);
