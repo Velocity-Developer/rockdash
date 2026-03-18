@@ -152,20 +152,20 @@
             </Badge>
           </template>
         </Column>
-        <!-- <Column field="status" sortable header="Status">
+        <Column field="status" sortable header="Status">
           <template #body="slotProps">
             <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
               {{ slotProps.data.status?'Perpanjang':'Tidak' }}
             </Badge>
           </template>
-        </Column> -->
-        <Column field="domain.status" sortable header="Status Domain">
+        </Column>
+        <!-- <Column field="domain.status" sortable header="Status Domain">
           <template #body="slotProps">
             <Badge v-if="slotProps.data.domain" :severity="slotProps.data.domain.status === 'Active'?'success':slotProps.data.domain.status === 'Grace'?'warn':'contrast'">
               {{ slotProps.data.domain.status }}
             </Badge>
           </template>
-        </Column>
+        </Column> -->
       </DataTable>
 
     </template>
