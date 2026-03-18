@@ -133,7 +133,7 @@
         </Column>
         <Column field="project.tgl_masuk" sortable header="Tgl Perpanjang">
           <template #body="slotProps">
-            <span @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
+            <span v-if="slotProps.data.project" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
             {{ slotProps.data.project.tgl_masuk }}
             </span>
           </template>
