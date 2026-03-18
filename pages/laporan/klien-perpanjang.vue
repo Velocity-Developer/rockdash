@@ -118,24 +118,23 @@
             </div>
           </template>
         </Column>
-        <Column field="domain.expirydate" sortable header="Expiry Date domain">
+        <Column field="domain.expirydate" sortable header="Tgl Expired">
           <template #body="slotProps">
-            <span v-if="slotProps.data.domain" :class="isToday(slotProps.data.domain.expirydate)?'text-green-600':''">              
-              {{ slotProps.data.domain.expirydate }}
-            </span>
+            <div 
+              v-if="slotProps.data.domain" 
+              :class="[isToday(slotProps.data.domain.expirydate)?'text-green-600':'',slotProps.data.domain.status=='Expired'?'text-red-600':'']"
+            >
+              <span>{{ slotProps.data.domain.expirydate }}</span>
+            </div>
+            <div v-if="slotProps.data.hosting" class="text-xs" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
+              <span>Host : {{ slotProps.data.hosting.nextduedate }}</span>
+            </div>
           </template>
         </Column>
-        <Column field="domain.status" sortable header="Status Domain">
+        <Column field="project.tgl_masuk" sortable header="Tgl Perpanjang">
           <template #body="slotProps">
-            <Badge v-if="slotProps.data.domain" :severity="slotProps.data.domain.status === 'Active'?'success':slotProps.data.domain.status === 'Grace'?'warn':'contrast'">
-              {{ slotProps.data.domain.status }}
-            </Badge>
-          </template>
-        </Column>
-        <Column field="hosting.nextduedate" sortable header="Expiry Date Hosting">
-          <template #body="slotProps">
-            <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
-              {{ slotProps.data.hosting.nextduedate }}
+            <span @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
+            {{ slotProps.data.project.tgl_masuk }}
             </span>
           </template>
         </Column>
@@ -146,17 +145,24 @@
             </span>
           </template>
         </Column>
-        <Column field="webhost_available" sortable header="Webhost">
+        <Column field="webhost_available" sortable header="VDnet">
           <template #body="slotProps">
             <Badge :severity="slotProps.data.webhost_available?'success':'contrast'">
               {{ slotProps.data.webhost_available?'ada':'tidak' }}
             </Badge>
           </template>
         </Column>
-        <Column field="status" sortable header="Status">
+        <!-- <Column field="status" sortable header="Status">
           <template #body="slotProps">
             <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
               {{ slotProps.data.status?'Perpanjang':'Tidak' }}
+            </Badge>
+          </template>
+        </Column> -->
+        <Column field="domain.status" sortable header="Status Domain">
+          <template #body="slotProps">
+            <Badge v-if="slotProps.data.domain" :severity="slotProps.data.domain.status === 'Active'?'success':slotProps.data.domain.status === 'Grace'?'warn':'contrast'">
+              {{ slotProps.data.domain.status }}
             </Badge>
           </template>
         </Column>
