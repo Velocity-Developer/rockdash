@@ -1,26 +1,35 @@
 <template>
   <div class="space-y-2">
     
-    <div class="flex items-center justify-end gap-1">
-      <Button size="small">
-        <Icon name="lucide:plus" /> Tambah
-      </Button>
-      <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.per_page" :options="[25,50,100,500]" size="small"/>
-      <Button @click="refreshDataImproveChat()" size="small">
-        <Icon name="lucide:refresh-cw" :class="statusDataImproveChat=='pending'?'animate-spin':''"/> Refresh
-      </Button>
+    <div class="flex items-center justify-end md:justify-between gap-1">
+      <div class="flex items-center justify-end md:justify-start gap-1">
+        <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.per_page" :options="[25,50,100,500]" size="small"/>
+        <InputText placeholder="Search.." v-model="filters.search" size="small"/>
+      </div>
+      <div class="flex items-center justify-end gap-1">
+        <Button @click="openDialog('add',{})" size="small">
+          <Icon name="lucide:plus" /> Tambah
+        </Button>
+        <Button @click="refreshDataImproveChat()" size="small">
+          <Icon name="lucide:refresh-cw" :class="statusDataImproveChat=='pending'?'animate-spin':''"/> Refresh
+        </Button>
+      </div>
     </div>
     <Card>
       <template #content>
         <DataTable :value="dataImproveChat.data" :loading="statusDataImproveChat=='pending'" size="small" class="text-sm" stripedRows scrollHeight="70vh" scrollable>
           <Column header="#" headerStyle="width:3rem">
               <template #body="slotProps">
-                  {{ slotProps.index + dataImproveChat.from }}
+                  <span @click="openDialog('preview',slotProps.data)" class="cursor-pointer">
+                    {{ slotProps.index + dataImproveChat.from }}
+                  </span>
               </template>
           </Column>
           <Column field="kategori" header="Kategori">        
               <template #body="slotProps">
-                  {{ slotProps.data.kategori }}
+                  <span @click="openDialog('preview',slotProps.data)" class="cursor-pointer">
+                    {{ slotProps.data.kategori }}
+                  </span>
               </template>
           </Column>
           <Column field="nohp" header="No.HP">        
@@ -36,6 +45,18 @@
           <Column field="created_at" sortable header="Tanggal">        
             <template #body="slotProps">
                 {{ formatDate(slotProps.data.created_at,'DD/MM/YY HH:mm') }}
+            </template>
+          </Column>
+          <Column field="" header="Aksi">        
+            <template #body="slotProps">
+                <div class="flex justify-end items-center gap-1">
+                  <Button @click="openDialog('edit',slotProps.data)" size="small">
+                    <Icon name="lucide:pen" />
+                  </Button>
+                  <Button @click="confirmDelete(slotProps.data.id)" size="small" severity="danger">
+                    <Icon name="lucide:trash-2" />
+                  </Button>
+                </div>
             </template>
           </Column>
         </DataTable>
@@ -61,6 +82,67 @@
     </Card>
 
   </div>
+
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Data':actionDialog=='edit'?'Edit Data':'Detail Data'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <form v-if="actionDialog=='add' || actionDialog=='edit'" @submit.prevent="handleFormSubmit()" class="space-y-3">
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+        <div class="md:col-span-1">
+          <label>Kategori</label>
+        </div>
+        <div class="md:col-span-4">
+          <Select v-model="form.kategori" :options="dataImproveChat.kategori" class="w-full" placeholder="Pilih kategori tim" showClear/>
+          <Message v-if="errorsSubmit.kategori" severity="warn" class="mt-1">{{ errorsSubmit.kategori[0] }}</Message>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+        <div class="md:col-span-1">
+          <label>No HP</label>
+        </div>
+        <div class="md:col-span-4">
+          <InputText v-model="form.nohp" class="w-full" placeholder="08XX-XXXX-XXXX"/>
+          <Message v-if="errorsSubmit.nohp" severity="warn" class="mt-1">{{ errorsSubmit.nohp[0] }}</Message>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+        <div class="md:col-span-1">
+          <label>Masukkan</label>
+        </div>
+        <div class="md:col-span-4">
+          <Textarea v-model="form.masukkan" class="w-full" rows="10" placeholder="Isi Masukkan disini.."/>
+          <Message v-if="errorsSubmit.masukkan" severity="warn" class="mt-1">{{ errorsSubmit.masukkan[0] }}</Message>
+        </div>
+      </div>
+
+      <div class="text-end">
+        <Button type="submit">
+          <Icon name="lucide:save"/> Simpan
+        </Button>
+      </div>
+    </form>
+
+    <div v-else class="space-y-2">
+      <div>
+        Kategori : {{ dataDialog?.kategori }}
+      </div>
+      <div>
+        No. HP : {{ dataDialog?.nohp }}
+      </div>
+      <div>
+        Masukkan :
+        <div>
+          {{ dataDialog?.masukkan }}
+        </div>
+      </div>
+      <div class="text-sm mt-3">
+        Tanggal : {{ formatDate(dataDialog.created_at,'DD/MM/YYYY HH:mm') }}
+      </div>
+    </div>
+
+  </Dialog>
+
 </template>
 
 <script setup lang="ts">
@@ -98,4 +180,123 @@ const onPaginate = (event: { page: number }) => {
     updateRouteParams()
     refreshDataImproveChat()
 };
+
+const toast = useToast();
+const confirm = useConfirm();
+const confirmDelete = (id: any) => {    
+    confirm.require({
+        message: 'Anda yakin hapus data ini?',
+        header: 'Hapus Data',
+        accept: async () => {
+            toast.add({ severity: 'info', summary: 'Hapus data', detail: 'Mohon tunggu, sedang menghapus data...'});
+            try {              
+              await client(`/api/improve-chat/${id}`, {
+                  method: 'DELETE',
+              })
+              toast.removeAllGroups();
+              toast.add({
+                severity: 'success',
+                summary: 'Berhasil!',
+                detail: 'Data berhasil dihapus',
+                life: 3000
+              });
+              refreshDataImproveChat()
+            } catch (error) {
+                const er = useSanctumError(error)
+                toast.removeAllGroups();              
+                toast.add({
+                    severity: 'error',
+                    summary: 'Gagal!',
+                    detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+                    life: 3000
+                });
+            }
+        },
+        rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+        },
+        acceptProps: {
+            label: 'Hapus',
+            severity: 'danger',
+            outlined: false
+        },
+        reject: () => {
+            //callback to execute when user rejects to delete
+        }
+    });
+}
+
+
+const form = reactive({
+  id:'',
+  kategori:'',
+  nohp:'',
+  masukkan:'',
+})
+
+const visibleDialog = ref(false);
+const actionDialog = ref('add');
+const dataDialog = ref({} as any);
+const errorsSubmit = ref([] as any)
+const openDialog = async (action: string, data = {} as any) => {
+  errorsSubmit.value = []
+  visibleDialog.value = true;
+  actionDialog.value = action;
+  dataDialog.value = data;
+  if(actionDialog.value=='edit' || actionDialog.value=='preview'){
+    form.kategori = data?.kategori
+    form.nohp = data?.nohp
+    form.masukkan = data?.masukkan
+    form.id = data?.id
+  } else {    
+    form.kategori = 'CS'
+    form.nohp = '08'
+    form.masukkan = ''
+    form.id = ''
+  }
+}
+
+const handleFormSubmit = async () => { 
+  errorsSubmit.value = []
+
+  if(!form.kategori){
+    toast.add({ severity: 'error', summary: 'Lengkapi data !', detail: 'silahkan isi kategori',life: 3000});
+    return;
+  }
+  if(!form.masukkan){
+    toast.add({ severity: 'error', summary: 'Lengkapi data !', detail: 'silahkan isi masukkan',life: 3000});
+    return;
+  }
+
+  toast.add({ severity: 'secondary', summary: 'Submit data', detail: 'Mohon tunggu, sedang memproses data...'});
+  try {
+    await client(actionDialog.value =='add'?'/api/improve-chat':'/api/improve-chat/'+form.id,
+    {
+        method: actionDialog.value =='add'?'POST':'PUT',
+        body: form
+    }) 
+    visibleDialog.value = false;
+    toast.removeAllGroups();
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil!',
+      detail: 'Data berhasil'+actionDialog.value =='add'?'ditambahkan':'diperbarui',
+      life: 3000
+    });
+    refreshDataImproveChat()
+  } catch(error) {
+    const er = useSanctumError(error)
+    errorsSubmit.value = er.bag
+    toast.removeAllGroups();              
+    toast.add({
+        severity: 'error',
+        summary: 'Gagal!',
+        detail: er.msg ? er.msg : 'Terjadi kesalahan saat memproses data',
+        life: 3000
+    });
+  }
+}
+
 </script>
