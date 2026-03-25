@@ -4,7 +4,8 @@
     <div class="flex items-center justify-end md:justify-between gap-1">
       <div class="flex items-center justify-end md:justify-start gap-1">
         <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.per_page" :options="[25,50,100,500]" size="small"/>
-        <InputText placeholder="Search.." v-model="filters.search" size="small"/>
+        <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.kategori" :options="dataImproveChat.kategori" size="small" placeholder="Kategori tim" showClear/>
+        <InputText @change="refreshDataImproveChat();updateRouteParams()" placeholder="Search.." v-model="filters.q" size="small"/>
       </div>
       <div class="flex items-center justify-end gap-1">
         <Button @click="openDialog('add',{})" size="small">
@@ -158,7 +159,8 @@ const client = useSanctumClient();
 const filters = reactive({
     per_page: route.query.per_page?Number(route.query.per_page):Number(25),
     page: route.query.page || 1,
-    search: route.query.search || '',
+    kategori: route.query.kategori || '',
+    q: route.query.q || '',
 } as any);
 
 // Fungsi untuk mengubah params filters menjadi query URL route
