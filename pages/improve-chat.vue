@@ -60,6 +60,9 @@
                 </div>
             </template>
           </Column>
+          <template #empty>
+            <div class="flex justify-center items-center p-2">Tidak ada data ditemukan.</div>
+          </template>
         </DataTable>
         <div class="flex justify-between items-center text-xs mt-3">
             <div>
