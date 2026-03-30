@@ -4,7 +4,7 @@
     <div class="flex items-center justify-end md:justify-between gap-1">
       <div class="flex items-center justify-end md:justify-start gap-1">
         <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.per_page" :options="[25,50,100,500]" size="small"/>
-        <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.kategori" :options="dataImproveChat.kategori" size="small" placeholder="Kategori tim" showClear/>
+        <Select v-if="dataImproveChat?.kategori" @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.kategori" :options="dataImproveChat.kategori" size="small" placeholder="Kategori tim" showClear/>
         <InputText @change="refreshDataImproveChat();updateRouteParams()" placeholder="Search.." v-model="filters.q" size="small"/>
       </div>
       <div class="flex items-center justify-end gap-1">
@@ -29,7 +29,7 @@
           <Column field="kategori" header="Kategori">        
               <template #body="slotProps">
                   <span @click="openDialog('preview',slotProps.data)" class="cursor-pointer">
-                    {{ slotProps.data.kategori }}
+                    {{ slotProps.data?.kategori }}
                   </span>
               </template>
           </Column>
@@ -94,7 +94,7 @@
         <div class="md:col-span-1">
           <label>Kategori</label>
         </div>
-        <div class="md:col-span-4">
+        <div v-if="dataImproveChat?.kategori"  class="md:col-span-4">
           <Select v-model="form.kategori" :options="dataImproveChat.kategori" class="w-full" placeholder="Pilih kategori tim" showClear/>
           <Message v-if="errorsSubmit.kategori" severity="warn" class="mt-1">{{ errorsSubmit.kategori[0] }}</Message>
         </div>
