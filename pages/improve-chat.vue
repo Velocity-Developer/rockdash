@@ -8,7 +8,7 @@
         <InputText @change="refreshDataImproveChat();updateRouteParams()" placeholder="Search.." v-model="filters.q" size="small"/>
       </div>
       <div class="flex items-center justify-end gap-1">
-        <Button @click="openDialog('add',{})" size="small">
+        <Button @click="openDialog('add',{})" size="small" v-if="isPermissions('add-improve-chat')">
           <Icon name="lucide:plus" /> Tambah
         </Button>
         <Button @click="refreshDataImproveChat()" size="small">
@@ -48,7 +48,7 @@
                 {{ formatDate(slotProps.data.created_at,'DD/MM/YY HH:mm') }}
             </template>
           </Column>
-          <Column field="" header="Aksi">        
+          <Column field="" header="Aksi" v-if="isPermissions('add-improve-chat')">        
             <template #body="slotProps">
                 <div class="flex justify-end items-center gap-1">
                   <Button @click="openDialog('edit',slotProps.data)" size="small">
@@ -88,7 +88,7 @@
   </div>
 
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah Data':actionDialog=='edit'?'Edit Data':'Detail Data'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <form v-if="actionDialog=='add' || actionDialog=='edit'" @submit.prevent="handleFormSubmit()" class="space-y-3">
+    <form v-if="actionDialog=='add' && isPermissions('add-improve-chat') || actionDialog=='edit' && isPermissions('add-improve-chat')" @submit.prevent="handleFormSubmit()" class="space-y-3">
 
       <div class="grid grid-cols-1 md:grid-cols-5 gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
         <div class="md:col-span-1">
