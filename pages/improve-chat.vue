@@ -48,7 +48,7 @@
                 {{ formatDate(slotProps.data.created_at,'DD/MM/YY HH:mm') }}
             </template>
           </Column>
-          <Column field="" header="Aksi" v-if="isPermissions('add-improve-chat')">        
+          <Column field="" header="Aksi">        
             <template #body="slotProps">
                 <div class="flex justify-end items-center gap-1">
                   <Button @click="openDialog('edit',slotProps.data)" size="small">
@@ -291,14 +291,14 @@ const handleFormSubmit = async () => {
       life: 3000
     });
     refreshDataImproveChat()
-  } catch(error) {
+  } catch(error : any) {
     const er = useSanctumError(error)
     errorsSubmit.value = er.bag
     toast.removeAllGroups();              
     toast.add({
         severity: 'error',
         summary: 'Gagal!',
-        detail: er.msg ? er.msg : 'Terjadi kesalahan saat memproses data',
+        detail: error?.response?._data?.message,
         life: 3000
     });
   }
