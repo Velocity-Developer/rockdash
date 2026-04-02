@@ -29,7 +29,7 @@
           <Column field="kategori" header="Kategori">        
               <template #body="slotProps">
                   <span @click="openDialog('preview',slotProps.data)" class="cursor-pointer">
-                    {{ slotProps.data?.kategori }}
+                    {{ getNameKategori(slotProps.data?.kategori) || slotProps.data?.kategori  }}
                   </span>
               </template>
           </Column>
@@ -314,4 +314,13 @@ const handleFormSubmit = async () => {
   }
 }
 
+const kategoriMap = computed(() => {
+    return Object.fromEntries(
+        dataImproveChat.value?.kategori.map((k: any) => [k.value, k.label]) || []
+    )
+})
+
+function getNameKategori(value: string) {
+    return kategoriMap.value[value] || null
+}
 </script>
