@@ -4,7 +4,7 @@
     <div class="flex items-center justify-end md:justify-between gap-1">
       <div class="flex items-center justify-end md:justify-start gap-1">
         <Select @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.per_page" :options="[25,50,100,500]" size="small"/>
-        <Select v-if="dataImproveChat?.kategori" @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.kategori" :options="dataImproveChat.kategori" size="small" placeholder="Kategori tim" showClear/>
+        <Select v-if="dataImproveChat?.kategori" @change="refreshDataImproveChat();updateRouteParams()" v-model="filters.kategori" :options="dataImproveChat.kategori" optionLabel="label" optionValue="value" size="small" placeholder="Kategori tim" showClear/>
         <InputText @change="refreshDataImproveChat();updateRouteParams()" placeholder="Search.." v-model="filters.q" size="small"/>
       </div>
       <div class="flex items-center justify-end gap-1">
@@ -40,7 +40,7 @@
           </Column>
           <Column field="masukkan" header="Masukkan">        
               <template #body="slotProps">
-                  {{ slotProps.data.masukkan }}
+                  <span :title="purifyHtml(slotProps.data.masukkan)" v-html="purifyHtml(slotProps.data.masukkan)"></span>
               </template>
           </Column>
           <Column field="created_at" sortable header="Tanggal">        
@@ -95,7 +95,7 @@
           <label>Kategori</label>
         </div>
         <div v-if="dataImproveChat?.kategori"  class="md:col-span-4">
-          <Select v-model="form.kategori" :options="dataImproveChat.kategori" class="w-full" placeholder="Pilih kategori tim" showClear/>
+          <Select v-model="form.kategori" :options="dataImproveChat.kategori" optionLabel="label" optionValue="value" class="w-full" placeholder="Pilih kategori tim" showClear/>
           <Message v-if="errorsSubmit.kategori" severity="warn" class="mt-1">{{ errorsSubmit.kategori[0] }}</Message>
         </div>
       </div>
@@ -115,7 +115,15 @@
           <label>Masukkan</label>
         </div>
         <div class="md:col-span-4">
-          <Textarea v-model="form.masukkan" class="w-full" rows="10" placeholder="Isi Masukkan disini.."/>
+          <Editor v-model="form.masukkan" class="w-full" editorStyle="height: 320px">
+            <template v-slot:toolbar>
+                <span class="ql-formats">
+                    <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+                    <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+                    <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+                </span>
+            </template>
+          </Editor>
           <Message v-if="errorsSubmit.masukkan" severity="warn" class="mt-1">{{ errorsSubmit.masukkan[0] }}</Message>
         </div>
       </div>
@@ -127,21 +135,22 @@
       </div>
     </form>
 
-    <div v-else class="space-y-2">
+    <div v-else class="space-y-4">
       <div>
-        Kategori : {{ dataDialog?.kategori }}
+        <div class="text-sm">Kategori</div>
+        <div class="bg-gray-100 dark:bg-slate-800 block rounded px-4 py-3">{{ dataDialog?.kategori }}</div>
       </div>
       <div>
-        No. HP : {{ dataDialog?.nohp }}
+        <div class="text-sm">No. HP :</div>
+        <div class="bg-gray-100 dark:bg-slate-800 block rounded px-4 py-3">{{ dataDialog?.nohp }}</div>
       </div>
       <div>
-        Masukkan :
-        <div>
-          {{ dataDialog?.masukkan }}
-        </div>
+        <div class="text-sm">Masukkan :</div>
+        <div v-html="purifyHtml(dataDialog?.masukkan)" class="bg-gray-100 dark:bg-slate-800 block rounded px-4 py-4"></div>
       </div>
       <div class="text-sm mt-3">
-        Tanggal : {{ formatDate(dataDialog.created_at,'DD/MM/YYYY HH:mm') }}
+        <span><Icon name="lucide:calendar"/> : {{ formatDate(dataDialog.created_at,'DD/MM/YYYY HH:mm') }}</span>
+        <span class="ml-2"><Icon name="lucide:user"/> : {{ dataDialog?.user?.name }}</span>        
       </div>
     </div>
 
@@ -154,6 +163,7 @@ definePageMeta({
     title: 'Improve Chat',
     description: 'Daftar Improve Chat',
 })
+import('quill')
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute();
