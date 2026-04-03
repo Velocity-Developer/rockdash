@@ -281,12 +281,19 @@ const form = reactive({
 
 const selectedCustomer = ref({} as any);
 
+const isLikelyDomain = (value: string) => {
+  return /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(value);
+};
+
 const normalizeNamaWeb = (value: string) => {
   if (!value) return '';
-  return value
+  const normalizedValue = value
     .toLowerCase()
     .replace(/^https?:\/\//, '')
     .replace(/\/+$/, '');
+
+  const noSpaceValue = normalizedValue.replace(/\s+/g, '');
+  return isLikelyDomain(noSpaceValue) ? noSpaceValue : normalizedValue;
 };
 
 //get opsi jenis
