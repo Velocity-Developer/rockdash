@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-4">
     <form @submit.prevent="handleRefresh" class="flex flex-wrap justify-end items-end gap-2">
+      <ToggleButton v-model="filters.uppercase_only" class="flex" onLabel="Uppercase Domain" offLabel="Lowercase" size="small"/>
       <InputText
         v-model="filters.search"
         placeholder="Cari domain / email.."
@@ -115,6 +116,7 @@ const filters = reactive({
   search: typeof route.query.search === 'string' ? route.query.search : '',
   order_by: 'id',
   order: 'desc',
+  uppercase_only: false
 } as any)
 
 const { data, status, refresh } = await useAsyncData(
