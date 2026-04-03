@@ -58,17 +58,9 @@
               <div class="text-xs">Tidak Perpanjang</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total_tidak_perpanjang }}</div>
             </div>
-            <div class="border rounded py-2 px-4 w-[150px] border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950 hover:shadow-md">
+            <div class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
               <div class="text-xs">Total</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total }}</div>
-            </div>
-            <div class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
-              <div class="text-xs">Total Hosting</div>
-              <div class="text-end font-bold">{{ dataExpiredWHMCS.total_hosting }}</div>
-            </div>
-            <div class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
-              <div class="text-xs">Total Domain</div>
-              <div class="text-end font-bold">{{ dataExpiredWHMCS.total_domain }}</div>
             </div>
           </div>
         </div>
