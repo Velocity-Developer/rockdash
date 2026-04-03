@@ -19,7 +19,7 @@
     <div class="grid grid-cols-4 gap-4">
       <div class="col-span-4">
         <label class="mb-1 block" for="nama_web">Nama Web</label>
-        <InputText id="nama_web" name="nama_web" v-model="form.nama_web" class="w-full" />
+        <InputText id="nama_web" name="nama_web" v-model="form.nama_web" class="w-full" @input="form.nama_web = normalizeNamaWeb(form.nama_web)" />
         
         <div v-if="loadingSearchWebhost" class="mt-2 opacity-50">
           <Icon name="lucide:loader" class="animate-spin"/> mencari..
@@ -281,6 +281,14 @@ const form = reactive({
 
 const selectedCustomer = ref({} as any);
 
+const normalizeNamaWeb = (value: string) => {
+  if (!value) return '';
+  return value
+    .toLowerCase()
+    .replace(/^https?:\/\//, '')
+    .replace(/\/+$/, '');
+};
+
 //get opsi jenis
 const { data: dataOpsi} = await useAsyncData(
     'data_opsi-form-csmainproject',
@@ -297,7 +305,7 @@ onMounted( async () => {
       form.id = res.id;
       form.jenis = res.jenis;
       form.kategori_web = res.webhost.kategori;
-      form.nama_web = res.webhost.nama_web;
+      form.nama_web = normalizeNamaWeb(res.webhost.nama_web);
       form.paket = res.webhost.paket?.id_paket;
       form.deskripsi = res.deskripsi;
       form.trf = res.trf;
@@ -345,7 +353,7 @@ const handleSubmit = async () => {
 
   //hapus http:// dan https:// dari form.nama_web
   if (form.nama_web) {
-    form.nama_web = form.nama_web.replace(/^https?:\/\//, '');
+    form.nama_web = normalizeNamaWeb(form.nama_web);
   }
 
   try {
@@ -428,7 +436,11 @@ const loadingSearchWebhost = ref(false);
 watch(() => form.nama_web, async (val) => {
   //bersihkan dari http:// atau https://
   if (val) {
-    form.nama_web = val.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    const normalizedNamaWeb = normalizeNamaWeb(val);
+    if (normalizedNamaWeb !== val) {
+      form.nama_web = normalizedNamaWeb;
+      return;
+    }
   }
 
   //cari webhost berdasarkan nama dan karakter lebih dari 3
