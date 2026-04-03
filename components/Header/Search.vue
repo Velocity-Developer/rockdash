@@ -10,11 +10,11 @@
     </div>
   </form>
 
-  <div v-if="results && results.length > 0" class="mt-3">
+  <div v-if="results && results.length > 0" class="mt-3 space-y-1">
 
-    <div v-for="item in results" class="border-b group border-zinc-100 dark:border-zinc-700">
+    <div v-for="item in results" class="border-b group border-zinc-100 dark:border-zinc-700 hover:shadow-md rounded-md">
       <NuxtLink :to="'/webhost/'+item.id_webhost" @click="emit('openlink')">
-        <Button variant="text" severity="secondary" class="!text-zinc-700 dark:!text-zinc-100 w-full !justify-between">
+        <Button variant="text" severity="secondary" class="!text-zinc-700 dark:!text-zinc-100 hover:!text-teal-500 dark:hover:!text-teal-100 w-full !justify-between">
           {{ item.nama_web }}
           <Icon name="lucide:arrow-right" class="opacity-25 group-hover:opacity-100 group-hover:translate-x-2 duration-300 ease-in-out"/>
         </Button>
@@ -65,4 +65,5 @@ const handleSubmit = async () => {
 
   isLoading.value = false;
 }
+
 </script>

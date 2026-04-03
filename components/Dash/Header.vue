@@ -70,7 +70,7 @@
 
   </header>
 
-  <Dialog v-model:visible="visibleSearch" modal header="Pencarian" :style="{ width: '30rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleSearch" modal header="Pencarian" position="top" :dismissableMask="true" :style="{ width: '30rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
     <HeaderSearch @openlink="visibleSearch = false"/>
   </Dialog>
 
