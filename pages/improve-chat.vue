@@ -40,10 +40,18 @@
           </Column>
           <Column field="masukkan" header="Masukkan">        
               <template #body="slotProps">
-                  <span :title="purifyHtml(slotProps.data.masukkan)" v-html="purifyHtml(slotProps.data.masukkan)"></span>
+                  <div :title="purifyHtml(slotProps.data.masukkan)" v-html="purifyHtml(slotProps.data.masukkan)" v-tooltip.top="purifyHtml(slotProps.data.masukkan)"></div>
               </template>
           </Column>
-          <Column field="created_at" sortable header="Tanggal">        
+          <Column field="user_id" header="User" v-if="isPermissions('kelola-improve-chat')">        
+              <template #body="slotProps">
+                  <div v-if="slotProps.data.user_id" class="flex items-center gap-1" v-tooltip.top="slotProps.data.user?.name" >
+                    <Avatar :image="slotProps.data.user?.avatar_url" size="small" shape="circle" class="w-5 h-5"/>
+                    <div class="whitespace-nowrap w-20 overflow-hidden text-ellipsis">{{ slotProps.data.user?.name || slotProps.data.user_id }}</div>
+                  </div>
+              </template>
+          </Column>
+          <Column field="created_at" sortable header="Tanggal" class="whitespace-nowrap">        
             <template #body="slotProps">
                 {{ formatDate(slotProps.data.created_at,'DD/MM/YY HH:mm') }}
             </template>
@@ -148,9 +156,11 @@
         <div class="text-sm">Masukkan :</div>
         <div v-html="purifyHtml(dataDialog?.masukkan)" class="bg-gray-100 dark:bg-slate-800 block rounded px-4 py-4"></div>
       </div>
-      <div class="text-sm mt-3">
+      <div class="text-sm mt-3 flex items-center gap-3">
         <span><Icon name="lucide:calendar"/> : {{ formatDate(dataDialog.created_at,'DD/MM/YYYY HH:mm') }}</span>
-        <span class="ml-2"><Icon name="lucide:user"/> : {{ dataDialog?.user?.name }}</span>        
+        <span class="ml-2 flex items-center gap-1" v-if="dataDialog?.user">
+          <Avatar :image="dataDialog?.user?.avatar_url" size="small" shape="circle" class="w-5 h-5"/> {{ dataDialog?.user?.name }}
+        </span>        
       </div>
     </div>
 
