@@ -28,12 +28,12 @@
           </Column>
           <Column field="kategori" header="Kategori">        
               <template #body="slotProps">
-                  <span @click="openDialog('preview',slotProps.data)" class="cursor-pointer">
+                  <span @click="openDialog('preview',slotProps.data)" class="cursor-pointer whitespace-nowrap">
                     {{ getNameKategori(slotProps.data?.kategori) || slotProps.data?.kategori  }}
                   </span>
               </template>
           </Column>
-          <Column field="nohp" header="No.HP">        
+          <Column field="nohp" header="No.HP" class="whitespace-nowrap">        
               <template #body="slotProps">
                   {{ slotProps.data.nohp }}
               </template>
@@ -46,7 +46,7 @@
           <Column field="user_id" header="User" v-if="isPermissions('kelola-improve-chat')">        
               <template #body="slotProps">
                   <div v-if="slotProps.data.user_id" class="flex items-center gap-1" v-tooltip.top="slotProps.data.user?.name" >
-                    <Avatar :image="slotProps.data.user?.avatar_url" size="small" shape="circle" class="w-5 h-5"/>
+                    <Avatar :image="slotProps.data.user?.avatar_url" size="small" shape="circle" class="!w-5 !h-5"/>
                     <div class="whitespace-nowrap w-20 overflow-hidden text-ellipsis">{{ slotProps.data.user?.name || slotProps.data.user_id }}</div>
                   </div>
               </template>
@@ -154,12 +154,12 @@
       </div>
       <div>
         <div class="text-sm">Masukkan :</div>
-        <div v-html="purifyHtml(dataDialog?.masukkan)" class="bg-gray-100 dark:bg-slate-800 block rounded px-4 py-4"></div>
+        <div v-html="dataDialog?.masukkan" class="bg-gray-100 dark:bg-slate-800 block rounded px-4 py-4 overflow-x-auto"></div>
       </div>
       <div class="text-sm mt-3 flex items-center gap-3">
         <span><Icon name="lucide:calendar"/> : {{ formatDate(dataDialog.created_at,'DD/MM/YYYY HH:mm') }}</span>
         <span class="ml-2 flex items-center gap-1" v-if="dataDialog?.user">
-          <Avatar :image="dataDialog?.user?.avatar_url" size="small" shape="circle" class="w-5 h-5"/> {{ dataDialog?.user?.name }}
+          <Avatar :image="dataDialog?.user?.avatar_url" size="small" shape="circle" class="!w-5 !h-5"/> {{ dataDialog?.user?.name }}
         </span>        
       </div>
     </div>
