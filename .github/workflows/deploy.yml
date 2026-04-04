@@ -24,21 +24,14 @@ jobs:
         echo "API_URL=${{ secrets.NUXT_API_URL }}" > .env.production
 
     - name: Generate Nuxt App
-      run: npm run generate -- --dotenv .env.production
+      run: npm run build:prod
 
-    - name: Upload Build to FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public_html/
-        local-dir: .output/public/
-        exclude: |
-          **/.git*
-          **/node_modules/**
-          **/.github/**
-          **/.env.production
-          **/.htaccess
-          **/api/**
-        dangerous-clean-slate: false
+   # 🔥 upload langsung build.zip (tanpa zip ulang)
+    - name: Upload build.zip via FTP (FAST)
+      run: |
+          curl -T .output/build.zip ftp://${{ secrets.FTP_SERVER }}/public_html/ \
+          --user ${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}
+
+    # 🚀 trigger extract otomatis
+    - name: Extract on Server
+      run: curl https://${{ secrets.DOMAIN }}/extract.php
