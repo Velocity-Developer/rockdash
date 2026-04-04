@@ -12,7 +12,8 @@
     "postinstall": "nuxt prepare",
     "prod": "nuxt generate --dotenv .env.production",
     "build:local": "nuxt build --dotenv .env.production",
-    "build:prod": "nuxt generate --dotenv .env.production && node build-zip.js"
+    "build:prod": "nuxt generate --dotenv .env.production && node build-zip.js",
+    "upload:prod": "node upload-zip.js"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.11.4",
@@ -24,8 +25,10 @@
     "@primevue/nuxt-module": "^4.3.7",
     "@tailwindcss/typography": "^0.5.19",
     "@vite-pwa/nuxt": "^1.0.4",
+    "basic-ftp": "^5.2.0",
     "chart.js": "^4.5.0",
     "dayjs-nuxt": "^2.1.11",
+    "dotenv": "^17.4.0",
     "nuxt": "^4.0.3",
     "nuxt-auth-sanctum": "^1.1.2",
     "pinia": "^3.0.3",
