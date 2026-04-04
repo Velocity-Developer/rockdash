@@ -31,7 +31,7 @@
         <label for="status">Status</label>
       </div>
       <div class="md:flex-1">
-        <InputText id="status" v-model="form.status" class="w-full" :disabled="loadingData" />
+        <InputText id="status" v-model="form.status" class="w-full" :disabled="true" />
       </div>
     </div>
 
@@ -40,7 +40,7 @@
         <label for="type">Type</label>
       </div>
       <div class="md:flex-1">
-        <InputText id="type" v-model="form.type" class="w-full" :disabled="loadingData" />
+        <InputText id="type" v-model="form.type" class="w-full" :disabled="true" />
       </div>
     </div>
 
@@ -49,7 +49,7 @@
         <label for="registrar">Registrar</label>
       </div>
       <div class="md:flex-1">
-        <InputText id="registrar" v-model="form.registrar" class="w-full" :disabled="loadingData" />
+        <InputText id="registrar" v-model="form.registrar" class="w-full" :disabled="true" />
       </div>
     </div>
 
@@ -61,7 +61,7 @@
           v-model="form.registrationdate"
           type="date"
           class="w-full"
-          :disabled="loadingData"
+          :disabled="true"
         />
       </div>
       <div class="space-y-1">
@@ -71,7 +71,7 @@
           v-model="form.nextduedate"
           type="date"
           class="w-full"
-          :disabled="loadingData"
+          :disabled="true"
         />
       </div>
       <div class="space-y-1">
@@ -81,7 +81,7 @@
           v-model="form.expirydate"
           type="date"
           class="w-full"
-          :disabled="loadingData"
+          :disabled="true"
         />
       </div>
     </div>
