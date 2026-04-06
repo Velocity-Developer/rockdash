@@ -1,7 +1,11 @@
 <template>
   <div class="space-y-4">
 
-    <form @submit.prevent="handleRefresh" class="flex flex-wrap justify-end items-end gap-2">
+    <div class="flex flex-wrap justify-end items-end gap-2">
+      <Button v-if="selectedRows.length > 0" size="small" severity="warn">
+        <Icon name="lucide:refresh-cw" :class="status === 'pending' ? 'animate-spin' : ''" />
+        Sync Webhost
+      </Button>
       <ToggleButton 
         v-model="filters.uppercase_only" 
         class="flex" 
@@ -20,11 +24,17 @@
         size="small"
         @change="handleRefresh"
       />
-      <Button type="submit" size="small" severity="info">
+      <Select
+        v-model="filters.status"
+        :options="['Expired', 'Active', 'Grace']"
+        size="small" showClear
+        @change="handleRefresh"
+      />
+      <Button @click="handleRefresh" size="small" severity="info">
         <Icon name="lucide:refresh-cw" :class="status === 'pending' ? 'animate-spin' : ''" />
         Refresh
       </Button>
-    </form>
+    </div>
 
     <Card>
       <template #content>
@@ -36,7 +46,9 @@
           stripedRows
           scrollHeight="80vh"
           scrollable
+          v-model:selection="selectedRows"
         >
+          <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
           <Column header="#" headerStyle="width:4rem">
             <template #body="slotProps">
               {{ rowNumber(slotProps.index) }}
@@ -154,6 +166,7 @@ const filters = reactive({
   search: typeof route.query.search === 'string' ? route.query.search : '',
   order_by: 'id',
   order: 'desc',
+  status: 'desc',
   uppercase_only: false
 } as any)
 
@@ -235,4 +248,6 @@ const openWebhostSyncDialog = (data: any) => {
   visibleWebhostSync.value = true
   dataWebhostSync.value = data
 }
+
+const selectedRows = ref([]);
 </script>
