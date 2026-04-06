@@ -2,9 +2,16 @@
   <div class="space-y-4">
 
     <div class="flex flex-wrap justify-end items-end gap-2">
-      <Button v-if="selectedRows.length > 0" size="small" severity="warn">
-        <Icon name="lucide:refresh-cw" :class="status === 'pending' ? 'animate-spin' : ''" />
-        Sync Webhost
+      <Button
+        v-if="selectedRows.length > 0"
+        size="small"
+        severity="warn"
+        :loading="syncWebhostLoading"
+        :disabled="syncWebhostLoading"
+        @click="syncSelectedWebhost"
+      >
+        <Icon name="lucide:refresh-cw" :class="syncWebhostLoading ? 'animate-spin' : ''" />
+        {{ syncWebhostLoading ? `Sync Webhost ${syncWebhostProgress}/${syncWebhostTotal}` : 'Sync Webhost' }}
       </Button>
       <ToggleButton 
         v-model="filters.uppercase_only" 
@@ -158,6 +165,7 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const client = useSanctumClient()
+const toast = useToast()
 
 const page = ref(route.query.page ? Number(route.query.page) : 1)
 const filters = reactive({
@@ -250,4 +258,62 @@ const openWebhostSyncDialog = (data: any) => {
 }
 
 const selectedRows = ref([]);
+const syncWebhostLoading = ref(false)
+const syncWebhostProgress = ref(0)
+const syncWebhostTotal = ref(0)
+
+const syncSelectedWebhost = async () => {
+  if (syncWebhostLoading.value || selectedRows.value.length === 0) return
+
+  syncWebhostLoading.value = true
+  syncWebhostProgress.value = 0
+  syncWebhostTotal.value = selectedRows.value.length
+
+  let successCount = 0
+  let skippedCount = 0
+  let failedCount = 0
+
+  try {
+    for (const row of selectedRows.value as any[]) {
+      syncWebhostProgress.value += 1
+
+      if (row.webhost_data || row.webhost_id) {
+        skippedCount += 1
+        continue
+      }
+
+      try {
+        const response = await client('/api/whmcs-domain-webhost-search', {
+          method: 'POST',
+          body: {
+            id: row.id,
+            domain: row.domain,
+            email: row.user_email,
+          },
+        }) as any
+
+        if (response?.auto_assigned) {
+          successCount += 1
+        }
+      } catch (error) {
+        failedCount += 1
+        console.log(error)
+      }
+    }
+
+    await refresh()
+    selectedRows.value = []
+
+    toast.add({
+      severity: failedCount > 0 ? 'warn' : 'success',
+      summary: 'Sync Webhost selesai',
+      detail: `${successCount} berhasil, ${skippedCount} dilewati, ${failedCount} gagal`,
+      life: 4000,
+    })
+  } finally {
+    syncWebhostLoading.value = false
+    syncWebhostProgress.value = 0
+    syncWebhostTotal.value = 0
+  }
+}
 </script>
