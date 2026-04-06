@@ -324,7 +324,7 @@ const getData = async () => {
   updateRouteParams()
 
   try {
-    const response = await client('/api/laporan/siklus_layanan',{
+    const response = await client('/api/laporan/klien_perpanjang',{
       params: {
         bulan: filter.bulan ?dayjs(filter.bulan).format('YYYY-MM'):null,
       },
@@ -467,8 +467,8 @@ const theBulan = computed(() => {
 });
 
 const { data: dataExpiredWHMCS, status: statusDataExpiredWHMCS, refresh: refreshDataExpiredWHMCS} = await useAsyncData(
-    'siklus_layanan_expired_whmcs-'+theBulan,
-    () => client('/api/laporan/siklus_layanan_expired_whmcs',{
+    'klien_perpanjang_expired_whmcs-'+theBulan,
+    () => client('/api/laporan/klien_perpanjang_expired_whmcs',{
       params: {
         month: theBulan.value
       }
