@@ -1,5 +1,6 @@
 <template>
   <div class="space-y-4">
+
     <form @submit.prevent="handleRefresh" class="flex flex-wrap justify-end items-end gap-2">
       <ToggleButton 
         v-model="filters.uppercase_only" 
@@ -77,6 +78,16 @@
               {{ formatDate(slotProps.data.expirydate) }}
             </template>
           </Column>
+          <Column field="webhost_data" header="Webhost Data">
+            <template #body="slotProps">              
+              <Button v-if="!slotProps.data.webhost_data" @click="openWebhostSyncDialog(slotProps.data)" size="small" severity="warn">
+                <Icon name="lucide:globe" /> Sync
+              </Button>
+              <Badge v-else>
+                <Icon name="lucide:check-circle" />
+              </Badge>
+            </template>
+          </Column>
 
           <Column field="act" header="">
             <template #body="slotProps">
@@ -117,6 +128,11 @@
 
   <Dialog v-model:visible="visibleDialog" modal :header="dialogData.domain || '-' " :dismissableMask="true" :style="{ width: '60rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
     <WhmcsDomainForm :id="dialogData.id" @submit="refresh();visibleDialog = false"/>
+  </Dialog>
+
+  
+  <Dialog v-model:visible="visibleWebhostSync" modal header="Sync Webhost" :dismissableMask="true" :style="{ width: '80rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
+    <WhmcsDomainWebhostSync :data="dataWebhostSync" @update="refresh()"/>
   </Dialog>
 
 </template>
@@ -211,5 +227,12 @@ const dialogData = ref<any>({})
 const openDialog = (data: any) => {
   visibleDialog.value = true
   dialogData.value = data
+}
+
+const visibleWebhostSync = ref(false);
+const dataWebhostSync = ref<any>({})
+const openWebhostSyncDialog = (data: any) => {
+  visibleWebhostSync.value = true
+  dataWebhostSync.value = data
 }
 </script>
