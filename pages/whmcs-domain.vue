@@ -1,47 +1,58 @@
 <template>
   <div class="space-y-4">
 
-    <div class="flex flex-wrap justify-end items-end gap-2">
-      <Button
-        v-if="selectedRows.length > 0"
-        size="small"
-        severity="warn"
-        :loading="syncWebhostLoading"
-        :disabled="syncWebhostLoading"
-        @click="syncSelectedWebhost"
-      >
-        <Icon name="lucide:refresh-cw" :class="syncWebhostLoading ? 'animate-spin' : ''" />
-        {{ syncWebhostLoading ? `Sync Webhost ${syncWebhostProgress}/${syncWebhostTotal}` : 'Sync Webhost' }}
-      </Button>
-      <ToggleButton 
-        v-model="filters.uppercase_only" 
-        class="flex" 
-        onLabel="Uppercase Domain" offLabel="Lowercase" 
-        size="small"
-        @change="handleRefresh"
-      />
-      <InputText
-        v-model="filters.search"
-        placeholder="Cari domain / email.."
-        size="small"
-      />
-      <Select
-        v-model="filters.per_page"
-        :options="[20, 50, 100]"
-        size="small"
-        @change="handleRefresh"
-      />
-      <Select
-        v-model="filters.status"
-        :options="['Expired', 'Active', 'Grace']"
-        size="small" showClear
-        @change="handleRefresh"
-      />
-      <Button @click="handleRefresh" size="small" severity="info">
-        <Icon name="lucide:refresh-cw" :class="status === 'pending' ? 'animate-spin' : ''" />
-        Refresh
-      </Button>
-    </div>
+    <Card>
+      <template #content>
+        <div class="flex flex-wrap justify-end items-end gap-2">
+          <Button
+            v-if="selectedRows.length > 0"
+            size="small"
+            severity="warn"
+            :loading="syncWebhostLoading"
+            :disabled="syncWebhostLoading"
+            @click="syncSelectedWebhost"
+          >
+            <Icon name="lucide:refresh-cw" :class="syncWebhostLoading ? 'animate-spin' : ''" />
+            {{ syncWebhostLoading ? `Sync Webhost ${syncWebhostProgress}/${syncWebhostTotal}` : 'Sync Webhost' }}
+          </Button>
+          <ToggleButton 
+            v-model="filters.uppercase_only" 
+            class="flex" 
+            onLabel="Uppercase Domain" offLabel="Lowercase" 
+            size="small"
+            @change="handleRefresh"
+          />
+          <ToggleButton 
+            v-model="filters.webhost_disable" 
+            class="flex" 
+            onLabel="Webhost Disable" offLabel="All" 
+            size="small"
+            @change="handleRefresh"
+          />
+          <InputText
+            v-model="filters.search"
+            placeholder="Cari domain / email.."
+            size="small"
+          />
+          <Select
+            v-model="filters.per_page"
+            :options="[20, 50, 100]"
+            size="small"
+            @change="handleRefresh"
+          />
+          <Select
+            v-model="filters.status"
+            :options="['Expired', 'Active', 'Grace']"
+            size="small" showClear
+            @change="handleRefresh"
+          />
+          <Button @click="handleRefresh" size="small" severity="info">
+            <Icon name="lucide:refresh-cw" :class="status === 'pending' ? 'animate-spin' : ''" />
+            Refresh
+          </Button>
+        </div>
+      </template>
+    </Card>
 
     <Card>
       <template #content>
@@ -175,7 +186,8 @@ const filters = reactive({
   order_by: 'id',
   order: 'desc',
   status: '',
-  uppercase_only: false
+  uppercase_only: false,
+  webhost_disable: false
 } as any)
 
 const { data, status, refresh } = await useAsyncData(
