@@ -166,7 +166,7 @@ const filters = reactive({
   search: typeof route.query.search === 'string' ? route.query.search : '',
   order_by: 'id',
   order: 'desc',
-  status: 'desc',
+  status: '',
   uppercase_only: false
 } as any)
 
