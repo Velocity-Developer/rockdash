@@ -9,6 +9,10 @@
         <Icon name="lucide:check-check" size="3rem" class="text-teal-500"/> <span>Domain berhasil sync dengan webhost</span>
     </div>
 
+    <div v-if="dataSearch && dataSearch.whmcs_domain && !dataSearch.auto_assigned" class="card flex justify-center items-center gap-5 mb-5">
+        <Icon name="lucide:x" size="3rem" class="text-red-500"/> <span>Webhost tidak ditemukan untuk domain ini</span>
+    </div>
+
     <div v-if="dataSearch && dataSearch.data && dataSearch.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
       <div v-for="item,i in labelWebhost" :key="i" class="space-y-1">
         <div>{{ item.label }}</div>

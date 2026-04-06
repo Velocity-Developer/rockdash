@@ -36,7 +36,7 @@
           />
           <Select
             v-model="filters.per_page"
-            :options="[20, 50, 100]"
+            :options="[20, 50, 100, 500]"
             size="small"
             @change="handleRefresh"
           />
@@ -75,9 +75,9 @@
 
           <Column field="domain" header="Domain" headerStyle="min-width:16rem">
             <template #body="slotProps">
-              <div class="font-medium">
+              <span role="button" aria-label="Buka preview" @click="openDialogPreview(slotProps.data)" class="font-medium">
                 {{ slotProps.data.domain || '-' }}
-              </div>
+              </span>
             </template>
           </Column>
 
@@ -159,7 +159,10 @@
   <Dialog v-model:visible="visibleDialog" modal :header="dialogData.domain || '-' " :dismissableMask="true" :style="{ width: '60rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
     <WhmcsDomainForm :id="dialogData.id" @submit="refresh();visibleDialog = false"/>
   </Dialog>
-
+  
+  <Dialog v-model:visible="visibleDialogPreview" modal :header="dialogDataPreview.domain || '-' " :dismissableMask="true" :style="{ width: '60rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
+    <WhmcsDomainPreview :id="dialogDataPreview.id" @submit="refresh();visibleDialogPreview = false"/>
+  </Dialog>
   
   <Dialog v-model:visible="visibleWebhostSync" modal header="Sync Webhost" :dismissableMask="true" :style="{ width: '80rem' }" :breakpoints="{ '1000px': '75vw', '575px': '90vw' }">
     <WhmcsDomainWebhostSync :data="dataWebhostSync" @update="refresh()"/>
@@ -327,5 +330,12 @@ const syncSelectedWebhost = async () => {
     syncWebhostProgress.value = 0
     syncWebhostTotal.value = 0
   }
+}
+
+const visibleDialogPreview = ref(false);
+const dialogDataPreview = ref<any>({})
+const openDialogPreview = (data: any) => {
+  visibleDialogPreview.value = true
+  dialogDataPreview.value = data
 }
 </script>
