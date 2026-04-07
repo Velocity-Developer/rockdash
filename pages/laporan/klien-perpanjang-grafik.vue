@@ -59,12 +59,15 @@
       </Card>
 
 
-      <div class="col-span-12 mt-10 font-bold text-lg">
-        Rincian bulanan
+      <div class="col-span-12 mt-10 flex justify-between">        
+        <span class="font-bold text-lg">
+          Rincian bulanan
+        </span>
+        <ToggleButton v-model="viewRincianBulananTable" class="w-24" onLabel="Table" offLabel="Card" size="small"/>
       </div>
       
 
-      <Card v-if="!loading" v-for="item in data.data" :key="item.month" class="col-span-12 md:col-span-6 xl:col-span-4">
+      <Card v-if="!loading && !viewRincianBulananTable" v-for="item in data.data" :key="item.month" class="col-span-12 md:col-span-6 xl:col-span-4">
         <template #header>
           <div class="flex justify-between items-center px-6 pt-4 text-sky-600 dark:text-sky-100">
             <span>{{ item.month+' '+item.year || '-' }}</span>
@@ -75,7 +78,7 @@
             <tbody>
               <tr v-for="(value, key) in item.rincian" :key="key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
                 <td class="px-3 py-1 border-t dark:border-slate-700">{{ key }}</td>
-                <td class="px-3 py-1 border-t dark:border-slate-700">{{ formatMoney(value,'false',0) }}</td>
+                <td class="px-3 py-1 border-t dark:border-slate-700 text-right">{{ formatMoney(value,'false',0) }}</td>
               </tr>
             </tbody>
           </table>
@@ -85,6 +88,35 @@
       <div v-if="loading" v-for="item in 12" class="col-span-12 md:col-span-6 xl:col-span-4">
         <Skeleton width="100%" height="15rem"></Skeleton>
       </div>
+
+      <Card class="col-span-12">
+        <template #content>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead v-if="data.data">
+                <tr class="whitespace-nowrap font-normal">
+                  <th class="px-3 py-2 border-b dark:border-slate-700">
+                    Bulan
+                  </th>
+                  <th v-for="(label,key) in data.data[0].rincian" :key="key" class="px-3 py-2 border-b dark:border-slate-700">
+                    {{ key }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in data.data" :key="item.month" class="odd:bg-gray-50 dark:odd:bg-slate-900">
+                  <td class="px-3 py-2 border-b dark:border-slate-700">
+                    {{ item.month+' '+item.year || '-' }} 
+                  </td>
+                  <td v-for="(value, key) in item.rincian" :key="key" class="px-3 py-2 border-b dark:border-slate-700 text-right">
+                    {{ formatMoney(value,'false',0) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </Card>
 
     </div>
     
@@ -102,6 +134,7 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute();
 const router = useRouter()
+const viewRincianBulananTable = ref(false)
 
 const filters = reactive({
     tahun: route.query.tahun
@@ -181,9 +214,29 @@ const setChartOptions = () =>  {
         maintainAspectRatio: false,
         aspectRatio: 0.8,
         plugins: {
-            tooltips: {
+            tooltip: {
                 mode: 'index',
-                intersect: false
+                intersect: false,
+                callbacks: {
+                    label: (context: any) => {
+                        if (context.datasetIndex !== 0) {
+                            return '';
+                        }
+
+                        const item = data.value.data?.[context.dataIndex];
+
+                        if (!item) {
+                            return '';
+                        }
+
+                        return [
+                            `Total: ${formatMoney(item.total || 0, 'false', 0)}`,
+                            `Perpanjang: ${formatMoney(item.perpanjang || 0, 'false', 0)}`,
+                            `Tidak Perpanjang: ${formatMoney(item.tidak_perpanjang || 0, 'false', 0)}`,
+                            `Ratio Perpanjang: ${item.ratio || '-'}`
+                        ];
+                    }
+                }
             },
             legend: {
                 labels: {
