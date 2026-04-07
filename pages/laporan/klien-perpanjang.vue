@@ -11,6 +11,14 @@
         <Icon v-else name="lucide:search"/>
       </Button>
     </div>
+
+    <div>
+      <Button size="small" severity="contrast" asChild v-slot="slotProps">
+        <RouterLink to="/laporan/klien-perpanjang-grafik" :class="slotProps.class">
+          <Icon name="lucide:chart-line" size="0.75rem" /> Grafik
+        </RouterLink>
+      </Button>
+    </div>
   </div>
   
   <Card>
