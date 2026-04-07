@@ -89,7 +89,7 @@
         <Skeleton width="100%" height="15rem"></Skeleton>
       </div>
 
-      <Card class="col-span-12">
+      <Card v-if="!loading && viewRincianBulananTable" class="col-span-12">
         <template #content>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
