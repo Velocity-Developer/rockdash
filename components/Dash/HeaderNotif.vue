@@ -52,8 +52,11 @@
 
   </div>
  
-  <Dialog v-model:visible="visibleErrorDialog" modal header="Oops !" :style="{ width: '50vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <img src="/undraw_connection_lost_am29.webp" alt="Connection Lost" class="max-w-[300px] mx-auto my-5" :ssr="true"/>
+  <Dialog v-model:visible="visibleErrorDialog" modal header="Oops !" :style="{ width: '40vw' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+
+    <div class="text-center animate-pulse">
+      <svg class="mx-auto" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="#000000"><path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 3l18 18M14.828 9.172A4 4 0 0 1 16 12m1.657-5.657a8 8 0 0 1 1.635 8.952m-10.124-.467a4 4 0 0 1 0-5.656m-2.831 8.485a8 8 0 0 1 0-11.314"/></svg>
+    </div>
     <div class="text-xl font-bold"> Gagal menyambung ke server !.</div>
     <div class="bg-amber-50 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 p-3 text-left rounded-md mt-4">
       <ul class="list-decimal pl-4">
