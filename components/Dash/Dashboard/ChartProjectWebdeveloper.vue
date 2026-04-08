@@ -64,6 +64,8 @@ const setChartData = () => {
 const setChartOptions = () => {
   const documentStyle = getComputedStyle(document.documentElement);
   const textColor = documentStyle.getPropertyValue('--p-text-color');
+  const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+  const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
 
   return {
     maintainAspectRatio: false,
@@ -80,6 +82,26 @@ const setChartOptions = () => {
       colors: {
         enabled: true
       }
+    },
+    scales: {
+        x: {
+            stacked: true,
+            ticks: {
+                color: textColorSecondary
+            },
+            grid: {
+                color: surfaceBorder
+            }
+        },
+        y: {
+            stacked: true,
+            ticks: {
+                color: textColorSecondary
+            },
+            grid: {
+                color: surfaceBorder
+            }
+        }
     }
   }
 }
