@@ -2,76 +2,29 @@
 
   <template v-if="data && data.nama_web">
 
-    <div v-if="data.nama_web" class="text-lg md:text-xl font-bold bg-primary-500 dark:bg-primary-900 text-white p-4 md:px-6 break-all rounded-xl mb-4">
-      {{ data.nama_web }}
-    </div>
+    <div class="grid grid-cols-12 gap-4 md:gap-6 mb-5">
 
-    <div class="overflow-x-auto mb-8">
-      <div class="flex gap-4 items-center">
-        
-        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none bg-yellow-50 dark:bg-zinc-700 border border-zinc-100 dark:border-zinc-800">
-          <template #content>
-            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-              <Icon name="lucide:briefcase"/> Total Projects
-            </div>
-            <div class="text-end font-bold">
-              {{ totalProjects }}
-            </div>
-          </template>
-        </Card>
+      <Card class="col-span-12 md:col-span-7 xl:col-span-9">
+        <template #content>
 
-        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
-          <template #content>
-            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-              <Icon name="lucide:wallet"/> Total Biaya
+          <div class="flex justify-start items-center gap-3 md:mb-10">
+            <div>
+              <span class="p-3 flex justify-center items-center rounded-lg bg-primary-100 dark:bg-primary-800 text-primary-700 dark:text-primary-200">
+                <Icon name="lucide:globe" class="text-2xl"/>
+              </span>
             </div>
-            <div class="text-end font-bold">
-              {{ formatMoney(totalBiaya) }}
+            <div>
+              <div class="text-lg xl:text-2xl font-bold text-primary-700 dark:text-primary-200">{{ data.nama_web }}</div>
             </div>
-          </template>
-        </Card>
+          </div>
 
-        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
-          <template #content>
-            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-              <Icon name="lucide:mail"/> Email
-            </div>
-            <div class="text-end font-bold">
-              {{ data.email }}
-            </div>
-          </template>
-        </Card>
 
-        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
-          <template #content>
-            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-              <Icon name="lucide:message-circle"/> WhatsApp
-            </div>
-            <div class="text-end font-bold">
-              {{ data.wa }}
-            </div>
-          </template>
-        </Card>
-      </div>
-    </div>
-    
-    <div class="flex flex-col md:flex-row gap-4">
-
-      <div class="md:basis-[30rem]">
-        <Card class="border border-zinc-100 dark:border-zinc-800">
-          <template #title>
-            <div class="flex items-center gap-2">
-              <Icon name="lucide:info" />
-              Informasi
-            </div>
-          </template>
-          <template #content>
-
-            <div v-for="item in fields_info" class="mb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mt-4">            
+            <div v-for="item in fields_info">
               <div class="mb-1 text-sm opacity-70">
                 {{ item.label }}
               </div>
-              <div class="py-2 px-4 rounded-lg bg-zinc-100 dark:bg-zinc-700 min-h-[2rem]">
+              <div class="py-2 px-4 rounded-lg bg-zinc-100 dark:bg-zinc-700 min-h-[3rem] break-words">
                 <template v-if="item.value">
                   {{ item.value }}
                 </template>
@@ -80,17 +33,66 @@
                 </template>
               </div>
             </div>
-            <div class="text-end">
+            <div class="text-end md:pt-5">
               <Button @click="openDialog('edit',data)" severity="info" size="small">
                 <Icon name="lucide:pencil" /> <span class="hidden md:inline-block">edit</span>
               </Button>
             </div>
+          </div>
+
+        </template>
+      </Card>
+
+      <div class="col-span-12 md:col-span-5 xl:col-span-3">
+
+        <Card class="bg-primary-600 dark:bg-primary-800 text-white">
+          <template #title>
+            <div class="flex items-center gap-2 text-sm text-yellow-400">
+              <Icon name="lucide:briefcase"/>
+              Projects
+            </div>
+          </template>
+          <template #content>
+            <div>
+              <div class="text-sm">Total Projects</div>
+              <div class="text-xl xl:text-2xl font-bold">{{ totalProjects }}</div>
+            </div>
+
+            <div class="text-sm mt-2">
+              <div>Total Biaya</div>
+              <div class="text-xl xl:text-2xl font-bold">{{ formatMoney(totalBiaya) }}</div>
+            </div>
           </template>
         </Card>
+        <Card v-if="data.whmcs_domain" class="mt-5">
+          <template #title>
+            <div class="flex items-center gap-2 text-sm text-blue-500">
+              <Icon name="lucide:database"/>
+              WHMCS Domain
+            </div>
+          </template>
+          <template #content>
+            <div>
+              <div class="text-sm">Expiry Date</div>
+              <div class="font-bold">{{ data.whmcs_domain.expirydate }}</div>
+            </div>
+
+            <div class="text-sm mt-2">
+              <div>Registration Date</div>
+              <div class="font-bold">{{ data.whmcs_domain.registrationdate }}</div>
+            </div>
+
+            <div class="text-sm mt-2">
+              <div>Status</div>
+              <div class="font-bold">{{ data.whmcs_domain.status }}</div>
+            </div>
+          </template>
+        </Card>
+
       </div>
 
-      <div class="md:flex-1">     
-        <Card class="border border-zinc-100 dark:border-zinc-800">
+      
+      <Card class="col-span-12">
           <template #title>
             <div class="flex items-center gap-2">
               <Icon name="lucide:briefcase" />
@@ -129,21 +131,21 @@
 
           </template>
         </Card>
-      </div>
 
+        <Card v-if="data?.cs_main_projects?.length" class="col-span-12">
+          <template #title>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:chart-no-axes-combined" />
+              Grafik Projects
+            </div>
+          </template>
+          <template #content>
+            <WebhostChartProjects :data="data.cs_main_projects"/>
+          </template>
+        </Card>
+      
     </div>
-
-    <Card v-if="data?.cs_main_projects?.length" class="border border-zinc-100 dark:border-zinc-800 mt-6">
-      <template #title>
-        <div class="flex items-center gap-2">
-          <Icon name="lucide:chart-no-axes-combined" />
-          Grafik Projects
-        </div>
-      </template>
-      <template #content>
-        <WebhostChartProjects :data="data.cs_main_projects"/>
-      </template>
-    </Card>
+    
 
   </template>
 
@@ -175,7 +177,11 @@ const client = useSanctumClient();
 
 const { data, status, error, refresh } = await useAsyncData(
     'webhost-'+id,
-    () => client('/api/webhost/'+id)
+    () => client('/api/webhost/'+id,{
+      params: {
+        with: 'paket,csMainProjects,csMainProjects.wm_project,csMainProjects.wm_project.user,customers,whmcs_domain'
+      }
+    })
 ) as any
 
 const fields_info = [
