@@ -43,7 +43,7 @@ const getUserCategoryTotal = (categoryId: number, userId: number) => {
       Number(i.user_id) === Number(userId)
   );
 
-  return item ? item.total ?? 0 : 0;
+  return item ? Number(item.total) || 0 : 0;
 };
 
 const getRowTotal = (categoryId: number) => {
@@ -71,7 +71,7 @@ const getGrandTotal = () => {
   if (!analytics || !analytics.by_category_user) return 0;
 
   return analytics.by_category_user.reduce(
-    (sum: number, i: any) => sum + (i.total ?? 0),
+    (sum: number, i: any) => sum + Number(Number(i.total) || 0),
     0
   );
 };
