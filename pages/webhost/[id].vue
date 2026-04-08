@@ -1,147 +1,162 @@
 <template>
 
-  <div class="text-lg md:text-xl font-bold bg-primary-500 dark:bg-primary-900 text-white p-4 md:px-6 break-all rounded-xl mb-4">
-    {{ data.nama_web }}
-  </div>
+  <template v-if="data && data.nama_web">
 
-  <div class="overflow-x-auto mb-8">
-    <div class="flex gap-4 items-center">
-      
-      <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none bg-yellow-50 dark:bg-zinc-700 border border-zinc-100 dark:border-zinc-800">
-        <template #content>
-          <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-            <Icon name="lucide:briefcase"/> Total Projects
-          </div>
-          <div class="text-end font-bold">
-            {{ totalProjects }}
-          </div>
-        </template>
-      </Card>
-
-      <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
-        <template #content>
-          <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-            <Icon name="lucide:wallet"/> Total Biaya
-          </div>
-          <div class="text-end font-bold">
-            {{ formatMoney(totalBiaya) }}
-          </div>
-        </template>
-      </Card>
-
-      <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
-        <template #content>
-          <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-            <Icon name="lucide:mail"/> Email
-          </div>
-          <div class="text-end font-bold">
-            {{ data.email }}
-          </div>
-        </template>
-      </Card>
-
-      <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
-        <template #content>
-          <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
-            <Icon name="lucide:message-circle"/> WhatsApp
-          </div>
-          <div class="text-end font-bold">
-            {{ data.wa }}
-          </div>
-        </template>
-      </Card>
+    <div v-if="data.nama_web" class="text-lg md:text-xl font-bold bg-primary-500 dark:bg-primary-900 text-white p-4 md:px-6 break-all rounded-xl mb-4">
+      {{ data.nama_web }}
     </div>
-</div>
-  
-  <div class="flex flex-col md:flex-row gap-4">
 
-    <div class="md:basis-[30rem]">
-      <Card class="border border-zinc-100 dark:border-zinc-800">
-        <template #title>
-          <div class="flex items-center gap-2">
-            <Icon name="lucide:info" />
-            Informasi
-          </div>
-        </template>
-        <template #content>
-
-          <div v-for="item in fields_info" class="mb-3">
-            <div class="mb-1 text-sm opacity-70">
-              {{ item.label }}
+    <div class="overflow-x-auto mb-8">
+      <div class="flex gap-4 items-center">
+        
+        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none bg-yellow-50 dark:bg-zinc-700 border border-zinc-100 dark:border-zinc-800">
+          <template #content>
+            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
+              <Icon name="lucide:briefcase"/> Total Projects
             </div>
-            <div class="py-2 px-4 rounded-lg bg-zinc-100 dark:bg-zinc-700 min-h-[2rem]">
-              <template v-if="item.value">
-                {{ item.value }}
-              </template>
-              <template v-else>
-                {{ data[item.key] }}
-              </template>
+            <div class="text-end font-bold">
+              {{ totalProjects }}
             </div>
-          </div>
-          <div class="text-end">
-            <Button @click="openDialog('edit',data)" severity="info" size="small">
-              <Icon name="lucide:pencil" /> <span class="hidden md:inline-block">edit</span>
-            </Button>
-          </div>
-        </template>
-      </Card>
-    </div>
+          </template>
+        </Card>
 
-    <div class="md:flex-1">     
-      <Card class="border border-zinc-100 dark:border-zinc-800">
-        <template #title>
-          <div class="flex items-center gap-2">
-            <Icon name="lucide:briefcase" />
-            Projects
-          </div>
-        </template>
-        <template #content>
+        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
+          <template #content>
+            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
+              <Icon name="lucide:wallet"/> Total Biaya
+            </div>
+            <div class="text-end font-bold">
+              {{ formatMoney(totalBiaya) }}
+            </div>
+          </template>
+        </Card>
 
-          <div v-if="data.cs_main_projects">
-            <DataTable :value="data.cs_main_projects" scrollable scrollHeight="42rem" size="small" class="text-xs" stripedRows>
-              <Column field="jenis" header="Jenis"></Column>
-              <Column field="tgl_masuk" header="Mulai Tanggal"></Column>
-              <Column field="status" header="Status">
-                <template #body="slotProps">
-                  <Badge v-if="slotProps.data.status == 'selesai'" severity="success" :value="slotProps.data.status"></Badge>
-                  <Badge v-else severity="secondary" :value="slotProps.data.status"></Badge>
-                </template>
-              </Column>
-              <Column field="biaya" header="Biaya">
-                <template #body="slotProps">
-                    {{ formatMoney(slotProps.data.biaya) }}
-                </template>
-              </Column>
-              <Column field="dibayar" header="dibayar">
-                <template #body="slotProps">
-                    {{ formatMoney(slotProps.data.dibayar) }}
-                </template>
-              </Column>
-              <Column field="webmaster" header="Webmaster">
-                <template #body="slotProps">
-                    {{ slotProps.data.wm_project?.user?.name }}
-                </template>
-              </Column>
-            </DataTable>
-          </div>
+        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
+          <template #content>
+            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
+              <Icon name="lucide:mail"/> Email
+            </div>
+            <div class="text-end font-bold">
+              {{ data.email }}
+            </div>
+          </template>
+        </Card>
 
-        </template>
-      </Card>
-    </div>
-
-  </div>
-
-  <Card class="border border-zinc-100 dark:border-zinc-800 mt-6">
-    <template #title>
-      <div class="flex items-center gap-2">
-        <Icon name="lucide:chart-no-axes-combined" />
-        Grafik Projects
+        <Card class="w-[20rem] min-w-[200px] min-h-[5rem] !shadow-none border border-zinc-100 dark:border-zinc-800 bg-yellow-50 dark:bg-zinc-700">
+          <template #content>
+            <div class="mb-2 text-sm flex items-center gap-2 text-primary-700 dark:text-primary-200">
+              <Icon name="lucide:message-circle"/> WhatsApp
+            </div>
+            <div class="text-end font-bold">
+              {{ data.wa }}
+            </div>
+          </template>
+        </Card>
       </div>
-    </template>
-    <template #content>
-      <WebhostChartProjects :data="data.cs_main_projects"/>
-    </template>
-  </Card>
+    </div>
+    
+    <div class="flex flex-col md:flex-row gap-4">
+
+      <div class="md:basis-[30rem]">
+        <Card class="border border-zinc-100 dark:border-zinc-800">
+          <template #title>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:info" />
+              Informasi
+            </div>
+          </template>
+          <template #content>
+
+            <div v-for="item in fields_info" class="mb-3">
+              <div class="mb-1 text-sm opacity-70">
+                {{ item.label }}
+              </div>
+              <div class="py-2 px-4 rounded-lg bg-zinc-100 dark:bg-zinc-700 min-h-[2rem]">
+                <template v-if="item.value">
+                  {{ item.value }}
+                </template>
+                <template v-else>
+                  {{ data[item.key] || '-'  }}
+                </template>
+              </div>
+            </div>
+            <div class="text-end">
+              <Button @click="openDialog('edit',data)" severity="info" size="small">
+                <Icon name="lucide:pencil" /> <span class="hidden md:inline-block">edit</span>
+              </Button>
+            </div>
+          </template>
+        </Card>
+      </div>
+
+      <div class="md:flex-1">     
+        <Card class="border border-zinc-100 dark:border-zinc-800">
+          <template #title>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:briefcase" />
+              Projects
+            </div>
+          </template>
+          <template #content>
+
+            <div v-if="data?.cs_main_projects?.length">
+              <DataTable :value="data.cs_main_projects" scrollable scrollHeight="42rem" size="small" class="text-xs" stripedRows>
+                <Column field="jenis" header="Jenis"></Column>
+                <Column field="tgl_masuk" header="Mulai Tanggal"></Column>
+                <Column field="status" header="Status">
+                  <template #body="slotProps">
+                    <Badge v-if="slotProps.data.status == 'selesai'" severity="success" :value="slotProps.data.status"></Badge>
+                    <Badge v-else severity="secondary" :value="slotProps.data.status"></Badge>
+                  </template>
+                </Column>
+                <Column field="biaya" header="Biaya">
+                  <template #body="slotProps">
+                      {{ formatMoney(slotProps.data.biaya) }}
+                  </template>
+                </Column>
+                <Column field="dibayar" header="dibayar">
+                  <template #body="slotProps">
+                      {{ formatMoney(slotProps.data.dibayar) }}
+                  </template>
+                </Column>
+                <Column field="webmaster" header="Webmaster">
+                  <template #body="slotProps">
+                      {{ slotProps.data.wm_project?.user?.name }}
+                  </template>
+                </Column>
+              </DataTable>
+            </div>
+
+          </template>
+        </Card>
+      </div>
+
+    </div>
+
+    <Card v-if="data?.cs_main_projects?.length" class="border border-zinc-100 dark:border-zinc-800 mt-6">
+      <template #title>
+        <div class="flex items-center gap-2">
+          <Icon name="lucide:chart-no-axes-combined" />
+          Grafik Projects
+        </div>
+      </template>
+      <template #content>
+        <WebhostChartProjects :data="data.cs_main_projects"/>
+      </template>
+    </Card>
+
+  </template>
+
+  <template v-else>
+    <div class="flex items-center justify-center text-center min-h-[40vh]">      
+      <Message severity="warn" class="shadow hover:shadow-md md:px-5 md:py-2">
+        <div class="flex items-center justify-center text-center gap-2">   
+            <Icon name="lucide:circle-alert"/>
+            Data Webhost tidak ditemukan
+        </div>
+      </Message>
+    </div>
+  </template>
 
   <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <WebhostForm :action="actionDialog" :id="idDialog" @update="refresh();visibleDialog = false" @delete="refresh();visibleDialog = false" />
@@ -164,9 +179,9 @@ const { data, status, error, refresh } = await useAsyncData(
 ) as any
 
 const fields_info = [
-    {key: 'nama_web', label: 'Nama Web', value: data.value.nama_web},
-    {key: 'kategori', label: 'Kategori', value: data.value.kategori},
-    {key: 'paket', label: 'Paket', value: data.value.paket?.paket},
+    {key: 'nama_web', label: 'Nama Web', value: data.value?.nama_web || '-' },
+    {key: 'kategori', label: 'Kategori', value: data.value?.kategori || '-'  },
+    {key: 'paket', label: 'Paket', value: data.value?.paket?.paket || '-' },
     {key: 'tgl_mulai', label: 'Masuk Tanggal'},
     {key: 'saldo', label: 'Saldo'},
     {key: 'hp', label: 'HP'},
@@ -179,7 +194,7 @@ const fields_info = [
 
 //hitung total dari data.cs_main_projects
 const totalBiaya = computed(() => {
-    if(data.value.cs_main_projects){
+    if(data.value?.cs_main_projects?.length){
         return data.value.cs_main_projects.reduce((acc: any, item: any) => {
             return acc + item.biaya
         }, 0)
@@ -188,7 +203,7 @@ const totalBiaya = computed(() => {
 
 //hitung total projects dari data.cs_main_projects
 const totalProjects = computed(() => {
-    if(data.value.cs_main_projects){
+    if(data.value?.cs_main_projects?.length){
         return data.value.cs_main_projects.length
     }
 })
