@@ -30,12 +30,26 @@
             </Column>
             <Column field="perpanjang" header="Perpanjang">
               <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.perpanjang || 0,'false',0) }}
+                  <Button
+                    link
+                    size="small"
+                    class="!px-0"
+                    @click="openDetailDialog(slotProps.data, 'perpanjang')"
+                  >
+                    {{ formatMoney(slotProps.data.perpanjang || 0,'false',0) }}
+                  </Button>
               </template>
             </Column>
             <Column field="tidak_perpanjang" header="Tidak Perpanjang">
               <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.tidak_perpanjang || 0,'false',0) }}
+                  <Button
+                    link
+                    size="small"
+                    class="!px-0"
+                    @click="openDetailDialog(slotProps.data, 'tidak_perpanjang')"
+                  >
+                    {{ formatMoney(slotProps.data.tidak_perpanjang || 0,'false',0) }}
+                  </Button>
               </template>
             </Column>
             <Column field="total" header="Total">
@@ -119,6 +133,61 @@
       </Card>
 
     </div>
+
+    <Dialog
+      v-model:visible="detailDialog.visible"
+      modal
+      :header="detailDialog.header"
+      :style="{ width: '90rem' }"
+      :breakpoints="{ '1199px': '90vw', '575px': '96vw' }"
+    >
+      <DataTable
+        :value="detailDialog.rows"
+        :loading="detailDialog.loading"
+        class="text-sm"
+        stripedRows
+        scrollable
+        scrollHeight="32rem"
+      >
+        <Column field="id_webhost" header="ID Webhost" />
+        <Column field="nama_web" header="Nama Web" />
+        <Column field="domain" header="Domain">
+          <template #body="slotProps">
+            {{ slotProps.data.domain || '-' }}
+          </template>
+        </Column>
+        <Column field="tgl_mulai" header="Tgl Mulai">
+          <template #body="slotProps">
+            {{ slotProps.data.tgl_mulai || '-' }}
+          </template>
+        </Column>
+        <Column field="tgl_masuk" header="Tgl Masuk Project">
+          <template #body="slotProps">
+            {{ slotProps.data.tgl_masuk || '-' }}
+          </template>
+        </Column>
+        <Column field="expirydate" header="Expiry Date">
+          <template #body="slotProps">
+            {{ slotProps.data.expirydate || '-' }}
+          </template>
+        </Column>
+        <Column field="whmcs_status" header="Status WHMCS">
+          <template #body="slotProps">
+            {{ slotProps.data.whmcs_status || '-' }}
+          </template>
+        </Column>
+        <Column field="dibayar" header="Dibayar">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.dibayar || 0,'false',0) }}
+          </template>
+        </Column>
+        <Column field="deskripsi" header="Deskripsi">
+          <template #body="slotProps">
+            {{ slotProps.data.deskripsi || '-' }}
+          </template>
+        </Column>
+      </DataTable>
+    </Dialog>
     
   </div>
 
@@ -151,6 +220,12 @@ function updateRouteParams() {
 
 const chartData = ref();
 const chartOptions = ref();
+const detailDialog = reactive({
+  visible: false,
+  loading: false,
+  header: 'Detail Data',
+  rows: [],
+} as any)
 
 const loading = ref(false);
 const data = ref({ year: null, months: [], data: [] } as any);
@@ -205,6 +280,30 @@ const getData = async () => {
   }
 
   loading.value = false;
+}
+
+const openDetailDialog = async (item: any, jenis: 'perpanjang' | 'tidak_perpanjang') => {
+  detailDialog.visible = true
+  detailDialog.loading = true
+  detailDialog.rows = []
+  detailDialog.header = `${jenis === 'perpanjang' ? 'Perpanjang' : 'Tidak Perpanjang'} - ${item.month} ${item.year}`
+
+  try {
+    const response = await client('/api/laporan/klien_perpanjang_grafik_data', {
+      params: {
+        tahun: item.year,
+        bulan: item.month_number,
+        jenis,
+      },
+    }) as any
+
+    detailDialog.rows = response.data || []
+  } catch (error) {
+    const er = useSanctumError(error)
+    detailDialog.rows = []
+  } finally {
+    detailDialog.loading = false
+  }
 }
 
 onMounted(()=>{
