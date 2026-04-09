@@ -93,7 +93,7 @@
         <template #content>
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-              <thead v-if="data.data">
+              <thead v-if="data.data && data.data.length">
                 <tr class="whitespace-nowrap font-normal">
                   <th class="px-3 py-2 border-b dark:border-slate-700">
                     Bulan
@@ -153,18 +153,46 @@ const chartData = ref();
 const chartOptions = ref();
 
 const loading = ref(false);
-const data = ref([] as any);
+const data = ref({ year: null, months: [], data: [] } as any);
+const buildMonths = () => {
+  const selectedYear = filters.tahun ? dayjs(filters.tahun).year() : dayjs().year()
+  const currentYear = dayjs().year()
+  const maxMonth = selectedYear === currentYear ? dayjs().month() + 1 : 12
+
+  return Array.from({ length: maxMonth }, (_, index) => {
+    const monthNumber = index + 1
+    return {
+      month: monthNumber,
+      name: dayjs(`${selectedYear}-${String(monthNumber).padStart(2, '0')}-01`).format('MMMM'),
+      year: selectedYear,
+    }
+  })
+}
+
 const getData = async () => {
   loading.value = true;
   updateRouteParams()
 
   try {
-    const response = await client('/api/laporan/klien_perpanjang_grafik',{
-      params: {
-        tahun: filters.tahun ?dayjs(filters.tahun).format('YYYY'):null,
-      },
-    });
-    data.value = response;
+    const selectedYear = filters.tahun ? dayjs(filters.tahun).format('YYYY') : dayjs().format('YYYY')
+    const months = buildMonths()
+
+    const responses = await Promise.all(
+      months.map((item) =>
+        client('/api/laporan/klien_perpanjang_grafik', {
+          params: {
+            tahun: selectedYear,
+            bulan: item.month,
+          },
+        })
+      )
+    )
+
+    data.value = {
+      year: Number(selectedYear),
+      months,
+      data: responses.sort((a: any, b: any) => (a.month_number || 0) - (b.month_number || 0)),
+    }
     loading.value = false;
 
     chartData.value = setChartData();
@@ -187,19 +215,19 @@ const setChartData = () =>  {
     const documentStyle = getComputedStyle(document.documentElement);
 
     return {
-        labels: data.value.data.map((item: any) => item.month),
+        labels: (data.value.data || []).map((item: any) => item.month),
         datasets: [
             {
                 type: 'bar',
                 label: 'Perpanjang',
                 backgroundColor: documentStyle.getPropertyValue('--p-teal-500'),
-                data: data.value.data.map((item: any) => item.perpanjang)
+                data: (data.value.data || []).map((item: any) => item.perpanjang)
             },
             {
                 type: 'bar',
                 label: 'Tidak Perpanjang',
                 backgroundColor: documentStyle.getPropertyValue('--p-orange-200'),
-                data: data.value.data.map((item: any) => item.tidak_perpanjang)
+                data: (data.value.data || []).map((item: any) => item.tidak_perpanjang)
             }
         ]
     };
