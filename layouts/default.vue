@@ -2,13 +2,13 @@
 
   <div class="flex flex-col w-full min-h-screen">
 
-    <div class="page-wrapper flex flex-1 w-full transition duration-300 ease-in-out" :class="{'md:ps-[5rem]': useConfig.miniSidebar,'md:ps-[14rem]': !useConfig.miniSidebar }">
+    <div class="page-wrapper bg-gray-100 dark:bg-black flex flex-1 w-full transition duration-300 ease-in-out" :class="{'md:ps-[5rem]': useConfig.miniSidebar,'md:ps-[14rem]': !useConfig.miniSidebar }">
       <div class="xl:block" :class="{ 'block z-[90]': useConfig.openSidebar, 'hidden md:block': !useConfig.openSidebar }">
         <div class="flex">
           <DashSidebar/>
         </div>
       </div>
-      <div class="body-wrapper flex flex-col w-full bg-gray-100 dark:bg-black">
+      <div class="body-wrapper flex flex-col w-full">
         <DashHeader />
         <div class="md:max-w-[1600px] w-full mx-auto px-4 py-4 relative flex-1">
           

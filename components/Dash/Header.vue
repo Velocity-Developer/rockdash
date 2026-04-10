@@ -14,8 +14,8 @@
               <Icon v-else name="lucide:panel-left-close" />
             </Button>
           </div>
-          <div v-if="$route.meta.title" class="hidden md:block">
-            <h1 class="text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">
+          <div v-if="$route.meta.title" class="max-w-[10rem] md:max-w-[50rem]">
+            <h1 class="truncate text-lg md:text-xl font-medium text-zinc-900 dark:text-primary-400 capitalize">
               {{ $route.meta.title }}
             </h1>
           </div>          
