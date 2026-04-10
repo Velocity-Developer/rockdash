@@ -144,10 +144,10 @@ const itemsAVatar = ref([
                 label: 'Pengaturan',
                 command: () => dialogUserSetting.value = true 
             },
-            {
-                label: 'Telegram',
-                command: () => dialogNotifSetting.value = true 
-            },
+            // {
+            //     label: 'Telegram',
+            //     command: () => dialogNotifSetting.value = true 
+            // },
             {
                 label: 'Logout',
                 command: () => logout()
