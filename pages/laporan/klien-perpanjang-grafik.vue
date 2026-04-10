@@ -144,24 +144,26 @@
       <DataTable
         :value="detailDialog.rows"
         :loading="detailDialog.loading"
-        class="text-sm"
+        class="text-xs"
         stripedRows
         scrollable
-        scrollHeight="32rem"
+        scrollHeight="75vh"
+        paginator :rows="50" :rowsPerPageOptions="[25, 50, 100]"
+        @page="onPage"
       >
-        <Column field="id_webhost" header="ID Webhost" />
-        <Column field="nama_web" header="Nama Web" />
-        <Column field="domain" header="Domain">
+        <Column header="#" headerStyle="width:3rem">
           <template #body="slotProps">
-            {{ slotProps.data.domain || '-' }}
+              {{ first + slotProps.index + Number(1) }}
           </template>
         </Column>
+        <!-- <Column field="id_webhost" header="ID Webhost" /> -->
+        <Column field="nama_web" header="Nama Web" />
         <Column field="tgl_mulai" header="Tgl Mulai">
           <template #body="slotProps">
             {{ slotProps.data.tgl_mulai || '-' }}
           </template>
         </Column>
-        <Column field="tgl_masuk" header="Tgl Masuk Project">
+        <Column field="tgl_masuk" header="Tgl Masuk">
           <template #body="slotProps">
             {{ slotProps.data.tgl_masuk || '-' }}
           </template>
@@ -181,11 +183,11 @@
             {{ formatMoney(slotProps.data.dibayar || 0,'false',0) }}
           </template>
         </Column>
-        <Column field="deskripsi" header="Deskripsi">
-          <template #body="slotProps">
-            {{ slotProps.data.deskripsi || '-' }}
-          </template>
-        </Column>
+        <template #empty>
+          <div class="flex justify-center items-center">
+            Oops, Tidak ada data disini..
+          </div>
+        </template>
       </DataTable>
     </Dialog>
     
@@ -283,6 +285,7 @@ const getData = async () => {
 }
 
 const openDetailDialog = async (item: any, jenis: 'perpanjang' | 'tidak_perpanjang') => {
+  first.value = 0
   detailDialog.visible = true
   detailDialog.loading = true
   detailDialog.rows = []
@@ -392,5 +395,10 @@ const setChartOptions = () =>  {
             }
         }
     };
+}
+
+const first = ref(0);
+const onPage = (event: any) => {
+  first.value = event.first
 }
 </script>
