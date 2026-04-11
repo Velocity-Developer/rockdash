@@ -43,109 +43,37 @@
         </template>
       </Card>
 
-      <div class="col-span-12 md:col-span-5 xl:col-span-3">
+      <Card v-if="data.whmcs_domain" class="col-span-12 md:col-span-5 xl:col-span-3">
+        <template #title>
+          <div class="flex items-center gap-2 text-sm text-blue-500">
+            <Icon name="lucide:database"/>
+            WHMCS Domain
+          </div>
+        </template>
+        <template #content>
+          <div>
+            <div class="text-sm">Expiry Date</div>
+            <div class="font-bold">{{ data.whmcs_domain.expirydate }}</div>
+          </div>
 
-        <Card class="bg-primary-600 dark:bg-primary-800 text-white">
-          <template #title>
-            <div class="flex items-center gap-2 text-sm text-yellow-400">
-              <Icon name="lucide:briefcase"/>
-              Projects
-            </div>
-          </template>
-          <template #content>
-            <div>
-              <div class="text-sm">Total Projects</div>
-              <div class="text-xl xl:text-2xl font-bold">{{ totalProjects }}</div>
-            </div>
+          <div class="text-sm mt-2">
+            <div>Registration Date</div>
+            <div class="font-bold">{{ data.whmcs_domain.registrationdate }}</div>
+          </div>
 
-            <div class="text-sm mt-2">
-              <div>Total Biaya</div>
-              <div class="text-xl xl:text-2xl font-bold">{{ formatMoney(totalBiaya) }}</div>
-            </div>
-          </template>
-        </Card>
-        <Card v-if="data.whmcs_domain" class="mt-5">
-          <template #title>
-            <div class="flex items-center gap-2 text-sm text-blue-500">
-              <Icon name="lucide:database"/>
-              WHMCS Domain
-            </div>
-          </template>
-          <template #content>
-            <div>
-              <div class="text-sm">Expiry Date</div>
-              <div class="font-bold">{{ data.whmcs_domain.expirydate }}</div>
-            </div>
-
-            <div class="text-sm mt-2">
-              <div>Registration Date</div>
-              <div class="font-bold">{{ data.whmcs_domain.registrationdate }}</div>
-            </div>
-
-            <div class="text-sm mt-2">
-              <div>Status</div>
-              <div class="font-bold">{{ data.whmcs_domain.status }}</div>
-            </div>
-          </template>
-        </Card>
-
-      </div>
-
+          <div class="text-sm mt-2">
+            <div>Status</div>
+            <div class="font-bold">{{ data.whmcs_domain.status }}</div>
+          </div>
+        </template>
+      </Card>
       
-      <Card class="col-span-12">
-          <template #title>
-            <div class="flex items-center gap-2">
-              <Icon name="lucide:briefcase" />
-              Projects
-            </div>
-          </template>
-          <template #content>
-
-            <div v-if="data?.cs_main_projects?.length">
-              <DataTable :value="data.cs_main_projects" scrollable scrollHeight="42rem" size="small" class="text-xs" stripedRows>
-                <Column field="jenis" header="Jenis"></Column>
-                <Column field="tgl_masuk" header="Mulai Tanggal"></Column>
-                <Column field="status" header="Status">
-                  <template #body="slotProps">
-                    <Badge v-if="slotProps.data.status == 'selesai'" severity="success" :value="slotProps.data.status"></Badge>
-                    <Badge v-else severity="secondary" :value="slotProps.data.status"></Badge>
-                  </template>
-                </Column>
-                <Column field="biaya" header="Biaya">
-                  <template #body="slotProps">
-                      {{ formatMoney(slotProps.data.biaya) }}
-                  </template>
-                </Column>
-                <Column field="dibayar" header="dibayar">
-                  <template #body="slotProps">
-                      {{ formatMoney(slotProps.data.dibayar) }}
-                  </template>
-                </Column>
-                <Column field="webmaster" header="Webmaster">
-                  <template #body="slotProps">
-                      {{ slotProps.data.wm_project?.user?.name }}
-                  </template>
-                </Column>
-              </DataTable>
-            </div>
-
-          </template>
-        </Card>
-
-        <Card v-if="data?.cs_main_projects?.length" class="col-span-12">
-          <template #title>
-            <div class="flex items-center gap-2">
-              <Icon name="lucide:chart-no-axes-combined" />
-              Grafik Projects
-            </div>
-          </template>
-          <template #content>
-            <WebhostChartProjects :data="data.cs_main_projects"/>
-          </template>
-        </Card>
       
     </div>
-    
+
+    <Menubar :model="itemsMenu" class="mb-5"/>
+
+    <NuxtPage v-if="$route.matched.length > 1"/>
 
   </template>
 
@@ -172,6 +100,7 @@ definePageMeta({
     description: 'Data Web Klien',
 })
 const route = useRoute()
+const router = useRouter()
 const id = route.params.id
 const client = useSanctumClient();
 
@@ -179,7 +108,7 @@ const { data, status, error, refresh } = await useAsyncData(
     'webhost-'+id,
     () => client('/api/webhost/'+id,{
       params: {
-        with: 'paket,csMainProjects,csMainProjects.wm_project,csMainProjects.wm_project.user,customers,whmcs_domain'
+        with: 'paket,customers,whmcs_domain'
       }
     })
 ) as any
@@ -222,4 +151,21 @@ const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
   visibleDialog.value = true
   idDialog.value = data?.id_webhost || 0
 }
+
+const itemsMenu = ref([
+  {
+      label: 'Projects',
+      icon: 'lucide:briefcase-business',
+      command: () => {
+          router.push('/webhost/'+id+'/projects');
+      }
+  },
+  {
+      label: 'Subscriptions',
+      icon: 'lucide:calendar-sync',
+      command: () => {
+          router.push('/webhost/'+id+'/subscriptions');
+      }
+  }
+])
 </script>
