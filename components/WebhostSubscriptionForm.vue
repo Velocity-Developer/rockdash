@@ -7,7 +7,7 @@
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div class="md:col-span-2">
         <label class="mb-1 block text-sm font-medium">Webhost</label>
-        <FormSelectWebhost v-model="form.webhost_id" />
+        <FormSelectWebhost v-model="form.webhost_id" :disabled="props.action === 'add' && !!props.webhost_id" />
         <small v-if="errors.webhost_id" class="text-red-500">{{ errors.webhost_id[0] }}</small>
       </div>
 
@@ -151,6 +151,10 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  webhost_id: {
+    type: Number,
+    default: 0,
+  },
   action: {
     type: String,
     default: 'add',
@@ -198,6 +202,9 @@ const toPayloadDate = (value?: Date | null) => {
 
 const resetForm = () => {
   Object.assign(form, createDefaultForm())
+  if (props.action === 'add' && props.webhost_id) {
+    form.webhost_id = props.webhost_id
+  }
 }
 
 const fillForm = (data: any) => {
@@ -308,7 +315,7 @@ onMounted(() => {
 })
 
 watch(
-  () => [props.id, props.action],
+  () => [props.id, props.action, props.webhost_id],
   () => {
     fetchData()
   }

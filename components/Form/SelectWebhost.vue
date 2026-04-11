@@ -6,6 +6,7 @@
       variant="outlined" 
       class="w-full !justify-start bg-white dark:bg-gray-950"
       :class="{ '!text-gray-400': !selectedWebhost }"
+      :disabled="props.disabled"
     >
       <span v-if="selectedWebhost">{{ selectedWebhost.nama_web }}</span>
       <span v-else>Pilih Webhost...</span>
@@ -78,6 +79,7 @@
             @click="clearSelection" 
             variant="outlined" 
             severity="secondary"
+            :disabled="props.disabled"
           >
             Clear
           </Button>
@@ -99,6 +101,7 @@ interface Webhost {
 interface Props {
   modelValue?: string | number | null;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 interface Emits {
@@ -107,7 +110,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: 'Pilih Webhost...'
+  placeholder: 'Pilih Webhost...',
+  disabled: false,
 });
 
 const emit = defineEmits<Emits>();
