@@ -190,9 +190,12 @@
 
           <Column field="act" header="" headerStyle="width:5rem">
             <template #body="slotProps">
-              <div class="flex justify-end">
+              <div class="flex justify-end gap-1">
                 <Button @click="openEditDialog(slotProps.data)" severity="info" size="small">
                   <Icon name="lucide:pencil" />
+                </Button>
+                <Button @click="confirmDelete(slotProps.data)" severity="danger" size="small">
+                  <Icon name="lucide:trash-2" />
                 </Button>
               </div>
             </template>
@@ -248,6 +251,8 @@ const route = useRoute()
 const router = useRouter()
 const client = useSanctumClient()
 const config = useRuntimeConfig()
+const toast = useToast()
+const confirm = useConfirm()
 const timezone = computed(() => config.public.appTimezone || 'Asia/Jakarta')
 
 const page = ref(route.query.page ? Number(route.query.page) : 1)
@@ -371,5 +376,45 @@ const openEditDialog = (item: any) => {
 const handleSubmitSuccess = () => {
   visibleDialog.value = false
   refresh()
+}
+
+const confirmDelete = (item: any) => {
+  confirm.require({
+    message: `Hapus subscription untuk ${item?.webhost?.nama_web || 'webhost ini'}?`,
+    header: 'Konfirmasi Hapus',
+    acceptLabel: 'Hapus',
+    rejectLabel: 'Batal',
+    acceptProps: {
+      severity: 'danger',
+    },
+    rejectProps: {
+      severity: 'secondary',
+      outlined: true,
+    },
+    accept: async () => {
+      try {
+        await client(`/api/webhost-subscription/${item.id}`, {
+          method: 'DELETE',
+        })
+
+        toast.add({
+          severity: 'success',
+          summary: 'Berhasil!',
+          detail: 'Subscription berhasil dihapus',
+          life: 3000,
+        })
+
+        refresh()
+      } catch (error: any) {
+        console.log(error)
+        toast.add({
+          severity: 'error',
+          summary: 'Gagal!',
+          detail: error?.data?.message || 'Subscription gagal dihapus',
+          life: 3000,
+        })
+      }
+    },
+  })
 }
 </script>
