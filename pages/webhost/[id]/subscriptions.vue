@@ -121,6 +121,15 @@ const formatMoneyCompact = (value: number) => {
     notation: value >= 1000000 ? 'compact' : 'standard',
   }).format(value || 0)
 }
+
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+const idDialog = ref<number>(0)
+const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
+  actionDialog.value = action
+  visibleDialog.value = true
+  idDialog.value = data?.id || 0
+}
 </script>
 
 <template>
@@ -146,10 +155,6 @@ const formatMoneyCompact = (value: number) => {
                 <div>
                   <span class="font-medium text-surface-900 dark:text-surface-0">Paket:</span>
                   {{ webhost?.paket?.paket || '-' }}
-                </div>
-                <div>
-                  <span class="font-medium text-surface-900 dark:text-surface-0">Timezone:</span>
-                  {{ timezone }}
                 </div>
                 <div>
                   <span class="font-medium text-surface-900 dark:text-surface-0">Registration Date:</span>
@@ -317,6 +322,16 @@ const formatMoneyCompact = (value: number) => {
                   </div>
                 </template>
               </Column>
+
+              <Column field="act" header="">
+                <template #body="slotProps">
+                  <div class="flex justify-end">
+                    <Button @click="openDialog('edit', slotProps.data)" size="small">
+                      <Icon name="lucide-pen"/>
+                    </Button>
+                  </div>
+                </template>
+              </Column>
             </DataTable>
 
             <div v-if="subscriptions?.total > 0" class="flex flex-col gap-3 rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 text-xs dark:border-surface-700 dark:bg-surface-900/60 md:flex-row md:items-center md:justify-between">
@@ -350,4 +365,9 @@ const formatMoneyCompact = (value: number) => {
 
     <DashLoader :loading="statusWebhost === 'pending' || statusSubscriptions === 'pending'" />
   </div>
+
+  <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <WebhostSubscriptionForm :id="idDialog" action="edit" @submit="refreshSubscriptions();visibleDialog = false" />
+  </Dialog>
+
 </template>
