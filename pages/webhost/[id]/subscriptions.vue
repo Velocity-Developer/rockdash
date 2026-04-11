@@ -7,6 +7,8 @@ definePageMeta({
 const route = useRoute()
 const id = route.params.id
 const client = useSanctumClient()
+const config = useRuntimeConfig()
+const timezone = computed(() => config.public.appTimezone || 'Asia/Jakarta')
 
 const { data: webhost, status: statusWebhost, refresh: refreshWebhost } = await useAsyncData(
   `webhost-subscription-webhost-${id}`,
@@ -58,6 +60,12 @@ const stats = computed(() => {
   }
 })
 
+const paginationText = computed(() => {
+  if (!subscriptions.value?.total) return 'Belum ada subscription'
+
+  return `${subscriptions.value?.from || 0} - ${subscriptions.value?.to || 0} dari ${subscriptions.value?.total || 0}`
+})
+
 const onPaginate = (event: { page: number }) => {
   filters.page = event.page + 1
 }
@@ -79,49 +87,133 @@ const serviceSeverity = (serviceType: string) => {
   if (serviceType === 'hosting') return 'success'
   return 'contrast'
 }
+
+const paymentSeverity = (status: string) => {
+  if (status === 'paid') return 'success'
+  if (status === 'partial') return 'warn'
+  if (status === 'unpaid') return 'danger'
+  return 'secondary'
+}
+
+const formatDate = (value?: string | null, withTime = false) => {
+  if (!value || value === '0000-00-00' || value === '0000-00-00 00:00:00') return '-'
+
+  const hasTime = value.includes(':')
+  const normalizedValue = hasTime ? value.replace(' ', 'T') : `${value}T12:00:00`
+  const date = new Date(normalizedValue)
+
+  if (Number.isNaN(date.getTime())) return value
+
+  return new Intl.DateTimeFormat('id-ID', {
+    timeZone: timezone.value,
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
+  }).format(date)
+}
+
+const formatMoneyCompact = (value: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+    notation: value >= 1000000 ? 'compact' : 'standard',
+  }).format(value || 0)
+}
 </script>
 
 <template>
   <div class="space-y-4">
-    
     <template v-if="webhost?.id_webhost">
+      <Card class="overflow-hidden">
+        <template #content>
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="text-xl font-semibold text-surface-900 dark:text-surface-0">
+                  {{ webhost?.nama_web || '-' }}
+                </div>
+                <Badge value="Subscriptions" severity="contrast" />
+                <Badge
+                  v-if="webhost?.whmcs_domain?.status"
+                  :value="webhost.whmcs_domain.status"
+                  :severity="statusSeverity(webhost.whmcs_domain.status)"
+                />
+              </div>
+
+              <div class="grid gap-2 text-sm text-surface-600 dark:text-surface-300 md:grid-cols-2">
+                <div>
+                  <span class="font-medium text-surface-900 dark:text-surface-0">Paket:</span>
+                  {{ webhost?.paket?.paket || '-' }}
+                </div>
+                <div>
+                  <span class="font-medium text-surface-900 dark:text-surface-0">Timezone:</span>
+                  {{ timezone }}
+                </div>
+                <div>
+                  <span class="font-medium text-surface-900 dark:text-surface-0">Registration Date:</span>
+                  {{ formatDate(webhost?.whmcs_domain?.registrationdate) }}
+                </div>
+                <div>
+                  <span class="font-medium text-surface-900 dark:text-surface-0">Expiry Date:</span>
+                  {{ formatDate(webhost?.whmcs_domain?.expirydate) }}
+                </div>
+              </div>
+            </div>
+
+            <Button size="small" @click="refreshAll" :loading="statusWebhost === 'pending' || statusSubscriptions === 'pending'">
+              <Icon
+                name="lucide:refresh-ccw"
+                :class="statusWebhost === 'pending' || statusSubscriptions === 'pending' ? 'animate-spin' : ''"
+              />
+              Refresh
+            </Button>
+          </div>
+        </template>
+      </Card>
+
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
+        <Card class="border border-surface-200/80 dark:border-surface-700">
           <template #content>
-            <div class="text-xs uppercase tracking-wide opacity-60">Total Subscription</div>
+            <div class="text-xs uppercase tracking-[0.2em] text-surface-500">Total Subscription</div>
             <div class="mt-2 text-2xl font-semibold">{{ subscriptions?.total || 0 }}</div>
+            <div class="mt-1 text-xs text-surface-500">Lifecycle yang terhubung ke webhost ini</div>
           </template>
         </Card>
 
-        <Card>
+        <Card class="border border-emerald-200/80 bg-emerald-50/60 dark:border-emerald-900 dark:bg-emerald-950/30">
           <template #content>
-            <div class="text-xs uppercase tracking-wide opacity-60">Active</div>
+            <div class="text-xs uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Active</div>
             <div class="mt-2 text-2xl font-semibold text-emerald-600">{{ stats.active }}</div>
           </template>
         </Card>
 
-        <Card>
+        <Card class="border border-rose-200/80 bg-rose-50/60 dark:border-rose-900 dark:bg-rose-950/30">
           <template #content>
-            <div class="text-xs uppercase tracking-wide opacity-60">Expired</div>
+            <div class="text-xs uppercase tracking-[0.2em] text-rose-700 dark:text-rose-300">Expired</div>
             <div class="mt-2 text-2xl font-semibold text-rose-600">{{ stats.expired }}</div>
+          </template>
+        </Card>
+
+        <Card class="border border-sky-200/80 bg-sky-50/60 dark:border-sky-900 dark:bg-sky-950/30">
+          <template #content>
+            <div class="text-xs uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">Total Nominal</div>
+            <div class="mt-2 text-2xl font-semibold text-sky-700 dark:text-sky-200">{{ formatMoneyCompact(stats.totalNominal) }}</div>
           </template>
         </Card>
       </div>
 
       <Card>
         <template #title>
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div class="flex items-center gap-2">
-                <Icon name="lucide:calendar-sync" />
-                Daftar Subscription
-              </div>
-              <Button size="small" @click="refreshAll" :loading="statusWebhost === 'pending' || statusSubscriptions === 'pending'">
-                <Icon
-                  name="lucide:refresh-ccw"
-                  :class="statusWebhost === 'pending' || statusSubscriptions === 'pending' ? 'animate-spin' : ''"
-                />
-                Refresh
-              </Button>
+          <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:calendar-sync" />
+              Daftar Subscription
+            </div>
+            <div class="text-xs text-surface-500">
+              Tanggal mengikuti timezone {{ timezone }}
+            </div>
           </div>
         </template>
         <template #content>
@@ -155,40 +247,50 @@ const serviceSeverity = (serviceType: string) => {
                 </template>
               </Column>
 
-              <Column field="start_date" header="Start" />
-
-              <Column field="end_date" header="End">
+              <Column field="start_date" header="Periode" headerStyle="min-width:15rem">
                 <template #body="slotProps">
-                  {{ slotProps.data.end_date || '-' }}
+                  <div class="font-medium">{{ formatDate(slotProps.data.start_date) }}</div>
+                  <div class="text-[11px] text-surface-500">
+                    s/d {{ formatDate(slotProps.data.end_date) }}
+                  </div>
                 </template>
               </Column>
 
-              <Column field="renewed_from_date" header="Renewed From">
+              <Column field="renewed_from_date" header="Renewal">
                 <template #body="slotProps">
-                  {{ slotProps.data.renewed_from_date || '-' }}
+                  {{ formatDate(slotProps.data.renewed_from_date) }}
                 </template>
               </Column>
 
               <Column field="status" header="Status">
                 <template #body="slotProps">
-                  <Badge
-                    :severity="statusSeverity(slotProps.data.status)"
-                    :value="slotProps.data.status || '-'"
-                  />
+                  <div class="flex flex-col gap-1">
+                    <Badge
+                      :severity="statusSeverity(slotProps.data.status)"
+                      :value="slotProps.data.status || '-'"
+                    />
+                    <Badge
+                      :severity="paymentSeverity(slotProps.data.payment_status)"
+                      :value="slotProps.data.payment_status || '-'"
+                    />
+                  </div>
                 </template>
               </Column>
 
               <Column field="nominal" header="Nominal">
                 <template #body="slotProps">
-                  {{ formatMoney(slotProps.data.nominal) }}
+                  <div class="font-medium">{{ formatMoney(slotProps.data.nominal) }}</div>
+                  <div class="text-[11px] text-surface-500">
+                    Dibayar: {{ formatDate(slotProps.data.paid_at) }}
+                  </div>
                 </template>
               </Column>
 
-              <Column field="csMainProject.jenis" header="Project">
+              <Column field="csMainProject.jenis" header="Project" headerStyle="min-width:14rem">
                 <template #body="slotProps">
-                  <div>{{ slotProps.data.csMainProject?.jenis || '-' }}</div>
+                  <div class="font-medium">{{ slotProps.data.csMainProject?.jenis || '-' }}</div>
                   <div v-if="slotProps.data.csMainProject?.tgl_masuk" class="mt-1 opacity-60">
-                    {{ slotProps.data.csMainProject?.tgl_masuk }}
+                    {{ formatDate(slotProps.data.csMainProject?.tgl_masuk) }}
                   </div>
                 </template>
               </Column>
@@ -210,17 +312,15 @@ const serviceSeverity = (serviceType: string) => {
 
               <Column field="description" header="Deskripsi">
                 <template #body="slotProps">
-                  <div class="max-w-[18rem] whitespace-normal break-words">
+                  <div class="max-w-[20rem] whitespace-normal break-words leading-relaxed">
                     {{ slotProps.data.description || '-' }}
                   </div>
                 </template>
               </Column>
             </DataTable>
 
-            <div v-if="subscriptions?.total > 0" class="flex flex-col gap-3 text-xs md:flex-row md:items-center md:justify-between">
-              <div>
-                {{ subscriptions?.from || 0 }} - {{ subscriptions?.to || 0 }} dari {{ subscriptions?.total || 0 }}
-              </div>
+            <div v-if="subscriptions?.total > 0" class="flex flex-col gap-3 rounded-xl border border-surface-200 bg-surface-50 px-4 py-3 text-xs dark:border-surface-700 dark:bg-surface-900/60 md:flex-row md:items-center md:justify-between">
+              <div>{{ paginationText }}</div>
 
               <Paginator
                 :rows="subscriptions?.per_page || filters.per_page"

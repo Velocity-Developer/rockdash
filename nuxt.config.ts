@@ -50,6 +50,11 @@ export default defineNuxtConfig({
     },
     logLevel: 1,
   },
+  runtimeConfig: {
+    public: {
+      appTimezone: process.env.APP_TIMEZONE || process.env.TZ || 'Asia/Jakarta',
+    }
+  },
   primevue: {
     autoImport: true,
     options: {
