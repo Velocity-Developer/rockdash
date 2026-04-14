@@ -81,6 +81,11 @@ onMounted(()=>{
         :value="data.data" 
         size="small" class="text-sm"
       >
+         <Column field="via" header="Via">
+          <template #body="slotProps">
+              {{ slotProps.data.via }}
+          </template>
+        </Column>
          <Column field="total_bulan_ini" header="Total Bulan Ini">
           <template #body="slotProps">
               {{ slotProps.data.total_bulan_ini }}
@@ -98,7 +103,7 @@ onMounted(()=>{
         </Column>
         <Column field="kontribusi" header="Kontribusi">
           <template #body="slotProps">
-              {{ slotProps.data.kontribusi }}
+              {{ slotProps.data.kontribusi ? slotProps.data.kontribusi +'%' : '' }}
           </template>
         </Column>
       </DataTable>
