@@ -71,9 +71,80 @@
       
     </div>
 
-    <Menubar :model="itemsMenu" class="mb-5"/>
+    <Menubar :model="itemsMenu" class="mb-5"/>    
 
     <NuxtPage v-if="$route.matched.length > 1"/>
+
+    <Card v-else>
+      <template #title>
+        <div class="flex items-center gap-2">
+          <Icon name="lucide:briefcase-business" />
+          Daftar CS Main Project
+        </div>
+      </template>
+      <template #content>
+        <div v-if="dataProjects && dataProjects.data?.cs_main_projects">
+          <DataTable
+            :value="dataProjects?.data?.cs_main_projects"
+            scrollable
+            scrollHeight="42rem"
+            size="small"
+            class="text-xs"
+            stripedRows
+          >
+            <Column header="#" headerStyle="width:4rem">
+              <template #body="slotProps">
+                {{ slotProps.index + 1 }}
+              </template>
+            </Column>
+            <Column field="jenis" header="Jenis" />
+            <Column field="deskripsi" header="Deskripsi">
+              <template #body="slotProps">
+                <div class="max-w-[18rem] whitespace-normal break-words">
+                  {{ slotProps.data.deskripsi || '-' }}
+                </div>
+              </template>
+            </Column>
+            <Column field="tgl_masuk" header="Tgl Masuk" />
+            <Column field="status" header="Status">
+              <template #body="slotProps">
+                <Badge
+                  :severity="slotProps.data.status === 'selesai' ? 'success' : 'secondary'"
+                  :value="slotProps.data.status || 'pending'"
+                />
+              </template>
+            </Column>
+            <Column field="biaya" header="Biaya">
+              <template #body="slotProps">
+                {{ formatMoney(slotProps.data.biaya) }}
+              </template>
+            </Column>
+            <Column field="dibayar" header="Dibayar">
+              <template #body="slotProps">
+                {{ formatMoney(slotProps.data.dibayar) }}
+              </template>
+            </Column>
+            <Column field="lunas" header="Lunas">
+              <template #body="slotProps">
+                <Badge
+                  :severity="slotProps.data.lunas === 'lunas' ? 'success' : 'warn'"
+                  :value="slotProps.data.lunas || 'belum'"
+                />
+              </template>
+            </Column>
+            <Column field="wm_project.user.name" header="Webmaster">
+              <template #body="slotProps">
+                {{ slotProps.data.wm_project?.user?.name || '-' }}
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+
+        <Message v-else severity="warn">
+          Belum ada `cs_main_project` yang terhubung ke webhost ini.
+        </Message>
+      </template>
+    </Card>
 
   </template>
 
@@ -127,22 +198,6 @@ const fields_info = [
     {key: 'waktu', label: 'Chat Pertama', value: data.value?.waktu},
 ]
 
-//hitung total dari data.cs_main_projects
-const totalBiaya = computed(() => {
-    if(data.value?.cs_main_projects?.length){
-        return data.value.cs_main_projects.reduce((acc: any, item: any) => {
-            return acc + item.biaya
-        }, 0)
-    }
-})
-
-//hitung total projects dari data.cs_main_projects
-const totalProjects = computed(() => {
-    if(data.value?.cs_main_projects?.length){
-        return data.value.cs_main_projects.length
-    }
-})
-
 const visibleDialog = ref(false)
 const actionDialog = ref<'add' | 'edit'>('add')
 const idDialog = ref<number>(0)
@@ -168,4 +223,15 @@ const itemsMenu = ref([
       }
   }
 ])
+
+const dataProjects = ref({} as any)
+onMounted(async () => {
+    if(route.matched.length <= 1){
+      const result = await useAsyncData(
+        `webhost-projects-${id}`,
+        () => client(`/api/webhost/${id}`)
+      ) as any
+      dataProjects.value = result || []
+    }
+})
 </script>

@@ -176,38 +176,7 @@ const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
             </Button>
           </div>
         </template>
-      </Card>
-
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card class="border border-surface-200/80 dark:border-surface-700">
-          <template #content>
-            <div class="text-xs uppercase tracking-[0.2em] text-surface-500">Total Subscription</div>
-            <div class="mt-2 text-2xl font-semibold">{{ subscriptions?.total || 0 }}</div>
-            <div class="mt-1 text-xs text-surface-500">Lifecycle yang terhubung ke webhost ini</div>
-          </template>
-        </Card>
-
-        <Card class="border border-emerald-200/80 bg-emerald-50/60 dark:border-emerald-900 dark:bg-emerald-950/30">
-          <template #content>
-            <div class="text-xs uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">Active</div>
-            <div class="mt-2 text-2xl font-semibold text-emerald-600">{{ stats.active }}</div>
-          </template>
-        </Card>
-
-        <Card class="border border-rose-200/80 bg-rose-50/60 dark:border-rose-900 dark:bg-rose-950/30">
-          <template #content>
-            <div class="text-xs uppercase tracking-[0.2em] text-rose-700 dark:text-rose-300">Expired</div>
-            <div class="mt-2 text-2xl font-semibold text-rose-600">{{ stats.expired }}</div>
-          </template>
-        </Card>
-
-        <Card class="border border-sky-200/80 bg-sky-50/60 dark:border-sky-900 dark:bg-sky-950/30">
-          <template #content>
-            <div class="text-xs uppercase tracking-[0.2em] text-sky-700 dark:text-sky-300">Total Nominal</div>
-            <div class="mt-2 text-2xl font-semibold text-sky-700 dark:text-sky-200">{{ formatMoneyCompact(stats.totalNominal) }}</div>
-          </template>
-        </Card>
-      </div>
+      </Card>      
 
       <Card>
         <template #title>
@@ -252,41 +221,35 @@ const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
                 </template>
               </Column>
 
-              <Column field="start_date" header="Periode" headerStyle="min-width:15rem">
+              <Column field="start_date" header="Start Periode" headerStyle="min-width:15rem">
                 <template #body="slotProps">
                   <div class="font-medium">{{ formatDate(slotProps.data.start_date) }}</div>
-                  <div class="text-[11px] text-surface-500">
-                    s/d {{ formatDate(slotProps.data.end_date) }}
-                  </div>
                 </template>
               </Column>
-
-              <Column field="renewed_from_date" header="Renewal">
+              <Column field="end_date" header="End Periode" headerStyle="min-width:15rem">
                 <template #body="slotProps">
-                  {{ formatDate(slotProps.data.renewed_from_date) }}
+                  <div class="font-medium">{{ formatDate(slotProps.data.end_date) }}</div>
                 </template>
               </Column>
 
               <Column field="status" header="Status">
                 <template #body="slotProps">
-                  <div class="flex flex-col gap-1">
                     <Badge
                       :severity="statusSeverity(slotProps.data.status)"
                       :value="slotProps.data.status || '-'"
                     />
+                </template>
+              </Column>
+              <Column field="payment_status" header="Status Bayar">
+                <template #body="slotProps">
+                  <div class="flex flex-col gap-1">                    
                     <Badge
                       :severity="paymentSeverity(slotProps.data.payment_status)"
                       :value="slotProps.data.payment_status || '-'"
                     />
-                  </div>
-                </template>
-              </Column>
-
-              <Column field="nominal" header="Nominal">
-                <template #body="slotProps">
-                  <div class="font-medium">{{ formatMoney(slotProps.data.nominal) }}</div>
-                  <div class="text-[11px] text-surface-500">
-                    Dibayar: {{ formatDate(slotProps.data.paid_at) }}
+                    <div class="text-[11px] text-surface-500">
+                      Dibayar: {{ formatDate(slotProps.data.paid_at) }}
+                    </div>
                   </div>
                 </template>
               </Column>
@@ -297,21 +260,6 @@ const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
                   <div v-if="slotProps.data.csMainProject?.tgl_masuk" class="mt-1 opacity-60">
                     {{ formatDate(slotProps.data.csMainProject?.tgl_masuk) }}
                   </div>
-                </template>
-              </Column>
-
-              <Column field="parent.id" header="Parent">
-                <template #body="slotProps">
-                  <div v-if="slotProps.data.parent">
-                    #{{ slotProps.data.parent.id }}
-                  </div>
-                  <div v-else>-</div>
-                </template>
-              </Column>
-
-              <Column field="renewals" header="Renewals">
-                <template #body="slotProps">
-                  {{ slotProps.data.renewals?.length || 0 }}
                 </template>
               </Column>
 

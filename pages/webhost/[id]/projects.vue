@@ -34,7 +34,6 @@ const totalDibayar = computed(() => {
   return projects.value.reduce((acc: number, item: any) => acc + (Number(item?.dibayar) || 0), 0)
 })
 
-const totalSisa = computed(() => totalBiaya.value - totalDibayar.value)
 </script>
 
 <template>
@@ -51,7 +50,7 @@ const totalSisa = computed(() => totalBiaya.value - totalDibayar.value)
     </div>
 
     <template v-if="data?.id_webhost">
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-5">
         <Card>
           <template #content>
             <div class="text-xs uppercase tracking-wide opacity-60">Total Project</div>
@@ -72,20 +71,13 @@ const totalSisa = computed(() => totalBiaya.value - totalDibayar.value)
             <div class="mt-2 text-xl font-semibold">{{ formatMoney(totalDibayar) }}</div>
           </template>
         </Card>
-
-        <Card>
-          <template #content>
-            <div class="text-xs uppercase tracking-wide opacity-60">Sisa Tagihan</div>
-            <div class="mt-2 text-xl font-semibold">{{ formatMoney(totalSisa) }}</div>
-          </template>
-        </Card>
       </div>
 
       <Card>
         <template #title>
           <div class="flex items-center gap-2">
             <Icon name="lucide:briefcase-business" />
-            Daftar CS Main Project
+            Billing Project
           </div>
         </template>
         <template #content>
