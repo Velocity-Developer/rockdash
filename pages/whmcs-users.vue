@@ -3,6 +3,7 @@
     
     <form @submit.prevent="refresh()" class="flex justify-end items-end gap-1">
       <InputText v-model="filters.search" placeholder="Cari user.." class="w-40" size="small"/>
+      <InputText v-model="filters.search_domain" placeholder="Cari domain.." class="w-40" size="small"/>
       <Select @change="refresh()" v-model="filters.per_page" :options="[20,50,100]" size="small"/>
       <Button type="submit" size="small" severity="info">
         <Icon name="lucide:refresh-cw" :class="status==='pending'?'animate-spin':''" /> Refresh
@@ -17,21 +18,32 @@
                 {{ data.from + slotProps.index }}
             </template>
           </Column>
-          <Column field="firstname" header="Firstname">
+          <Column field="firstname" header="Name">
             <template #body="slotProps">
               <span @click="openPreviewDialog(slotProps.data)" class="cursor-pointer">
-                {{ slotProps.data.firstname }}
-              </span>
-            </template>
-          </Column>
-          <Column field="lastname" header="Lastname">
-            <template #body="slotProps">
-              <span @click="openPreviewDialog(slotProps.data.id)" class="cursor-pointer">
-                {{ slotProps.data.lastname }}
+                {{ slotProps.data.firstname }} {{ slotProps.data.lastname }}
               </span>
             </template>
           </Column>
           <Column field="email" header="Email"></Column>
+          <Column field="domains" header="Domain">
+            <template #body="slotProps">
+              <ol v-if="slotProps.data.domains.length" class="list-decimal list-inside">
+                <li v-for="domain in slotProps.data.domains" :key="domain.id">
+                  {{ domain.domain }} <span class="text-xs text-orange-500">| {{ domain.expirydate }}</span>
+                </li>
+              </ol>
+            </template>
+          </Column>
+          <Column field="hostings" header="Hosting">
+            <template #body="slotProps">
+              <ol v-if="slotProps.data.hostings.length" class="list-decimal list-inside">
+                <li v-for="hosting in slotProps.data.hostings" :key="hosting.id">
+                  {{ hosting.domain }} <span class="text-xs text-primary">| {{ hosting.package_name }}</span>
+                </li>
+              </ol>
+            </template>
+          </Column>
           <Column header="" headerStyle="width:3rem">
             <template #body="slotProps">
                 <div class="flex justify-end items-center gap-1">
@@ -81,6 +93,13 @@
 
   <DashLoader :loading="loading || status === 'pending'"/>
 
+  <div v-if="status === 'pending' && filters.search_domain" class="absolute top-0 left-0 p-3">    
+    <Message severity="warn">
+      <Icon name="lucide:info"/>
+      Ini akan sedikit lama untuk mencari domain, silahkan tunggu ....
+    </Message>
+  </div>
+
 </template>
 
 <script setup lang="ts">
@@ -97,6 +116,7 @@ const filters = reactive({
     per_page: route.query.per_page?Number(route.query.per_page):50,
     page: computed(() => page.value),
     search: '',
+    search_domain: '',
     order_by: 'id',
     order: 'desc',
 } as any);
@@ -104,7 +124,7 @@ const filters = reactive({
 const { data, status, error, refresh } = await useAsyncData(
     'whmcs-user-page-'+page.value,
     () => client('/api/whmcs-user',{
-        params: filters
+        params: { ...filters, with: 'hostings:whmcs_userid,domain,package_name;domains:whmcs_userid,domain,expirydate' }
     })
 ) as any
 const onPaginate = (event: { page: number }) => {
