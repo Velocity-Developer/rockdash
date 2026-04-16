@@ -18,7 +18,7 @@ const getDetailWebhost = async (nama_web: string) => {
     const res = await client(`/api/dash/koreksi-webhost-data`,{
       method: 'GET',
       params: {
-        nama_web: nama_web
+        nama_web: nama_web || ' '
       }
     }) as any
     dataDetail.value = res
@@ -37,6 +37,34 @@ const openDialog = (data: any = null) => {
   getDetailWebhost(data.nama_web || '')
 }
 
+const dataDetailProject = ref<any>({})
+const loadingDetailProject = ref(false)
+const getDetailWebhostProject = async (id_webhost: string) => {
+  loadingDetailProject.value = true
+  try {
+    const res = await client(`/api/webhost/${id_webhost}`) as any
+    dataDetailProject.value = res
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loadingDetailProject.value = false
+  }
+}
+
+const visibleDialogProject = ref(false)
+const dataDialogProject = ref<any>({})
+const openDialogProject = (data: any = null) => {
+  visibleDialogProject.value = true
+  dataDialogProject.value = data ? { ...data } : {}
+  getDetailWebhostProject(data.id_webhost || '')
+}
+
+const visibleFormProjects = ref(false)
+const idFormProjects = ref<number>(0)
+const openFormProjects = (data: any = null) => {
+  visibleFormProjects.value = true
+  idFormProjects.value = data?.id || 0
+}
 </script>
 
 <template>
@@ -86,12 +114,13 @@ const openDialog = (data: any = null) => {
         <template #body="slotProps">
             {{ slotProps.index + 1 }}
         </template>
-      </Column>
+      </Column>      
+      <Column field="id_webhost" header="ID Webhost"/>
       <Column field="nama_web" header="Nama Web">
-        <template #body="slotProps" class="group">            
-            <NuxtLink :to="`/webhost/${slotProps.data.id_webhost}`" target="_blank">
+        <template #body="slotProps">            
+            <NuxtLink :to="`/webhost/${slotProps.data.id_webhost}`" class="group" target="_blank">
               {{ slotProps.data.nama_web || '-' }}              
-              <Icon name="lucide:external-link" class="group-hover:opacity-100 opacity-0"/>
+              <Icon name="lucide:external-link" class="opacity-0 group-hover:opacity-100"/>
             </NuxtLink>
             <div class="text-sm opacity-75">{{ slotProps.data.paket?.paket || '-' }}</div>
         </template>
@@ -109,7 +138,9 @@ const openDialog = (data: any = null) => {
       </Column>
       <Column field="cs_main_projects" header="Projects">
         <template #body="slotProps">
+          <Button @click="openDialogProject(slotProps.data)" size="small" >
             {{ slotProps.data.cs_main_projects.length || '0' }}
+          </Button>
         </template>
       </Column>
       <Column field="whmcs_domain" header="WHMCS Domain">
@@ -118,6 +149,84 @@ const openDialog = (data: any = null) => {
         </template>
       </Column>
     </DataTable>
+  </Dialog>
+
+  <Dialog v-model:visible="visibleDialogProject" modal :dismissableMask="true" :header="'Project '+ dataDialogProject.nama_web + ' ('+ dataDialogProject.id_webhost + ')'" :style="{ width: '90rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    
+    <DataTable
+        :value="dataDetailProject.cs_main_projects"
+        scrollable
+        scrollHeight="42rem"
+        size="small"
+        class="text-xs"
+        stripedRows
+      >
+        <Column header="#" headerStyle="width:4rem">
+          <template #body="slotProps">
+            {{ slotProps.index + 1 }}
+          </template>
+        </Column>
+        <Column field="jenis" header="Jenis" />
+        <Column field="deskripsi" header="Deskripsi">
+          <template #body="slotProps">
+            <div class="max-w-[18rem] whitespace-normal break-words">
+              {{ slotProps.data.deskripsi || '-' }}
+            </div>
+          </template>
+        </Column>
+        <Column field="tgl_masuk" header="Tgl Masuk" />
+        <Column field="tgl_deadline" header="Deadline">
+          <template #body="slotProps">
+            {{ slotProps.data.tgl_deadline || '-' }}
+          </template>
+        </Column>
+        <Column field="status" header="Status">
+          <template #body="slotProps">
+            <Badge
+              :severity="slotProps.data.status === 'selesai' ? 'success' : 'secondary'"
+              :value="slotProps.data.status || 'pending'"
+            />
+          </template>
+        </Column>
+        <Column field="biaya" header="Biaya">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.biaya) }}
+          </template>
+        </Column>
+        <Column field="dibayar" header="Dibayar">
+          <template #body="slotProps">
+            {{ formatMoney(slotProps.data.dibayar) }}
+          </template>
+        </Column>
+        <Column field="lunas" header="Lunas">
+          <template #body="slotProps">
+            <Badge
+              :severity="slotProps.data.lunas === 'lunas' ? 'success' : 'warn'"
+              :value="slotProps.data.lunas || 'belum'"
+            />
+          </template>
+        </Column>
+        <Column field="wm_project.user.name" header="Webmaster">
+          <template #body="slotProps">
+            {{ slotProps.data.wm_project?.user?.name || '-' }}
+          </template>
+        </Column>
+        
+        <Column field="act" header="" v-if="isPermissions('manage-csmainproject')">
+          <template #body="slotProps">
+            <div class="flex justify-end">
+              <Button @click="openFormProjects(slotProps.data)" size="small">
+                <Icon name="lucide-pen"/>
+              </Button>
+            </div>
+          </template>
+        </Column>
+
+      </DataTable>
+  </Dialog>
+
+  <Dialog v-model:visible="visibleFormProjects" modal header="Edit" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <CsMainProjectFormAdmin :id="idFormProjects" action="edit" @submit="getDetailWebhostProject(dataDialogProject.id_webhost);visibleFormProjects = false" />
   </Dialog>
 
 </template>
