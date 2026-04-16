@@ -1,6 +1,6 @@
 <template>
 
-  <template v-if="data && data.nama_web">
+  <template v-if="data && data.id_webhost">
 
     <div class="grid grid-cols-12 gap-4 md:gap-6 mb-5">
 

@@ -59,7 +59,7 @@ const openDialog = (data: any = null) => {
           </Column>
             <Column field="nama_web" header="Nama Web">
               <template #body="slotProps">
-                  {{ slotProps.data.nama_web || '-' }}
+                  {{ slotProps.data.nama_web || ' ' }}
               </template>
             </Column>
             <Column field="total" header="Total">
