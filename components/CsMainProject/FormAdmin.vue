@@ -6,28 +6,25 @@
         <Skeleton width="100%" height="40px" />
       </div>
     </div>
-
+    
     <form v-else class="space-y-4" @submit.prevent="handleSubmit">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="mb-1 block" for="nama_web">Nama Web</label>
-          <InputText id="nama_web" v-model="form.nama_web" class="w-full" />
-        </div>
 
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-amber-50 border border-amber-300 dark:bg-amber-800 dark:border-amber-700 p-4 rounded-md mb-6">
         <div>
-          <label class="mb-1 block" for="kategori_web">Kategori Web</label>
-          <Select
-            id="kategori_web"
-            v-model="form.kategori_web"
-            :options="dataOpsi?.kategori_web || []"
-            optionValue="value"
-            optionLabel="label"
-            filter
-            showClear
-            editable
-            class="w-full"
-          />
+          <div class="text-sm mb-1">Nama Web: </div>
+          <div>{{ dataCsMainProject?.webhost?.nama_web || '-' }}</div>
         </div>
+        <div>
+          <div class="text-sm mb-1">Kategori Web: </div>
+          <div>{{ dataCsMainProject?.webhost?.kategori || '-' }}</div>
+        </div>
+        <div>
+          <div class="text-sm mb-1">Paket: </div>
+          <div>{{ dataCsMainProject?.webhost?.paket?.paket || '-' }}</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         <div>
           <label class="mb-1 block" for="jenis">Jenis Project</label>
@@ -40,19 +37,9 @@
             class="w-full"
           />
         </div>
-
         <div>
-          <label class="mb-1 block" for="paket">Paket</label>
-          <Select
-            id="paket"
-            v-model="form.paket"
-            :options="dataOpsi?.paket || []"
-            optionValue="value"
-            optionLabel="label"
-            filter
-            showClear
-            class="w-full"
-          />
+          <label class="mb-1 block" for="kategori_web">Kategori</label>
+          <InputText id="kategori_web" v-model="form.kategori_web" class="w-full" />
         </div>
 
         <div class="md:col-span-2">
@@ -63,11 +50,6 @@
         <div>
           <label class="mb-1 block" for="trf">Trf</label>
           <InputNumber id="trf" v-model="form.trf" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="waktu_plus">Waktu Tambahan</label>
-          <InputNumber id="waktu_plus" v-model="form.waktu_plus" showButtons class="w-full" />
         </div>
 
         <div>
@@ -88,51 +70,6 @@
         <div>
           <label class="mb-1 block" for="dibayar">Dibayar</label>
           <InputNumber id="dibayar" v-model="form.dibayar" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="nama">Nama Klien</label>
-          <InputText id="nama" v-model="form.nama" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="email">Email</label>
-          <InputText id="email" v-model="form.email" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="hp">No. HP</label>
-          <InputText id="hp" v-model="form.hp" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="wa">No. WA</label>
-          <InputText id="wa" v-model="form.wa" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="telegram">Telegram</label>
-          <InputText id="telegram" v-model="form.telegram" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="saldo">Saldo</label>
-          <InputText id="saldo" v-model="form.saldo" class="w-full" />
-        </div>
-
-        <div>
-          <label class="mb-1 block" for="hpads">HP Ads</label>
-          <Select
-            id="hpads"
-            v-model="form.hpads"
-            :options="[
-              { label: 'Hp Ads', value: 'ya' },
-              { label: 'Hp Web', value: 'tidak' }
-            ]"
-            optionValue="value"
-            optionLabel="label"
-            class="w-full"
-          />
         </div>
 
         <div>
@@ -191,28 +128,19 @@ const fetchError = ref('')
 
 const form = reactive({
   id: '',
+  id_webhost: '',
   jenis: '',
-  nama_web: '',
-  kategori_web: '',
-  paket: null as string | number | null,
   deskripsi: '',
   trf: null as string | number | null,
   tgl_masuk: null as string | Date | null,
   tgl_deadline: null as string | Date | null,
   biaya: null as string | number | null,
   dibayar: null as string | number | null,
-  waktu_plus: null as string | number | null,
-  saldo: '',
-  hp: '',
-  telegram: '',
-  hpads: '',
-  wa: '',
-  email: '',
   dikerjakan_oleh: [] as Array<string | number>,
-  id_webhost: '',
-  invoice_id: '',
-  customer_id: '',
-  nama: '',
+  nama_web: '',
+  hp: '',
+  wa:'',
+  kategori_web: '',
 }) as any
 
 const { data: dataOpsi } = await useAsyncData(
@@ -236,30 +164,24 @@ const normalizeNamaWeb = (value: string) => {
   return isLikelyDomain(noSpaceValue) ? noSpaceValue : normalizedValue
 }
 
+const dataCsMainProject = ref({} as any)
 const assignForm = (res: any) => {
   form.id = res?.id || ''
   form.jenis = res?.jenis || ''
-  form.nama_web = normalizeNamaWeb(res?.webhost?.nama_web || '')
-  form.kategori_web = res?.webhost?.kategori || ''
-  form.paket = res?.webhost?.paket?.id_paket || null
   form.deskripsi = res?.deskripsi || ''
   form.trf = res?.trf ?? null
   form.tgl_masuk = res?.tgl_masuk || null
   form.tgl_deadline = res?.tgl_deadline || null
   form.biaya = res?.biaya ?? null
   form.dibayar = res?.dibayar ?? null
-  form.waktu_plus = res?.cs_main_project_info?.waktu_plus ?? null
   form.saldo = res?.webhost?.saldo || ''
-  form.hp = res?.webhost?.hp || ''
-  form.telegram = res?.webhost?.telegram || ''
-  form.hpads = res?.webhost?.hpads || ''
-  form.wa = res?.webhost?.wa || ''
-  form.email = res?.webhost?.email || ''
   form.dikerjakan_oleh = Array.isArray(res?.raw_dikerjakan) ? res.raw_dikerjakan : []
   form.id_webhost = res?.id_webhost || res?.webhost?.id_webhost || ''
-  form.invoice_id = res?.invoice_id || ''
-  form.customer_id = res?.customer_id || ''
-  form.nama = res?.webhost?.customers?.[0]?.nama || ''
+  form.nama_web = res?.webhost?.nama_web || ''
+  form.hp = res?.webhost?.hp || ''
+  form.wa = res?.webhost?.wa || ''
+  form.kategori_web = res?.webhost?.kategori || ''
+  dataCsMainProject.value = res
 }
 
 const fetchData = async () => {
@@ -301,7 +223,7 @@ const handleSubmit = async () => {
   loadingSubmit.value = true
 
   try {
-    const response = await client(`/api/cs_main_project/${form.id}`, {
+    const response = await client(`/api/cs_main_project_origin/${form.id}`, {
       method: 'PUT',
       body: payload,
     })
