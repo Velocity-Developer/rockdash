@@ -34,6 +34,14 @@ const totalDibayar = computed(() => {
   return projects.value.reduce((acc: number, item: any) => acc + (Number(item?.dibayar) || 0), 0)
 })
 
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+const idDialog = ref<number>(0)
+const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
+  actionDialog.value = action
+  visibleDialog.value = true
+  idDialog.value = data?.id || 0
+}
 </script>
 
 <template>
@@ -140,6 +148,17 @@ const totalDibayar = computed(() => {
                   {{ slotProps.data.wm_project?.user?.name || '-' }}
                 </template>
               </Column>
+              
+              <Column field="act" header="" v-if="isPermissions('manage-csmainproject')">
+                <template #body="slotProps">
+                  <div class="flex justify-end">
+                    <Button @click="openDialog('edit', slotProps.data)" size="small">
+                      <Icon name="lucide-pen"/>
+                    </Button>
+                  </div>
+                </template>
+              </Column>
+
             </DataTable>
           </div>
 
@@ -166,6 +185,10 @@ const totalDibayar = computed(() => {
     <Message v-else-if="status !== 'pending'" severity="warn">
       Data webhost tidak ditemukan.
     </Message>
+
+    <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+      <CsMainProjectFormAdmin :id="idDialog" action="edit" @submit="refresh();visibleDialog = false" />
+    </Dialog>
 
     <DashLoader :loading="status === 'pending'" />
   </div>
