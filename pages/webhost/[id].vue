@@ -83,6 +83,7 @@
         </div>
       </template>
       <template #content>
+        
         <div v-if="dataProjects && dataProjects.data?.cs_main_projects">
           <DataTable
             :value="dataProjects?.data?.cs_main_projects"
@@ -91,6 +92,7 @@
             size="small"
             class="text-xs"
             stripedRows
+            :loading="loadProjects"
           >
             <Column header="#" headerStyle="width:4rem">
               <template #body="slotProps">
@@ -137,12 +139,18 @@
                 {{ slotProps.data.wm_project?.user?.name || '-' }}
               </template>
             </Column>
+
+            <template #empty>
+              Belum ada `Projects` yang terhubung ke webhost ini.
+            </template>
           </DataTable>
         </div>
 
-        <Message v-else severity="warn">
-          Belum ada `cs_main_project` yang terhubung ke webhost ini.
+        <Message v-else severity="warn">          
+          <ProgressBar v-if="loadProjects" mode="indeterminate" style="height: 6px;width: 100%;"></ProgressBar>
+          <span v-else>Belum ada `cs_main_project` yang terhubung ke webhost ini.</span>
         </Message>
+
       </template>
     </Card>
 
@@ -224,14 +232,17 @@ const itemsMenu = ref([
   }
 ])
 
+const loadProjects = ref(false)
 const dataProjects = ref({} as any)
 onMounted(async () => {
     if(route.matched.length <= 1){
+      loadProjects.value = true
       const result = await useAsyncData(
         `webhost-projects-${id}`,
         () => client(`/api/webhost/${id}`)
       ) as any
       dataProjects.value = result || []
+      loadProjects.value = false
     }
 })
 </script>
