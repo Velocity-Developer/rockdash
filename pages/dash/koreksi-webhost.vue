@@ -65,6 +65,13 @@ const openFormProjects = (data: any = null) => {
   visibleFormProjects.value = true
   idFormProjects.value = data?.id || 0
 }
+
+const idEditWebshost = ref<number>(0)
+const visibleEditWebhost = ref(false)
+const openEditWebhost = (id: any = null) => {
+ idEditWebshost.value = id || 0
+ visibleEditWebhost.value = true
+}
 </script>
 
 <template>
@@ -115,7 +122,14 @@ const openFormProjects = (data: any = null) => {
             {{ slotProps.index + 1 }}
         </template>
       </Column>      
-      <Column field="id_webhost" header="ID Webhost"/>
+      <Column field="id_webhost" header="ID">
+        <template #body="slotProps">            
+            <NuxtLink :to="`/webhost/${slotProps.data.id_webhost}`" class="group" target="_blank">
+              {{ slotProps.data.id_webhost || '-' }}              
+              <Icon name="lucide:external-link" class="opacity-0 group-hover:opacity-100"/>
+            </NuxtLink>
+        </template>
+      </Column>
       <Column field="nama_web" header="Nama Web">
         <template #body="slotProps">            
             <NuxtLink :to="`/webhost/${slotProps.data.id_webhost}`" class="group" target="_blank">
@@ -136,6 +150,11 @@ const openFormProjects = (data: any = null) => {
             <div class="text-sm opacity-75">{{ slotProps.data.hp || '-' }}</div>
         </template>
       </Column>
+      <Column field="whmcs_domain" header="WHMCS Domain">
+        <template #body="slotProps">
+            {{ slotProps.data.whmcs_domain?.expirydate || '-' }}
+        </template>
+      </Column>
       <Column field="cs_main_projects" header="Projects">
         <template #body="slotProps">
           <Button @click="openDialogProject(slotProps.data)" size="small" >
@@ -143,16 +162,23 @@ const openFormProjects = (data: any = null) => {
           </Button>
         </template>
       </Column>
-      <Column field="whmcs_domain" header="WHMCS Domain">
-        <template #body="slotProps">
-            {{ slotProps.data.whmcs_domain?.expirydate || '-' }}
+      <Column field="action" header="Aksi">
+        <template #body="slotProps">          
+            <Button @click="openEditWebhost(slotProps.data.id_webhost)" severity="info" size="small">
+              <Icon name="lucide:pencil" />
+            </Button>
         </template>
       </Column>
     </DataTable>
   </Dialog>
 
   <Dialog v-model:visible="visibleDialogProject" modal :dismissableMask="true" :header="'Project '+ dataDialogProject.nama_web + ' ('+ dataDialogProject.id_webhost + ')'" :style="{ width: '90rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3 text-sm bg-amber-50 dark:bg-amber-800 p-4 border border-amber-400 dark:border-amber-700 rounded-md">
+      <div>Email : {{ dataDialogProject.email || '-' }}</div>
+      <div>HP : {{ dataDialogProject.hp || '-' }}</div>
+      <div>WA : {{ dataDialogProject.wa || '-' }}</div>
+      <div>Tgl Mulai : {{ dataDialogProject.tgl_mulai || '-' }}</div>
+    </div>
     <DataTable
         :value="dataDetailProject.cs_main_projects"
         scrollable
@@ -160,6 +186,7 @@ const openFormProjects = (data: any = null) => {
         size="small"
         class="text-xs"
         stripedRows
+        :loading="loadingDetailProject"
       >
         <Column header="#" headerStyle="width:4rem">
           <template #body="slotProps">
@@ -222,11 +249,23 @@ const openFormProjects = (data: any = null) => {
           </template>
         </Column>
 
+        <template #empty>
+          <div class="text-center text-sm opacity-75">Tidak ada project</div>
+        </template>
       </DataTable>
   </Dialog>
 
   <Dialog v-model:visible="visibleFormProjects" modal header="Edit" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-      <CsMainProjectFormAdmin :id="idFormProjects" action="edit" @submit="getDetailWebhostProject(dataDialogProject.id_webhost);visibleFormProjects = false" />
+      <CsMainProjectFormAdmin :id="idFormProjects" action="edit" @submit="getDetailWebhost(dataDetail.nama_web);getDetailWebhostProject(dataDialogProject.id_webhost);visibleFormProjects = false" />
+  </Dialog>
+
+  <Dialog v-model:visible="visibleEditWebhost" modal :header="'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <WebhostForm 
+      :action="'edit'" 
+      :id="idEditWebshost" 
+      @update="getDetailWebhost(dataDetail.nama_web);visibleEditWebhost = false;visibleDialog = false;refreshData()" 
+      @delete="getDetailWebhost(dataDetail.nama_web);visibleEditWebhost = false;visibleDialog = false;refreshData()"
+    />
   </Dialog>
 
 </template>
