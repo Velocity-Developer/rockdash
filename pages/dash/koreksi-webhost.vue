@@ -3,11 +3,15 @@ definePageMeta({
     title: 'Koreksi Webhost',
 })
 const client = useSanctumClient();
+const { start, finish } = useLoadingIndicator()
 
 //get data Webhost Koreksi
 const { data: results ,status: statusGet, refresh: refreshData} = await useAsyncData(
     'webhost-ganda',
-    () => client('/api/dash/koreksi-webhost/ganda')
+    async () => {
+      start()
+      return await client('/api/dash/koreksi-webhost/ganda').finally(finish)
+    }
 ) as any
 
 const dataDetail = ref<any>({})
@@ -15,6 +19,7 @@ const loadingDetail = ref(false)
 const getDetailWebhost = async (nama_web: string) => {
   loadingDetail.value = true
   try {
+    start()
     const res = await client(`/api/dash/koreksi-webhost-data`,{
       method: 'GET',
       params: {
@@ -25,7 +30,8 @@ const getDetailWebhost = async (nama_web: string) => {
   } catch (error) {
     console.log(error)
   } finally {
-    loadingDetail.value = false
+    loadingDetail.value = false 
+    finish()
   }
 }
 
@@ -42,12 +48,14 @@ const loadingDetailProject = ref(false)
 const getDetailWebhostProject = async (id_webhost: string) => {
   loadingDetailProject.value = true
   try {
+    start()
     const res = await client(`/api/webhost/${id_webhost}`) as any
     dataDetailProject.value = res
   } catch (error) {
     console.log(error)
   } finally {
-    loadingDetailProject.value = false
+    loadingDetailProject.value = false 
+    finish()
   }
 }
 

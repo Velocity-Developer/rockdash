@@ -72,6 +72,7 @@
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
+const { start, finish } = useLoadingIndicator()
 const emit = defineEmits(['update','delete']);
 const client = useSanctumClient();
 const toast = useToast();
@@ -113,6 +114,7 @@ const submitForm = async () => {
   payload.value.tgl_mulai = payload.value.tgl_mulai?dayjs(payload.value.tgl_mulai).format('YYYY-MM-DD').toString():null
 
   try {
+    start()
     if (props.action === 'add') {
       await client('/api/webhost', {
         method: 'POST',
@@ -149,7 +151,8 @@ const submitForm = async () => {
       life: 3000
     });
   } finally {
-    loadingSubmit.value = false
+    loadingSubmit.value = false 
+    finish()
   }
 }
 

@@ -107,6 +107,7 @@
 
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
+const { start, finish } = useLoadingIndicator()
 
 const dayjs = useDayjs()
 const client = useSanctumClient()
@@ -221,8 +222,8 @@ const handleSubmit = async () => {
   }
 
   loadingSubmit.value = true
-
   try {
+    start()
     const response = await client(`/api/cs_main_project_origin/${form.id}`, {
       method: 'PUT',
       body: payload,
@@ -245,7 +246,8 @@ const handleSubmit = async () => {
       life: 3000,
     })
   } finally {
-    loadingSubmit.value = false
+    loadingSubmit.value = false 
+    finish()
   }
 }
 
