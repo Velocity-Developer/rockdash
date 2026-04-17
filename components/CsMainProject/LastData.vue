@@ -13,7 +13,12 @@
     <DataTable v-if="!loading" :value="data" size="small" class="text-xs">
       <Column field="webhost.nama_web" header="web">
         <template #body="slotProps">
-          <span :class="isNew(slotProps.data.cs_main_project_info.created_at)?'text-green-600':''">{{ slotProps.data?.webhost?.nama_web }}</span>
+                  
+          <NuxtLink :to="`/webhost/${slotProps.data.id_webhost}`" class="group" target="_blank" :class="isNew(slotProps.data.cs_main_project_info.created_at)?'text-green-600':''">
+            {{ slotProps.data?.webhost?.nama_web || '-' }}              
+            <Icon name="lucide:external-link" class="opacity-0 group-hover:opacity-100"/>
+          </NuxtLink>
+          
         </template>
       </Column>
       <Column field="jenis" header="jenis" />
@@ -29,7 +34,7 @@
       </Column>
       <Column field="cs_main_project_info.author.name" header="User">
         <template #body="slotProps">
-          <div class="truncate w-10">
+          <div class="truncate w-10" v-tooltip="slotProps.data?.cs_main_project_info?.author?.name">
             {{ slotProps.data?.cs_main_project_info?.author?.name }}
           </div>
         </template>
@@ -38,6 +43,7 @@
 
     <div v-if="loading">
       <div v-for="i in 5" class="flex gap-2 justify-between mt-1">
+        <Skeleton height="2rem"/>
         <Skeleton height="2rem"/>
         <Skeleton height="2rem"/>
         <Skeleton height="2rem"/>

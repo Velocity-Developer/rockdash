@@ -52,6 +52,7 @@
       <div class="flex items-center gap-1 font-bold mb-3 text-xl opacity-50 text-rose-700">
         <Icon name="lucide:briefcase" />
         Project
+        <Icon v-if="form.id_webhost" name="lucide:circle-check" size="1rem" class="ml-2 text-green-500"/>
       </div>
     </div>
     <div class="grid grid-cols-4 gap-4">

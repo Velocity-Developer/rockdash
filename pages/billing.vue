@@ -264,7 +264,7 @@
     <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh();visibleDialog = false" />
   </Dialog>
 
-  <DashLoader :loading="isLoadingDash"/>
+  <DashLoader :loading="status=='pending'"/>
 
 </template>
 
@@ -278,6 +278,7 @@ import * as XLSX from 'xlsx'
 const dayjs = useDayjs()
 const route = useRoute();
 const client = useSanctumClient();
+const { start, finish } = useLoadingIndicator()
 
 const page = ref(route.query.page ? Number(route.query.page) : 1);
 
@@ -309,10 +310,13 @@ function updateRouteParams() {
 }
 
 const { data, status, error, refresh } = await useAsyncData(
-    'billing-page-'+page.value,
-    () => client('/api/billing',{
-        params: filters
-    })
+    'billing-page-'+(filters.toString()),
+    async () => {
+        start()
+        return await client('/api/billing',{
+            params: filters
+        }).finally(finish)
+    }
 ) as any
 const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1;
@@ -325,16 +329,6 @@ watch(filters, () => {
     //ubah format date dayjs
     filters.tgl_masuk_start = filters.tgl_masuk_start?dayjs(filters.tgl_masuk_start).format('YYYY-MM-DD'):'';
     filters.tgl_masuk_end = filters.tgl_masuk_end?dayjs(filters.tgl_masuk_end).format('YYYY-MM-DD'):'';
-})
-
-//watch status
-const isLoadingDash = ref(false)
-watch(status, (newValue, oldValue) => {
-    if(newValue == 'success') {
-      isLoadingDash.value = false;
-    } else {
-      isLoadingDash.value = true;
-    }
 })
 
 //get opsi jenis
