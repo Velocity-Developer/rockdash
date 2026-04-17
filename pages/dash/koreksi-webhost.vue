@@ -5,12 +5,37 @@ definePageMeta({
 const client = useSanctumClient();
 const { start, finish } = useLoadingIndicator()
 
+const filterSubject = ref('ganda' as string)
+const filterPage = ref(1 as number)
+
+// Fungsi untuk mengubah params filters menjadi query URL route
+const router = useRouter();
+function updateRouteParams() {
+  router.push({
+    query: { 
+      page: filterPage.value || 1,
+      subject: filterSubject.value || 'ganda',
+     },
+  });
+}
+
+const onPaginate = (event: { page: number }) => {
+    filterPage.value = event.page + 1;
+    updateRouteParams()
+    refreshData()
+};
+
 //get data Webhost Koreksi
 const { data: results ,status: statusGet, refresh: refreshData} = await useAsyncData(
-    'webhost-ganda',
+    `koreksi-webhost-${filterSubject.value}`,
     async () => {
       start()
-      return await client('/api/dash/koreksi-webhost/ganda').finally(finish)
+      return await client(`/api/dash/koreksi-webhost/${filterSubject.value}?page=${filterPage.value}`,{
+        method: 'GET',
+        params: {
+          page: filterPage.value || 1
+        }
+      }).finally(finish)
     }
 ) as any
 
@@ -86,15 +111,31 @@ const openEditWebhost = (id: any = null) => {
   
   <div class="mx-auto space-y-4 max-w-3xl">
 
-    <div class="flex justify-end">
-      <Button @click="refreshData()" size="small">
+    <div class="flex flex-col md:flex-row justify-end gap-2">
+      <div class="text-sm flex justify-between items-center gap-2 shadow hover:shadow-md transition-all duration-300 bg-slate-300 dark:bg-slate-700 rounded-md pl-4 py-1 px-1">
+        <label for="filtersubject">Filter Nama Web : </label>
+        <SelectButton
+          v-model="filterSubject" 
+          :options="[
+            { name: 'Ganda', value: 'ganda' },
+            { name: 'XXX', value: 'xxx' },
+            { name: 'Huruf Besar', value: 'uppercase' },
+            { name: 'kosong', value: 'kosong' }
+          ]" 
+          optionLabel="name" 
+          optionValue="value" 
+          @change="filterPage = 1; refreshData()"
+          size="small" name="filtersubject"
+        />
+      </div>
+      <Button @click="refreshData()" size="small" class="shadow hover:shadow-md transition-all duration-300">
         <Icon name="lucide:refresh-cw" :class="statusGet=='pending'?'animate-spin':''"/> Reload
       </Button>
     </div>
 
     <Card>
       <template #content>
-        <DataTable :value="results" class="text-sm" :loading="statusGet=='pending'" stripedRows>
+        <DataTable :value="results.data" class="text-sm" :loading="statusGet=='pending'" stripedRows>
           <Column header="#" headerStyle="width:3rem">
             <template #body="slotProps">
                 {{ slotProps.index + 1 }}
@@ -105,19 +146,49 @@ const openEditWebhost = (id: any = null) => {
                   {{ slotProps.data.nama_web || ' ' }}
               </template>
             </Column>
-            <Column field="total" header="Total">
+            <Column v-if="filterSubject == 'ganda'" field="total" header="Total">
               <template #body="slotProps">
-                  {{ slotProps.data.total || '-' }}
+                  {{ slotProps.data.total || '0' }}
               </template>
             </Column>
-            <Column field="total" header="Total">
+            <Column v-if="filterSubject !== 'ganda'" field="id_webhost" header="ID Webhost">
               <template #body="slotProps">
-                <Button @click="openDialog(slotProps.data)" size="small">
-                  <Icon name="lucide:pen"/>
-                </Button>
+                  {{ slotProps.data?.id_webhost || '-' }}
+              </template>
+            </Column>
+            <Column field="action" header="Aksi">
+              <template #body="slotProps">
+                <div class="flex justify-end gap-1">
+                  <Button v-if="filterSubject == 'ganda'" @click="openDialog(slotProps.data)" size="small">
+                    <Icon name="lucide:pen"/>
+                  </Button>
+                  <Button v-if="slotProps.data?.id_webhost" @click="openDialogProject(slotProps.data)" severity="info" size="small">
+                    <Icon name="lucide:eye"/>
+                  </Button>
+                </div>
               </template>
             </Column>
           </DataTable>
+
+          <div class="flex justify-between items-center gap-2 mt-4 text-sm">
+            <div>
+              {{ results.from }}-{{ results.to }} of {{ results.total }}
+            </div>
+            <Paginator
+                :rows="results.per_page"
+                :totalRecords="results.total"
+                @page="onPaginate"
+                :pt="{
+                    root: (event: any) => {
+                        const itemForPage =  results.per_page;
+                        const currentPage =  filterPage - 1;
+                        event.state.d_first = itemForPage * currentPage;
+                    },
+                }"
+            >
+            </Paginator>
+          </div>
+
       </template>
     </Card>
 
@@ -180,12 +251,12 @@ const openEditWebhost = (id: any = null) => {
     </DataTable>
   </Dialog>
 
-  <Dialog v-model:visible="visibleDialogProject" modal :dismissableMask="true" :header="'Project '+ dataDialogProject.nama_web + ' ('+ dataDialogProject.id_webhost + ')'" :style="{ width: '90rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleDialogProject" modal :dismissableMask="true" :header="'Project '+ dataDialogProject.nama_web + ' ('+ dataDialogProject.id_webhost + ')'" :style="{ width: '95rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3 text-sm bg-amber-50 dark:bg-amber-800 p-4 border border-amber-400 dark:border-amber-700 rounded-md">
-      <div>Email : {{ dataDialogProject.email || '-' }}</div>
-      <div>HP : {{ dataDialogProject.hp || '-' }}</div>
-      <div>WA : {{ dataDialogProject.wa || '-' }}</div>
-      <div>Tgl Mulai : {{ dataDialogProject.tgl_mulai || '-' }}</div>
+      <div>Email : {{ dataDetailProject.email || '-' }}</div>
+      <div>HP : {{ dataDetailProject.hp || '-' }}</div>
+      <div>WA : {{ dataDetailProject.wa || '-' }}</div>
+      <div>Tgl Mulai : {{ dataDetailProject.tgl_mulai || '-' }}</div>
     </div>
     <DataTable
         :value="dataDetailProject.cs_main_projects"
