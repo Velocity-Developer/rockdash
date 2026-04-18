@@ -58,18 +58,33 @@
 
         <div class="overflow-x-scroll md:overflow-auto">
           <div class="flex items-center md:justify-end mt-3 md:mt-0 gap-2">
-            <div class="border rounded py-2 px-4 w-[150px] border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-950 hover:shadow-md">
+            <button
+              type="button"
+              class="border rounded py-2 px-4 w-[150px] border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-950 hover:shadow-md text-left transition cursor-pointer"
+              @click="exportDataExpiredToExcel('perpanjang')"
+              v-tooltip="'Export Excel Data Perpanjang'"
+            >
               <div class="text-xs">Total Perpanjang</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total_perpanjang }}</div>
-            </div>
-            <div class="border rounded py-2 px-4 w-[150px] border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-950 hover:shadow-md">
+            </button>
+            <button
+              type="button"
+              class="border rounded py-2 px-4 w-[150px] border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-950 hover:shadow-md text-left transition cursor-pointer"
+              @click="exportDataExpiredToExcel('tidak_perpanjang')"
+              v-tooltip="'Export Excel Data Tidak Perpanjang'"
+            >
               <div class="text-xs">Tidak Perpanjang</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total_tidak_perpanjang }}</div>
-            </div>
-            <div class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md">
+            </button>
+            <button
+              type="button"
+              class="border rounded py-2 px-4 w-[150px] border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 hover:shadow-md text-left transition cursor-pointer"
+              @click="exportDataExpiredToExcel('total')"
+              v-tooltip.left="'Export Excel Data Total'"
+            >
               <div class="text-xs">Total</div>
               <div class="text-end font-bold">{{ dataExpiredWHMCS.total }}</div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -88,7 +103,7 @@
       >
       <template #header>
             <div class="flex justify-end gap-1">                
-              <Button @click="exportDataExpiredToExcel" size="small" severity="success">
+              <Button @click="exportDataExpiredToExcel('total')" size="small" severity="success">
                 <Icon name="lucide:download" />
                 Export Excel
               </Button>
@@ -419,8 +434,24 @@ const exportToExcel = () => {
   XLSX.writeFile(wb, filename);
 }
 
-const exportDataExpiredToExcel = () => {
-  if (!dataExpiredWHMCS.value || !dataExpiredWHMCS.value.data) {
+const getFilteredExpiredRows = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'total' = 'total') => {
+  const rows = dataExpiredWHMCS.value?.data || []
+
+  if (jenis === 'perpanjang') {
+    return rows.filter((item: any) => Boolean(item.status))
+  }
+
+  if (jenis === 'tidak_perpanjang') {
+    return rows.filter((item: any) => !item.status)
+  }
+
+  return rows
+}
+
+const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'total' = 'total') => {
+  const filteredRows = getFilteredExpiredRows(jenis)
+
+  if (!filteredRows.length) {
     return;
   }
 
@@ -431,7 +462,7 @@ const exportDataExpiredToExcel = () => {
   excelData.push(['No', 'Domain', 'Expiry Date domain', 'Status Domain', 'Expiry Date Hosting', 'Hosting', 'Webhost', 'Status']);
   
   // Process each item
-  dataExpiredWHMCS.value.data.forEach((item: any, index: number) => {
+  filteredRows.forEach((item: any, index: number) => {
     excelData.push([
       index + 1,
       item.domain_name,
@@ -464,7 +495,12 @@ const exportDataExpiredToExcel = () => {
   XLSX.utils.book_append_sheet(wb, ws, 'Data Expired');
 
   // Generate filename with filter bulan
-  const filename = `Data_Expired_${theBulan.value}.xlsx`;
+  const suffixMap = {
+    perpanjang: 'Perpanjang',
+    tidak_perpanjang: 'Tidak_Perpanjang',
+    total: 'Total',
+  } as const
+  const filename = `Data_Expired_${suffixMap[jenis]}_${theBulan.value}.xlsx`;
 
   // Save file
   XLSX.writeFile(wb, filename);
