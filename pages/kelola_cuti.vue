@@ -238,7 +238,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-5 pt-20">
+  <div class="space-y-5">
 
     <div class="flex gap-2 items-center justify-end">
       <Button
