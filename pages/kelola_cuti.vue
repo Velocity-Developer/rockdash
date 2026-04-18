@@ -5,14 +5,14 @@ definePageMeta({
 })
 
 import { useDayjs } from '#dayjs'
-
 const dayjs = useDayjs()
 const client = useSanctumClient()
 const toast = useToast()
+const { start, finish } = useLoadingIndicator()
 
 const loading = ref(false)
 const saving = ref(false)
-const tahun = ref(Number(dayjs().format('YYYY')))
+const tahun = ref(dayjs().toDate())
 const items = ref<any[]>([])
 const expandedRows = ref<any[]>([])
 const karyawans = ref<string[]>([])
@@ -72,9 +72,10 @@ const stats = computed(() => {
 async function loadData() {
   loading.value = true
   try {
+    start()
     const res = await client('/api/cuti', {
       params: {
-        tahun: tahun.value,
+        tahun: dayjs(tahun.value).format('YYYY'),
       },
     }) as any
 
@@ -83,6 +84,7 @@ async function loadData() {
       ? res.data : []
   } finally {
     loading.value = false
+    finish()
   }
 }
 
@@ -251,12 +253,7 @@ onMounted(() => {
         />
         Tambah
       </Button>
-      <InputNumber
-        v-model="tahun"
-        size="small"
-        class="!w-24"
-        :useGrouping="false" fluid
-      />
+      <DatePicker v-model="tahun" view="year" dateFormat="yy" @change="loadData()"/>
       <Button
         size="small"
         @click="loadData()"
@@ -334,13 +331,13 @@ onMounted(() => {
             </template>
           </Column>
           <Column header="Cuti">
-            <template #body="slotProps" class="text-emerald-500 font-medium">
-                {{ slotProps.data.detail?.Cuti || '0.00' }}
+            <template #body="slotProps" class="!text-green-500 font-medium">
+                {{ slotProps.data.detail?.Cuti || '0' }}
             </template>
           </Column>
           <Column header="Sakit" class="text-rose-500 font-medium">
             <template #body="slotProps">
-                {{ slotProps.data.detail?.Sakit || '0.00' }}
+                {{ slotProps.data.detail?.Sakit || '0' }}
             </template>
           </Column>
           <Column header="Blm Diganti" class="text-blue-500 font-medium">
