@@ -146,10 +146,23 @@
     <Dialog
       v-model:visible="detailDialog.visible"
       modal
-      :header="detailDialog.header"
       :style="{ width: '90rem' }"
       :breakpoints="{ '1199px': '90vw', '575px': '96vw' }"
     >
+      <template #header>
+        <div class="flex items-center justify-between gap-3 w-full">
+          <span>{{ detailDialog.header }}</span>
+          <Button
+            size="small"
+            severity="success"
+            :disabled="detailDialog.loading || !detailDialog.rows.length"
+            @click="exportDetailToExcel"
+          >
+            <Icon name="lucide:download" />
+            Export Excel
+          </Button>
+        </div>
+      </template>
       <DataTable
         :value="detailDialog.rows"
         :loading="detailDialog.loading"
@@ -206,6 +219,8 @@
 </template>
 
 <script setup lang="ts">
+import * as XLSX from 'xlsx'
+
 definePageMeta({
     title: 'Grafik Laporan Klien Perpanjang',
 })
@@ -316,6 +331,40 @@ const openDetailDialog = async (item: any, jenis: 'perpanjang' | 'tidak_perpanja
   } finally {
     detailDialog.loading = false
   }
+}
+
+const exportDetailToExcel = () => {
+  if (!detailDialog.rows?.length) {
+    return
+  }
+
+  const exportData = detailDialog.rows.map((item: any, index: number) => ({
+    No: index + 1,
+    'Nama Web': item.nama_web || '-',
+    'Tgl Mulai': item.tgl_mulai || '-',
+    'Tgl Masuk': item.tgl_masuk || '-',
+    'Expiry Date': item.expirydate || '-',
+    'Status WHMCS': item.whmcs_status || '-',
+    Dibayar: item.dibayar || 0,
+  }))
+
+  const wb = XLSX.utils.book_new()
+  const ws = XLSX.utils.json_to_sheet(exportData)
+
+  ws['!cols'] = [
+    { wch: 6 },
+    { wch: 35 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 18 },
+    { wch: 14 },
+  ]
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Detail')
+
+  const fileName = `Klien_Perpanjang_Grafik_${detailDialog.header.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`
+  XLSX.writeFile(wb, fileName)
 }
 
 onMounted(()=>{
