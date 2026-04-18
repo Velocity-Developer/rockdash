@@ -1,19 +1,39 @@
 <script setup lang="ts">
 definePageMeta({
-  title: 'Kelola Data Cuti',
+  title: 'Data Cuti',
   description: 'Catatan cuti karyawan',
-  development: true
 })
 
 import { useDayjs } from '#dayjs'
 
 const dayjs = useDayjs()
 const client = useSanctumClient()
+const toast = useToast()
 
 const loading = ref(false)
+const saving = ref(false)
 const tahun = ref(Number(dayjs().format('YYYY')))
 const items = ref<any[]>([])
 const expandedRows = ref<any[]>([])
+const karyawans = ref<string[]>([])
+const visibleDialog = ref(false)
+const dialogMode = ref<'add' | 'edit'>('add')
+const form = reactive({
+  id: null as number | null,
+  nama: '',
+  tanggal: dayjs().format('YYYY-MM-DD'),
+  jenis: 'Full',
+  detail: '',
+  time: '00:00',
+  tipe: '',
+})
+
+const jenisOptions = ['Full', 'Jam']
+const tipeOptions = ['Belum diganti', 'Sudah diganti', 'Sakit']
+const detailOptions = ['Cuti', 'Sakit']
+const canEditCuti = computed(() => isPermissions('edit-cuti'))
+const dialogTitle = computed(() => dialogMode.value === 'add' ? 'Tambah Data Cuti' : 'Edit Data Cuti')
+const isJamForm = computed(() => form.jenis === 'Jam')
 
 const stats = computed(() => {
   const totalKaryawan = items.value.length
@@ -58,9 +78,9 @@ async function loadData() {
       },
     }) as any
 
-    items.value = Array.isArray(res?.data?.data)
-      ? res.data.data
-      : (Array.isArray(res?.data) ? res.data : [])
+    karyawans.value = Array.isArray(res?.karyawans) ? res.karyawans : []
+    items.value = Array.isArray(res?.data)
+      ? res.data : []
   } finally {
     loading.value = false
   }
@@ -80,7 +100,7 @@ function detailSummary(detail: Record<string, string>) {
     },
     {
       label: 'Belum diganti',
-      value: detail?.['Blm diganti'] || '00 Hari 00 Jam 00 Menit',
+      value: detail?.['Blm diganti'] || false,
       severity: 'warn',
     },
   ]
@@ -106,6 +126,112 @@ function itemTone(item: any) {
   return 'border-l-4 border-slate-300 bg-white dark:bg-slate-900'
 }
 
+function resetForm() {
+  form.id = null
+  form.nama = karyawans.value[0] || ''
+  form.tanggal = dayjs().format('YYYY-MM-DD')
+  form.jenis = 'Full'
+  form.detail = 'Cuti'
+  form.time = '00:00'
+  form.tipe = ''
+}
+
+function openAddDialog() {
+  dialogMode.value = 'add'
+  resetForm()
+  visibleDialog.value = true
+}
+
+function openEditDialog(item: any) {
+  dialogMode.value = 'edit'
+  form.id = item.id
+  form.nama = item.nama || ''
+  form.tanggal = item.tanggal || dayjs().format('YYYY-MM-DD')
+  form.jenis = item.jenis || 'Full'
+  form.detail = item.detail || ''
+  form.time = item.time || '00:00'
+  form.tipe = item.tipe || ''
+  visibleDialog.value = true
+}
+
+watch(() => form.jenis, (jenis) => {
+  if (jenis === 'Full') {
+    form.time = '00:00'
+    form.tipe = ''
+    return
+  }
+
+  if (!form.time) {
+    form.time = '00:00'
+  }
+})
+
+async function submitForm() {
+  if (!form.nama || !form.tanggal || !form.jenis) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Lengkapi data',
+      detail: 'Nama, tanggal, dan jenis harus diisi.',
+      life: 3000,
+    })
+    return
+  }
+
+  if (form.jenis === 'Jam' && (form.time < '00:00' || form.time > '08:00')) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Jam tidak valid',
+      detail: 'Waktu izin hanya bisa diisi dari 00:00 sampai 08:00.',
+      life: 3000,
+    })
+    return
+  }
+
+  saving.value = true
+
+  try {
+    const payload = {
+      nama: form.nama,
+      tanggal: form.tanggal,
+      jenis: form.jenis,
+      detail: form.detail || null,
+      time: form.jenis === 'Jam' ? (form.time || '00:00') : '00:00',
+      tipe: form.jenis === 'Jam' ? (form.tipe || null) : null,
+    }
+
+    if (dialogMode.value === 'edit' && form.id) {
+      await client(`/api/cuti/${form.id}`, {
+        method: 'PUT',
+        body: payload,
+      })
+    } else {
+      await client('/api/cuti', {
+        method: 'POST',
+        body: payload,
+      })
+    }
+
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: dialogMode.value === 'edit' ? 'Data cuti berhasil diperbarui.' : 'Data cuti berhasil ditambahkan.',
+      life: 3000,
+    })
+
+    visibleDialog.value = false
+    await loadData()
+  } catch (error: any) {
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal menyimpan',
+      detail: error?.data?.message || 'Terjadi kesalahan saat menyimpan data cuti.',
+      life: 4000,
+    })
+  } finally {
+    saving.value = false
+  }
+}
+
 onMounted(() => {
   loadData()
 })
@@ -115,15 +241,24 @@ onMounted(() => {
   <div class="space-y-5 pt-20">
 
     <div class="flex gap-2 items-center justify-end">
+      <Button
+        size="small"
+        v-if="canEditCuti"
+        @click="openAddDialog()"
+      >
+        <Icon
+          name="lucide:plus"
+        />
+        Tambah
+      </Button>
       <InputNumber
         v-model="tahun"
         size="small"
-        class="w-24"
+        class="!w-24"
         :useGrouping="false" fluid
       />
       <Button
         size="small"
-        class="rounded-2xl"
         @click="loadData()"
         :loading="loading"
       >
@@ -135,7 +270,7 @@ onMounted(() => {
       </Button>
     </div>
 
-    <div v-if="isPermissions('edit-cuti')" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div v-if="canEditCuti" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <div
         v-for="stat in stats"
         :key="stat.label"
@@ -200,17 +335,17 @@ onMounted(() => {
           </Column>
           <Column header="Cuti">
             <template #body="slotProps" class="text-emerald-500 font-medium">
-                {{ slotProps.data.cuti }}
+                {{ slotProps.data.detail?.Cuti || '0.00' }}
             </template>
           </Column>
           <Column header="Sakit" class="text-rose-500 font-medium">
             <template #body="slotProps">
-                {{ slotProps.data.sakit }}
+                {{ slotProps.data.detail?.Sakit || '0.00' }}
             </template>
           </Column>
           <Column header="Blm Diganti" class="text-blue-500 font-medium">
             <template #body="slotProps">
-                {{ slotProps.data.blmdiganti || '-' }}
+                {{ slotProps.data.detail?.['Blm diganti'] || '-' }}
             </template>
           </Column>
 
@@ -237,6 +372,7 @@ onMounted(() => {
                   <Tag
                     v-for="info in detailSummary(slotProps.data.detail)"
                     :key="`${slotProps.data.nama}-${info.label}`"
+                    v-show="info.value"
                     :severity="info.severity"
                     rounded
                     class="!text-xs"
@@ -290,6 +426,18 @@ onMounted(() => {
                       Tanpa tambahan
                     </Tag>
                   </div>
+
+                  <div v-if="canEditCuti" class="mt-4 flex justify-end">
+                    <Button
+                      size="small"
+                      severity="secondary"
+                      outlined
+                      @click="openEditDialog(item)"
+                    >
+                      <Icon name="lucide:pencil" />
+                      Edit
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -297,6 +445,93 @@ onMounted(() => {
         </DataTable>
       </template>
     </Card>
+
+    <Dialog
+      v-if="canEditCuti" 
+      v-model:visible="visibleDialog"
+      modal
+      :header="dialogTitle"
+      :style="{ width: '42rem' }"
+      :breakpoints="{ '1199px': '70vw', '575px': '95vw' }"
+    >
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="md:col-span-2">
+          <label class="mb-2 block text-sm font-medium">Nama</label>
+          <Select
+            v-model="form.nama"
+            :options="karyawans"
+            placeholder="Pilih karyawan"
+            class="w-full"
+          />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-medium">Tanggal</label>
+          <InputText
+            v-model="form.tanggal"
+            type="date"
+            class="w-full"
+          />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-medium">Jenis</label>
+          <Select
+            v-model="form.jenis"
+            :options="jenisOptions"
+            class="w-full"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="mb-2 block text-sm font-medium">Detail</label>
+          <Textarea
+            v-model="form.detail"
+            placeholder="Masukkan detail"
+            class="w-full"
+          />
+        </div>
+
+        <div v-if="isJamForm">
+          <label class="mb-2 block text-sm font-medium">Waktu</label>
+          <InputText
+            v-model="form.time"
+            type="time"
+            min="00:00"
+            max="08:00"
+            class="w-full"
+          />
+          <div class="mt-1 text-xs text-slate-500">
+            Isi waktu dari 00:00 sampai 08:00.
+          </div>
+        </div>
+
+        <div v-if="isJamForm">
+          <label class="mb-2 block text-sm font-medium">Tipe</label>
+          <Select
+            v-model="form.tipe"
+            :options="tipeOptions"
+            placeholder="Pilih tipe"
+            class="w-full"
+          />
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button
+            label="Batal"
+            severity="secondary"
+            @click="visibleDialog = false"
+          />
+          <Button
+            :label="dialogMode === 'edit' ? 'Simpan perubahan' : 'Tambah data'"
+            :loading="saving"
+            @click="submitForm()"
+          />
+        </div>
+      </template>
+    </Dialog>
   </div>
 </template>
 
