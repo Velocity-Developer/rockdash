@@ -93,7 +93,15 @@
               <tr v-for="itemdetail in item.detail" :key="itemdetail.key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
                 <td class="px-3 py-1 border-t dark:border-slate-700">{{ itemdetail.label }}</td>
                 <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">
-                  {{ itemdetail.key=='ratio_perpanjang_webhost'?itemdetail.value+' %':formatMoney(itemdetail.value,'false',0) }}
+                  <Button
+                    link
+                    size="small"
+                    class="!px-0 !py-0 font-bold !text-slate-800 dark:!text-slate-100 hover:underline"
+                    @click="openRincianDialog(item, itemdetail.key, itemdetail.label)"
+                    severity="contrast"
+                  >
+                    {{ itemdetail.key=='ratio_perpanjang_webhost'?itemdetail.value+' %':formatMoney(itemdetail.value,'false',0) }}
+                  </Button>
                 </td>
               </tr>
               <tr>
@@ -103,7 +111,17 @@
               </tr>
               <tr v-for="itemdetail in item.detail_perpanjang" :key="itemdetail.key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
                 <td class="px-3 py-1 border-t dark:border-slate-700">{{ itemdetail.label }}</td>
-                <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">{{ formatMoney(itemdetail.value,'false',0) }}</td>
+                <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">
+                  <Button
+                    link
+                    size="small"
+                    class="!px-0 !py-0 font-bold !text-slate-800 dark:!text-slate-100 hover:underline"
+                    @click="openRincianDialog(item, itemdetail.key, itemdetail.label)"
+                    severity="contrast"
+                  >
+                    {{ formatMoney(itemdetail.value,'false',0) }}
+                  </Button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -134,7 +152,15 @@
                     {{ item.month+' '+item.year || '-' }} 
                   </td>
                   <td v-for="(value, key) in item.rincian" :key="key" class="px-3 py-2 border-b dark:border-slate-700 text-right">
-                    {{ formatMoney(value,'false',0) }}
+                    <Button
+                      link
+                      size="small"
+                      class="!px-0 !py-0"
+                      @click="openRincianDialog(item, getRincianKeyFromLabel(String(key)), String(key))"
+                      severity="contrast"
+                    >
+                      {{ key === 'Ratio Perpanjang (%)' ? value+' %' : formatMoney(value,'false',0) }}
+                    </Button>
                   </td>
                 </tr>
               </tbody>
@@ -248,6 +274,12 @@ function updateRouteParams() {
 
 const chartData = ref();
 const chartOptions = ref();
+const rincianKeyMap = {
+  'Total Webhost': 'total_webhost',
+  'Webhost Perpanjang': 'webhost_perpanjang',
+  'Webhost Tidak Perpanjang': 'webhost_tidak_perpanjang',
+  'Ratio Perpanjang (%)': 'ratio_perpanjang_webhost',
+} as Record<string, string>
 const detailDialog = reactive({
   visible: false,
   loading: false,
@@ -323,6 +355,38 @@ const openDetailDialog = async (item: any, jenis: 'perpanjang' | 'tidak_perpanja
         tahun: item.year,
         bulan: item.month_number,
         jenis,
+      },
+    }) as any
+
+    detailDialog.rows = response.data || []
+  } catch (error) {
+    const er = useSanctumError(error)
+    detailDialog.rows = []
+  } finally {
+    detailDialog.loading = false
+  }
+}
+
+const getRincianKeyFromLabel = (label: string) => rincianKeyMap[label] || ''
+
+const openRincianDialog = async (item: any, detailKey: string, label: string) => {
+  if (!detailKey) {
+    return
+  }
+
+  first.value = 0
+  detailDialog.visible = true
+  detailDialog.loading = true
+  detailDialog.rows = []
+  detailDialog.header = `${label} - ${item.month} ${item.year}`
+
+  try {
+    const response = await client('/api/laporan/klien_perpanjang_grafik_data', {
+      params: {
+        tahun: item.year,
+        bulan: item.month_number,
+        jenis: 'detail',
+        detail_key: detailKey,
       },
     }) as any
 
