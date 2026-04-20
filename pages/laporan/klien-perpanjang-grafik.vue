@@ -90,18 +90,20 @@
         <template #content class="overflow-x-auto">
           <table class="table w-full text-sm">
             <tbody>
-              <tr v-for="(value, key) in item.rincian" :key="key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
-                <td class="px-3 py-1 border-t dark:border-slate-700">{{ key }}</td>
-                <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">{{ formatMoney(value,'false',0) }}</td>
+              <tr v-for="itemdetail in item.detail" :key="itemdetail.key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
+                <td class="px-3 py-1 border-t dark:border-slate-700">{{ itemdetail.label }}</td>
+                <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">
+                  {{ itemdetail.key=='ratio_perpanjang_webhost'?itemdetail.value+' %':formatMoney(itemdetail.value,'false',0) }}
+                </td>
               </tr>
               <tr>
                 <td class="px-3 pb-1 pt-3 gap-3 border-t dark:border-slate-700 text-blue-500" colspan="2">
                   <Icon name="lucide:check-line"/> Perpanjang masuk
                 </td>
               </tr>
-              <tr v-for="(value, key) in item.rincian_bulan" :key="key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
-                <td class="px-3 py-1 border-t dark:border-slate-700">{{ key }}</td>
-                <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">{{ formatMoney(value,'false',0) }}</td>
+              <tr v-for="itemdetail in item.detail_perpanjang" :key="itemdetail.key" class="odd:bg-gray-50 dark:odd:bg-slate-900">
+                <td class="px-3 py-1 border-t dark:border-slate-700">{{ itemdetail.label }}</td>
+                <td class="px-3 py-1 border-t dark:border-slate-700 text-right font-bold">{{ formatMoney(itemdetail.value,'false',0) }}</td>
               </tr>
             </tbody>
           </table>
