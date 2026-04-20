@@ -83,7 +83,7 @@ export default defineNuxtConfig({
     environment: process.env.NODE_ENV || 'development',
     buildHash: process.env.COMMIT_HASH || Math.random().toString(36).substring(2, 8),
   },
-    vite: {
+  vite: {
     optimizeDeps: {
       exclude: ['primevue', '@primeuix/themes']
     },
@@ -95,6 +95,13 @@ export default defineNuxtConfig({
         usePolling: true,
         interval: 100
       }
+    }
+  },
+  app: {
+    head: {
+      meta: [
+        { name: 'theme-color', content: '#118a7c' }
+      ]
     }
   }
 })
