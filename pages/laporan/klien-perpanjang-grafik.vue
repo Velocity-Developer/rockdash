@@ -258,6 +258,7 @@ const dayjs = useDayjs()
 const route = useRoute();
 const router = useRouter()
 const viewRincianBulananTable = ref(false)
+const { start, finish } = useLoadingIndicator()
 
 const filters = reactive({
     tahun: route.query.tahun
@@ -309,6 +310,7 @@ const getData = async () => {
   updateRouteParams()
 
   try {
+    start()
     const selectedYear = filters.tahun ? dayjs(filters.tahun).format('YYYY') : dayjs().format('YYYY')
     const months = buildMonths()
 
@@ -337,9 +339,11 @@ const getData = async () => {
   } catch (error) {
     const er = useSanctumError(error);
     loading.value = false;
+  } finally {
+    loading.value = false;
+    finish()
   }
-
-  loading.value = false;
+  
 }
 
 const openDetailDialog = async (item: any, jenis: 'perpanjang' | 'tidak_perpanjang') => {
