@@ -14,12 +14,6 @@ const router = useRouter()
 const toast = useToast()
 
 const staffOptions = ['-', 'CS', 'Dini']
-const sortLabels: Record<string, string> = {
-  tgl_masuk: 'Tanggal Order',
-  wa: 'Whatsapp',
-  paket: 'Paket',
-  staff: 'MA',
-}
 
 const filters = reactive({
   dari: route.query.dari
@@ -110,21 +104,11 @@ const resetFilter = () => {
   getData()
 }
 
-const sortBy = (field: string) => {
-  if (filters.sort_by === field) {
-    filters.sort_order = filters.sort_order === 'asc' ? 'desc' : 'asc'
-  } else {
-    filters.sort_by = field
-    filters.sort_order = 'asc'
-  }
-
+const handleSortTable = (event: { sortField: string, sortOrder: number }) => {
+  filters.sort_by = event.sortField || 'tgl_masuk'
+  filters.sort_order = event.sortOrder === 1 ? 'asc' : 'desc'
   filters.page = 1
   getData()
-}
-
-const sortIcon = (field: string) => {
-  if (filters.sort_by !== field) return 'lucide:arrow-up-down'
-  return filters.sort_order === 'asc' ? 'lucide:arrow-up' : 'lucide:arrow-down'
 }
 
 const onPaginate = (event: { page: number }) => {
@@ -268,6 +252,10 @@ onMounted(() => {
           <DataTable
             :value="tableRows"
             :loading="loading"
+            lazy
+            :sortField="filters.sort_by"
+            :sortOrder="filters.sort_order === 'asc' ? 1 : -1"
+            @sort="handleSortTable"
             size="small"
             class="text-xs"
             stripedRows
@@ -292,7 +280,7 @@ onMounted(() => {
               </template>
             </Column>
 
-            <Column field="jenis" sortable header="Paket">
+            <Column field="paket" sortable header="Paket">
               <template #body="slotProps">
                 {{ slotProps.data.jenis }} {{ slotProps.data.paket }}
               </template>
