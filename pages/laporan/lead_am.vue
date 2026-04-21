@@ -23,6 +23,7 @@ const filters = reactive({
     ? dayjs(String(route.query.sampai)).toDate()
     : dayjs().toDate(),
   ma: typeof route.query.ma === 'string' ? route.query.ma : '',
+  nama_web: typeof route.query.nama_web === 'string' ? route.query.nama_web : '',
   page: route.query.page ? Number(route.query.page) : 1,
   per_page: route.query.per_page ? Number(route.query.per_page) : 100,
   sort_by: typeof route.query.sort_by === 'string' ? route.query.sort_by : 'tgl_masuk',
@@ -48,6 +49,7 @@ function updateRouteParams() {
     dari: dayjs(filters.dari).format('YYYY-MM-DD'),
     sampai: dayjs(filters.sampai).format('YYYY-MM-DD'),
     ma: filters.ma || undefined,
+    nama_web: filters.nama_web || undefined,
     page: filters.page > 1 ? filters.page : undefined,
     per_page: filters.per_page !== 100 ? filters.per_page : undefined,
     sort_by: filters.sort_by !== 'tgl_masuk' ? filters.sort_by : undefined,
@@ -66,6 +68,7 @@ const getData = async () => {
         dari: dayjs(filters.dari).format('YYYY-MM-DD'),
         sampai: dayjs(filters.sampai).format('YYYY-MM-DD'),
         ma: filters.ma || null,
+        nama_web: filters.nama_web || null,
         page: filters.page,
         per_page: filters.ma ? 10000 : filters.per_page,
         sort_by: filters.sort_by,
@@ -97,6 +100,7 @@ const resetFilter = () => {
   filters.dari = dayjs().subtract(30, 'day').toDate()
   filters.sampai = dayjs().toDate()
   filters.ma = ''
+  filters.nama_web = ''
   filters.page = 1
   filters.per_page = 100
   filters.sort_by = 'tgl_masuk'
@@ -204,6 +208,10 @@ onMounted(() => {
             <InputText v-model="filters.ma" size="small" placeholder="Nama MA" @keyup.enter="applyFilter" />
           </div>
           <div>
+            <label class="mb-1 block text-xs">Nama Web :</label>
+            <InputText v-model="filters.nama_web" size="small" placeholder="Cari nama web" @keyup.enter="applyFilter" />
+          </div>
+          <div>
             <label class="mb-1 block text-xs">Per halaman :</label>
             <Select v-model="filters.per_page" :options="[50, 100, 250, 500, 1000, 10000]" size="small" @change="applyFilter" />
           </div>
@@ -253,9 +261,9 @@ onMounted(() => {
             :value="tableRows"
             :loading="loading"
             lazy
-            :sortField="filters.sort_by"
-            :sortOrder="filters.sort_order === 'asc' ? 1 : -1"
-            @sort="handleSortTable"
+            :sort-field="filters.sort_by"
+            :sort-order="filters.sort_order === 'asc' ? 1 : -1"
+            @sort="handleSortTable($event)"
             size="small"
             class="text-xs"
             stripedRows
@@ -286,7 +294,7 @@ onMounted(() => {
               </template>
             </Column>
 
-            <Column field="nama_web" header="Nama Domain" />
+            <Column field="nama_web" sortable header="Nama Domain" />
 
             <Column field="dibayar" header="Nominal" class="text-right">
               <template #body="slotProps">
