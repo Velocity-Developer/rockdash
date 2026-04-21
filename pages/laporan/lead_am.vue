@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
 import * as XLSX from 'xlsx'
+import { pastelColors, pastelBorderColors } from '~/utils/chartColors'
 
 definePageMeta({
   title: 'Lead AM',
@@ -247,7 +248,14 @@ onMounted(() => {
               type="pie"
               :data="{
                 labels: diniSummary.map((item: any) => `${item.jenis} (${item.total}) ${formatMoney(item.biaya, 'Rp', 0)}`),
-                datasets: [{ data: diniSummary.map((item: any) => item.total) }],
+                datasets: [
+                  { 
+                    data: diniSummary.map((item: any) => item.total),
+                    backgroundColor: pastelColors,
+                    borderColor: pastelBorderColors,
+                    borderWidth: 1
+                  }
+                ],
               }"
               :options="{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }"
               class="h-[30rem]"
