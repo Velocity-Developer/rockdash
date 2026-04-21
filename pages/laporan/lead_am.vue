@@ -104,7 +104,7 @@ const resetFilter = () => {
   getData()
 }
 
-const handleSortTable = (event: { sortField: string, sortOrder: number }) => {
+const handleSortTable = (event: any) => {
   filters.sort_by = event.sortField || 'tgl_masuk'
   filters.sort_order = event.sortOrder === 1 ? 'asc' : 'desc'
   filters.page = 1
@@ -334,16 +334,10 @@ onMounted(() => {
 
             <Paginator
               v-if="data?.data?.total"
+              :first="(filters.page - 1) * filters.per_page"
               :rows="data.data.per_page"
               :totalRecords="data.data.total"
               @page="onPaginate"
-              :pt="{
-                root: (event: any) => {
-                  const itemForPage = data.data.per_page
-                  const currentPage = filters.page - 1
-                  event.state.d_first = itemForPage * currentPage
-                },
-              }"
             />
           </div>
         </template>
