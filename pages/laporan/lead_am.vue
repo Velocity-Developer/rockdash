@@ -294,7 +294,7 @@ onMounted(() => {
               </template>
             </Column>
 
-            <Column header="MA" field="staff" sortable headerStyle="min-width:10rem">
+            <Column header="MA" field="staff" sortable>
               <template #body="slotProps">
                 <Select
                   v-model="slotProps.data.staff"
