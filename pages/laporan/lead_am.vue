@@ -65,8 +65,8 @@ const getData = async () => {
   try {
     const response = await client('/api/laporan/lead_am', {
       params: {
-        dari: dayjs(filters.dari).format('YYYY-MM-DD'),
-        sampai: dayjs(filters.sampai).format('YYYY-MM-DD'),
+        dari: filters.dari ? dayjs(filters.dari).format('YYYY-MM-DD') : null,
+        sampai: filters.sampai ? dayjs(filters.sampai).format('YYYY-MM-DD') : null,
         ma: filters.ma || null,
         nama_web: filters.nama_web || null,
         page: filters.page,
@@ -185,23 +185,17 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4">
-    <div class="flex justify-end">
-      <Button type="button" size="small" severity="info">
-        Total Order
-        <Badge :value="totalOrder" severity="contrast" />
-      </Button>
-    </div>
 
     <Card>
       <template #content>
-        <div class="flex flex-col md:flex-row md:items-end gap-2">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-end gap-2">
           <div>
             <label class="mb-1 block text-xs">Dari :</label>
-            <DatePicker v-model="filters.dari" dateFormat="yy-mm-dd" size="small" showIcon />
+            <DatePicker v-model="filters.dari" dateFormat="yy-mm-dd" size="small" showIcon showClear />
           </div>
           <div>
             <label class="mb-1 block text-xs">Sampai :</label>
-            <DatePicker v-model="filters.sampai" dateFormat="yy-mm-dd" size="small" showIcon />
+            <DatePicker v-model="filters.sampai" dateFormat="yy-mm-dd" size="small" showIcon showClear />
           </div>
           <div>
             <label class="mb-1 block text-xs">Nama MA :</label>
@@ -233,6 +227,13 @@ onMounted(() => {
       </template>
     </Card>
 
+    <div class="flex justify-end">
+      <Button type="button" size="small" severity="info">
+        Total Order
+        <Badge :value="totalOrder" severity="contrast" />
+      </Button>
+    </div>
+
     <div class="grid grid-cols-8 gap-4">
 
       <div class="col-span-8 md:col-span-3 xl:col-span-2">
@@ -251,6 +252,10 @@ onMounted(() => {
               :options="{ maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }"
               class="h-[30rem]"
             />
+            <div v-if="!diniSummary.length && loading">
+              <Skeleton shape="circle" size="20rem" class="mx-auto mb-4"></Skeleton>
+              <Skeleton v-for="i in 4" class="mb-1"></Skeleton>
+            </div>
           </template>
         </Card>
       </div>
