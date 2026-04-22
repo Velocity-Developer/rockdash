@@ -3,7 +3,7 @@ import { useDayjs } from '#dayjs'
 import * as XLSX from 'xlsx'
 
 definePageMeta({
-  title: 'Rincian Transaksi',
+  title: 'Laporan Rincian Transaksi',
   page_key: 'rincian_transaksi',
 })
 
@@ -28,7 +28,7 @@ const router = useRouter()
 const filter = reactive({
   dari: route.query.dari
     ? dayjs(route.query.dari as string).toDate()
-    : dayjs().subtract(5, 'month').toDate(),
+    : dayjs().subtract(6, 'month').toDate(),
   sampai: route.query.sampai
     ? dayjs(route.query.sampai as string).toDate()
     : dayjs().toDate(),
