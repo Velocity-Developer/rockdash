@@ -198,7 +198,7 @@
         stripedRows
         scrollable
         scrollHeight="75vh"
-        paginator :rows="50" :rowsPerPageOptions="[25, 50, 100]"
+        paginator :rows="50" :rowsPerPageOptions="[25, 50, 100, 500]"
         @page="onPage"
       >
         <Column header="#" headerStyle="width:3rem">
@@ -207,30 +207,47 @@
           </template>
         </Column>
         <!-- <Column field="id_webhost" header="ID Webhost" /> -->
-        <Column field="nama_web" header="Nama Web" />
+        <Column field="domain_name" header="Domain">
+          <template #body="slotProps">
+            {{ getDetailDomain(slotProps.data) }}
+          </template>
+        </Column>
+        <Column field="nama_web" header="Nama Web">
+          <template #body="slotProps">
+            {{ getDetailNamaWeb(slotProps.data) }}
+          </template>
+        </Column>
         <Column field="tgl_mulai" header="Tgl Mulai">
           <template #body="slotProps">
-            {{ slotProps.data.tgl_mulai || '-' }}
+            {{ getDetailTglMulai(slotProps.data) }}
           </template>
         </Column>
         <Column field="tgl_masuk" header="Tgl Masuk">
           <template #body="slotProps">
-            {{ slotProps.data.tgl_masuk || '-' }}
+            {{ getDetailTglMasuk(slotProps.data) }}
           </template>
         </Column>
         <Column field="expirydate" header="Expiry Date">
           <template #body="slotProps">
-            {{ slotProps.data.expirydate || '-' }}
+            {{ getDetailExpiry(slotProps.data) }}
           </template>
         </Column>
         <Column field="whmcs_status" header="Status WHMCS">
           <template #body="slotProps">
-            {{ slotProps.data.whmcs_status || '-' }}
+            {{ getDetailWhmcsStatus(slotProps.data) }}
+          </template>
+        </Column>
+        <Column field="status" header="Status">
+          <template #body="slotProps">
+            <Badge v-if="getDetailRenewalStatus(slotProps.data) !== null" :severity="getDetailRenewalStatus(slotProps.data) ? 'success' : 'contrast'">
+              {{ getDetailRenewalStatus(slotProps.data) ? 'Perpanjang' : 'Tidak' }}
+            </Badge>
+            <span v-else>-</span>
           </template>
         </Column>
         <Column field="dibayar" header="Dibayar">
           <template #body="slotProps">
-            {{ formatMoney(slotProps.data.dibayar || 0,'false',0) }}
+            {{ formatMoney(getDetailDibayar(slotProps.data),'false',0) }}
           </template>
         </Column>
         <template #empty>
@@ -403,6 +420,15 @@ const openRincianDialog = async (item: any, detailKey: string, label: string) =>
   }
 }
 
+const getDetailDomain = (item: any) => item?.domain_name || item?.domain?.domain || item?.domain || '-'
+const getDetailNamaWeb = (item: any) => item?.nama_web || item?.webhost?.nama_web || '-'
+const getDetailTglMulai = (item: any) => item?.tgl_mulai || item?.webhost?.tgl_mulai || '-'
+const getDetailTglMasuk = (item: any) => item?.tgl_masuk || item?.project?.tgl_masuk || '-'
+const getDetailExpiry = (item: any) => item?.expirydate || item?.expiry || item?.domain?.expirydate || item?.hosting?.nextduedate || '-'
+const getDetailWhmcsStatus = (item: any) => item?.whmcs_status || item?.domain?.status || item?.hosting?.status || '-'
+const getDetailRenewalStatus = (item: any) => typeof item?.status === 'boolean' ? item.status : null
+const getDetailDibayar = (item: any) => Number(item?.dibayar ?? item?.biaya ?? item?.project?.dibayar ?? item?.project?.biaya ?? 0)
+
 const exportDetailToExcel = () => {
   if (!detailDialog.rows?.length) {
     return
@@ -410,12 +436,14 @@ const exportDetailToExcel = () => {
 
   const exportData = detailDialog.rows.map((item: any, index: number) => ({
     No: index + 1,
-    'Nama Web': item.nama_web || '-',
-    'Tgl Mulai': item.tgl_mulai || '-',
-    'Tgl Masuk': item.tgl_masuk || '-',
-    'Expiry Date': item.expirydate || '-',
-    'Status WHMCS': item.whmcs_status || '-',
-    Dibayar: item.dibayar || 0,
+    Domain: getDetailDomain(item),
+    'Nama Web': getDetailNamaWeb(item),
+    'Tgl Mulai': getDetailTglMulai(item),
+    'Tgl Masuk': getDetailTglMasuk(item),
+    'Expiry Date': getDetailExpiry(item),
+    'Status WHMCS': getDetailWhmcsStatus(item),
+    Status: getDetailRenewalStatus(item) === null ? '-' : (getDetailRenewalStatus(item) ? 'Perpanjang' : 'Tidak'),
+    Dibayar: getDetailDibayar(item),
   }))
 
   const wb = XLSX.utils.book_new()
@@ -424,10 +452,12 @@ const exportDetailToExcel = () => {
   ws['!cols'] = [
     { wch: 6 },
     { wch: 35 },
+    { wch: 35 },
     { wch: 15 },
     { wch: 15 },
     { wch: 15 },
     { wch: 18 },
+    { wch: 14 },
     { wch: 14 },
   ]
 
