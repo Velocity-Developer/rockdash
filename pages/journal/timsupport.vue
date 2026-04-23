@@ -214,6 +214,11 @@
             </div>
           </template>
         </Column>
+        <Column field="time" header="Menit" :sortable="false">
+          <template #body="slotProps">
+            {{ formatTimeMinutes(slotProps.data.time) }}
+          </template>
+        </Column>
         <Column field="description" header="Detail" class="hidden md:table-cell">
           <template #body="slotProps">         
             <div class="truncate text-xs w-[150px]" v-tooltip="slotProps.data.description">
@@ -463,6 +468,15 @@ const categories = ref([] as any[]);
 const loadingCategories = ref(false);
 const users = ref([] as any[]);
 const loadingUsers = ref(false);
+
+const formatTimeMinutes = (seconds: number | string | null | undefined) => {
+  const value = Number(seconds || 0);
+  const minutes = value / 60;
+
+  return `${new Intl.NumberFormat('id-ID', {
+    maximumFractionDigits: 1,
+  }).format(minutes)}`;
+}
 
 // Status options
 const statusOptions = [
