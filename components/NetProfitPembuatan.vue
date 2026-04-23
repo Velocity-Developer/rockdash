@@ -10,16 +10,42 @@ const filter = reactive({
 
 const loading = ref(false);
 const data = ref([] as any);
+
+const normalizeDay = (value: unknown, fallback: number) => {
+  const normalized = Number(value);
+  if (!Number.isFinite(normalized)) return fallback;
+  return Math.min(Math.max(Math.trunc(normalized), 1), 31);
+}
+
+const toNumber = (value: unknown) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  const normalized = Number(String(value ?? '').replace(/[^\d.-]/g, ''));
+  return Number.isFinite(normalized) ? normalized : 0;
+}
+
 const getData = async () => {
   loading.value = true
   try {
-    data.value = props.dataNetProfit.data.map((item: any) => {
+    const tglDari = normalizeDay(filter.tgl_dari, 1);
+    const tglSampai = normalizeDay(filter.tgl_sampai, tglDari);
+
+    filter.tgl_dari = Math.min(tglDari, tglSampai);
+    filter.tgl_sampai = Math.max(tglDari, tglSampai);
+
+    const netProfitData = Array.isArray(props.dataNetProfit?.data) ? props.dataNetProfit.data : [];
+
+    data.value = netProfitData.map((item: any) => {
+      const startDay = filter.tgl_dari;
+      const endDay = filter.tgl_sampai;
 
       const chats = Array.isArray(item.chat_details) ? item.chat_details : [];
       const chat_ads = chats.filter((chat: any) => {
         if (!chat.chat_pertama) return false;
         const day = new Date(chat.chat_pertama).getDate();
-        return day <= filter.tgl_sampai;
+        return day >= startDay && day <= endDay;
       }).length;
       
       const projects = Array.isArray(item.projects) ? item.projects : [];
@@ -27,35 +53,39 @@ const getData = async () => {
       const orders = projects.filter((project: any) => {
         if (!project.tgl_masuk) return false;
         const day = new Date(project.tgl_masuk).getDate();
-        return day <= filter.tgl_sampai;
+        return day >= startDay && day <= endDay;
       }).length;
 
       const totalDibayar = projects.reduce((total: number, project: any) => {
         if (!project?.dibayar) return total;
 
-        const day = new Date(project.webhost.waktu).getDate();
-        //jika tgl_masuk lebih dari day, return
-        if(day > filter.tgl_sampai) return total;
+        const sourceDate = project?.tgl_masuk || project?.webhost?.waktu;
+        if (!sourceDate) return total;
+        const day = new Date(sourceDate).getDate();
+        if (day < startDay || day > endDay) return total;
 
-        const raw = String(project.dibayar);
-        const value = parseInt(raw.replace(/\D/g, ''), 10);
+        const value = toNumber(project.dibayar);
 
         if (Number.isNaN(value)) return total;
         return total + value;
       }, 0);
 
       const omzet = totalDibayar
-      const profit_kotor = omzet - (item.harga_domain*orders)
+      const hargaDomain = toNumber(item.harga_domain)
+      const biayaDomain = hargaDomain * orders
+      const profit_kotor = omzet - biayaDomain
+      const orderPersen = chat_ads > 0 ? ((orders / chat_ads) * 100).toFixed(1) : '0.0'
+      const profitPerOrder = orders > 0 ? profit_kotor / orders : 0
 
       return {
         label: item.label,
-        biaya_domain: item.harga_domain*orders,
+        biaya_domain: biayaDomain,
         order: orders,
-        order_persen: ((orders/chat_ads)*100).toFixed(1),
+        order_persen: orderPersen,
         total_dibayar: totalDibayar,
         omzet: omzet,
         profit_kotor: profit_kotor,
-        profit_per_order: profit_kotor/orders,
+        profit_per_order: profitPerOrder,
         chat_ads
       };
     });
