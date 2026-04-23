@@ -217,7 +217,12 @@ const exportExcel = () => {
                   {{ formatMoney(slotProps.data.prediksi, '', 0) }}
                 </div>
               </div>
-              <span v-else>{{ formatCell(slotProps.data[column.field], column.type) }}</span>
+              <span
+                v-else
+                :class="column.field === 'biaya_iklan' ? 'rounded bg-rose-100 px-2 py-1 text-rose-700 block w-full' : ''"
+              >
+                {{ formatCell(slotProps.data[column.field], column.type) }}
+              </span>
             </template>
           </Column>
         </DataTable>
