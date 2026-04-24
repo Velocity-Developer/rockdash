@@ -209,7 +209,6 @@
 definePageMeta({
     title: 'Order Kumulatif Pembuatan',
     page_key:'order_kumulatif',
-    development: true
 })
 const client = useSanctumClient();
 import { useDayjs } from '#dayjs'
