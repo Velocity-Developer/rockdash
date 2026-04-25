@@ -108,6 +108,9 @@ const filters = reactive({
   tanggal_selesai: dayjs().toDate(),
 })
 
+const dialogTitle = computed(() => form.id ? 'Edit Absensi' : 'Tambah Absensi')
+const submitLabel = computed(() => form.id ? 'Update' : 'Simpan')
+
 const stats = computed(() => {
   const total = items.value.length
   const hadir = items.value.filter(item => item.status === 'Hadir').length
@@ -322,6 +325,31 @@ async function loadShiftOptions() {
   }
 }
 
+function resetForm() {
+  form.id = null
+  form.user_id = currentUser.value?.id || null
+  form.tanggal = dayjs().toDate()
+  form.absensi_shift_id = null
+  form.status = 'Hadir'
+  form.jam_masuk = ''
+  form.jam_pulang = ''
+  form.catatan = ''
+  form.detik_telat = 0
+  form.detik_pulang_cepat = 0
+  form.detik_kurang = 0
+  form.detik_lebih = 0
+  form.total_detik_kerja = 0
+  form.nama_shift = null
+  form.jadwal_masuk = null
+  form.jadwal_pulang = null
+}
+
+function openCreateDialog() {
+  errors.value = {}
+  resetForm()
+  visibleDialog.value = true
+}
+
 function openEditDialog(row: AbsensiItem) {
   errors.value = {}
   form.id = row.id
@@ -344,8 +372,6 @@ function openEditDialog(row: AbsensiItem) {
 }
 
 async function handleSubmit() {
-  if (!form.id) return
-
   loadingSubmit.value = true
   errors.value = {}
 
@@ -383,15 +409,15 @@ async function handleSubmit() {
   }
 
   try {
-    await client(`/api/absensi/${form.id}`, {
-      method: 'PUT',
+    await client(form.id ? `/api/absensi/${form.id}` : '/api/absensi', {
+      method: form.id ? 'PUT' : 'POST',
       body: payload,
     })
 
     toast.add({
       severity: 'success',
       summary: 'Berhasil',
-      detail: 'Data absensi berhasil diperbarui',
+      detail: form.id ? 'Data absensi berhasil diperbarui' : 'Data absensi berhasil ditambahkan',
       life: 3000,
     })
 
@@ -580,6 +606,16 @@ onMounted(() => {
             </div>
             <div>
               <Button
+                v-if="canManageAbsensi"
+                size="small"
+                @click="openCreateDialog"
+              >
+                <Icon name="lucide:plus" />
+                Tambah
+              </Button>
+            </div>
+            <div>
+              <Button
                 size="small"
                 severity="secondary"
                 :loading="loading"
@@ -705,7 +741,7 @@ onMounted(() => {
   <Dialog
     v-model:visible="visibleDialog"
     modal
-    header="Edit Absensi"
+    :header="dialogTitle"
     :style="{ width: '42rem' }"
     :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
   >
@@ -800,7 +836,7 @@ onMounted(() => {
         <Button type="submit" :loading="loadingSubmit">
           <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin" />
           <Icon v-else name="lucide:save" />
-          Update
+          {{ submitLabel }}
         </Button>
       </div>
     </form>
