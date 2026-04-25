@@ -204,193 +204,203 @@ watch(
 </script>
 
 <template>
-  <div class="space-y-5">
-    <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-      <div
-        v-for="stat in stats"
-        :key="stat.label"
-        class="rounded-xl p-4 shadow-sm ring-1"
-        :class="stat.tone"
-      >
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="text-xs font-medium uppercase tracking-wide opacity-80">
-              {{ stat.label }}
+
+
+  <div class="grid grid-cols-4 gap-4">
+    
+    <div class="col-span-4 md:col-span-1">
+      <AbsensiScanCard />
+    </div>
+
+    <div class="col-span-4 md:col-span-3 space-y-5">
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div
+          v-for="stat in stats"
+          :key="stat.label"
+          class="rounded-xl p-4 shadow-sm ring-1"
+          :class="stat.tone"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs font-medium uppercase tracking-wide opacity-80">
+                {{ stat.label }}
+              </div>
+              <div class="mt-2 text-2xl font-semibold">
+                {{ stat.value }}
+              </div>
             </div>
-            <div class="mt-2 text-2xl font-semibold">
-              {{ stat.value }}
+            <div class="rounded-xl bg-white p-2 dark:bg-slate-800">
+              <Icon :name="stat.icon" class="text-lg" />
             </div>
-          </div>
-          <div class="rounded-xl bg-white p-2 dark:bg-slate-800">
-            <Icon :name="stat.icon" class="text-lg" />
           </div>
         </div>
       </div>
-    </div>
 
-    <Card>
-      <template #content>
-        <div class="grid gap-4 lg:grid-cols-5">
-          <div v-if="canManageAbsensi" class="lg:col-span-2">
-            <label class="mb-1 block text-sm font-medium">Filter User</label>
-            <SelectUser v-model="filters.user_id" />
-          </div>
-
-          <div>
-            <label class="mb-1 block text-sm font-medium">Status</label>
-            <Select
-              v-model="filters.status"
-              class="w-full"
-              :options="[
-                { label: 'Semua', value: 'all' },
-                { label: 'Hadir', value: 'Hadir' },
-                { label: 'Terlambat', value: 'Terlambat' },
-                { label: 'Izin', value: 'Izin' },
-                { label: 'Sakit', value: 'Sakit' },
-                { label: 'Cuti', value: 'Cuti' },
-                { label: 'Alpha', value: 'Alpha' },
-                { label: 'Libur', value: 'Libur' },
-                { label: 'Setengah Hari', value: 'Setengah Hari' },
-              ]"
-              optionLabel="label"
-              optionValue="value"
-            />
-          </div>
-
-          <div>
-            <label class="mb-1 block text-sm font-medium">Tanggal Mulai</label>
-            <DatePicker v-model="filters.tanggal_mulai" dateFormat="yy-mm-dd" class="w-full" showIcon />
-          </div>
-
-          <div>
-            <label class="mb-1 block text-sm font-medium">Tanggal Selesai</label>
-            <DatePicker v-model="filters.tanggal_selesai" dateFormat="yy-mm-dd" class="w-full" showIcon />
-          </div>
-        </div>
-
-        <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
-          <Button
-            v-if="canManageAbsensi"
-            size="small"
-            severity="secondary"
-            outlined
-            @click="resetToCurrentUser(); loadData()"
-          >
-            <Icon name="lucide:user-round" />
-            User Saya
-          </Button>
-
-          <Button
-            size="small"
-            severity="secondary"
-            :loading="loading"
-            @click="loadData"
-          >
-            <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
-            Refresh
-          </Button>
-        </div>
-      </template>
-    </Card>
-
-    <Card class="overflow-hidden shadow-sm">
-      <template #content>
-        <DataTable
-          :value="items"
-          size="small"
-          stripedRows
-          :loading="loading"
-          scrollable
-          responsiveLayout="scroll"
-          scrollHeight="75vh"
-          class="text-sm"
-        >
-          <template #empty>
-            <div class="py-10 text-center text-sm text-slate-500">
-              Belum ada data absensi untuk filter yang dipilih.
+      <Card>
+        <template #content>
+          <div class="grid gap-4 lg:grid-cols-5">
+            <div v-if="canManageAbsensi" class="lg:col-span-2">
+              <label class="mb-1 block text-sm font-medium">Filter User</label>
+              <SelectUser v-model="filters.user_id" />
             </div>
-          </template>
 
-          <Column header="#" headerStyle="width: 4rem">
-            <template #body="slotProps">
-              {{ slotProps.index + 1 }}
-            </template>
-          </Column>
+            <div>
+              <label class="mb-1 block text-sm font-medium">Status</label>
+              <Select
+                v-model="filters.status"
+                class="w-full"
+                :options="[
+                  { label: 'Semua', value: 'all' },
+                  { label: 'Hadir', value: 'Hadir' },
+                  { label: 'Terlambat', value: 'Terlambat' },
+                  { label: 'Izin', value: 'Izin' },
+                  { label: 'Sakit', value: 'Sakit' },
+                  { label: 'Cuti', value: 'Cuti' },
+                  { label: 'Alpha', value: 'Alpha' },
+                  { label: 'Libur', value: 'Libur' },
+                  { label: 'Setengah Hari', value: 'Setengah Hari' },
+                ]"
+                optionLabel="label"
+                optionValue="value"
+              />
+            </div>
 
-          <Column field="tanggal" header="Tanggal" sortable>
-            <template #body="slotProps">
-              <div class="space-y-1">
-                <div class="font-medium">
-                  {{ formatDate(slotProps.data.tanggal) }}
-                </div>
-                <div class="text-xs text-slate-500">
-                  {{ slotProps.data.user?.name || currentUser?.name || '-' }}
-                </div>
+            <div>
+              <label class="mb-1 block text-sm font-medium">Tanggal Mulai</label>
+              <DatePicker v-model="filters.tanggal_mulai" dateFormat="yy-mm-dd" class="w-full" showIcon />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-sm font-medium">Tanggal Selesai</label>
+              <DatePicker v-model="filters.tanggal_selesai" dateFormat="yy-mm-dd" class="w-full" showIcon />
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
+            <Button
+              v-if="canManageAbsensi"
+              size="small"
+              severity="secondary"
+              outlined
+              @click="resetToCurrentUser(); loadData()"
+            >
+              <Icon name="lucide:user-round" />
+              User Saya
+            </Button>
+
+            <Button
+              size="small"
+              severity="secondary"
+              :loading="loading"
+              @click="loadData"
+            >
+              <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
+              Refresh
+            </Button>
+          </div>
+        </template>
+      </Card>
+
+      <Card class="overflow-hidden shadow-sm">
+        <template #content>
+          <DataTable
+            :value="items"
+            size="small"
+            stripedRows
+            :loading="loading"
+            scrollable
+            responsiveLayout="scroll"
+            scrollHeight="75vh"
+            class="text-sm"
+          >
+            <template #empty>
+              <div class="py-10 text-center text-sm text-slate-500">
+                Belum ada data absensi untuk filter yang dipilih.
               </div>
             </template>
-          </Column>
 
-          <Column field="status" header="Status">
-            <template #body="slotProps">
-              <Tag :severity="statusSeverity(slotProps.data.status)">
-                {{ slotProps.data.status }}
-              </Tag>
-            </template>
-          </Column>
+            <Column header="#" headerStyle="width: 4rem">
+              <template #body="slotProps">
+                {{ slotProps.index + 1 }}
+              </template>
+            </Column>
 
-          <Column header="Shift">
-            <template #body="slotProps">
-              <div class="space-y-1">
-                <div class="font-medium">
-                  {{ slotProps.data.nama_shift || slotProps.data.shift?.nama || '-' }}
+            <Column field="tanggal" header="Tanggal" sortable>
+              <template #body="slotProps">
+                <div class="space-y-1">
+                  <div class="font-medium">
+                    {{ formatDate(slotProps.data.tanggal) }}
+                  </div>
+                  <div class="text-xs text-slate-500">
+                    {{ slotProps.data.user?.name || currentUser?.name || '-' }}
+                  </div>
                 </div>
-                <div class="text-xs text-slate-500">
-                  {{ formatTime(slotProps.data.jadwal_masuk) }} - {{ formatTime(slotProps.data.jadwal_pulang) }}
+              </template>
+            </Column>
+
+            <Column field="status" header="Status">
+              <template #body="slotProps">
+                <Tag :severity="statusSeverity(slotProps.data.status)">
+                  {{ slotProps.data.status }}
+                </Tag>
+              </template>
+            </Column>
+
+            <Column header="Shift">
+              <template #body="slotProps">
+                <div class="space-y-1">
+                  <div class="font-medium">
+                    {{ slotProps.data.nama_shift || slotProps.data.shift?.nama || '-' }}
+                  </div>
+                  <div class="text-xs text-slate-500">
+                    {{ formatTime(slotProps.data.jadwal_masuk) }} - {{ formatTime(slotProps.data.jadwal_pulang) }}
+                  </div>
                 </div>
-              </div>
-            </template>
-          </Column>
+              </template>
+            </Column>
 
-          <Column header="Absen Masuk">
-            <template #body="slotProps">
-              {{ formatDateTime(slotProps.data.jam_masuk) }}
-            </template>
-          </Column>
+            <Column header="Absen Masuk">
+              <template #body="slotProps">
+                {{ formatDateTime(slotProps.data.jam_masuk) }}
+              </template>
+            </Column>
 
-          <Column header="Absen Pulang">
-            <template #body="slotProps">
-              {{ formatDateTime(slotProps.data.jam_pulang) }}
-            </template>
-          </Column>
+            <Column header="Absen Pulang">
+              <template #body="slotProps">
+                {{ formatDateTime(slotProps.data.jam_pulang) }}
+              </template>
+            </Column>
 
-          <Column header="Kerja">
-            <template #body="slotProps">
-              {{ formatDuration(slotProps.data.total_detik_kerja) }}
-            </template>
-          </Column>
+            <Column header="Kerja">
+              <template #body="slotProps">
+                {{ formatDuration(slotProps.data.total_detik_kerja) }}
+              </template>
+            </Column>
 
-          <Column header="Telat">
-            <template #body="slotProps">
-              {{ formatDuration(slotProps.data.detik_telat) }}
-            </template>
-          </Column>
+            <Column header="Telat">
+              <template #body="slotProps">
+                {{ formatDuration(slotProps.data.detik_telat) }}
+              </template>
+            </Column>
 
-          <Column header="Lebih">
-            <template #body="slotProps">
-              {{ formatDuration(slotProps.data.detik_lebih) }}
-            </template>
-          </Column>
+            <Column header="Lebih">
+              <template #body="slotProps">
+                {{ formatDuration(slotProps.data.detik_lebih) }}
+              </template>
+            </Column>
 
-          <Column header="Catatan" style="min-width: 16rem">
-            <template #body="slotProps">
-              <span class="text-sm text-slate-600 dark:text-slate-300">
-                {{ slotProps.data.catatan || '-' }}
-              </span>
-            </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
+            <Column header="Catatan" style="min-width: 16rem">
+              <template #body="slotProps">
+                <span class="text-sm text-slate-600 dark:text-slate-300">
+                  {{ slotProps.data.catatan || '-' }}
+                </span>
+              </template>
+            </Column>
+          </DataTable>
+        </template>
+      </Card>
+    </div>
+  
   </div>
 </template>
 
