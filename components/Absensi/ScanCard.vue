@@ -44,9 +44,14 @@ const currentUser = useSanctumUser<AuthUser>()
 const loading = ref(false)
 const loadingSubmit = ref(false)
 const todayAbsensi = ref<AbsensiItem | null>(null)
-const activeShift = ref<ShiftItem | null>(null)
+const shiftOptions = ref<ShiftItem[]>([])
+const selectedShiftId = ref<number | null>(null)
 
 const todayLabel = computed(() => dayjs().format('DD MMMM YYYY'))
+
+const selectedShift = computed(() => {
+  return shiftOptions.value.find(shift => shift.id === selectedShiftId.value) || null
+})
 
 const scanState = computed<'masuk' | 'pulang' | 'done'>(() => {
   if (!todayAbsensi.value) return 'masuk'
@@ -69,6 +74,14 @@ const buttonSeverity = computed(() => {
 const buttonDisabled = computed(() => {
   return loading.value || loadingSubmit.value || !currentUser.value?.id || scanState.value === 'done'
 })
+
+const shiftSelectDisabled = computed(() => {
+  return loading.value || loadingSubmit.value || scanState.value !== 'masuk'
+})
+
+function shiftOptionLabel(shift: ShiftItem) {
+  return `${shift.nama} (${formatTime(shift.masuk)} - ${formatTime(shift.pulang)})`
+}
 
 function formatTime(value?: string | null) {
   if (!value) return '-'
@@ -106,9 +119,18 @@ async function loadTodayAbsensi() {
       ? absensiRes.data[0]
       : null
 
-    activeShift.value = Array.isArray(shiftRes?.data) && shiftRes.data.length > 0
-      ? shiftRes.data[0]
-      : null
+    shiftOptions.value = Array.isArray(shiftRes?.data) ? shiftRes.data : []
+
+    const savedShiftId = todayAbsensi.value?.absensi_shift_id ?? null
+    const currentShiftStillExists = selectedShiftId.value
+      ? shiftOptions.value.some(shift => shift.id === selectedShiftId.value)
+      : false
+
+    if (savedShiftId) {
+      selectedShiftId.value = savedShiftId
+    } else if (!currentShiftStillExists) {
+      selectedShiftId.value = shiftOptions.value[0]?.id ?? null
+    }
   } catch (error) {
     const er = useSanctumError(error)
     toast.add({
@@ -136,7 +158,7 @@ async function submitAbsensi() {
       const payload = {
         user_id: currentUser.value.id,
         tanggal,
-        absensi_shift_id: activeShift.value?.id ?? null,
+        absensi_shift_id: selectedShift.value?.id ?? null,
         status: 'Hadir',
         catatan: null,
         jam_masuk: jamNow,
@@ -146,9 +168,9 @@ async function submitAbsensi() {
         detik_kurang: 0,
         detik_lebih: 0,
         total_detik_kerja: 0,
-        nama_shift: activeShift.value?.nama ?? null,
-        jadwal_masuk: activeShift.value?.masuk?.slice(0, 8) ?? null,
-        jadwal_pulang: activeShift.value?.pulang?.slice(0, 8) ?? null,
+        nama_shift: selectedShift.value?.nama ?? null,
+        jadwal_masuk: selectedShift.value?.masuk?.slice(0, 8) ?? null,
+        jadwal_pulang: selectedShift.value?.pulang?.slice(0, 8) ?? null,
       }
 
       await client('/api/absensi', {
@@ -169,7 +191,7 @@ async function submitAbsensi() {
       const payload = {
         user_id: todayAbsensi.value.user_id,
         tanggal: todayAbsensi.value.tanggal,
-        absensi_shift_id: todayAbsensi.value.absensi_shift_id ?? activeShift.value?.id ?? null,
+        absensi_shift_id: todayAbsensi.value.absensi_shift_id ?? selectedShift.value?.id ?? null,
         status: todayAbsensi.value.status || 'Hadir',
         catatan: todayAbsensi.value.catatan ?? null,
         jam_masuk: todayAbsensi.value.jam_masuk,
@@ -179,9 +201,9 @@ async function submitAbsensi() {
         detik_kurang: todayAbsensi.value.detik_kurang ?? 0,
         detik_lebih: todayAbsensi.value.detik_lebih ?? 0,
         total_detik_kerja: totalDetikKerja,
-        nama_shift: todayAbsensi.value.nama_shift ?? activeShift.value?.nama ?? null,
-        jadwal_masuk: todayAbsensi.value.jadwal_masuk ?? activeShift.value?.masuk?.slice(0, 8) ?? null,
-        jadwal_pulang: todayAbsensi.value.jadwal_pulang ?? activeShift.value?.pulang?.slice(0, 8) ?? null,
+        nama_shift: todayAbsensi.value.nama_shift ?? selectedShift.value?.nama ?? null,
+        jadwal_masuk: todayAbsensi.value.jadwal_masuk ?? selectedShift.value?.masuk?.slice(0, 8) ?? null,
+        jadwal_pulang: todayAbsensi.value.jadwal_pulang ?? selectedShift.value?.pulang?.slice(0, 8) ?? null,
       }
 
       await client(`/api/absensi/${todayAbsensi.value.id}`, {
@@ -263,14 +285,39 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <div class="flex items-center justify-center gap-1">
+        <div class="flex flex-col items-center justify-center gap-1">
+          <Select
+            v-model="selectedShiftId"
+            class="w-full rounded-full"
+            :options="shiftOptions"
+            optionLabel="nama"
+            optionValue="id"
+            placeholder="Pilih shift"
+            :loading="loading"
+            :disabled="shiftSelectDisabled"
+          >
+            <template #value="slotProps">
+              <div v-if="slotProps.value" class="flex flex-col px-3">
+                <span>{{ selectedShift?.nama || todayAbsensi?.nama_shift || 'Shift dipilih' }}</span>
+                <span class="text-xs text-slate-500">
+                  {{ formatTime(todayAbsensi?.jadwal_masuk || selectedShift?.masuk) }} - {{ formatTime(todayAbsensi?.jadwal_pulang || selectedShift?.pulang) }}
+                </span>
+              </div>
+              <span v-else class="text-slate-500">Pilih shift</span>
+            </template>
+            <template #option="slotProps">
+              <div class="flex flex-col">
+                <span>{{ shiftOptionLabel(slotProps.option) }}</span>
+              </div>
+            </template>
+          </Select>
           <Button
               :severity="buttonSeverity"
               :loading="loadingSubmit"
               :disabled="buttonDisabled"
               @click="submitAbsensi"
               rounded 
-              class="rounded-full py-3 px-20 hover:shadow-md"
+              class="rounded-full py-3 px-20 hover:shadow-md w-full"
             >
             <div class="flex flex-col items-center justify-center gap-1">
               <Icon
@@ -301,10 +348,10 @@ onUnmounted(() => {
           <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
             <div class="text-xs text-slate-500">Shift Aktif</div>
             <div class="mt-1 font-medium">
-              {{ todayAbsensi?.nama_shift || activeShift?.nama || 'Belum ada shift' }}
+              {{ todayAbsensi?.nama_shift || selectedShift?.nama || 'Belum ada shift' }}
             </div>
             <div class="mt-1 text-xs text-slate-500">
-              {{ formatTime(todayAbsensi?.jadwal_masuk || activeShift?.masuk) }} - {{ formatTime(todayAbsensi?.jadwal_pulang || activeShift?.pulang) }}
+              {{ formatTime(todayAbsensi?.jadwal_masuk || selectedShift?.masuk) }} - {{ formatTime(todayAbsensi?.jadwal_pulang || selectedShift?.pulang) }}
             </div>
           </div>
 
