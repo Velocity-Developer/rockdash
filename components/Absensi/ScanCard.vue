@@ -344,7 +344,7 @@ onUnmounted(() => {
 
         
         <div class="flex flex-col items-center justify-center gap-1">
-            <h1 class="font-bold text-xl md:text-3xl font-mono">{{ time }}</h1> 
+            <h1 class="font-bold text-3xl md:text-5xl font-mono">{{ time }}</h1> 
             <div class="text-sm opacity-75 font-mono">
               {{ todayLabel }}
             </div>

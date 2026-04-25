@@ -143,7 +143,7 @@ function formatDate(value?: string | null) {
 
 function formatDateTime(value?: string | null) {
   if (!value) return '-'
-  return dayjs(value).format('DD MMM YYYY HH:mm')
+  return dayjs(value).format('HH:mm:ss')
 }
 
 function formatTime(value?: string | null) {
@@ -539,29 +539,29 @@ onMounted(() => {
               <label class="mb-1 block text-sm font-medium">Tanggal Selesai</label>
               <DatePicker v-model="filters.tanggal_selesai" dateFormat="yy-mm-dd" class="w-full" showIcon />
             </div>
-          </div>
-
-          <div class="mt-4 flex flex-wrap items-center justify-end gap-2">
-            <Button
-              v-if="canManageAbsensi"
-              size="small"
-              severity="secondary"
-              outlined
-              @click="resetToCurrentUser(); loadData()"
-            >
-              <Icon name="lucide:user-round" />
-              User Saya
-            </Button>
-
-            <Button
-              size="small"
-              severity="secondary"
-              :loading="loading"
-              @click="loadData(); loadShiftOptions()"
-            >
-              <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
-              Refresh
-            </Button>
+            <div>
+              <Button
+                v-if="canManageAbsensi"
+                size="small"
+                severity="secondary"
+                outlined
+                @click="resetToCurrentUser(); loadData()"
+              >
+                <Icon name="lucide:user-round" />
+                User Saya
+              </Button>
+            </div>
+            <div>
+              <Button
+                size="small"
+                severity="secondary"
+                :loading="loading"
+                @click="loadData(); loadShiftOptions()"
+              >
+                <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
+                Refresh
+              </Button>
+            </div>
           </div>
         </template>
       </Card>
@@ -590,18 +590,7 @@ onMounted(() => {
               </template>
             </Column>
 
-            <Column field="tanggal" header="Tanggal" sortable>
-              <template #body="slotProps">
-                <div class="space-y-1">
-                  <div class="font-medium">
-                    {{ formatDate(slotProps.data.tanggal) }}
-                  </div>
-                  <div class="text-xs text-slate-500">
-                    {{ slotProps.data.user?.name || currentUser?.name || '-' }}
-                  </div>
-                </div>
-              </template>
-            </Column>
+            <Column field="tanggal" header="Tanggal" sortable/>
 
             <Column field="status" header="Status">
               <template #body="slotProps">
@@ -613,26 +602,25 @@ onMounted(() => {
 
             <Column header="Shift">
               <template #body="slotProps">
-                <div class="space-y-1">
-                  <div class="font-medium">
-                    {{ slotProps.data.nama_shift || slotProps.data.shift?.nama || '-' }}
-                  </div>
-                  <div class="text-xs text-slate-500">
-                    {{ formatTime(slotProps.data.jadwal_masuk) }} - {{ formatTime(slotProps.data.jadwal_pulang) }}
-                  </div>
+                <div class="font-medium" v-tooltip="formatTime(slotProps.data.jadwal_masuk) + ' - ' + formatTime(slotProps.data.jadwal_pulang)">
+                  {{ slotProps.data.nama_shift || slotProps.data.shift?.nama || '-' }}
                 </div>
               </template>
             </Column>
 
-            <Column header="Absen Masuk">
+            <Column header="Masuk">
               <template #body="slotProps">
-                {{ formatDateTime(slotProps.data.jam_masuk) }}
+                <span :class="slotProps.data.detik_telat > 0 ? 'text-rose-500' : ''">
+                  {{ formatDateTime(slotProps.data.jam_masuk) }}
+                </span>
               </template>
             </Column>
 
-            <Column header="Absen Pulang">
+            <Column header="Pulang">
               <template #body="slotProps">
-                {{ formatDateTime(slotProps.data.jam_pulang) }}
+                <span :class="slotProps.data.detik_pulang_cepat > 0 ? 'text-rose-500' : ''">
+                  {{ formatDateTime(slotProps.data.jam_pulang) }}
+                </span>
               </template>
             </Column>
 
@@ -660,7 +648,7 @@ onMounted(() => {
               </template>
             </Column>
 
-            <Column header="Catatan" style="min-width: 16rem">
+            <Column header="Catatan">
               <template #body="slotProps">
                 <span class="text-sm text-slate-600 dark:text-slate-300">
                   {{ slotProps.data.catatan || '-' }}
