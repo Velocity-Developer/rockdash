@@ -89,6 +89,11 @@ function formatTime(value?: string | null) {
   return dayjs(value).format('HH:mm')
 }
 
+function formatDateToTime(value?: string | null) {
+  if (!value) return '-'
+  return dayjs(value).format('HH:mm')
+}
+
 async function loadTodayAbsensi() {
   if (!currentUser.value?.id) return
 
@@ -279,8 +284,8 @@ onUnmounted(() => {
 
         
         <div class="flex flex-col items-center justify-center gap-1">
-            <h1 class="font-bold text-xl md:text-3xl">{{ time }}</h1> 
-            <div class="text-sm text-slate-500">
+            <h1 class="font-bold text-xl md:text-3xl font-mono">{{ time }}</h1> 
+            <div class="text-sm opacity-75 font-mono">
               {{ todayLabel }}
             </div>
         </div>
@@ -345,33 +350,24 @@ onUnmounted(() => {
         </div>
 
         <div class="grid gap-3 md:grid-cols-3">
-          <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+          <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700 hover:shadow">
             <div class="text-xs text-slate-500">Shift Aktif</div>
             <div class="mt-1 font-medium">
               {{ todayAbsensi?.nama_shift || selectedShift?.nama || 'Belum ada shift' }}
             </div>
-            <div class="mt-1 text-xs text-slate-500">
-              {{ formatTime(todayAbsensi?.jadwal_masuk || selectedShift?.masuk) }} - {{ formatTime(todayAbsensi?.jadwal_pulang || selectedShift?.pulang) }}
-            </div>
           </div>
 
-          <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+          <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700 hover:shadow">
             <div class="text-xs text-slate-500">Masuk</div>
             <div class="mt-1 font-medium">
-              {{ formatTime(todayAbsensi?.jam_masuk) }}
-            </div>
-            <div class="mt-1 text-xs text-slate-500">
-              {{ todayAbsensi?.jam_masuk ? 'Sudah tercatat' : 'Belum absen masuk' }}
+              {{ formatDateToTime(todayAbsensi?.jam_masuk) }}
             </div>
           </div>
 
-          <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+          <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700 hover:shadow">
             <div class="text-xs text-slate-500">Pulang</div>
             <div class="mt-1 font-medium">
-              {{ formatTime(todayAbsensi?.jam_pulang) }}
-            </div>
-            <div class="mt-1 text-xs text-slate-500">
-              {{ todayAbsensi?.jam_pulang ? 'Sudah tercatat' : 'Belum absen pulang' }}
+              {{ formatDateToTime(todayAbsensi?.jam_pulang) }}
             </div>
           </div>
         </div>
