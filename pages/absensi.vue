@@ -55,6 +55,12 @@ const toast = useToast()
 const confirm = useConfirm()
 const currentUser = useSanctumUser<AuthUser>()
 
+const { data: opsiUsers } = await useAsyncData(
+  'opsi-users-absensi-filter',
+  () => client('/api/data_opsi/users'),
+  { default: () => [] },
+) as any
+
 const loading = ref(false)
 const loadingSubmit = ref(false)
 const items = ref<AbsensiItem[]>([])
@@ -506,7 +512,28 @@ onMounted(() => {
           <div class="grid gap-4 lg:grid-cols-5">
             <div v-if="canManageAbsensi" class="lg:col-span-2">
               <label class="mb-1 block text-sm font-medium">Filter User</label>
-              <SelectUser v-model="filters.user_id" />
+              <Select
+                v-model="filters.user_id"
+                class="w-full"
+                :options="opsiUsers"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Pilih user"
+                showClear
+                filter
+              >
+                <template #option="slotProps">
+                  <div class="flex items-center gap-2">
+                    <img
+                      v-if="slotProps.option.avatar"
+                      :alt="slotProps.option.label"
+                      :src="slotProps.option.avatar"
+                      class="h-7 w-7 rounded-full object-cover"
+                    >
+                    <span>{{ slotProps.option.label }}</span>
+                  </div>
+                </template>
+              </Select>
             </div>
 
             <div>
