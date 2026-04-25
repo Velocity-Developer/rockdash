@@ -46,6 +46,20 @@ const loadingSubmit = ref(false)
 const todayAbsensi = ref<AbsensiItem | null>(null)
 const shiftOptions = ref<ShiftItem[]>([])
 const selectedShiftId = ref<number | null>(null)
+const showCheckoutDialog = ref(false)
+
+const checkoutTodos = [
+  'Matikan AC',
+  'Copot Jek Tembok',
+  'Copot Jek Laptop',
+]
+
+const checkoutChecklist = reactive<Record<string, boolean>>(
+  checkoutTodos.reduce((items, todo) => {
+    items[todo] = false
+    return items
+  }, {} as Record<string, boolean>),
+)
 
 const todayLabel = computed(() => dayjs().format('DD MMMM YYYY'))
 
@@ -77,6 +91,10 @@ const buttonDisabled = computed(() => {
 
 const shiftSelectDisabled = computed(() => {
   return loading.value || loadingSubmit.value || scanState.value !== 'masuk'
+})
+
+const checkoutComplete = computed(() => {
+  return checkoutTodos.every(todo => checkoutChecklist[todo])
 })
 
 function shiftOptionLabel(shift: ShiftItem) {
@@ -285,6 +303,8 @@ async function submitAbsensi() {
     }
 
     await loadTodayAbsensi()
+    resetCheckoutChecklist()
+    showCheckoutDialog.value = false
     emit('submitted')
   } catch (error) {
     const er = useSanctumError(error)
@@ -297,6 +317,36 @@ async function submitAbsensi() {
   } finally {
     loadingSubmit.value = false
   }
+}
+
+function resetCheckoutChecklist() {
+  checkoutTodos.forEach((todo) => {
+    checkoutChecklist[todo] = false
+  })
+}
+
+function handleScanClick() {
+  if (scanState.value === 'pulang') {
+    resetCheckoutChecklist()
+    showCheckoutDialog.value = true
+    return
+  }
+
+  submitAbsensi()
+}
+
+async function submitCheckoutAbsensi() {
+  if (!checkoutComplete.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Checklist belum lengkap',
+      detail: 'Lengkapi checklist sebelum absen pulang',
+      life: 3000,
+    })
+    return
+  }
+
+  await submitAbsensi()
 }
 
 watch(
@@ -335,9 +385,9 @@ onUnmounted(() => {
     <template #content>
       <div class="space-y-8">
 
-        <div class="flex items-center justify-center gap-1">
-          <Avatar :image="currentUser?.avatar_url" shape="circle" />
-          <div class="text-md font-semibold">
+        <div class="flex items-center justify-center gap-2" v-tooltip="currentUser?.name || 'User Login'">
+          <Avatar :image="currentUser?.avatar_url" shape="circle" class="w-5 h-5"/>
+          <div class="text-sm font-normal truncate max-w-[120px]">
               {{ currentUser?.name || 'User Login' }}
           </div>
         </div>
@@ -380,7 +430,7 @@ onUnmounted(() => {
               :severity="buttonSeverity"
               :loading="loadingSubmit"
               :disabled="buttonDisabled"
-              @click="submitAbsensi"
+              @click="handleScanClick"
               rounded 
               class="rounded-full py-3 px-20 hover:shadow-md w-full"
             >
@@ -435,6 +485,56 @@ onUnmounted(() => {
       </div>
     </template>
   </Card>
+
+  <Dialog
+    v-model:visible="showCheckoutDialog"
+    modal
+    header="Checklist Sebelum Pulang"
+    :style="{ width: '28rem' }"
+    :breakpoints="{ '575px': '92vw' }"
+  >
+    <div class="space-y-3">
+      <div
+        v-for="(todo, index) in checkoutTodos"
+        :key="todo"
+        class="flex items-center gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700"
+      >
+        <Checkbox
+          v-model="checkoutChecklist[todo]"
+          :inputId="`checkout-${index}`"
+          binary
+        />
+        <label :for="`checkout-${index}`" class="flex-1 cursor-pointer font-medium">
+          {{ todo }}
+        </label>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          severity="secondary"
+          outlined
+          :disabled="loadingSubmit"
+          @click="showCheckoutDialog = false"
+        >
+          Batal
+        </Button>
+        <Button
+          type="button"
+          severity="warn"
+          :loading="loadingSubmit"
+          :disabled="!checkoutComplete"
+          @click="submitCheckoutAbsensi"
+        >
+          <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin" />
+          <Icon v-else name="lucide:check-check" />
+          Proses Pulang
+        </Button>
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped></style>
