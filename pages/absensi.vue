@@ -154,7 +154,9 @@ function formatTime(value?: string | null) {
 
 function normalizeTime(value?: string | null) {
   if (!value) return null
-  return value.length >= 8 && !value.includes('T') ? value.slice(0, 8) : dayjs(value).format('HH:mm:ss')
+  if (/^\d{2}:\d{2}$/.test(value)) return `${value}:00`
+  if (/^\d{2}:\d{2}:\d{2}$/.test(value)) return value
+  return dayjs(value).format('HH:mm:ss')
 }
 
 function dateTimeForInput(value?: string | null) {
@@ -165,6 +167,53 @@ function dateTimeForInput(value?: string | null) {
 function dateTimeForApi(value?: string | null) {
   if (!value) return null
   return dayjs(value).format('YYYY-MM-DD HH:mm:ss')
+}
+
+function scheduleDateTime(tanggal: string, time?: string | null) {
+  if (!time) return null
+  const normalizedTime = normalizeTime(time)
+  if (!normalizedTime) return null
+  const parsed = dayjs(`${tanggal} ${normalizedTime}`)
+  return parsed.isValid() ? parsed : null
+}
+
+function calculateWorkMetrics(params: {
+  tanggal: string
+  jamMasuk?: string | null
+  jamPulang?: string | null
+  jadwalMasuk?: string | null
+  jadwalPulang?: string | null
+  fallbackTotal?: number
+}) {
+  const actualMasuk = params.jamMasuk ? dayjs(params.jamMasuk) : null
+  const actualPulang = params.jamPulang ? dayjs(params.jamPulang) : null
+  const scheduledMasuk = scheduleDateTime(params.tanggal, params.jadwalMasuk)
+  let scheduledPulang = scheduleDateTime(params.tanggal, params.jadwalPulang)
+
+  if (scheduledMasuk && scheduledPulang && !scheduledPulang.isAfter(scheduledMasuk)) {
+    scheduledPulang = scheduledPulang.add(1, 'day')
+  }
+
+  const detikTelat = actualMasuk && scheduledMasuk && actualMasuk.isAfter(scheduledMasuk)
+    ? actualMasuk.diff(scheduledMasuk, 'second')
+    : 0
+  const detikPulangCepat = actualPulang && scheduledPulang && actualPulang.isBefore(scheduledPulang)
+    ? scheduledPulang.diff(actualPulang, 'second')
+    : 0
+  const detikLebih = actualPulang && scheduledPulang && actualPulang.isAfter(scheduledPulang)
+    ? actualPulang.diff(scheduledPulang, 'second')
+    : 0
+  const totalDetikKerja = actualMasuk && actualPulang
+    ? Math.max(actualPulang.diff(actualMasuk, 'second'), 0)
+    : Number(params.fallbackTotal || 0)
+
+  return {
+    detik_telat: detikTelat,
+    detik_pulang_cepat: detikPulangCepat,
+    detik_kurang: detikTelat + detikPulangCepat,
+    detik_lebih: detikLebih,
+    total_detik_kerja: totalDetikKerja,
+  }
 }
 
 function formatDuration(totalSeconds?: number | null) {
@@ -297,27 +346,34 @@ async function handleSubmit() {
   const selectedShift = shiftOptions.value.find(shift => shift.id === form.absensi_shift_id) || null
   const jamMasuk = dateTimeForApi(form.jam_masuk)
   const jamPulang = dateTimeForApi(form.jam_pulang)
-
-  const totalDetikKerja = jamMasuk && jamPulang
-    ? Math.max(dayjs(jamPulang).diff(dayjs(jamMasuk), 'second'), 0)
-    : form.total_detik_kerja
+  const tanggal = form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD') : ''
+  const jadwalMasuk = normalizeTime(selectedShift?.masuk) ?? form.jadwal_masuk
+  const jadwalPulang = normalizeTime(selectedShift?.pulang) ?? form.jadwal_pulang
+  const metrics = calculateWorkMetrics({
+    tanggal,
+    jamMasuk,
+    jamPulang,
+    jadwalMasuk,
+    jadwalPulang,
+    fallbackTotal: form.total_detik_kerja,
+  })
 
   const payload = {
     user_id: form.user_id,
-    tanggal: form.tanggal ? dayjs(form.tanggal).format('YYYY-MM-DD') : null,
+    tanggal: tanggal || null,
     absensi_shift_id: form.absensi_shift_id,
     status: form.status,
     catatan: form.catatan || null,
     jam_masuk: jamMasuk,
     jam_pulang: jamPulang,
-    detik_telat: form.detik_telat,
-    detik_pulang_cepat: form.detik_pulang_cepat,
-    detik_kurang: form.detik_kurang,
-    detik_lebih: form.detik_lebih,
-    total_detik_kerja: totalDetikKerja,
+    detik_telat: metrics.detik_telat,
+    detik_pulang_cepat: metrics.detik_pulang_cepat,
+    detik_kurang: metrics.detik_kurang,
+    detik_lebih: metrics.detik_lebih,
+    total_detik_kerja: metrics.total_detik_kerja,
     nama_shift: selectedShift?.nama ?? form.nama_shift,
-    jadwal_masuk: normalizeTime(selectedShift?.masuk) ?? form.jadwal_masuk,
-    jadwal_pulang: normalizeTime(selectedShift?.pulang) ?? form.jadwal_pulang,
+    jadwal_masuk: jadwalMasuk,
+    jadwal_pulang: jadwalPulang,
   }
 
   try {
@@ -418,7 +474,7 @@ onMounted(() => {
   <div class="grid grid-cols-4 gap-4">
     
     <div class="col-span-4 md:col-span-1">
-      <AbsensiScanCard />
+      <AbsensiScanCard @submitted="loadData" />
     </div>
 
     <div class="col-span-4 md:col-span-3 space-y-5">
@@ -589,6 +645,12 @@ onMounted(() => {
             <Column header="Telat">
               <template #body="slotProps">
                 {{ formatDuration(slotProps.data.detik_telat) }}
+              </template>
+            </Column>
+
+            <Column header="Pulang Cepat">
+              <template #body="slotProps">
+                {{ formatDuration(slotProps.data.detik_pulang_cepat) }}
               </template>
             </Column>
 

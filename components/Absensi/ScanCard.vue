@@ -94,6 +94,59 @@ function formatDateToTime(value?: string | null) {
   return dayjs(value).format('HH:mm')
 }
 
+function normalizeTime(value?: string | null) {
+  if (!value) return null
+  if (/^\d{2}:\d{2}$/.test(value)) return `${value}:00`
+  if (/^\d{2}:\d{2}:\d{2}$/.test(value)) return value
+  return dayjs(value).format('HH:mm:ss')
+}
+
+function scheduleDateTime(tanggal: string, time?: string | null) {
+  if (!time) return null
+  const normalizedTime = normalizeTime(time)
+  if (!normalizedTime) return null
+  const parsed = dayjs(`${tanggal} ${normalizedTime}`)
+  return parsed.isValid() ? parsed : null
+}
+
+function calculateWorkMetrics(params: {
+  tanggal: string
+  jamMasuk?: string | null
+  jamPulang?: string | null
+  jadwalMasuk?: string | null
+  jadwalPulang?: string | null
+}) {
+  const actualMasuk = params.jamMasuk ? dayjs(params.jamMasuk) : null
+  const actualPulang = params.jamPulang ? dayjs(params.jamPulang) : null
+  const scheduledMasuk = scheduleDateTime(params.tanggal, params.jadwalMasuk)
+  let scheduledPulang = scheduleDateTime(params.tanggal, params.jadwalPulang)
+
+  if (scheduledMasuk && scheduledPulang && !scheduledPulang.isAfter(scheduledMasuk)) {
+    scheduledPulang = scheduledPulang.add(1, 'day')
+  }
+
+  const detikTelat = actualMasuk && scheduledMasuk && actualMasuk.isAfter(scheduledMasuk)
+    ? actualMasuk.diff(scheduledMasuk, 'second')
+    : 0
+  const detikPulangCepat = actualPulang && scheduledPulang && actualPulang.isBefore(scheduledPulang)
+    ? scheduledPulang.diff(actualPulang, 'second')
+    : 0
+  const detikLebih = actualPulang && scheduledPulang && actualPulang.isAfter(scheduledPulang)
+    ? actualPulang.diff(scheduledPulang, 'second')
+    : 0
+  const totalDetikKerja = actualMasuk && actualPulang
+    ? Math.max(actualPulang.diff(actualMasuk, 'second'), 0)
+    : 0
+
+  return {
+    detik_telat: detikTelat,
+    detik_pulang_cepat: detikPulangCepat,
+    detik_kurang: detikTelat + detikPulangCepat,
+    detik_lebih: detikLebih,
+    total_detik_kerja: totalDetikKerja,
+  }
+}
+
 async function loadTodayAbsensi() {
   if (!currentUser.value?.id) return
 
@@ -190,8 +243,15 @@ async function submitAbsensi() {
         life: 3000,
       })
     } else if (scanState.value === 'pulang' && todayAbsensi.value) {
-      const jamMasuk = todayAbsensi.value.jam_masuk ? dayjs(todayAbsensi.value.jam_masuk) : now
-      const totalDetikKerja = Math.max(now.diff(jamMasuk, 'second'), 0)
+      const jadwalMasuk = todayAbsensi.value.jadwal_masuk ?? selectedShift.value?.masuk?.slice(0, 8) ?? null
+      const jadwalPulang = todayAbsensi.value.jadwal_pulang ?? selectedShift.value?.pulang?.slice(0, 8) ?? null
+      const metrics = calculateWorkMetrics({
+        tanggal: todayAbsensi.value.tanggal,
+        jamMasuk: todayAbsensi.value.jam_masuk,
+        jamPulang: jamNow,
+        jadwalMasuk,
+        jadwalPulang,
+      })
 
       const payload = {
         user_id: todayAbsensi.value.user_id,
@@ -201,14 +261,14 @@ async function submitAbsensi() {
         catatan: todayAbsensi.value.catatan ?? null,
         jam_masuk: todayAbsensi.value.jam_masuk,
         jam_pulang: jamNow,
-        detik_telat: todayAbsensi.value.detik_telat ?? 0,
-        detik_pulang_cepat: todayAbsensi.value.detik_pulang_cepat ?? 0,
-        detik_kurang: todayAbsensi.value.detik_kurang ?? 0,
-        detik_lebih: todayAbsensi.value.detik_lebih ?? 0,
-        total_detik_kerja: totalDetikKerja,
+        detik_telat: metrics.detik_telat,
+        detik_pulang_cepat: metrics.detik_pulang_cepat,
+        detik_kurang: metrics.detik_kurang,
+        detik_lebih: metrics.detik_lebih,
+        total_detik_kerja: metrics.total_detik_kerja,
         nama_shift: todayAbsensi.value.nama_shift ?? selectedShift.value?.nama ?? null,
-        jadwal_masuk: todayAbsensi.value.jadwal_masuk ?? selectedShift.value?.masuk?.slice(0, 8) ?? null,
-        jadwal_pulang: todayAbsensi.value.jadwal_pulang ?? selectedShift.value?.pulang?.slice(0, 8) ?? null,
+        jadwal_masuk: jadwalMasuk,
+        jadwal_pulang: jadwalPulang,
       }
 
       await client(`/api/absensi/${todayAbsensi.value.id}`, {
