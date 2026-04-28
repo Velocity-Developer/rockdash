@@ -164,7 +164,7 @@
       </div>
 
       <!-- Journal Detail Support Biaya -->
-       <div v-if="isDetailSupport && kategoriSelectedInfo && ['Konsultasi Update','Trouble'].includes(kategoriSelectedInfo.name)" class="col-span-6 mb-6 rounded-md p-5 bg-emerald-50 dark:bg-emerald-950">
+       <div v-if="isDetailSupport && kategoriSelectedInfo && ['Konsultasi Update','Trouble', 'Tambah hosting'].includes(kategoriSelectedInfo.name)" class="col-span-6 mb-6 rounded-md p-5 bg-emerald-50 dark:bg-emerald-950">
         <div class="font-bold flex items-center gap-1 mb-3">
           <Icon name="lucide:wallet" class=" text-emerald-600 dark:text-emerald-100 text-xl" />
           Biaya Support
