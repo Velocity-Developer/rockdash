@@ -165,6 +165,12 @@ function calculateWorkMetrics(params: {
   }
 }
 
+function attendanceStatusFromMetrics(metrics: ReturnType<typeof calculateWorkMetrics>, currentStatus = 'Hadir') {
+  if (metrics.detik_telat > 0) return 'Terlambat'
+  if (currentStatus === 'Terlambat') return 'Hadir'
+  return currentStatus || 'Hadir'
+}
+
 async function loadTodayAbsensi() {
   if (!currentUser.value?.id) return
 
@@ -231,22 +237,31 @@ async function submitAbsensi() {
     const jamNow = now.format('YYYY-MM-DD HH:mm:ss')
 
     if (scanState.value === 'masuk') {
+      const jadwalMasuk = normalizeTime(selectedShift.value?.masuk)
+      const jadwalPulang = normalizeTime(selectedShift.value?.pulang)
+      const metrics = calculateWorkMetrics({
+        tanggal,
+        jamMasuk: jamNow,
+        jadwalMasuk,
+        jadwalPulang,
+      })
+
       const payload = {
         user_id: currentUser.value.id,
         tanggal,
         absensi_shift_id: selectedShift.value?.id ?? null,
-        status: 'Hadir',
+        status: attendanceStatusFromMetrics(metrics),
         catatan: null,
         jam_masuk: jamNow,
         jam_pulang: null,
-        detik_telat: 0,
-        detik_pulang_cepat: 0,
-        detik_kurang: 0,
-        detik_lebih: 0,
-        total_detik_kerja: 0,
+        detik_telat: metrics.detik_telat,
+        detik_pulang_cepat: metrics.detik_pulang_cepat,
+        detik_kurang: metrics.detik_kurang,
+        detik_lebih: metrics.detik_lebih,
+        total_detik_kerja: metrics.total_detik_kerja,
         nama_shift: selectedShift.value?.nama ?? null,
-        jadwal_masuk: selectedShift.value?.masuk?.slice(0, 8) ?? null,
-        jadwal_pulang: selectedShift.value?.pulang?.slice(0, 8) ?? null,
+        jadwal_masuk: jadwalMasuk,
+        jadwal_pulang: jadwalPulang,
       }
 
       await client('/api/absensi', {
@@ -261,8 +276,8 @@ async function submitAbsensi() {
         life: 3000,
       })
     } else if (scanState.value === 'pulang' && todayAbsensi.value) {
-      const jadwalMasuk = todayAbsensi.value.jadwal_masuk ?? selectedShift.value?.masuk?.slice(0, 8) ?? null
-      const jadwalPulang = todayAbsensi.value.jadwal_pulang ?? selectedShift.value?.pulang?.slice(0, 8) ?? null
+      const jadwalMasuk = normalizeTime(todayAbsensi.value.jadwal_masuk) ?? normalizeTime(selectedShift.value?.masuk)
+      const jadwalPulang = normalizeTime(todayAbsensi.value.jadwal_pulang) ?? normalizeTime(selectedShift.value?.pulang)
       const metrics = calculateWorkMetrics({
         tanggal: todayAbsensi.value.tanggal,
         jamMasuk: todayAbsensi.value.jam_masuk,
@@ -275,7 +290,7 @@ async function submitAbsensi() {
         user_id: todayAbsensi.value.user_id,
         tanggal: todayAbsensi.value.tanggal,
         absensi_shift_id: todayAbsensi.value.absensi_shift_id ?? selectedShift.value?.id ?? null,
-        status: todayAbsensi.value.status || 'Hadir',
+        status: attendanceStatusFromMetrics(metrics, todayAbsensi.value.status),
         catatan: todayAbsensi.value.catatan ?? null,
         jam_masuk: todayAbsensi.value.jam_masuk,
         jam_pulang: jamNow,
