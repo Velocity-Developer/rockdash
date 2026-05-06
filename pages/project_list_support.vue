@@ -199,7 +199,7 @@
     <ProjectListForm 
       :action="actionDialog" 
       :data="dataDialog" 
-      @update="getData()" 
+      @update="getData(); visibleDialog = false;" 
       :jenis_project="filters.jenis_project"
     />
   </Dialog>
