@@ -106,12 +106,12 @@
   </Card>
 
   <!-- Form Dialog -->
-  <Dialog v-model:visible="visibleFormDialog" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '50rem' }">
-    <JournalForm :action="actionFormDialog" :item="selectedItem" @update="getData" @delete="deletedJournal"/>
+  <Dialog v-model:visible="visibleFormDialog" :dismissableMask="true" modal :header="actionFormDialog === 'add' ? 'Tambah Jurnal' : 'Edit Jurnal'" :style="{ width: '50rem' }">
+    <JournalForm :action="actionFormDialog" :item="selectedItem" @update="getData(); visibleFormDialog = false;" @delete="deletedJournal"/>
   </Dialog>
 
   <!-- Preview Dialog -->
-  <Dialog v-model:visible="visiblePreviewDialog" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
+  <Dialog v-model:visible="visiblePreviewDialog" :dismissableMask="true" modal header="Detail Jurnal" :style="{ width: '60rem' }" :breakpoints="{ '1199px': '75vw', '768px': '90vw' }">
     <JournalPreview :journal="selectedPreviewItem" />
     <template #footer>
       <div class="flex justify-end gap-2">

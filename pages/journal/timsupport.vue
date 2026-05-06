@@ -299,7 +299,7 @@
     <JournalForm 
       :action="actionFormDialog" 
       :item="selectedItem" 
-      @update="getData" 
+      @update="getData(); visibleFormDialog = false;" 
       @delete="deletedJournal"
       defaultRole="support"
     />
