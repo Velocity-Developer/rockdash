@@ -334,7 +334,7 @@ const openEditWebhost = (id: any = null) => {
       </DataTable>
   </Dialog>
 
-  <Dialog v-model:visible="visibleFormProjects" modal header="Edit" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+  <Dialog v-model:visible="visibleFormProjects" :dismissableMask="true" modal header="Edit" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <CsMainProjectFormAdmin :id="idFormProjects" action="edit" @submit="getDetailWebhost(dataDetail.nama_web);getDetailWebhostProject(dataDialogProject.id_webhost);visibleFormProjects = false" />
   </Dialog>
 

@@ -186,7 +186,7 @@ const openDialog = (action: 'add' | 'edit' = 'add', data: any = null) => {
       Data webhost tidak ditemukan.
     </Message>
 
-    <Dialog v-model:visible="visibleDialog" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <Dialog v-model:visible="visibleDialog" :dismissableMask="true" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <CsMainProjectFormAdmin :id="idDialog" action="edit" @submit="refresh();visibleDialog = false" />
     </Dialog>
 
