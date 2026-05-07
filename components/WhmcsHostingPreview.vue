@@ -7,12 +7,12 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
           <div> <span class="font-bold">Name</span> : 
-            {{ dataWhmcsHosting?.whmcs_user.firstname }} {{ dataWhmcsHosting?.whmcs_user.lastname }} 
+            {{ dataWhmcsHosting?.whmcs_user?.firstname }} {{ dataWhmcsHosting?.whmcs_user?.lastname }} 
             <NuxtLink v-if="dataWhmcsHosting.whmcs_user" :to="`/whmcs_user/${dataWhmcsHosting.whmcs_user.id}`" target="_blank" class="hover:underline text-blue-500">
               <Icon name="lucide:external-link" />
             </NuxtLink>
           </div> 
-          <div> <span class="font-bold">Email</span> : {{ dataWhmcsHosting?.whmcs_user.email }} </div> 
+          <div> <span class="font-bold">Email</span> : {{ dataWhmcsHosting?.whmcs_user?.email }} </div> 
         </div>
     </div>
 
