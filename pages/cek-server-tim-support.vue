@@ -1,0 +1,498 @@
+<script setup lang="ts">
+definePageMeta({
+  title: 'Cek Server Tim Support',
+  description: 'Kelola data pengecekan server tim support',
+})
+
+type ServerOption = {
+  id: number
+  name: string
+}
+
+type CekServerItem = {
+  id: number
+  server_id: number | null
+  server?: ServerOption | null
+  hapus_backup_admin: string | null
+  kapasitas_ssh: string | null
+  cek_error_idrac: boolean | number | null
+  error_idrac: string | null
+  created_at?: string
+  updated_at?: string
+}
+
+const client = useSanctumClient()
+const toast = useToast()
+const confirm = useConfirm()
+
+const loading = ref(false)
+const loadingSubmit = ref(false)
+const items = ref<CekServerItem[]>([])
+const servers = ref<ServerOption[]>([])
+const errors = ref({} as Record<string, string[] | string>)
+
+const filters = reactive({
+  server_id: null as number | null,
+  cek_error_idrac: 'all',
+})
+
+const visibleDialog = ref(false)
+const actionDialog = ref<'add' | 'edit'>('add')
+
+const form = reactive({
+  id: null as number | null,
+  server_id: null as number | null,
+  hapus_backup_admin: '',
+  kapasitas_ssh: '',
+  cek_error_idrac: false,
+  error_idrac: '',
+})
+
+const dialogTitle = computed(() => {
+  return actionDialog.value === 'edit' ? 'Edit Cek Server' : 'Tambah Cek Server'
+})
+
+const submitLabel = computed(() => {
+  return actionDialog.value === 'edit' ? 'Update' : 'Simpan'
+})
+
+function errorText(field: string) {
+  const value = errors.value[field]
+  if (!value) return ''
+  return Array.isArray(value) ? value[0] : value
+}
+
+function toBoolean(value: boolean | number | string | null | undefined) {
+  return value === true || value === 1 || value === '1' || value === 'true'
+}
+
+function toDatetimeLocal(value?: string | null) {
+  if (!value) return ''
+  return value.replace(' ', 'T').slice(0, 16)
+}
+
+function toApiDatetime(value: string) {
+  return value ? value.replace('T', ' ') : null
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return '-'
+
+  return new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value))
+}
+
+function resetForm() {
+  form.id = null
+  form.server_id = null
+  form.hapus_backup_admin = ''
+  form.kapasitas_ssh = ''
+  form.cek_error_idrac = false
+  form.error_idrac = ''
+}
+
+async function loadServers() {
+  try {
+    const res = await client('/api/servers', {
+      params: {
+        per_page: 500,
+      },
+    }) as any
+
+    servers.value = Array.isArray(res?.data) ? res.data : []
+  } catch (error) {
+    const er = useSanctumError(error)
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat mengambil data server',
+      life: 3000,
+    })
+  }
+}
+
+async function loadData() {
+  loading.value = true
+
+  try {
+    const params: Record<string, any> = {
+      per_page: 200,
+      order_by: 'id',
+      order: 'desc',
+    }
+
+    if (filters.server_id) {
+      params.server_id = filters.server_id
+    }
+
+    if (filters.cek_error_idrac !== 'all') {
+      params.cek_error_idrac = filters.cek_error_idrac === 'true'
+    }
+
+    const res = await client('/api/cek-server-tim-support', { params }) as any
+    items.value = Array.isArray(res?.data) ? res.data : []
+  } catch (error) {
+    const er = useSanctumError(error)
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat mengambil data cek server',
+      life: 3000,
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+function openDialog(action: 'add' | 'edit', row?: CekServerItem) {
+  actionDialog.value = action
+  errors.value = {}
+
+  if (action === 'edit' && row) {
+    form.id = row.id
+    form.server_id = row.server_id
+    form.hapus_backup_admin = toDatetimeLocal(row.hapus_backup_admin)
+    form.kapasitas_ssh = row.kapasitas_ssh || ''
+    form.cek_error_idrac = toBoolean(row.cek_error_idrac)
+    form.error_idrac = row.error_idrac || ''
+  } else {
+    resetForm()
+  }
+
+  visibleDialog.value = true
+}
+
+async function handleSubmit() {
+  loadingSubmit.value = true
+  errors.value = {}
+
+  const payload = {
+    server_id: form.server_id,
+    hapus_backup_admin: toApiDatetime(form.hapus_backup_admin),
+    kapasitas_ssh: form.kapasitas_ssh || null,
+    cek_error_idrac: form.cek_error_idrac,
+    error_idrac: form.error_idrac || null,
+  }
+
+  try {
+    if (actionDialog.value === 'edit' && form.id) {
+      await client(`/api/cek-server-tim-support/${form.id}`, {
+        method: 'PUT',
+        body: payload,
+      })
+
+      toast.add({
+        severity: 'success',
+        summary: 'Berhasil',
+        detail: 'Data cek server berhasil diperbarui',
+        life: 3000,
+      })
+    } else {
+      await client('/api/cek-server-tim-support', {
+        method: 'POST',
+        body: payload,
+      })
+
+      toast.add({
+        severity: 'success',
+        summary: 'Berhasil',
+        detail: 'Data cek server berhasil ditambahkan',
+        life: 3000,
+      })
+    }
+
+    visibleDialog.value = false
+    await loadData()
+  } catch (error) {
+    const er = useSanctumError(error)
+    errors.value = er.bag || {}
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat menyimpan data cek server',
+      life: 3000,
+    })
+  } finally {
+    loadingSubmit.value = false
+  }
+}
+
+function confirmDelete(row: CekServerItem) {
+  confirm.require({
+    message: `Hapus data cek server "${row.server?.name || row.id}"?`,
+    header: 'Hapus Cek Server',
+    accept: async () => {
+      try {
+        await client(`/api/cek-server-tim-support/${row.id}`, {
+          method: 'DELETE',
+        })
+
+        toast.add({
+          severity: 'success',
+          summary: 'Berhasil',
+          detail: 'Data cek server berhasil dihapus',
+          life: 3000,
+        })
+
+        await loadData()
+      } catch (error) {
+        const er = useSanctumError(error)
+        toast.add({
+          severity: 'error',
+          summary: 'Gagal',
+          detail: er.msg || 'Terjadi kesalahan saat menghapus data cek server',
+          life: 3000,
+        })
+      }
+    },
+    rejectProps: {
+      label: 'Batal',
+      severity: 'secondary',
+      outlined: true,
+    },
+    acceptProps: {
+      label: 'Hapus',
+      severity: 'danger',
+    },
+  })
+}
+
+onMounted(async () => {
+  await Promise.all([
+    loadServers(),
+    loadData(),
+  ])
+})
+</script>
+
+<template>
+  <div class="mx-auto space-y-4">
+    <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div class="grid gap-3 md:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-sm font-medium">Server</label>
+          <Select
+            v-model="filters.server_id"
+            :options="servers"
+            optionLabel="name"
+            optionValue="id"
+            showClear
+            filter
+            class="w-full md:w-72"
+            placeholder="Semua server"
+            size="small"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium">Error iDRAC</label>
+          <Select
+            v-model="filters.cek_error_idrac"
+            class="w-full md:w-56"
+            :options="[
+              { label: 'Semua', value: 'all' },
+              { label: 'Ada Error', value: 'true' },
+              { label: 'Tidak Ada Error', value: 'false' },
+            ]"
+            optionLabel="label"
+            optionValue="value"
+            size="small"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2">
+        <Button size="small" severity="secondary" :loading="loading" @click="loadData">
+          <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
+          Refresh
+        </Button>
+        <Button size="small" @click="openDialog('add')">
+          <Icon name="lucide:plus" />
+          Tambah
+        </Button>
+      </div>
+    </div>
+
+    <Card>
+      <template #content>
+        <DataTable
+          :value="items"
+          size="small"
+          stripedRows
+          paginator
+          :rows="25"
+          :rowsPerPageOptions="[25, 50, 100]"
+          :loading="loading"
+          scrollable
+          responsiveLayout="scroll"
+          scrollHeight="72vh"
+          class="text-sm"
+        >
+          <template #empty>
+            <div class="py-10 text-center text-sm text-slate-500">
+              Belum ada data cek server tim support.
+            </div>
+          </template>
+
+          <Column header="#" headerStyle="width: 4rem">
+            <template #body="slotProps">
+              {{ slotProps.index + 1 }}
+            </template>
+          </Column>
+
+          <Column field="server.name" header="Server" sortable>
+            <template #body="slotProps">
+              <div class="font-medium">
+                {{ slotProps.data.server?.name || '-' }}
+              </div>
+            </template>
+          </Column>
+
+          <Column field="hapus_backup_admin" header="Hapus Backup Admin" sortable>
+            <template #body="slotProps">
+              {{ formatDateTime(slotProps.data.hapus_backup_admin) }}
+            </template>
+          </Column>
+
+          <Column field="kapasitas_ssh" header="Kapasitas SSH" sortable>
+            <template #body="slotProps">
+              {{ slotProps.data.kapasitas_ssh || '-' }}
+            </template>
+          </Column>
+
+          <Column field="cek_error_idrac" header="iDRAC" sortable>
+            <template #body="slotProps">
+              <Tag :severity="toBoolean(slotProps.data.cek_error_idrac) ? 'danger' : 'success'">
+                {{ toBoolean(slotProps.data.cek_error_idrac) ? 'Error' : 'Aman' }}
+              </Tag>
+            </template>
+          </Column>
+
+          <Column field="error_idrac" header="Keterangan Error">
+            <template #body="slotProps">
+              <div class="max-w-md whitespace-normal">
+                {{ slotProps.data.error_idrac || '-' }}
+              </div>
+            </template>
+          </Column>
+
+          <Column header="" headerStyle="width: 8rem">
+            <template #body="slotProps">
+              <div class="flex justify-end gap-2">
+                <Button size="small" severity="info" @click="openDialog('edit', slotProps.data)">
+                  <Icon name="lucide:pencil" />
+                </Button>
+                <Button size="small" severity="danger" @click="confirmDelete(slotProps.data)">
+                  <Icon name="lucide:trash-2" />
+                </Button>
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
+
+    <Dialog
+      v-model:visible="visibleDialog"
+      modal
+      :header="dialogTitle"
+      :style="{ width: '42rem' }"
+      :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
+    >
+      <form class="space-y-4" @submit.prevent="handleSubmit">
+
+        <div class="grid gap-4 md:grid-cols-2">          
+          <div>
+            <label class="mb-1 block text-sm font-medium" for="server_id">Server</label>
+            <Select
+              id="server_id"
+              v-model="form.server_id"
+              :options="servers"
+              optionLabel="name"
+              optionValue="id"
+              showClear
+              filter
+              class="w-full"
+              placeholder="Pilih server"
+            />
+            <Message v-if="errorText('server_id')" severity="error" size="small" class="mt-1">
+              {{ errorText('server_id') }}
+            </Message>
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium" for="hapus_backup_admin">
+              Hapus Backup Admin
+            </label>
+            <InputText
+              id="hapus_backup_admin"
+              v-model="form.hapus_backup_admin"
+              type="datetime-local"
+              class="w-full"
+            />
+            <Message v-if="errorText('hapus_backup_admin')" severity="error" size="small" class="mt-1">
+              {{ errorText('hapus_backup_admin') }}
+            </Message>
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium" for="kapasitas_ssh">
+            Cek Kapasitas lewat SSH
+          </label>
+          <InputText
+            id="kapasitas_ssh"
+            v-model="form.kapasitas_ssh"
+            class="w-full"
+            placeholder="Contoh: 10 user"
+          />
+          <Message v-if="errorText('kapasitas_ssh')" severity="error" size="small" class="mt-1">
+            {{ errorText('kapasitas_ssh') }}
+          </Message>
+        </div>
+
+        <div class="flex items-center justify-between rounded border border-slate-200 px-4 py-3 dark:border-slate-700">
+          <div>
+            <div class="text-sm font-medium">Cek Error iDRAC</div>
+            <div class="text-xs text-slate-500">
+              Aktifkan bila ditemukan error pada iDRAC.
+            </div>
+          </div>
+          <ToggleSwitch v-model="form.cek_error_idrac" />
+        </div>
+        <Message v-if="errorText('cek_error_idrac')" severity="error" size="small">
+          {{ errorText('cek_error_idrac') }}
+        </Message>
+
+        <div v-if="form.cek_error_idrac">
+          <label class="mb-1 block text-sm font-medium" for="error_idrac">Keterangan Error iDRAC</label>
+          <Textarea
+            id="error_idrac"
+            v-model="form.error_idrac"
+            class="w-full"
+            rows="4"
+            autoResize
+            placeholder="Catatan error iDRAC"
+          />
+          <Message v-if="errorText('error_idrac')" severity="error" size="small" class="mt-1">
+            {{ errorText('error_idrac') }}
+          </Message>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <Button type="button" severity="secondary" :disabled="loadingSubmit" @click="visibleDialog = false">
+            Batal
+          </Button>
+          <Button type="submit" :loading="loadingSubmit">
+            <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin" />
+            <Icon v-else name="lucide:save" />
+            {{ submitLabel }}
+          </Button>
+        </div>
+      </form>
+    </Dialog>
+  </div>
+</template>
+
+<style scoped></style>
