@@ -396,17 +396,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Card class="shadow-sm">
-    <template #content>
-      <div class="space-y-8">
 
-        <div class="flex items-center justify-center gap-2" v-tooltip="currentUser?.name || 'User Login'">
+  <div class="shadow-sm rounded-xl overflow-hidden bg-teal-600 dark:bg-teal-900">
+    <div class="text-white px-8 py-8 space-y-6">
+       <div class="flex items-center justify-center gap-2" v-tooltip="currentUser?.name || 'User Login'">
           <Avatar :image="currentUser?.avatar_url" shape="circle" class="w-5 h-5"/>
           <div class="text-sm font-normal truncate max-w-[120px]">
               {{ currentUser?.name || 'User Login' }}
           </div>
         </div>
-
         
         <div class="flex flex-col items-center justify-center gap-1">
             <h1 class="font-bold text-3xl md:text-5xl font-mono">{{ time }}</h1> 
@@ -414,6 +412,8 @@ onUnmounted(() => {
               {{ todayLabel }}
             </div>
         </div>
+    </div>
+    <div class="px-8 py-10 inset-shadow-sm inset-shadow-teal-500 bg-teal-50 dark:bg-teal-950 rounded-t-2xl">
 
         <div class="flex flex-col items-center justify-center gap-1">
           <Select
@@ -457,49 +457,49 @@ onUnmounted(() => {
               />
               <Icon
                 v-else-if="scanState === 'masuk'"
-                name="lucide:square-arrow-down"
+                name="lucide:fingerprint-pattern"
                 size="2rem"
               />
               <Icon
                 v-else-if="scanState === 'pulang'"
-                name="lucide:square-arrow-up"
+                name="lucide:fingerprint-pattern"
                 size="2rem"
               />
               <Icon
                 v-else
                 name="lucide:badge-check"
               />
-              <span class="text-sm">{{ buttonLabel }}</span>
+              <span class="text-xs">{{ buttonLabel }}</span>
             </div>
             </Button>
         </div>
+        
 
-        <div class="grid gap-3 md:grid-cols-3">
+        <div class="grid gap-3 md:grid-cols-3 mt-10">
           <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700 hover:shadow">
-            <div class="text-xs text-slate-500">Shift Aktif</div>
+            <div class="text-xs opacity-70">Shift Aktif</div>
             <div class="mt-1 font-medium">
               {{ todayAbsensi?.nama_shift || selectedShift?.nama || 'Belum ada shift' }}
             </div>
           </div>
 
           <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700 hover:shadow">
-            <div class="text-xs text-slate-500">Masuk</div>
+            <div class="text-xs opacity-70">Masuk</div>
             <div class="mt-1 font-medium">
               {{ formatDateToTime(todayAbsensi?.jam_masuk) }}
             </div>
           </div>
 
           <div class="rounded-xl border border-slate-200 p-3 dark:border-slate-700 hover:shadow">
-            <div class="text-xs text-slate-500">Pulang</div>
+            <div class="text-xs opacity-70">Pulang</div>
             <div class="mt-1 font-medium">
               {{ formatDateToTime(todayAbsensi?.jam_pulang) }}
             </div>
           </div>
         </div>
 
-      </div>
-    </template>
-  </Card>
+    </div>
+  </div>
 
   <Dialog
     v-model:visible="showCheckoutDialog"
