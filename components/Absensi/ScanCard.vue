@@ -166,7 +166,6 @@ function calculateWorkMetrics(params: {
 }
 
 function attendanceStatusFromMetrics(metrics: ReturnType<typeof calculateWorkMetrics>, currentStatus = 'Hadir') {
-  if (metrics.detik_telat > 0) return 'Terlambat'
   if (currentStatus === 'Terlambat') return 'Hadir'
   return currentStatus || 'Hadir'
 }

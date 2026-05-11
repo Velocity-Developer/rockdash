@@ -71,7 +71,6 @@ const canManageAbsensi = computed(() => isPermissions('manage-absensi'))
 
 const statusOptions = [
   { label: 'Hadir', value: 'Hadir' },
-  { label: 'Terlambat', value: 'Terlambat' },
   { label: 'Izin', value: 'Izin' },
   { label: 'Sakit', value: 'Sakit' },
   { label: 'Cuti', value: 'Cuti' },
@@ -113,8 +112,7 @@ const submitLabel = computed(() => form.id ? 'Update' : 'Simpan')
 
 const stats = computed(() => {
   const total = items.value.length
-  const hadir = items.value.filter(item => item.status === 'Hadir').length
-  const terlambat = items.value.filter(item => item.status === 'Terlambat').length
+  const hadir = items.value.filter(item => normalizedStatus(item.status) === 'Hadir').length
   const totalDetikKerja = items.value.reduce((sum, item) => sum + Number(item.total_detik_kerja || 0), 0)
 
   return [
@@ -129,12 +127,6 @@ const stats = computed(() => {
       value: hadir,
       tone: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900 dark:text-emerald-100 dark:ring-emerald-700',
       icon: 'lucide:badge-check',
-    },
-    {
-      label: 'Terlambat',
-      value: terlambat,
-      tone: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900 dark:text-amber-100 dark:ring-amber-700',
-      icon: 'lucide:clock-alert',
     },
     {
       label: 'Total Jam Kerja',
@@ -235,12 +227,14 @@ function formatDuration(totalSeconds?: number | null) {
   return `${hours}j ${minutes}m`
 }
 
+function normalizedStatus(status?: string | null) {
+  return status === 'Terlambat' ? 'Hadir' : (status || 'Hadir')
+}
+
 function statusSeverity(status?: string) {
-  switch (status) {
+  switch (normalizedStatus(status)) {
     case 'Hadir':
       return 'success'
-    case 'Terlambat':
-      return 'warn'
     case 'Izin':
     case 'Cuti':
     case 'Libur':
@@ -356,7 +350,7 @@ function openEditDialog(row: AbsensiItem) {
   form.user_id = row.user_id
   form.tanggal = row.tanggal ? dayjs(row.tanggal).toDate() : null
   form.absensi_shift_id = row.absensi_shift_id ?? row.shift?.id ?? null
-  form.status = row.status || 'Hadir'
+  form.status = normalizedStatus(row.status)
   form.jam_masuk = dateTimeForInput(row.jam_masuk)
   form.jam_pulang = dateTimeForInput(row.jam_pulang)
   form.catatan = row.catatan || ''
@@ -394,7 +388,7 @@ async function handleSubmit() {
     user_id: form.user_id,
     tanggal: tanggal || null,
     absensi_shift_id: form.absensi_shift_id,
-    status: form.status,
+    status: normalizedStatus(form.status),
     catatan: form.catatan || null,
     jam_masuk: jamMasuk,
     jam_pulang: jamPulang,
@@ -570,7 +564,6 @@ onMounted(() => {
                 :options="[
                   { label: 'Semua', value: 'all' },
                   { label: 'Hadir', value: 'Hadir' },
-                  { label: 'Terlambat', value: 'Terlambat' },
                   { label: 'Izin', value: 'Izin' },
                   { label: 'Sakit', value: 'Sakit' },
                   { label: 'Cuti', value: 'Cuti' },
@@ -658,7 +651,7 @@ onMounted(() => {
             <Column field="status" header="Status">
               <template #body="slotProps">
                 <Tag :severity="statusSeverity(slotProps.data.status)">
-                  {{ slotProps.data.status }}
+                  {{ normalizedStatus(slotProps.data.status) }}
                 </Tag>
               </template>
             </Column>
