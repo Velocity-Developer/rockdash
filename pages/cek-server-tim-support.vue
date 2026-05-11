@@ -15,7 +15,13 @@ type ServerOption = {
 type CekServerItem = {
   id: number
   server_id: number | null
+  user_id: number | null
   server?: ServerOption | null
+  user?: {
+    id: number
+    name: string
+    username?: string | null
+  } | null
   hapus_backup_admin: Date | null
   kapasitas_ssh: string | null
   cek_error_idrac: boolean | number | null
@@ -353,6 +359,12 @@ onMounted(async () => {
             </template>
           </Column>
 
+          <Column field="user.name" header="Dibuat Oleh" sortable>
+            <template #body="slotProps">
+              {{ slotProps.data.user?.name || slotProps.data.user?.username || '-' }}
+            </template>
+          </Column>
+
           <Column field="hapus_backup_admin" header="Hapus Backup Admin" sortable>
             <template #body="slotProps">
               {{ formatDateTime(slotProps.data.hapus_backup_admin) }}
@@ -419,7 +431,14 @@ onMounted(async () => {
               filter
               class="w-full"
               placeholder="Pilih server"
-            />
+            >            
+              <template #option="slotProps">
+                  <div class="flex items-center justify-between w-full gap-3">                      
+                      <div>{{ slotProps.option.name }}</div>
+                      <Badge>{{ slotProps.option.hostname }}</Badge>
+                  </div>
+              </template>
+          </Select>
             <Message v-if="errorText('server_id')" severity="error" size="small" class="mt-1">
               {{ errorText('server_id') }}
             </Message>
