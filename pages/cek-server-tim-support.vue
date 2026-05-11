@@ -4,12 +4,14 @@ definePageMeta({
   description: 'Kelola data pengecekan server tim support',
 })
 
+const { start, finish } = useLoadingIndicator()
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 
 type ServerOption = {
   id: number
   name: string
+  hostname: string | null
 }
 
 type CekServerItem = {
@@ -47,6 +49,8 @@ const filters = reactive({
 
 const visibleDialog = ref(false)
 const actionDialog = ref<'add' | 'edit'>('add')
+const visiblePreviewDialog = ref(false)
+const previewData = ref<CekServerItem | null>(null)
 
 const form = reactive({
   id: null as number | null,
@@ -63,6 +67,10 @@ const dialogTitle = computed(() => {
 
 const submitLabel = computed(() => {
   return actionDialog.value === 'edit' ? 'Update' : 'Simpan'
+})
+
+const previewTitle = computed(() => {
+  return previewData.value?.server?.name || 'Preview Cek Server'
 })
 
 function errorText(field: string) {
@@ -84,13 +92,25 @@ function toApiDatetime(value: string) {
   return value ? value.replace('T', ' ') : null
 }
 
-function formatDateTime(value?: string | null) {
+function formatDateTime(value?: string | Date | null) {
   if (!value) return '-'
 
   return new Intl.DateTimeFormat('id-ID', {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
+}
+
+function openPreviewDialog(row: CekServerItem) {
+  previewData.value = row
+  visiblePreviewDialog.value = true
+}
+
+function editPreviewData() {
+  if (!previewData.value) return
+
+  visiblePreviewDialog.value = false
+  openDialog('edit', previewData.value)
 }
 
 function resetForm() {
@@ -124,7 +144,7 @@ async function loadServers() {
 
 async function loadData() {
   loading.value = true
-
+  start()
   try {
     const params: Record<string, any> = {
       per_page: 200,
@@ -152,6 +172,7 @@ async function loadData() {
     })
   } finally {
     loading.value = false
+    finish()
   }
 }
 
@@ -292,6 +313,7 @@ onMounted(async () => {
             class="w-full md:w-72"
             placeholder="Semua server"
             size="small"
+            @change="loadData"
           />
         </div>
 
@@ -308,6 +330,7 @@ onMounted(async () => {
             optionLabel="label"
             optionValue="value"
             size="small"
+            @change="loadData"
           />
         </div>
       </div>
@@ -353,31 +376,35 @@ onMounted(async () => {
 
           <Column field="server.name" header="Server" sortable>
             <template #body="slotProps">
-              <div class="font-medium">
+              <button
+                type="button"
+                class="font-medium text-primary-600 hover:underline dark:text-primary-400"
+                @click="openPreviewDialog(slotProps.data)"
+              >
                 {{ slotProps.data.server?.name || '-' }}
-              </div>
+              </button>
             </template>
           </Column>
 
-          <Column field="user.name" header="Dibuat Oleh" sortable>
+          <!-- <Column field="user.name" header="Dibuat Oleh" sortable>
             <template #body="slotProps">
               {{ slotProps.data.user?.name || slotProps.data.user?.username || '-' }}
             </template>
-          </Column>
+          </Column> -->
 
-          <Column field="hapus_backup_admin" header="Hapus Backup Admin" sortable>
+          <Column field="hapus_backup_admin" header="Hapus Backup di folder Admin Backup">
             <template #body="slotProps">
               {{ formatDateTime(slotProps.data.hapus_backup_admin) }}
             </template>
           </Column>
 
-          <Column field="kapasitas_ssh" header="Kapasitas SSH" sortable>
+          <Column field="kapasitas_ssh" header="Cek Kapasitas lewat SSH">
             <template #body="slotProps">
               {{ slotProps.data.kapasitas_ssh || '-' }}
             </template>
           </Column>
 
-          <Column field="cek_error_idrac" header="iDRAC" sortable>
+          <Column field="cek_error_idrac" header="iDRAC">
             <template #body="slotProps">
               <Tag :severity="toBoolean(slotProps.data.cek_error_idrac) ? 'danger' : 'success'">
                 {{ toBoolean(slotProps.data.cek_error_idrac) ? 'Error' : 'Aman' }}
@@ -410,11 +437,91 @@ onMounted(async () => {
     </Card>
 
     <Dialog
+      v-model:visible="visiblePreviewDialog"
+      modal
+      :header="previewTitle"
+      :style="{ width: '46rem' }"
+      :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
+      :dismissableMask="true"
+    >
+      <div v-if="previewData" class="space-y-4">
+        <div class="grid gap-3 md:grid-cols-2">
+          <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+            <div class="text-xs text-slate-500">Server</div>
+            <div class="mt-1 flex items-center justify-between">
+              <div class="font-medium">{{ previewData.server?.name || '-' }}</div>
+              <Badge severity="secondary">{{ previewData.server?.hostname || '-' }}</Badge>
+            </div>
+          </div>
+
+          <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+            <div class="text-xs text-slate-500">Hapus Backup Admin</div>
+            <div class="mt-1 font-medium">{{ formatDateTime(previewData.hapus_backup_admin) }}</div>
+          </div>
+
+          <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+            <div class="text-xs text-slate-500">Kapasitas SSH</div>
+            <div class="mt-1 font-medium">{{ previewData.kapasitas_ssh || '-' }}</div>
+          </div>
+
+          <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+            <div class="text-xs text-slate-500">Dibuat Oleh</div>
+            <div class="mt-1 font-medium">
+              {{ previewData.user?.name || previewData.user?.username || '-' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between rounded border border-slate-200 p-3 dark:border-slate-700">
+          <div>
+            <div class="text-xs text-slate-500">Status iDRAC</div>
+            <div class="mt-1 font-medium">
+              {{ toBoolean(previewData.cek_error_idrac) ? 'Ada Error' : 'Aman' }}
+            </div>
+          </div>
+          <Tag :severity="toBoolean(previewData.cek_error_idrac) ? 'danger' : 'success'">
+            {{ toBoolean(previewData.cek_error_idrac) ? 'Error' : 'Aman' }}
+          </Tag>
+        </div>
+
+        <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+          <div class="text-xs text-slate-500">Keterangan Error iDRAC</div>
+          <div class="mt-2 whitespace-pre-line text-sm">
+            {{ previewData.error_idrac || '-' }}
+          </div>
+        </div>
+
+        <!-- <div class="grid gap-3 md:grid-cols-2">
+          <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+            <div class="text-xs text-slate-500">Dibuat</div>
+            <div class="mt-1 font-medium">{{ formatDateTime(previewData.created_at) }}</div>
+          </div>
+
+          <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+            <div class="text-xs text-slate-500">Diupdate</div>
+            <div class="mt-1 font-medium">{{ formatDateTime(previewData.updated_at) }}</div>
+          </div>
+        </div> -->
+
+        <div class="flex justify-end gap-2">
+          <Button type="button" severity="secondary" @click="visiblePreviewDialog = false">
+            Tutup
+          </Button>
+          <Button type="button" severity="info" @click="editPreviewData">
+            <Icon name="lucide:pencil" />
+            Edit
+          </Button>
+        </div>
+      </div>
+    </Dialog>
+
+    <Dialog
       v-model:visible="visibleDialog"
       modal
       :header="dialogTitle"
       :style="{ width: '42rem' }"
       :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
+      :dismissableMask="true"
     >
       <form class="space-y-4" @submit.prevent="handleSubmit">
 
