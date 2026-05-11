@@ -4,6 +4,9 @@ definePageMeta({
   description: 'Kelola data pengecekan server tim support',
 })
 
+import { useDayjs } from '#dayjs'
+const dayjs = useDayjs()
+
 type ServerOption = {
   id: number
   name: string
@@ -13,7 +16,7 @@ type CekServerItem = {
   id: number
   server_id: number | null
   server?: ServerOption | null
-  hapus_backup_admin: string | null
+  hapus_backup_admin: Date | null
   kapasitas_ssh: string | null
   cek_error_idrac: boolean | number | null
   error_idrac: string | null
@@ -42,10 +45,10 @@ const actionDialog = ref<'add' | 'edit'>('add')
 const form = reactive({
   id: null as number | null,
   server_id: null as number | null,
-  hapus_backup_admin: '',
-  kapasitas_ssh: '',
+  hapus_backup_admin: null as Date | null,
+  kapasitas_ssh: null as string | null,
   cek_error_idrac: false,
-  error_idrac: '',
+  error_idrac: null as string | null,
 })
 
 const dialogTitle = computed(() => {
@@ -87,10 +90,10 @@ function formatDateTime(value?: string | null) {
 function resetForm() {
   form.id = null
   form.server_id = null
-  form.hapus_backup_admin = ''
-  form.kapasitas_ssh = ''
+  form.hapus_backup_admin = null
+  form.kapasitas_ssh = null
   form.cek_error_idrac = false
-  form.error_idrac = ''
+  form.error_idrac = null
 }
 
 async function loadServers() {
@@ -153,7 +156,7 @@ function openDialog(action: 'add' | 'edit', row?: CekServerItem) {
   if (action === 'edit' && row) {
     form.id = row.id
     form.server_id = row.server_id
-    form.hapus_backup_admin = toDatetimeLocal(row.hapus_backup_admin)
+    form.hapus_backup_admin = dayjs(row.hapus_backup_admin).toDate() || ''
     form.kapasitas_ssh = row.kapasitas_ssh || ''
     form.cek_error_idrac = toBoolean(row.cek_error_idrac)
     form.error_idrac = row.error_idrac || ''
@@ -170,7 +173,7 @@ async function handleSubmit() {
 
   const payload = {
     server_id: form.server_id,
-    hapus_backup_admin: toApiDatetime(form.hapus_backup_admin),
+    hapus_backup_admin: form.hapus_backup_admin ? dayjs(form.hapus_backup_admin).format('YYYY-MM-DD HH:mm:ss').toString() : null,
     kapasitas_ssh: form.kapasitas_ssh || null,
     cek_error_idrac: form.cek_error_idrac,
     error_idrac: form.error_idrac || null,
@@ -423,14 +426,9 @@ onMounted(async () => {
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium" for="hapus_backup_admin">
-              Hapus Backup Admin
+              Hapus Backup di folder Admin Backup
             </label>
-            <InputText
-              id="hapus_backup_admin"
-              v-model="form.hapus_backup_admin"
-              type="datetime-local"
-              class="w-full"
-            />
+            <DatePicker id="hapus_backup_admin" v-model="form.hapus_backup_admin" showTime hourFormat="24" fluid />
             <Message v-if="errorText('hapus_backup_admin')" severity="error" size="small" class="mt-1">
               {{ errorText('hapus_backup_admin') }}
             </Message>
