@@ -37,6 +37,7 @@ type CekServerItem = {
 
 type ServerCekRow = ServerOption & {
   latest_check: CekServerItem | null
+  cek_server_tim_support_latest?: CekServerItem | null
 }
 
 const client = useSanctumClient()
@@ -45,8 +46,7 @@ const confirm = useConfirm()
 
 const loading = ref(false)
 const loadingSubmit = ref(false)
-const items = ref<CekServerItem[]>([])
-const servers = ref<ServerOption[]>([])
+const latestRows = ref<ServerCekRow[]>([])
 const errors = ref({} as Record<string, string[] | string>)
 
 const filters = reactive({
@@ -82,40 +82,22 @@ const previewTitle = computed(() => {
   return previewData.value.server?.name || getServerName(previewData.value.server_id)
 })
 
-const latestCheckByServer = computed(() => {
-  const map = new Map<number, CekServerItem>()
-
-  for (const item of items.value) {
-    if (!item.server_id) continue
-
-    const current = map.get(item.server_id)
-    if (!current || getCheckTimestamp(item) > getCheckTimestamp(current)) {
-      map.set(item.server_id, item)
-    }
-  }
-
-  return map
-})
+const serverOptions = computed(() => latestRows.value)
 
 const tableRows = computed<ServerCekRow[]>(() => {
-  return servers.value
-    .map((server) => ({
-      ...server,
-      latest_check: latestCheckByServer.value.get(server.id) || null,
-    }))
-    .filter((row) => {
-      if (filters.server_id && row.id !== filters.server_id) {
-        return false
-      }
+  return latestRows.value.filter((row) => {
+    if (filters.server_id && row.id !== filters.server_id) {
+      return false
+    }
 
-      if (filters.cek_error_idrac !== 'all') {
-        if (!row.latest_check) return false
+    if (filters.cek_error_idrac !== 'all') {
+      if (!row.latest_check) return false
 
-        return toBoolean(row.latest_check.cek_error_idrac) === (filters.cek_error_idrac === 'true')
-      }
+      return toBoolean(row.latest_check.cek_error_idrac) === (filters.cek_error_idrac === 'true')
+    }
 
-      return true
-    })
+    return true
+  })
 })
 
 const summary = computed(() => {
@@ -145,14 +127,10 @@ function formatDateTime(value?: string | Date | null) {
   }).format(new Date(value))
 }
 
-function getCheckTimestamp(item: CekServerItem) {
-  return new Date(item.updated_at || item.created_at || item.hapus_backup_admin || 0).getTime()
-}
-
 function getServerName(serverId: number | null | undefined) {
   if (!serverId) return '-'
 
-  return servers.value.find((server) => server.id === serverId)?.name || '-'
+  return latestRows.value.find((server) => server.id === serverId)?.name || '-'
 }
 
 function openPreviewDialog(row: CekServerItem) {
@@ -176,38 +154,23 @@ function resetForm() {
   form.error_idrac = null
 }
 
-async function loadServers() {
-  try {
-    const res = await client('/api/servers', {
-      params: {
-        per_page: 5000,
-      },
-    }) as any
-
-    servers.value = Array.isArray(res?.data) ? res.data : []
-  } catch (error) {
-    const er = useSanctumError(error)
-    toast.add({
-      severity: 'error',
-      summary: 'Gagal',
-      detail: er.msg || 'Terjadi kesalahan saat mengambil data server',
-      life: 3000,
-    })
-  }
-}
-
 async function loadData() {
   loading.value = true
   start()
   try {
     const params: Record<string, any> = {
-      per_page: 5000,
-      order_by: 'id',
-      order: 'desc',
+      per_page: 20,
+      order_by: 'name',
+      order: 'asc',
     }
 
-    const res = await client('/api/cek-server-tim-support', { params }) as any
-    items.value = Array.isArray(res?.data) ? res.data : []
+    const res = await client('/api/cek_server_tim_support_latest', { params }) as any
+    const rows = Array.isArray(res?.data) ? res.data : []
+
+    latestRows.value = rows.map((row: ServerCekRow) => ({
+      ...row,
+      latest_check: row.latest_check || row.cek_server_tim_support_latest || null,
+    }))
   } catch (error) {
     const er = useSanctumError(error)
     toast.add({
@@ -246,10 +209,7 @@ function openCreateForServer(server: ServerOption) {
 }
 
 async function refreshData() {
-  await Promise.all([
-    loadServers(),
-    loadData(),
-  ])
+  await loadData()
 }
 
 async function handleSubmit() {
@@ -358,7 +318,7 @@ onMounted(refreshData)
           <label class="mb-1 block text-sm font-medium">Server</label>
           <Select
             v-model="filters.server_id"
-            :options="servers"
+            :options="serverOptions"
             optionLabel="name"
             optionValue="id"
             showClear
@@ -622,7 +582,7 @@ onMounted(refreshData)
             <Select
               id="server_id"
               v-model="form.server_id"
-              :options="servers"
+              :options="serverOptions"
               optionLabel="name"
               optionValue="id"
               showClear
