@@ -656,7 +656,7 @@ onMounted(refreshData)
           <label class="mb-1 block text-sm font-medium" for="kapasitas_ssh">
             Cek Kapasitas lewat SSH
           </label>
-          <InputText
+          <Textarea
             id="kapasitas_ssh"
             v-model="form.kapasitas_ssh"
             class="w-full"
