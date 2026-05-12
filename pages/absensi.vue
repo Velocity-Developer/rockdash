@@ -56,6 +56,15 @@ type ShiftItem = {
   aktif: boolean
 }
 
+type AbsensiStatusTotals = {
+  user_id: number
+  year?: number | null
+  tanggal_mulai?: string | null
+  tanggal_selesai?: string | null
+  total: number
+  by_status: Record<string, number>
+}
+
 const dayjs = useDayjs()
 const client = useSanctumClient()
 const toast = useToast()
@@ -69,9 +78,11 @@ const { data: opsiUsers } = await useAsyncData(
 ) as any
 
 const loading = ref(false)
+const loadingStatusTotals = ref(false)
 const loadingSubmit = ref(false)
 const items = ref<AbsensiItem[]>([])
 const shiftOptions = ref<ShiftItem[]>([])
+const statusTotals = ref<AbsensiStatusTotals | null>(null)
 const errors = ref({} as Record<string, string[] | string>)
 
 const canManageAbsensi = computed(() => isPermissions('manage-absensi'))
@@ -115,6 +126,7 @@ const filters = reactive({
   status: 'all',
   tanggal_mulai: dayjs().subtract(30, 'day').toDate(),
   tanggal_selesai: dayjs().toDate(),
+  status_total_year: dayjs().toDate(),
 })
 
 const dialogTitle = computed(() => form.id ? 'Edit Absensi' : 'Tambah Absensi')
@@ -145,6 +157,14 @@ const stats = computed(() => {
       icon: 'lucide:timer',
     },
   ]
+})
+
+const statusTotalItems = computed(() => {
+  return statusOptions.map((item) => ({
+    ...item,
+    total: Number(statusTotals.value?.by_status?.[item.value] || 0),
+    severity: statusSeverity(item.value),
+  }))
 })
 
 function formatDate(value?: string | null) {
@@ -270,6 +290,7 @@ function statusSeverity(status?: string) {
 
 async function loadData() {
   if (!filters.user_id && !canManageAbsensi.value) {
+    statusTotals.value = null
     return
   }
 
@@ -301,6 +322,7 @@ async function loadData() {
 
     const res = await client('/api/absensi', { params }) as any
     items.value = Array.isArray(res?.data) ? res.data : []
+    await loadStatusTotals()
   } catch (error) {
     const er = useSanctumError(error)
     toast.add({
@@ -311,6 +333,35 @@ async function loadData() {
     })
   } finally {
     loading.value = false
+  }
+}
+
+async function loadStatusTotals() {
+  if (!filters.user_id) {
+    statusTotals.value = null
+    return
+  }
+
+  loadingStatusTotals.value = true
+
+  try {
+    const params: Record<string, any> = {
+      user_id: filters.user_id,
+      year: dayjs(filters.status_total_year).format('YYYY'),
+    }
+
+    statusTotals.value = await client('/api/absensi-total-status-by-user', { params }) as AbsensiStatusTotals
+  } catch (error) {
+    const er = useSanctumError(error)
+    statusTotals.value = null
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat mengambil total status absensi',
+      life: 3000,
+    })
+  } finally {
+    loadingStatusTotals.value = false
   }
 }
 
@@ -620,9 +671,53 @@ watch(
         </template>
       </Card>
 
+      <Card v-if="filters.user_id">
+        <template #content>
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="pt-1">
+                <Icon name="lucide:fingerprint-pattern" />
+              </span>
+              <div class="text-sm font-medium">Total kehadiran</div>
+            </div>
+            <DatePicker
+                v-model="filters.status_total_year"
+                view="year"
+                dateFormat="yy"
+                size="small"
+                @update:modelValue="loadStatusTotals"
+              />
+          </div>
+          <div class="flex flex-col gap-3">
+            <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <template 
+                v-for="item in statusTotalItems"
+                :key="item.value">
+              <div           
+                class="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-700"
+              >
+                <Tag :severity="item.severity">
+                  {{ item.label }}
+                </Tag>
+                <div class="text-lg" :class="item.total == 0 ? 'opacity-50' : 'font-semibold'">
+                  {{ item.total }}
+                </div>
+              </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </Card>
+
       <Card class="overflow-hidden shadow-sm">
         <template v-if="canManageAbsensi" #header>   
-          <div class="pt-3 px-3 flex justify-end">
+          <div class="pt-3 px-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="pt-1">
+                <Icon name="lucide:calendar" />
+              </span>
+              <div class="text-sm font-medium">Riwayat</div>
+            </div>
             <Button
               v-if="canManageAbsensi"
               size="small"
