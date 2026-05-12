@@ -30,6 +30,13 @@ type AbsensiItem = {
   nama_shift?: string | null
   jadwal_masuk?: string | null
   jadwal_pulang?: string | null
+  lampiran_izin?: {
+    id: number
+    name: string
+    url: string
+    mime_type?: string | null
+    size?: number | null
+  } | null
   user?: {
     id: number
     name?: string
@@ -99,6 +106,8 @@ const form = reactive({
   jadwal_masuk: null as string | null,
   jadwal_pulang: null as string | null,
 })
+
+const lampiranIzinFile = ref<File | null>(null)
 
 const filters = reactive({
   user_id: null as number | null,
@@ -231,6 +240,15 @@ function normalizedStatus(status?: string | null) {
   return status === 'Terlambat' ? 'Hadir' : (status || 'Hadir')
 }
 
+function handleLampiranIzinChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  lampiranIzinFile.value = input.files?.[0] || null
+}
+
+function appendFormValue(payload: FormData, key: string, value: unknown) {
+  payload.append(key, value === null || value === undefined ? '' : String(value))
+}
+
 function statusSeverity(status?: string) {
   switch (normalizedStatus(status)) {
     case 'Hadir':
@@ -336,6 +354,7 @@ function resetForm() {
   form.nama_shift = null
   form.jadwal_masuk = null
   form.jadwal_pulang = null
+  lampiranIzinFile.value = null
 }
 
 function openCreateDialog() {
@@ -362,6 +381,7 @@ function openEditDialog(row: AbsensiItem) {
   form.nama_shift = row.nama_shift || row.shift?.nama || null
   form.jadwal_masuk = normalizeTime(row.jadwal_masuk)
   form.jadwal_pulang = normalizeTime(row.jadwal_pulang)
+  lampiranIzinFile.value = null
   visibleDialog.value = true
 }
 
@@ -384,27 +404,35 @@ async function handleSubmit() {
     fallbackTotal: form.total_detik_kerja,
   })
 
-  const payload = {
-    user_id: form.user_id,
-    tanggal: tanggal || null,
-    absensi_shift_id: form.absensi_shift_id,
-    status: normalizedStatus(form.status),
-    catatan: form.catatan || null,
-    jam_masuk: jamMasuk,
-    jam_pulang: jamPulang,
-    detik_telat: metrics.detik_telat,
-    detik_pulang_cepat: metrics.detik_pulang_cepat,
-    detik_kurang: metrics.detik_kurang,
-    detik_lebih: metrics.detik_lebih,
-    total_detik_kerja: metrics.total_detik_kerja,
-    nama_shift: selectedShift?.nama ?? form.nama_shift,
-    jadwal_masuk: jadwalMasuk,
-    jadwal_pulang: jadwalPulang,
+  const payload = new FormData()
+
+  if (form.id) {
+    payload.append('_method', 'PUT')
+  }
+
+  appendFormValue(payload, 'user_id', form.user_id)
+  appendFormValue(payload, 'tanggal', tanggal)
+  appendFormValue(payload, 'absensi_shift_id', form.absensi_shift_id)
+  appendFormValue(payload, 'status', normalizedStatus(form.status))
+  appendFormValue(payload, 'catatan', form.catatan)
+  appendFormValue(payload, 'jam_masuk', jamMasuk)
+  appendFormValue(payload, 'jam_pulang', jamPulang)
+  appendFormValue(payload, 'detik_telat', metrics.detik_telat)
+  appendFormValue(payload, 'detik_pulang_cepat', metrics.detik_pulang_cepat)
+  appendFormValue(payload, 'detik_kurang', metrics.detik_kurang)
+  appendFormValue(payload, 'detik_lebih', metrics.detik_lebih)
+  appendFormValue(payload, 'total_detik_kerja', metrics.total_detik_kerja)
+  appendFormValue(payload, 'nama_shift', selectedShift?.nama ?? form.nama_shift)
+  appendFormValue(payload, 'jadwal_masuk', jadwalMasuk)
+  appendFormValue(payload, 'jadwal_pulang', jadwalPulang)
+
+  if (normalizedStatus(form.status) === 'Sakit' && lampiranIzinFile.value) {
+    payload.append('lampiran_izin', lampiranIzinFile.value)
   }
 
   try {
     await client(form.id ? `/api/absensi/${form.id}` : '/api/absensi', {
-      method: form.id ? 'PUT' : 'POST',
+      method: 'POST',
       body: payload,
     })
 
@@ -492,6 +520,15 @@ watch(
 onMounted(() => {
   loadShiftOptions()
 })
+
+watch(
+  () => form.status,
+  (status) => {
+    if (normalizedStatus(status) !== 'Sakit') {
+      lampiranIzinFile.value = null
+    }
+  },
+)
 </script>
 
 <template>
@@ -664,6 +701,22 @@ onMounted(() => {
               </template>
             </Column>
 
+            <Column header="Lampiran">
+              <template #body="slotProps">
+                <a
+                  v-if="slotProps.data.lampiran_izin?.url"
+                  :href="slotProps.data.lampiran_izin.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 text-primary-600 hover:underline dark:text-primary-400"
+                >
+                  <Icon name="lucide:image" />
+                  Lihat
+                </a>
+                <span v-else>-</span>
+              </template>
+            </Column>
+
             <Column v-if="canManageAbsensi" header="" headerStyle="width: 8rem">
               <template #body="slotProps">
                 <div class="flex justify-end gap-2">
@@ -771,6 +824,23 @@ onMounted(() => {
         <Textarea id="catatan" v-model="form.catatan" class="w-full" rows="3" autoResize />
         <Message v-if="errors.catatan" severity="error" size="small" class="mt-1">
           {{ Array.isArray(errors.catatan) ? errors.catatan[0] : errors.catatan }}
+        </Message>
+      </div>
+
+      <div v-if="normalizedStatus(form.status) === 'Sakit'">
+        <label class="mb-1 block text-sm font-medium" for="lampiran_izin">Lampiran Surat Dokter</label>
+        <InputText
+          id="lampiran_izin"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="w-full"
+          @change="handleLampiranIzinChange"
+        />
+        <div v-if="lampiranIzinFile" class="mt-1 text-xs text-slate-500">
+          File baru: {{ lampiranIzinFile.name }}
+        </div>
+        <Message v-if="errors.lampiran_izin" severity="error" size="small" class="mt-1">
+          {{ Array.isArray(errors.lampiran_izin) ? errors.lampiran_izin[0] : errors.lampiran_izin }}
         </Message>
       </div>
 
