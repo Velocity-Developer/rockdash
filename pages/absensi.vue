@@ -240,9 +240,8 @@ function normalizedStatus(status?: string | null) {
   return status === 'Terlambat' ? 'Hadir' : (status || 'Hadir')
 }
 
-function handleLampiranIzinChange(event: Event) {
-  const input = event.target as HTMLInputElement
-  lampiranIzinFile.value = input.files?.[0] || null
+function handleLampiranIzinSelect(event: any) {
+  lampiranIzinFile.value = event.files?.[0] || null
 }
 
 function appendFormValue(payload: FormData, key: string, value: unknown) {
@@ -695,25 +694,12 @@ watch(
 
             <Column header="Catatan">
               <template #body="slotProps">
-                <span class="text-sm text-slate-600 dark:text-slate-300">
+                <span v-if="slotProps.data.catatan" class="text-sm text-slate-600 dark:text-slate-300">
                   {{ slotProps.data.catatan || '-' }}
                 </span>
-              </template>
-            </Column>
-
-            <Column header="Lampiran">
-              <template #body="slotProps">
-                <a
-                  v-if="slotProps.data.lampiran_izin?.url"
-                  :href="slotProps.data.lampiran_izin.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center gap-1 text-primary-600 hover:underline dark:text-primary-400"
-                >
-                  <Icon name="lucide:image" />
-                  Lihat
-                </a>
-                <span v-else>-</span>
+                <div v-if="slotProps.data.lampiran_izin?.url">
+                  <Image :src="slotProps.data.lampiran_izin.url" width="50" class="shadow" preview />
+                </div>
               </template>
             </Column>
 
@@ -828,13 +814,18 @@ watch(
       </div>
 
       <div v-if="normalizedStatus(form.status) === 'Sakit'">
-        <label class="mb-1 block text-sm font-medium" for="lampiran_izin">Lampiran Surat Dokter</label>
-        <InputText
-          id="lampiran_izin"
-          type="file"
+        <label class="mb-1 block text-sm font-medium" for="lampiran_izin">Lampiran Surat</label>
+        <FileUpload
+          mode="basic"
+          name="lampiran_izin"
           accept="image/jpeg,image/png,image/webp"
-          class="w-full"
-          @change="handleLampiranIzinChange"
+          :maxFileSize="5120000"
+          customUpload
+          auto
+          chooseLabel="Pilih Foto"
+          severity="secondary"
+          class="p-button-outlined"
+          @select="handleLampiranIzinSelect"
         />
         <div v-if="lampiranIzinFile" class="mt-1 text-xs text-slate-500">
           File baru: {{ lampiranIzinFile.name }}
