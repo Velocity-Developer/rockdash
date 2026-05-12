@@ -387,7 +387,7 @@ onMounted(refreshData)
       </div>
 
       <div class="flex items-center justify-end gap-2">
-        <Button size="small" severity="secondary" :loading="loading" @click="refreshData">
+        <Button size="small" severity="contrast" :loading="loading" @click="refreshData">
           <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
           Refresh
         </Button>
@@ -423,7 +423,7 @@ onMounted(refreshData)
           scrollable
           responsiveLayout="scroll"
           scrollHeight="72vh"
-          class="text-sm"
+          class="text-xs"
         >
           <template #empty>
             <div class="py-10 text-center text-sm text-slate-500">
@@ -440,29 +440,16 @@ onMounted(refreshData)
           <Column field="name" header="Server" sortable>
             <template #body="slotProps">
               <div>
-                <button
-                  v-if="slotProps.data.latest_check"
-                  type="button"
+                <NuxtLink
+                  :to="`/cek-server-tim-support-single/${slotProps.data.id}`"
                   class="font-medium text-primary-600 hover:underline dark:text-primary-400"
-                  @click="openPreviewDialog(slotProps.data.latest_check)"
                 >
                   {{ slotProps.data.name || '-' }}
-                </button>
-                <div v-else class="font-medium">
-                  {{ slotProps.data.name || '-' }}
-                </div>
+                </NuxtLink>
                 <div class="text-xs text-slate-500">
                   {{ slotProps.data.hostname || slotProps.data.ip_address || '-' }}
                 </div>
               </div>
-            </template>
-          </Column>
-
-          <Column field="is_active" header="Active">
-            <template #body="slotProps">
-              <Tag :severity="toBoolean(slotProps.data.is_active) ? 'success' : 'secondary'">
-                {{ toBoolean(slotProps.data.is_active) ? 'Active' : 'Inactive' }}
-              </Tag>
             </template>
           </Column>
 
@@ -486,7 +473,7 @@ onMounted(refreshData)
 
           <Column field="cek_error_idrac" header="iDRAC">
             <template #body="slotProps">
-              <Tag :severity="slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'danger' : 'success') : 'secondary'">
+              <Tag size="small" class="text-xs" :severity="slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'danger' : 'success') : 'secondary'">
                 {{ slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'Error' : 'Aman') : 'Belum Dicek' }}
               </Tag>
             </template>
@@ -512,7 +499,14 @@ onMounted(refreshData)
                   <Icon name="lucide:pencil" />
                 </Button>
                 <Button
-                  v-else
+                  v-if="slotProps.data.latest_check"
+                  size="small"
+                  severity="danger"
+                  @click="confirmDelete(slotProps.data.latest_check)"
+                >
+                  <Icon name="lucide:trash-2" />
+                </Button>
+                <Button
                   size="small"
                   severity="success"
                   @click="openCreateForServer(slotProps.data)"
@@ -520,12 +514,11 @@ onMounted(refreshData)
                   <Icon name="lucide:plus" />
                 </Button>
                 <Button
-                  v-if="slotProps.data.latest_check"
                   size="small"
-                  severity="danger"
-                  @click="confirmDelete(slotProps.data.latest_check)"
+                  severity="contrast"
+                  @click="navigateTo(`/cek-server-tim-support-single/${slotProps.data.id}`)"
                 >
-                  <Icon name="lucide:trash-2" />
+                  <Icon name="lucide:list" />
                 </Button>
               </div>
             </template>

@@ -383,7 +383,7 @@ onMounted(refreshData)
           scrollable
           responsiveLayout="scroll"
           scrollHeight="72vh"
-          class="text-sm"
+          class="text-xs"
         >
           <template #empty>
             <div class="py-10 text-center text-sm text-slate-500">
@@ -423,7 +423,7 @@ onMounted(refreshData)
 
           <Column field="cek_error_idrac" header="iDRAC">
             <template #body="slotProps">
-              <Tag :severity="toBoolean(slotProps.data.cek_error_idrac) ? 'danger' : 'success'">
+              <Tag size="small" class="text-xs" :severity="toBoolean(slotProps.data.cek_error_idrac) ? 'danger' : 'success'">
                 {{ toBoolean(slotProps.data.cek_error_idrac) ? 'Error' : 'Aman' }}
               </Tag>
             </template>
