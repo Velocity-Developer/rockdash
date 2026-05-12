@@ -35,6 +35,7 @@ type CekServerItem = {
 }
 
 const route = useRoute()
+const router = useRouter()
 const client = useSanctumClient()
 const toast = useToast()
 const confirm = useConfirm()
@@ -47,7 +48,13 @@ const server = ref<ServerOption | null>(null)
 const errors = ref({} as Record<string, string[] | string>)
 
 const filters = reactive({
-  cek_error_idrac: 'all',
+  cek_error_idrac: route.query.cek_error_idrac ? String(route.query.cek_error_idrac) : 'all',
+})
+
+const pagination = reactive({
+  current_page: route.query.page ? Number(route.query.page) : 1,
+  per_page: route.query.per_page ? Number(route.query.per_page) : 25,
+  total: 0,
 })
 
 const visibleDialog = ref(false)
@@ -76,17 +83,13 @@ const previewTitle = computed(() => {
   return previewData.value?.server?.name || server.value?.name || 'Preview Cek Server'
 })
 
-const filteredItems = computed(() => {
-  if (filters.cek_error_idrac === 'all') return items.value
-
-  return items.value.filter((item) => {
-    return toBoolean(item.cek_error_idrac) === (filters.cek_error_idrac === 'true')
-  })
+const firstRow = computed(() => {
+  return (pagination.current_page - 1) * pagination.per_page
 })
 
 const summary = computed(() => {
   return {
-    total: items.value.length,
+    total: pagination.total,
     error: items.value.filter((item) => toBoolean(item.cek_error_idrac)).length,
     aman: items.value.filter((item) => !toBoolean(item.cek_error_idrac)).length,
   }
@@ -109,6 +112,21 @@ function formatDateTime(value?: string | Date | null) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
+}
+
+function rowNumber(index: number) {
+  return firstRow.value + index + 1
+}
+
+function updateRouteQuery() {
+  router.replace({
+    query: {
+      ...route.query,
+      page: String(pagination.current_page),
+      per_page: String(pagination.per_page),
+      cek_error_idrac: filters.cek_error_idrac !== 'all' ? filters.cek_error_idrac : undefined,
+    },
+  })
 }
 
 function openPreviewDialog(row: CekServerItem) {
@@ -152,13 +170,21 @@ async function loadData() {
   try {
     const params: Record<string, any> = {
       server_id: serverId.value,
-      per_page: 5000,
+      page: pagination.current_page,
+      per_page: pagination.per_page,
       order_by: 'id',
       order: 'desc',
     }
 
+    if (filters.cek_error_idrac !== 'all') {
+      params.cek_error_idrac = filters.cek_error_idrac === 'true'
+    }
+
     const res = await client('/api/cek-server-tim-support', { params }) as any
     items.value = Array.isArray(res?.data) ? res.data : []
+    pagination.current_page = Number(res?.current_page || pagination.current_page)
+    pagination.per_page = Number(res?.per_page || pagination.per_page)
+    pagination.total = Number(res?.total || items.value.length)
   } catch (error) {
     const er = useSanctumError(error)
     toast.add({
@@ -171,6 +197,19 @@ async function loadData() {
     loading.value = false
     finish()
   }
+}
+
+async function applyFilter() {
+  pagination.current_page = 1
+  updateRouteQuery()
+  await loadData()
+}
+
+async function onPaginate(event: any) {
+  pagination.current_page = Number(event.page) + 1
+  pagination.per_page = Number(event.rows)
+  updateRouteQuery()
+  await loadData()
 }
 
 async function refreshData() {
@@ -321,6 +360,7 @@ onMounted(refreshData)
           optionLabel="label"
           optionValue="value"
           size="small"
+          @change="applyFilter"
         />
         <Button size="small" severity="contrast" outlined :loading="loading" @click="refreshData">
           <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
@@ -336,7 +376,7 @@ onMounted(refreshData)
     <Card>
       <template #content>
         <DataTable
-          :value="filteredItems"
+          :value="items"
           size="small"
           stripedRows
           :loading="loading"
@@ -353,7 +393,7 @@ onMounted(refreshData)
 
           <Column header="#" headerStyle="width: 4rem">
             <template #body="slotProps">
-              {{ slotProps.index + 1 }}
+              {{ rowNumber(slotProps.index) }}
             </template>
           </Column>
 
@@ -416,6 +456,18 @@ onMounted(refreshData)
             </template>
           </Column>
         </DataTable>
+
+        <div class="flex justify-end">
+          <Paginator
+            class="mt-4"
+            :first="firstRow"
+            :rows="pagination.per_page"
+            :totalRecords="pagination.total"
+            :rowsPerPageOptions="[10, 25, 50, 100]"
+            @page="onPaginate"
+            size="small"
+          />
+        </div>
       </template>
     </Card>
 
