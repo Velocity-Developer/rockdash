@@ -412,7 +412,7 @@ onUnmounted(() => {
             </div>
         </div>
     </div>
-    <div class="px-8 py-10 inset-shadow-sm inset-shadow-teal-500 bg-teal-50 dark:bg-teal-950 rounded-t-2xl">
+    <div class="px-8 py-10 inset-shadow-sm inset-shadow-teal-500 bg-white dark:bg-slate-900 rounded-t-2xl">
 
         <div class="flex flex-col items-center justify-center gap-1">
           <Select

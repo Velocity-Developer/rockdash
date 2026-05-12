@@ -497,39 +497,18 @@ onMounted(() => {
 <template>
 
 
-  <div class="grid grid-cols-4 gap-4">
+  <div class="grid grid-cols-4 gap-5 md:gap-10">
     
-    <div class="col-span-4 md:col-span-1">
+    <div class="col-span-4 md:col-span-2 lg:col-span-1">
       <AbsensiScanCard @submitted="loadData" />
     </div>
 
-    <div class="col-span-4 md:col-span-3 space-y-5">
-      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <div
-          v-for="stat in stats"
-          :key="stat.label"
-          class="rounded-xl p-4 shadow-sm ring-1"
-          :class="stat.tone"
-        >
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="text-xs font-medium uppercase tracking-wide opacity-80">
-                {{ stat.label }}
-              </div>
-              <div class="mt-2 text-2xl font-semibold">
-                {{ stat.value }}
-              </div>
-            </div>
-            <div class="rounded-xl bg-white p-2 dark:bg-slate-800">
-              <Icon :name="stat.icon" class="text-lg" />
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="col-span-4 md:col-span-2 lg:col-span-3 space-y-5">
 
       <Card>
         <template #content>
-          <div class="grid gap-4 lg:grid-cols-5">
+          <div class="grid gap-4 lg:grid-cols-8 content-end">
+
             <div v-if="canManageAbsensi" class="lg:col-span-2">
               <label class="mb-1 block text-sm font-medium">Filter User</label>
               <Select
@@ -556,7 +535,7 @@ onMounted(() => {
               </Select>
             </div>
 
-            <div>
+            <div class="lg:col-span-1">
               <label class="mb-1 block text-sm font-medium">Status</label>
               <Select
                 v-model="filters.status"
@@ -576,43 +555,22 @@ onMounted(() => {
               />
             </div>
 
-            <div>
+            <div class="lg:col-span-2">
               <label class="mb-1 block text-sm font-medium">Tanggal Mulai</label>
               <DatePicker v-model="filters.tanggal_mulai" dateFormat="yy-mm-dd" class="w-full" showIcon />
             </div>
 
-            <div>
+            <div class="lg:col-span-2">
               <label class="mb-1 block text-sm font-medium">Tanggal Selesai</label>
               <DatePicker v-model="filters.tanggal_selesai" dateFormat="yy-mm-dd" class="w-full" showIcon />
             </div>
-            <div>
-              <Button
-                v-if="canManageAbsensi"
-                size="small"
-                severity="secondary"
-                outlined
-                @click="resetToCurrentUser(); loadData()"
-              >
-                <Icon name="lucide:user-round" />
-                User Saya
-              </Button>
-            </div>
-            <div>
-              <Button
-                v-if="canManageAbsensi"
-                size="small"
-                @click="openCreateDialog"
-              >
-                <Icon name="lucide:plus" />
-                Tambah
-              </Button>
-            </div>
-            <div>
+            <div class="lg:col-span-1 md:pt-7">
               <Button
                 size="small"
                 severity="secondary"
                 :loading="loading"
                 @click="loadData(); loadShiftOptions()"
+                class="w-full"
               >
                 <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
                 Refresh
@@ -623,6 +581,18 @@ onMounted(() => {
       </Card>
 
       <Card class="overflow-hidden shadow-sm">
+        <template v-if="canManageAbsensi" #header>   
+          <div class="pt-3 px-3 flex justify-end">
+            <Button
+              v-if="canManageAbsensi"
+              size="small"
+              @click="openCreateDialog"
+            >
+              <Icon name="lucide:plus" />
+              Tambah
+            </Button>
+          </div>
+        </template>
         <template #content>
           <DataTable
             :value="items"
@@ -666,7 +636,10 @@ onMounted(() => {
 
             <Column header="Masuk">
               <template #body="slotProps">
-                <span :class="slotProps.data.detik_telat > 0 ? 'text-rose-500' : ''">
+                <span class="text-rose-500" v-if="slotProps.data.detik_telat > 0" v-tooltip="'Telat ' + formatDuration(slotProps.data.detik_telat)">
+                  {{ formatDateTime(slotProps.data.jam_masuk) }}
+                </span>
+                <span v-else>
                   {{ formatDateTime(slotProps.data.jam_masuk) }}
                 </span>
               </template>
@@ -674,33 +647,12 @@ onMounted(() => {
 
             <Column header="Pulang">
               <template #body="slotProps">
-                <span :class="slotProps.data.detik_pulang_cepat > 0 ? 'text-rose-500' : ''">
+                <span class="text-rose-500" v-if="slotProps.data.detik_pulang_cepat > 0" v-tooltip="'Pulang Cepat ' + formatDuration(slotProps.data.detik_pulang_cepat)">
                   {{ formatDateTime(slotProps.data.jam_pulang) }}
                 </span>
-              </template>
-            </Column>
-
-            <Column header="Kerja">
-              <template #body="slotProps">
-                {{ formatDuration(slotProps.data.total_detik_kerja) }}
-              </template>
-            </Column>
-
-            <Column header="Telat">
-              <template #body="slotProps">
-                {{ formatDuration(slotProps.data.detik_telat) }}
-              </template>
-            </Column>
-
-            <Column header="Pulang Cepat">
-              <template #body="slotProps">
-                {{ formatDuration(slotProps.data.detik_pulang_cepat) }}
-              </template>
-            </Column>
-
-            <Column header="Lebih">
-              <template #body="slotProps">
-                {{ formatDuration(slotProps.data.detik_lebih) }}
+                <span v-else>
+                  {{ formatDateTime(slotProps.data.jam_pulang) }}
+                </span>
               </template>
             </Column>
 
