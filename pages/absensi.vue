@@ -108,6 +108,7 @@ const form = reactive({
 })
 
 const lampiranIzinFile = ref<File | null>(null)
+const existingLampiranIzin = ref<AbsensiItem['lampiran_izin'] | null>(null)
 
 const filters = reactive({
   user_id: null as number | null,
@@ -354,6 +355,7 @@ function resetForm() {
   form.jadwal_masuk = null
   form.jadwal_pulang = null
   lampiranIzinFile.value = null
+  existingLampiranIzin.value = null
 }
 
 function openCreateDialog() {
@@ -381,6 +383,7 @@ function openEditDialog(row: AbsensiItem) {
   form.jadwal_masuk = normalizeTime(row.jadwal_masuk)
   form.jadwal_pulang = normalizeTime(row.jadwal_pulang)
   lampiranIzinFile.value = null
+  existingLampiranIzin.value = row.lampiran_izin || null
   visibleDialog.value = true
 }
 
@@ -525,6 +528,7 @@ watch(
   (status) => {
     if (normalizedStatus(status) !== 'Sakit') {
       lampiranIzinFile.value = null
+      existingLampiranIzin.value = null
     }
   },
 )
@@ -698,7 +702,7 @@ watch(
                   {{ slotProps.data.catatan || '-' }}
                 </span>
                 <div v-if="slotProps.data.lampiran_izin?.url">
-                  <Image :src="slotProps.data.lampiran_izin.url" width="50" class="shadow" preview />
+                  <Image :src="slotProps.data.lampiran_izin.url" height="50" width="50" class="shadow" preview />
                 </div>
               </template>
             </Column>
@@ -815,6 +819,19 @@ watch(
 
       <div v-if="normalizedStatus(form.status) === 'Sakit'">
         <label class="mb-1 block text-sm font-medium" for="lampiran_izin">Lampiran Surat</label>
+        <div
+          v-if="existingLampiranIzin?.url"
+          class="mb-3 rounded bg-gray-100 dark:bg-gray-900 border border-slate-200 p-2 dark:border-gray-700"
+        >
+          <Image 
+            :src="existingLampiranIzin.url" 
+            :alt="existingLampiranIzin.name || 'Lampiran surat'" 
+            class="max-h-64 w-full rounded object-cover" 
+            :pt="{
+              image: 'w-full rounded object-cover',
+            }"
+          preview/>
+        </div>
         <FileUpload
           mode="basic"
           name="lampiran_izin"
