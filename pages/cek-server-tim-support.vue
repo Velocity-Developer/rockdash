@@ -351,10 +351,10 @@ onMounted(refreshData)
           <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
           Refresh
         </Button>
-        <Button size="small" @click="openDialog('add')">
+        <!-- <Button size="small" @click="openDialog('add')">
           <Icon name="lucide:plus" />
           Tambah
-        </Button>
+        </Button> -->
       </div>
     </div>
 
@@ -467,19 +467,20 @@ onMounted(refreshData)
                   <Icon name="lucide:trash-2" />
                 </Button>
                 <Button
+                  v-else
                   size="small"
                   severity="success"
                   @click="openCreateForServer(slotProps.data)"
                 >
                   <Icon name="lucide:plus" />
                 </Button>
-                <Button
+                <!-- <Button
                   size="small"
                   severity="contrast"
                   @click="navigateTo(`/cek-server-tim-support-single/${slotProps.data.id}`)"
                 >
                   <Icon name="lucide:list" />
-                </Button>
+                </Button> -->
               </div>
             </template>
           </Column>
