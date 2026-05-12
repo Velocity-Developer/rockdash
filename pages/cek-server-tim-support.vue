@@ -12,6 +12,9 @@ type ServerOption = {
   id: number
   name: string
   hostname: string | null
+  type?: string | null
+  ip_address?: string | null
+  is_active?: boolean | number | null
 }
 
 type CekServerItem = {
@@ -24,12 +27,16 @@ type CekServerItem = {
     name: string
     username?: string | null
   } | null
-  hapus_backup_admin: Date | null
+  hapus_backup_admin: string | Date | null
   kapasitas_ssh: string | null
   cek_error_idrac: boolean | number | null
   error_idrac: string | null
   created_at?: string
   updated_at?: string
+}
+
+type ServerCekRow = ServerOption & {
+  latest_check: CekServerItem | null
 }
 
 const client = useSanctumClient()
@@ -70,7 +77,53 @@ const submitLabel = computed(() => {
 })
 
 const previewTitle = computed(() => {
-  return previewData.value?.server?.name || 'Preview Cek Server'
+  if (!previewData.value) return 'Preview Cek Server'
+
+  return previewData.value.server?.name || getServerName(previewData.value.server_id)
+})
+
+const latestCheckByServer = computed(() => {
+  const map = new Map<number, CekServerItem>()
+
+  for (const item of items.value) {
+    if (!item.server_id) continue
+
+    const current = map.get(item.server_id)
+    if (!current || getCheckTimestamp(item) > getCheckTimestamp(current)) {
+      map.set(item.server_id, item)
+    }
+  }
+
+  return map
+})
+
+const tableRows = computed<ServerCekRow[]>(() => {
+  return servers.value
+    .map((server) => ({
+      ...server,
+      latest_check: latestCheckByServer.value.get(server.id) || null,
+    }))
+    .filter((row) => {
+      if (filters.server_id && row.id !== filters.server_id) {
+        return false
+      }
+
+      if (filters.cek_error_idrac !== 'all') {
+        if (!row.latest_check) return false
+
+        return toBoolean(row.latest_check.cek_error_idrac) === (filters.cek_error_idrac === 'true')
+      }
+
+      return true
+    })
+})
+
+const summary = computed(() => {
+  return {
+    total: tableRows.value.length,
+    checked: tableRows.value.filter((row) => row.latest_check).length,
+    error: tableRows.value.filter((row) => row.latest_check && toBoolean(row.latest_check.cek_error_idrac)).length,
+  }
 })
 
 function errorText(field: string) {
@@ -83,15 +136,6 @@ function toBoolean(value: boolean | number | string | null | undefined) {
   return value === true || value === 1 || value === '1' || value === 'true'
 }
 
-function toDatetimeLocal(value?: string | null) {
-  if (!value) return ''
-  return value.replace(' ', 'T').slice(0, 16)
-}
-
-function toApiDatetime(value: string) {
-  return value ? value.replace('T', ' ') : null
-}
-
 function formatDateTime(value?: string | Date | null) {
   if (!value) return '-'
 
@@ -99,6 +143,16 @@ function formatDateTime(value?: string | Date | null) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
+}
+
+function getCheckTimestamp(item: CekServerItem) {
+  return new Date(item.updated_at || item.created_at || item.hapus_backup_admin || 0).getTime()
+}
+
+function getServerName(serverId: number | null | undefined) {
+  if (!serverId) return '-'
+
+  return servers.value.find((server) => server.id === serverId)?.name || '-'
 }
 
 function openPreviewDialog(row: CekServerItem) {
@@ -126,7 +180,7 @@ async function loadServers() {
   try {
     const res = await client('/api/servers', {
       params: {
-        per_page: 500,
+        per_page: 5000,
       },
     }) as any
 
@@ -147,17 +201,9 @@ async function loadData() {
   start()
   try {
     const params: Record<string, any> = {
-      per_page: 200,
+      per_page: 5000,
       order_by: 'id',
       order: 'desc',
-    }
-
-    if (filters.server_id) {
-      params.server_id = filters.server_id
-    }
-
-    if (filters.cek_error_idrac !== 'all') {
-      params.cek_error_idrac = filters.cek_error_idrac === 'true'
     }
 
     const res = await client('/api/cek-server-tim-support', { params }) as any
@@ -183,7 +229,7 @@ function openDialog(action: 'add' | 'edit', row?: CekServerItem) {
   if (action === 'edit' && row) {
     form.id = row.id
     form.server_id = row.server_id
-    form.hapus_backup_admin = dayjs(row.hapus_backup_admin).toDate() || ''
+    form.hapus_backup_admin = row.hapus_backup_admin ? dayjs(row.hapus_backup_admin).toDate() : null
     form.kapasitas_ssh = row.kapasitas_ssh || ''
     form.cek_error_idrac = toBoolean(row.cek_error_idrac)
     form.error_idrac = row.error_idrac || ''
@@ -192,6 +238,18 @@ function openDialog(action: 'add' | 'edit', row?: CekServerItem) {
   }
 
   visibleDialog.value = true
+}
+
+function openCreateForServer(server: ServerOption) {
+  openDialog('add')
+  form.server_id = server.id
+}
+
+async function refreshData() {
+  await Promise.all([
+    loadServers(),
+    loadData(),
+  ])
 }
 
 async function handleSubmit() {
@@ -251,7 +309,7 @@ async function handleSubmit() {
 
 function confirmDelete(row: CekServerItem) {
   confirm.require({
-    message: `Hapus data cek server "${row.server?.name || row.id}"?`,
+    message: `Hapus data cek server "${row.server?.name || getServerName(row.server_id) || row.id}"?`,
     header: 'Hapus Cek Server',
     accept: async () => {
       try {
@@ -289,12 +347,7 @@ function confirmDelete(row: CekServerItem) {
   })
 }
 
-onMounted(async () => {
-  await Promise.all([
-    loadServers(),
-    loadData(),
-  ])
-})
+onMounted(refreshData)
 </script>
 
 <template>
@@ -313,7 +366,6 @@ onMounted(async () => {
             class="w-full md:w-72"
             placeholder="Semua server"
             size="small"
-            @change="loadData"
           />
         </div>
 
@@ -330,13 +382,12 @@ onMounted(async () => {
             optionLabel="label"
             optionValue="value"
             size="small"
-            @change="loadData"
           />
         </div>
       </div>
 
       <div class="flex items-center justify-end gap-2">
-        <Button size="small" severity="secondary" :loading="loading" @click="loadData">
+        <Button size="small" severity="secondary" :loading="loading" @click="refreshData">
           <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
           Refresh
         </Button>
@@ -347,15 +398,27 @@ onMounted(async () => {
       </div>
     </div>
 
+    <!-- <div class="grid gap-3 md:grid-cols-3">
+      <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+        <div class="text-xs text-slate-500">Server Ditampilkan</div>
+        <div class="mt-1 text-xl font-semibold">{{ summary.total }}</div>
+      </div>
+      <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+        <div class="text-xs text-slate-500">Sudah Ada Riwayat</div>
+        <div class="mt-1 text-xl font-semibold">{{ summary.checked }}</div>
+      </div>
+      <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
+        <div class="text-xs text-slate-500">Riwayat Terakhir Error iDRAC</div>
+        <div class="mt-1 text-xl font-semibold">{{ summary.error }}</div>
+      </div>
+    </div> -->
+
     <Card>
       <template #content>
         <DataTable
-          :value="items"
+          :value="tableRows"
           size="small"
           stripedRows
-          paginator
-          :rows="25"
-          :rowsPerPageOptions="[25, 50, 100]"
           :loading="loading"
           scrollable
           responsiveLayout="scroll"
@@ -364,7 +427,7 @@ onMounted(async () => {
         >
           <template #empty>
             <div class="py-10 text-center text-sm text-slate-500">
-              Belum ada data cek server tim support.
+              Tidak ada server yang sesuai filter.
             </div>
           </template>
 
@@ -374,40 +437,57 @@ onMounted(async () => {
             </template>
           </Column>
 
-          <Column field="server.name" header="Server" sortable>
+          <Column field="name" header="Server" sortable>
             <template #body="slotProps">
-              <button
-                type="button"
-                class="font-medium text-primary-600 hover:underline dark:text-primary-400"
-                @click="openPreviewDialog(slotProps.data)"
-              >
-                {{ slotProps.data.server?.name || '-' }}
-              </button>
+              <div>
+                <button
+                  v-if="slotProps.data.latest_check"
+                  type="button"
+                  class="font-medium text-primary-600 hover:underline dark:text-primary-400"
+                  @click="openPreviewDialog(slotProps.data.latest_check)"
+                >
+                  {{ slotProps.data.name || '-' }}
+                </button>
+                <div v-else class="font-medium">
+                  {{ slotProps.data.name || '-' }}
+                </div>
+                <div class="text-xs text-slate-500">
+                  {{ slotProps.data.hostname || slotProps.data.ip_address || '-' }}
+                </div>
+              </div>
             </template>
           </Column>
 
-          <!-- <Column field="user.name" header="Dibuat Oleh" sortable>
+          <Column field="is_active" header="Active">
             <template #body="slotProps">
-              {{ slotProps.data.user?.name || slotProps.data.user?.username || '-' }}
+              <Tag :severity="toBoolean(slotProps.data.is_active) ? 'success' : 'secondary'">
+                {{ toBoolean(slotProps.data.is_active) ? 'Active' : 'Inactive' }}
+              </Tag>
             </template>
-          </Column> -->
+          </Column>
+
+          <Column field="latest_check.updated_at" header="Riwayat Terakhir">
+            <template #body="slotProps">
+              {{ formatDateTime(slotProps.data.latest_check?.updated_at || slotProps.data.latest_check?.created_at) }}
+            </template>
+          </Column>
 
           <Column field="hapus_backup_admin" header="Hapus Backup di folder Admin Backup">
             <template #body="slotProps">
-              {{ formatDateTime(slotProps.data.hapus_backup_admin) }}
+              {{ formatDateTime(slotProps.data.latest_check?.hapus_backup_admin) }}
             </template>
           </Column>
 
           <Column field="kapasitas_ssh" header="Cek Kapasitas lewat SSH">
             <template #body="slotProps">
-              {{ slotProps.data.kapasitas_ssh || '-' }}
+              {{ slotProps.data.latest_check?.kapasitas_ssh || '-' }}
             </template>
           </Column>
 
           <Column field="cek_error_idrac" header="iDRAC">
             <template #body="slotProps">
-              <Tag :severity="toBoolean(slotProps.data.cek_error_idrac) ? 'danger' : 'success'">
-                {{ toBoolean(slotProps.data.cek_error_idrac) ? 'Error' : 'Aman' }}
+              <Tag :severity="slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'danger' : 'success') : 'secondary'">
+                {{ slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'Error' : 'Aman') : 'Belum Dicek' }}
               </Tag>
             </template>
           </Column>
@@ -415,7 +495,7 @@ onMounted(async () => {
           <Column field="error_idrac" header="Keterangan Error">
             <template #body="slotProps">
               <div class="max-w-md whitespace-normal">
-                {{ slotProps.data.error_idrac || '-' }}
+                {{ slotProps.data.latest_check?.error_idrac || '-' }}
               </div>
             </template>
           </Column>
@@ -423,10 +503,28 @@ onMounted(async () => {
           <Column header="" headerStyle="width: 8rem">
             <template #body="slotProps">
               <div class="flex justify-end gap-2">
-                <Button size="small" severity="info" @click="openDialog('edit', slotProps.data)">
+                <Button
+                  v-if="slotProps.data.latest_check"
+                  size="small"
+                  severity="info"
+                  @click="openDialog('edit', slotProps.data.latest_check)"
+                >
                   <Icon name="lucide:pencil" />
                 </Button>
-                <Button size="small" severity="danger" @click="confirmDelete(slotProps.data)">
+                <Button
+                  v-else
+                  size="small"
+                  severity="success"
+                  @click="openCreateForServer(slotProps.data)"
+                >
+                  <Icon name="lucide:plus" />
+                </Button>
+                <Button
+                  v-if="slotProps.data.latest_check"
+                  size="small"
+                  severity="danger"
+                  @click="confirmDelete(slotProps.data.latest_check)"
+                >
                   <Icon name="lucide:trash-2" />
                 </Button>
               </div>
@@ -449,7 +547,7 @@ onMounted(async () => {
           <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
             <div class="text-xs text-slate-500">Server</div>
             <div class="mt-1 flex items-center justify-between">
-              <div class="font-medium">{{ previewData.server?.name || '-' }}</div>
+              <div class="font-medium">{{ previewData.server?.name || getServerName(previewData.server_id) }}</div>
               <Badge severity="secondary">{{ previewData.server?.hostname || '-' }}</Badge>
             </div>
           </div>
