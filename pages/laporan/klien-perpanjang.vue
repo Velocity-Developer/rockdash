@@ -153,25 +153,6 @@
             </span>
           </template>
         </Column>
-        <Column field="follow_up_perpanjang.tanggal" sortable header="Tanggal FollowUp">
-          <template #body="slotProps">
-            {{ slotProps.data.follow_up_perpanjang?.tanggal || '-' }}
-          </template>
-        </Column>
-        <Column field="follow_up_perpanjang.keterangan" header="Keterangan FollowUp">
-          <template #body="slotProps">
-            <div class="min-w-[16rem] whitespace-normal">
-              {{ slotProps.data.follow_up_perpanjang?.keterangan || '-' }}
-            </div>
-          </template>
-        </Column>
-        <Column field="follow_up_perpanjang.alasan" header="Alasan">
-          <template #body="slotProps">
-            <div class="min-w-[12rem] whitespace-normal">
-              {{ slotProps.data.follow_up_perpanjang?.alasan || '-' }}
-            </div>
-          </template>
-        </Column>
         <Column field="hosting.package_name" sortable header="Hosting">
           <template #body="slotProps">
             <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
@@ -191,6 +172,39 @@
             <Badge :severity="slotProps.data.status?'success':'contrast'" class="cursor-pointer" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
               {{ slotProps.data.status?'Perpanjang':'Tidak' }}
             </Badge>
+          </template>
+        </Column>
+        <Column field="follow_up_perpanjang.tanggal" sortable header="Tgl FollowUp">
+          <template #body="slotProps">
+            <button
+              type="button"
+              class="bg-transparent border-0 p-0 text-left hover:underline cursor-pointer"
+              @click="openDialogFollowUpPerpanjang(slotProps.data)"
+            >
+              {{ slotProps.data.follow_up_perpanjang?.tanggal || '-' }}
+            </button>
+          </template>
+        </Column>
+        <Column field="follow_up_perpanjang.keterangan" header="Ket. FollowUp">
+          <template #body="slotProps">
+            <button
+              type="button"
+              class="bg-transparent border-0 p-0 max-w-[16rem] whitespace-normal text-left hover:underline cursor-pointer"
+              @click="openDialogFollowUpPerpanjang(slotProps.data)"
+            >
+              {{ slotProps.data.follow_up_perpanjang?.keterangan || '-' }}
+            </button>
+          </template>
+        </Column>
+        <Column field="follow_up_perpanjang.alasan" header="Alasan">
+          <template #body="slotProps">
+            <button
+              type="button"
+              class="bg-transparent border-0 p-0 min-w-[12rem] whitespace-normal text-left hover:underline cursor-pointer"
+              @click="openDialogFollowUpPerpanjang(slotProps.data)"
+            >
+              {{ slotProps.data.follow_up_perpanjang?.alasan || '-' }}
+            </button>
           </template>
         </Column>
         <!-- <Column field="domain.status" sortable header="Status Domain">
@@ -325,6 +339,56 @@
     </div>
   </Dialog>
 
+  <Dialog v-model:visible="visibleDialogFollowUpPerpanjang" modal :header="titleDialogFollowUpPerpanjang" :style="{ width: '36rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label for="followup_tanggal" class="block text-sm mb-1">Tanggal FollowUp</label>
+        <DatePicker
+          id="followup_tanggal"
+          v-model="formFollowUpPerpanjang.tanggal"
+          showTime
+          hourFormat="24"
+          dateFormat="dd/mm/yy"
+          class="w-full"
+          fluid
+          showIcon
+        />
+      </div>
+
+      <div>
+        <label for="followup_keterangan" class="block text-sm mb-1">Keterangan FollowUp</label>
+        <Textarea
+          id="followup_keterangan"
+          v-model="formFollowUpPerpanjang.keterangan"
+          class="w-full"
+          rows="4"
+          autoResize
+        />
+      </div>
+
+      <div>
+        <label for="followup_alasan" class="block text-sm mb-1">Alasan</label>
+        <Textarea
+          id="followup_alasan"
+          v-model="formFollowUpPerpanjang.alasan"
+          class="w-full"
+          rows="3"
+          autoResize
+        />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <Button type="button" severity="secondary" @click="visibleDialogFollowUpPerpanjang = false">
+          Batal
+        </Button>
+        <Button type="button" :loading="loadingFollowUpPerpanjang" @click="saveFollowUpPerpanjang">
+          <Icon name="lucide:save" />
+          Simpan
+        </Button>
+      </div>
+    </div>
+  </Dialog>
+
   <DashLoader :loading="loading"/>
 
 </template>
@@ -340,6 +404,7 @@ import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const route = useRoute();
 const router = useRouter()
+const toast = useToast()
 
 const filter = reactive({
     bulan: route.query.bulan
@@ -616,5 +681,71 @@ const openDialogStatusPerpanjang = async (data = {} as any,title = '') => {
   visibleDialogStatusPerpanjang.value = true;
   dataDialogStatusPerpanjang.value = data;
   titleDialogStatusPerpanjang.value = title;
+}
+
+const visibleDialogFollowUpPerpanjang = ref(false)
+const titleDialogFollowUpPerpanjang = ref('')
+const dataDialogFollowUpPerpanjang = ref({} as any)
+const loadingFollowUpPerpanjang = ref(false)
+const formFollowUpPerpanjang = reactive({
+  id: null,
+  tanggal: dayjs().toDate(),
+  keterangan: '',
+  alasan: '',
+} as any)
+
+const openDialogFollowUpPerpanjang = (data = {} as any) => {
+  const followUp = data.follow_up_perpanjang || {}
+
+  dataDialogFollowUpPerpanjang.value = data
+  titleDialogFollowUpPerpanjang.value = `FollowUp ${data.domain_name || ''}`
+  formFollowUpPerpanjang.id = followUp.id || null
+  formFollowUpPerpanjang.tanggal = followUp.tanggal ? dayjs(followUp.tanggal).toDate() : dayjs().toDate()
+  formFollowUpPerpanjang.keterangan = followUp.keterangan || ''
+  formFollowUpPerpanjang.alasan = followUp.alasan || ''
+  visibleDialogFollowUpPerpanjang.value = true
+}
+
+const saveFollowUpPerpanjang = async () => {
+  const item = dataDialogFollowUpPerpanjang.value
+  const idFollowUp = formFollowUpPerpanjang.id
+
+  loadingFollowUpPerpanjang.value = true
+  try {
+    const response = await client(idFollowUp ? `/api/follow-up-perpanjang/${idFollowUp}` : '/api/follow-up-perpanjang', {
+      method: idFollowUp ? 'PUT' : 'POST',
+      body: {
+        status: Boolean(item.status),
+        tanggal: dayjs(formFollowUpPerpanjang.tanggal).format('YYYY-MM-DD HH:mm:ss'),
+        whmcs_user_id: item.user?.id || null,
+        whmcs_domain_id: item.domain?.id || null,
+        whmcs_hosting_id: item.hosting?.id || null,
+        webhost_id: item.webhost?.id_webhost || null,
+        keterangan: formFollowUpPerpanjang.keterangan || null,
+        alasan: formFollowUpPerpanjang.alasan || null,
+      },
+    }) as any
+
+    item.follow_up_perpanjang = response.data
+    visibleDialogFollowUpPerpanjang.value = false
+    await refreshDataExpiredWHMCS()
+
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil!',
+      detail: 'Data follow up perpanjang berhasil disimpan',
+      life: 3000,
+    })
+  } catch (error) {
+    const er = useSanctumError(error)
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal!',
+      detail: `Data follow up gagal disimpan, ${er.bag}`,
+      life: 3000,
+    })
+  } finally {
+    loadingFollowUpPerpanjang.value = false
+  }
 }
 </script>
