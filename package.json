@@ -13,7 +13,8 @@
     "prod": "nuxt generate --dotenv .env.production",
     "build:local": "nuxt build --dotenv .env.production",
     "build:prod": "nuxt generate --dotenv .env.production && node build-zip.js",
-    "upload:prod": "node upload-zip.js"
+    "upload:prod": "node upload-zip.js",
+    "deploy": "nuxt generate --dotenv .env.production && node build-zip.js && node upload-zip.js"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.11.4",
