@@ -153,6 +153,25 @@
             </span>
           </template>
         </Column>
+        <Column field="follow_up_perpanjang.tanggal" sortable header="Tanggal FollowUp">
+          <template #body="slotProps">
+            {{ slotProps.data.follow_up_perpanjang?.tanggal || '-' }}
+          </template>
+        </Column>
+        <Column field="follow_up_perpanjang.keterangan" header="Keterangan FollowUp">
+          <template #body="slotProps">
+            <div class="min-w-[16rem] whitespace-normal">
+              {{ slotProps.data.follow_up_perpanjang?.keterangan || '-' }}
+            </div>
+          </template>
+        </Column>
+        <Column field="follow_up_perpanjang.alasan" header="Alasan">
+          <template #body="slotProps">
+            <div class="min-w-[12rem] whitespace-normal">
+              {{ slotProps.data.follow_up_perpanjang?.alasan || '-' }}
+            </div>
+          </template>
+        </Column>
         <Column field="hosting.package_name" sortable header="Hosting">
           <template #body="slotProps">
             <span v-if="slotProps.data.hosting" :class="isToday(slotProps.data.hosting.nextduedate)?'text-green-600':''">              
@@ -459,7 +478,7 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
   const excelData: any[] = [];
   
   // Add header row
-  excelData.push(['No', 'Domain', 'Expiry Date domain', 'Status Domain', 'Expiry Date Hosting', 'Hosting', 'Webhost', 'Status']);
+  excelData.push(['No', 'Domain', 'Expiry Date domain', 'Status Domain', 'Expiry Date Hosting', 'Hosting', 'Webhost', 'Status', 'Tanggal FollowUp', 'Keterangan FollowUp', 'Alasan']);
   
   // Process each item
   filteredRows.forEach((item: any, index: number) => {
@@ -471,7 +490,10 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
       item.hosting ? item.hosting.nextduedate : '-',
       item.hosting ? item.hosting.package_name : '-',
       item.webhost_available ? 'ada' : 'tidak',
-      item.status ? 'Perpanjang' : 'Tidak'
+      item.status ? 'Perpanjang' : 'Tidak',
+      item.follow_up_perpanjang?.tanggal || '-',
+      item.follow_up_perpanjang?.keterangan || '-',
+      item.follow_up_perpanjang?.alasan || '-'
     ]);
   });
 
@@ -488,7 +510,10 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
     { wch: 20 },  // Expiry Date Hosting
     { wch: 25 },  // Hosting
     { wch: 10 },  // Webhost
-    { wch: 10 }   // Status
+    { wch: 10 },  // Status
+    { wch: 20 },  // Tanggal FollowUp
+    { wch: 35 },  // Keterangan FollowUp
+    { wch: 25 }   // Alasan
   ];
 
   // Add worksheet to workbook
