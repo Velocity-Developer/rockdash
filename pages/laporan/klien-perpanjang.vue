@@ -355,6 +355,11 @@
         />
       </div>
 
+      <div class="flex items-center gap-2">
+        <ToggleSwitch id="followup_status" v-model="formFollowUpPerpanjang.status" />
+        <label for="followup_status" class="text-sm">Status FollowUp</label>
+      </div>
+
       <div>
         <label for="followup_keterangan" class="block text-sm mb-1">Keterangan FollowUp</label>
         <Textarea
@@ -689,6 +694,7 @@ const dataDialogFollowUpPerpanjang = ref({} as any)
 const loadingFollowUpPerpanjang = ref(false)
 const formFollowUpPerpanjang = reactive({
   id: null,
+  status: false,
   tanggal: dayjs().toDate(),
   keterangan: '',
   alasan: '',
@@ -700,6 +706,7 @@ const openDialogFollowUpPerpanjang = (data = {} as any) => {
   dataDialogFollowUpPerpanjang.value = data
   titleDialogFollowUpPerpanjang.value = `FollowUp ${data.domain_name || ''}`
   formFollowUpPerpanjang.id = followUp.id || null
+  formFollowUpPerpanjang.status = Boolean(followUp.status)
   formFollowUpPerpanjang.tanggal = followUp.tanggal ? dayjs(followUp.tanggal).toDate() : dayjs().toDate()
   formFollowUpPerpanjang.keterangan = followUp.keterangan || ''
   formFollowUpPerpanjang.alasan = followUp.alasan || ''
@@ -715,7 +722,7 @@ const saveFollowUpPerpanjang = async () => {
     const response = await client(idFollowUp ? `/api/follow-up-perpanjang/${idFollowUp}` : '/api/follow-up-perpanjang', {
       method: idFollowUp ? 'PUT' : 'POST',
       body: {
-        status: Boolean(item.status),
+        status: Boolean(formFollowUpPerpanjang.status),
         tanggal: dayjs(formFollowUpPerpanjang.tanggal).format('YYYY-MM-DD HH:mm:ss'),
         whmcs_user_id: item.user?.id || null,
         whmcs_domain_id: item.domain?.id || null,
