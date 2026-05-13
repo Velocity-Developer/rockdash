@@ -13,6 +13,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
           <div> <span class="font-bold">Name</span> : {{ dataWhmcsUser?.firstname }} {{ dataWhmcsUser?.lastname }} </div> 
           <div> <span class="font-bold">Email</span> : {{ dataWhmcsUser?.email }} </div> 
+          <div class="md:col-span-2"> <span class="font-bold">Alasan</span> : {{ dataWhmcsUser?.alasan || '-' }} </div> 
         </div>
       </div>
 

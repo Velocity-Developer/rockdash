@@ -26,6 +26,11 @@
             </template>
           </Column>
           <Column field="email" header="Email"></Column>
+          <Column field="alasan" header="Alasan">
+            <template #body="slotProps">
+              {{ slotProps.data.alasan || '-' }}
+            </template>
+          </Column>
           <Column field="domains" header="Domain">
             <template #body="slotProps">
               <ol v-if="slotProps.data.domains.length" class="list-decimal list-inside">

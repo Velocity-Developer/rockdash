@@ -33,6 +33,14 @@
         <InputNumber v-model="form.whmcs_id" class="w-full" disabled/>
       </div>
     </div>
+    <div class="flex flex-col md:flex-row border-b pb-1 gap-2">
+      <div class="md:basis-1/4 mb-1">
+        <label for="alasan">Alasan</label>
+      </div>
+      <div class="md:flex-1">
+        <Textarea id="alasan" v-model="form.alasan" class="w-full" rows="3" autoResize />
+      </div>
+    </div>
     <div class="flex justify-end">
       <Button type="submit" :loading="loading">
         <Icon v-if="loading" name="lucide:loader-circle" class="animate-spin"/>
@@ -63,6 +71,7 @@ const form = reactive({
   lastname: '',
   email: '',
   whmcs_id: 0,
+  alasan: '',
   id: 0,
 })
 
@@ -105,6 +114,7 @@ onMounted( async () => {
     form.lastname = res.lastname;
     form.email = res.email;
     form.whmcs_id = res.whmcs_id;
+    form.alasan = res.alasan || '';
     form.id = res.id;
     loadingData.value = false;
   }
