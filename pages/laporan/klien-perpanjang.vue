@@ -196,14 +196,14 @@
             </button>
           </template>
         </Column>
-        <Column field="follow_up_perpanjang.alasan" header="Alasan">
+        <Column field="user.alasan" header="Alasan">
           <template #body="slotProps">
             <button
               type="button"
               class="bg-transparent border-0 p-0 min-w-[12rem] whitespace-normal text-left hover:underline cursor-pointer"
-              @click="openDialogFollowUpPerpanjang(slotProps.data)"
+              @click="openDialogWhmcsUserAlasan(slotProps.data)"
             >
-              {{ slotProps.data.follow_up_perpanjang?.alasan || '-' }}
+              {{ slotProps.data.user?.alasan || '-' }}
             </button>
           </template>
         </Column>
@@ -371,22 +371,36 @@
         />
       </div>
 
-      <div>
-        <label for="followup_alasan" class="block text-sm mb-1">Alasan</label>
-        <Textarea
-          id="followup_alasan"
-          v-model="formFollowUpPerpanjang.alasan"
-          class="w-full"
-          rows="3"
-          autoResize
-        />
-      </div>
-
       <div class="flex justify-end gap-2 pt-2">
         <Button type="button" severity="secondary" @click="visibleDialogFollowUpPerpanjang = false">
           Batal
         </Button>
         <Button type="button" :loading="loadingFollowUpPerpanjang" @click="saveFollowUpPerpanjang">
+          <Icon name="lucide:save" />
+          Simpan
+        </Button>
+      </div>
+    </div>
+  </Dialog>
+
+  <Dialog v-model:visible="visibleDialogWhmcsUserAlasan" modal :header="titleDialogWhmcsUserAlasan" :style="{ width: '32rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label for="whmcs_user_alasan" class="block text-sm mb-1">Alasan</label>
+        <Textarea
+          id="whmcs_user_alasan"
+          v-model="formWhmcsUserAlasan.alasan"
+          class="w-full"
+          rows="5"
+          autoResize
+        />
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <Button type="button" severity="secondary" @click="visibleDialogWhmcsUserAlasan = false">
+          Batal
+        </Button>
+        <Button type="button" :loading="loadingWhmcsUserAlasan" @click="saveWhmcsUserAlasan">
           <Icon name="lucide:save" />
           Simpan
         </Button>
@@ -563,7 +577,7 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
       item.status ? 'Perpanjang' : 'Tidak',
       item.follow_up_perpanjang?.tanggal || '-',
       item.follow_up_perpanjang?.keterangan || '-',
-      item.follow_up_perpanjang?.alasan || '-'
+      item.user?.alasan || '-'
     ]);
   });
 
@@ -697,7 +711,6 @@ const formFollowUpPerpanjang = reactive({
   status: false,
   tanggal: dayjs().toDate(),
   keterangan: '',
-  alasan: '',
 } as any)
 
 const openDialogFollowUpPerpanjang = (data = {} as any) => {
@@ -709,7 +722,6 @@ const openDialogFollowUpPerpanjang = (data = {} as any) => {
   formFollowUpPerpanjang.status = Boolean(followUp.status)
   formFollowUpPerpanjang.tanggal = followUp.tanggal ? dayjs(followUp.tanggal).toDate() : dayjs().toDate()
   formFollowUpPerpanjang.keterangan = followUp.keterangan || ''
-  formFollowUpPerpanjang.alasan = followUp.alasan || ''
   visibleDialogFollowUpPerpanjang.value = true
 }
 
@@ -729,7 +741,6 @@ const saveFollowUpPerpanjang = async () => {
         whmcs_hosting_id: item.hosting?.id || null,
         webhost_id: item.webhost?.id_webhost || null,
         keterangan: formFollowUpPerpanjang.keterangan || null,
-        alasan: formFollowUpPerpanjang.alasan || null,
       },
     }) as any
 
@@ -753,6 +764,67 @@ const saveFollowUpPerpanjang = async () => {
     })
   } finally {
     loadingFollowUpPerpanjang.value = false
+  }
+}
+
+const visibleDialogWhmcsUserAlasan = ref(false)
+const titleDialogWhmcsUserAlasan = ref('')
+const dataDialogWhmcsUserAlasan = ref({} as any)
+const loadingWhmcsUserAlasan = ref(false)
+const formWhmcsUserAlasan = reactive({
+  alasan: '',
+} as any)
+
+const openDialogWhmcsUserAlasan = (data = {} as any) => {
+  dataDialogWhmcsUserAlasan.value = data
+  titleDialogWhmcsUserAlasan.value = `Alasan ${data.domain_name || ''}`
+  formWhmcsUserAlasan.alasan = data.user?.alasan || ''
+  visibleDialogWhmcsUserAlasan.value = true
+}
+
+const saveWhmcsUserAlasan = async () => {
+  const item = dataDialogWhmcsUserAlasan.value
+  const user = item.user || {}
+
+  if (!user.id) {
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal!',
+      detail: 'Data WHMCS user tidak ditemukan',
+      life: 3000,
+    })
+    return
+  }
+
+  loadingWhmcsUserAlasan.value = true
+  try {
+    const response = await client(`/api/whmcs_user_alasan/${user.id}`, {
+      method: 'POST',
+      body: {
+        alasan: formWhmcsUserAlasan.alasan || null,
+      },
+    }) as any
+
+    item.user.alasan = response.alasan || null
+    visibleDialogWhmcsUserAlasan.value = false
+    await refreshDataExpiredWHMCS()
+
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil!',
+      detail: 'Alasan WHMCS user berhasil disimpan',
+      life: 3000,
+    })
+  } catch (error) {
+    const er = useSanctumError(error)
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal!',
+      detail: `Alasan WHMCS user gagal disimpan, ${er.bag}`,
+      life: 3000,
+    })
+  } finally {
+    loadingWhmcsUserAlasan.value = false
   }
 }
 </script>
