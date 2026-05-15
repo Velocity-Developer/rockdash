@@ -1,7 +1,4 @@
 <template>
-    <div class="text-end mb-3">
-        {{ getBankLabel(filters.bank) }}
-    </div>
 
     <div class="flex flex-col md:flex-row justify-start gap-2 md:items-center">
         <Button
@@ -31,15 +28,17 @@
             @click="exportExcel()"
             type="button"
             severity="contrast"
-            class="text-white hover:text-primary bg-secondary border-secondary"
             size="small"
         >
             <Icon name="lucide:file-spreadsheet" />
             Export Excel
         </Button>
         <Button @click="dialogFormSaldo = true" severity="warn" size="small">
-            <Icon name="lucide:square-pen" /> Saldo {{ filters.bulan }}
+            <Icon name="lucide:square-pen" /> Saldo {{ dayjs(filters.bulan).format('YYYY-MM') }}
         </Button>
+        <div class="text-end font-bold py-2 px-3">
+            {{ getBankLabel(filters.bank) }}
+        </div>
     </div>
     <div class="overflow-x-auto whitespace-nowrap pt-2 mb-5">
         <SelectButton
@@ -127,256 +126,261 @@
             Search
         </Button>
     </div>
+    
 
-    <DataTable
-        :value="filteredData"
-        size="small"
-        class="text-xs"
-        sortField="nomor"
-        :sortOrder="-1"
-        paginator
-        :rows="25"
-        :rowsPerPageOptions="[25, 50, 100, 500]"
-        selectionMode="multiple"
-        stripedRows
-        scrollHeight="90vh"
-        scrollable
-    >
-        <Column header="#" headerStyle="width:3rem" class="align-top">
-            <template #body="slotProps">
-                {{ slotProps.index + 1 }}
-            </template>
-        </Column>
-        <Column
-            field="nomor"
-            header="Tanggal"
-            :sortable="true"
-            class="!align-top"
-        >
-            <template #body="slotProps">
-                <div
-                    @click="openDialog('edit', slotProps.data)"
-                    class="whitespace-nowrap text-xs"
+    <Card>
+        <template #content>
+            <DataTable
+                :value="filteredData"
+                size="small"
+                class="text-xs"
+                sortField="nomor"
+                :sortOrder="-1"
+                paginator
+                :rows="25"
+                :rowsPerPageOptions="[25, 50, 100, 500]"
+                selectionMode="multiple"
+                stripedRows
+                scrollHeight="90vh"
+                scrollable
+            >
+                <Column header="#" headerStyle="width:3rem" class="align-top">
+                    <template #body="slotProps">
+                        {{ slotProps.index + 1 }}
+                    </template>
+                </Column>
+                <Column
+                    field="nomor"
+                    header="Tanggal"
+                    :sortable="true"
+                    class="!align-top"
                 >
-                    {{ slotProps.data.tgl }}
-                    <span class="hidden">
-                        {{ slotProps.data.nomor }}
-                    </span>
-                </div>
-            </template>
-        </Column>
-        <Column field="jenis" header="Jenis" class="align-top">
-            <template #body="slotProps">
-                <ul
-                    v-if="
-                        slotProps.data.cs_main_project ||
-                        slotProps.data.transaksi_keluar
-                    "
-                    class="list-decimal ps-4"
-                >
-                    <li
-                        v-for="item in slotProps.data.cs_main_project"
-                        class="text-xs"
-                    >
-                        <div class="font-bold">
-                            {{ item.tgl_masuk }}
+                    <template #body="slotProps">
+                        <div
+                            @click="openDialog('edit', slotProps.data)"
+                            class="whitespace-nowrap text-xs"
+                        >
+                            {{ slotProps.data.tgl }}
+                            <span class="hidden">
+                                {{ slotProps.data.nomor }}
+                            </span>
                         </div>
-                        <div>
-                            {{ item.jenis }}
-                        </div>
-                        <div class="text-primary font-bold">
-                            {{ item.webhost.nama_web }}
-                        </div>
-                        <div class="font-bold">
-                            {{ formatMoney(item.dibayar) }}
-                        </div>
-                        <div v-if="item.deskripsi" class="italic">
-                            "{{ item.deskripsi }}"
-                        </div>
-                        <div v-if="item.invoices" class="mt-2 font-bold text-indigo-500" v-tooltip="'Invoice : '+item.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-'">
-                            "{{ item.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-' }}"
-                        </div>
-                    </li>
+                    </template>
+                </Column>
+                <Column field="jenis" header="Jenis" class="align-top">
+                    <template #body="slotProps">
+                        <ul
+                            v-if="
+                                slotProps.data.cs_main_project ||
+                                slotProps.data.transaksi_keluar
+                            "
+                            class="list-decimal ps-4"
+                        >
+                            <li
+                                v-for="item in slotProps.data.cs_main_project"
+                                class="text-xs"
+                            >
+                                <div class="font-bold">
+                                    {{ item.tgl_masuk }}
+                                </div>
+                                <div>
+                                    {{ item.jenis }}
+                                </div>
+                                <div class="text-primary font-bold">
+                                    {{ item.webhost.nama_web }}
+                                </div>
+                                <div class="font-bold">
+                                    {{ formatMoney(item.dibayar) }}
+                                </div>
+                                <div v-if="item.deskripsi" class="italic">
+                                    "{{ item.deskripsi }}"
+                                </div>
+                                <div v-if="item.invoices" class="mt-2 font-bold text-indigo-500" v-tooltip="'Invoice : '+item.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-'">
+                                    "{{ item.invoices?.map((item: { nomor: any; }) => item.nomor).join(', ') || '-' }}"
+                                </div>
+                            </li>
 
-                    <li
-                        v-for="item in slotProps.data.transaksi_keluar"
-                        class="text-xs"
-                    >
-                        <div class="font-bold">
-                            {{ item.tgl }}
-                        </div>
-                        <div v-if="item.jenis" class="italic">
-                            "{{ item.jenis }}"
-                        </div>
-                        <div class="font-bold">
-                            {{ formatMoney(item.jml) }}
-                        </div>
-                    </li>
-                </ul>
-            </template>
-        </Column>
-        <Column field="jenis" header="Jenis Transaksi" class="align-top">
-            <template #body="slotProps">
-                <ul
-                    v-if="
-                        slotProps.data.cs_main_project ||
-                        slotProps.data.transaksi_keluar
-                    "
-                    class="list-decimal ps-4"
-                >
-                    <li
-                        v-for="item in slotProps.data.cs_main_project"
-                        class="text-xs"
-                    >
-                        <div
-                            v-if="item.bank"
-                            v-for="itembank in item.bank"
-                            class="mt-1"
+                            <li
+                                v-for="item in slotProps.data.transaksi_keluar"
+                                class="text-xs"
+                            >
+                                <div class="font-bold">
+                                    {{ item.tgl }}
+                                </div>
+                                <div v-if="item.jenis" class="italic">
+                                    "{{ item.jenis }}"
+                                </div>
+                                <div class="font-bold">
+                                    {{ formatMoney(item.jml) }}
+                                </div>
+                            </li>
+                        </ul>
+                    </template>
+                </Column>
+                <Column field="jenis" header="Jenis Transaksi" class="align-top">
+                    <template #body="slotProps">
+                        <ul
+                            v-if="
+                                slotProps.data.cs_main_project ||
+                                slotProps.data.transaksi_keluar
+                            "
+                            class="list-decimal ps-4"
                         >
-                            <div
-                                v-if="itembank.jenis_transaksi == 'masuk'"
-                                v-tooltip="'Masuk'"
-                                class="bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-100 border-l-4 border-sky-600 rounded p-1 hover:shadow"
+                            <li
+                                v-for="item in slotProps.data.cs_main_project"
+                                class="text-xs"
                             >
-                                {{ getBankLabel(itembank.bank) }}
-                                <div class="font-bold whitespace-nowrap">
-                                    {{
-                                        formatMoney(
-                                            itembank.nominal,
-                                            itembank.bank,
-                                        )
-                                    }}
+                                <div
+                                    v-if="item.bank"
+                                    v-for="itembank in item.bank"
+                                    class="mt-1"
+                                >
+                                    <div
+                                        v-if="itembank.jenis_transaksi == 'masuk'"
+                                        v-tooltip="'Masuk'"
+                                        class="bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-100 border-l-4 border-sky-600 rounded p-1 hover:shadow"
+                                    >
+                                        {{ getBankLabel(itembank.bank) }}
+                                        <div class="font-bold whitespace-nowrap">
+                                            {{
+                                                formatMoney(
+                                                    itembank.nominal,
+                                                    itembank.bank,
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        v-if="itembank.jenis_transaksi == 'keluar'"
+                                        v-tooltip="'Keluar'"
+                                        class="bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-100 border-l-4 border-red-600 rounded p-1 hover:shadow"
+                                    >
+                                        {{ getBankLabel(itembank.bank) }}
+                                        <div class="font-bold whitespace-nowrap">
+                                            {{
+                                                formatMoney(
+                                                    itembank.nominal,
+                                                    itembank.bank,
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div
-                                v-if="itembank.jenis_transaksi == 'keluar'"
-                                v-tooltip="'Keluar'"
-                                class="bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-100 border-l-4 border-red-600 rounded p-1 hover:shadow"
+                            </li>
+                            <li
+                                v-for="item in slotProps.data.transaksi_keluar"
+                                class="text-xs"
                             >
-                                {{ getBankLabel(itembank.bank) }}
-                                <div class="font-bold whitespace-nowrap">
-                                    {{
-                                        formatMoney(
-                                            itembank.nominal,
-                                            itembank.bank,
-                                        )
-                                    }}
+                                <div
+                                    v-if="item.bank"
+                                    v-for="itembank in item.bank"
+                                    class="mt-1"
+                                >
+                                    <div
+                                        v-if="itembank.jenis_transaksi == 'masuk'"
+                                        v-tooltip="'Masuk'"
+                                        class="bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-100 border-l-4 border-sky-600 rounded p-1 hover:shadow"
+                                    >
+                                        {{ getBankLabel(itembank.bank) }}
+                                        <div class="font-bold whitespace-nowrap">
+                                            {{
+                                                formatMoney(
+                                                    itembank.nominal,
+                                                    itembank.bank,
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        v-if="itembank.jenis_transaksi == 'keluar'"
+                                        v-tooltip="'Keluar'"
+                                        class="bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-100 border-l-4 border-red-600 rounded p-1 hover:shadow"
+                                    >
+                                        {{ getBankLabel(itembank.bank) }}
+                                        <div class="font-bold whitespace-nowrap">
+                                            {{
+                                                formatMoney(
+                                                    itembank.nominal,
+                                                    itembank.bank,
+                                                )
+                                            }}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li
-                        v-for="item in slotProps.data.transaksi_keluar"
-                        class="text-xs"
-                    >
-                        <div
-                            v-if="item.bank"
-                            v-for="itembank in item.bank"
-                            class="mt-1"
-                        >
-                            <div
-                                v-if="itembank.jenis_transaksi == 'masuk'"
-                                v-tooltip="'Masuk'"
-                                class="bg-sky-100 dark:bg-sky-800 text-sky-600 dark:text-sky-100 border-l-4 border-sky-600 rounded p-1 hover:shadow"
-                            >
-                                {{ getBankLabel(itembank.bank) }}
-                                <div class="font-bold whitespace-nowrap">
-                                    {{
-                                        formatMoney(
-                                            itembank.nominal,
-                                            itembank.bank,
-                                        )
-                                    }}
-                                </div>
-                            </div>
-                            <div
-                                v-if="itembank.jenis_transaksi == 'keluar'"
-                                v-tooltip="'Keluar'"
-                                class="bg-red-100 dark:bg-red-800 text-red-600 dark:text-red-100 border-l-4 border-red-600 rounded p-1 hover:shadow"
-                            >
-                                {{ getBankLabel(itembank.bank) }}
-                                <div class="font-bold whitespace-nowrap">
-                                    {{
-                                        formatMoney(
-                                            itembank.nominal,
-                                            itembank.bank,
-                                        )
-                                    }}
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </template>
-        </Column>
-        <Column
-            field="keterangan_bank"
-            header="Keterangan Bank"
-            class="align-top"
-        >
-            <template #body="slotProps">
-                <div
-                    class="max-w-[100px] text-xs break-all"
-                    v-tooltip="slotProps.data.keterangan_bank"
+                            </li>
+                        </ul>
+                    </template>
+                </Column>
+                <Column
+                    field="keterangan_bank"
+                    header="Keterangan Bank"
+                    class="align-top"
                 >
-                    {{ slotProps.data.keterangan_bank }}
-                </div>
-            </template>
-        </Column>
-        <Column
-            field="masuk"
-            header="Masuk"
-            class="whitespace-nowrap text-sky-500 dark:text-sky-400"
-        >
-            <template #body="slotProps">
-                <template v-if="slotProps.data.jenis_transaksi == 'masuk'">
-                    {{
-                        formatMoney(slotProps.data.nominal, slotProps.data.bank)
-                    }}
-                </template>
-            </template>
-        </Column>
-        <Column
-            field="keluar"
-            header="Keluar"
-            class="whitespace-nowrap text-red-500 dark:text-red-400"
-        >
-            <template #body="slotProps">
-                <template v-if="slotProps.data.jenis_transaksi == 'keluar'">
-                    {{
-                        formatMoney(slotProps.data.nominal, slotProps.data.bank)
-                    }}
-                </template>
-            </template>
-        </Column>
-        <Column field="saldo" header="Saldo" class="whitespace-nowrap">
-            <template #body="slotProps">
-                {{ formatMoney(slotProps.data.saldo, slotProps.data.bank) }}
-            </template>
-        </Column>
-        <Column field="act" header="">
-            <template #body="slotProps">
-                <div class="flex items-center justify-end gap-1">
-                    <Button
-                        @click="openDialog('edit', slotProps.data)"
-                        severity="info"
-                        size="small"
-                        v-tooltip="'Edit'"
-                    >
-                        <Icon name="lucide:pen" />
-                    </Button>
-                    <Button
-                        @click="confirmDelete(slotProps.data.id)"
-                        severity="danger"
-                        size="small"
-                        v-tooltip="'Hapus'"
-                    >
-                        <Icon name="lucide:trash" />
-                    </Button>
-                </div>
-            </template>
-        </Column>
-    </DataTable>
+                    <template #body="slotProps">
+                        <div
+                            class="max-w-[100px] text-xs break-all"
+                            v-tooltip="slotProps.data.keterangan_bank"
+                        >
+                            {{ slotProps.data.keterangan_bank }}
+                        </div>
+                    </template>
+                </Column>
+                <Column
+                    field="masuk"
+                    header="Masuk"
+                    class="whitespace-nowrap text-sky-500 dark:text-sky-400"
+                >
+                    <template #body="slotProps">
+                        <template v-if="slotProps.data.jenis_transaksi == 'masuk'">
+                            {{
+                                formatMoney(slotProps.data.nominal, slotProps.data.bank)
+                            }}
+                        </template>
+                    </template>
+                </Column>
+                <Column
+                    field="keluar"
+                    header="Keluar"
+                    class="whitespace-nowrap text-red-500 dark:text-red-400"
+                >
+                    <template #body="slotProps">
+                        <template v-if="slotProps.data.jenis_transaksi == 'keluar'">
+                            {{
+                                formatMoney(slotProps.data.nominal, slotProps.data.bank)
+                            }}
+                        </template>
+                    </template>
+                </Column>
+                <Column field="saldo" header="Saldo" class="whitespace-nowrap">
+                    <template #body="slotProps">
+                        {{ formatMoney(slotProps.data.saldo, slotProps.data.bank) }}
+                    </template>
+                </Column>
+                <Column field="act" header="">
+                    <template #body="slotProps">
+                        <div class="flex items-center justify-end gap-1">
+                            <Button
+                                @click="openDialog('edit', slotProps.data)"
+                                severity="info"
+                                size="small"
+                                v-tooltip="'Edit'"
+                            >
+                                <Icon name="lucide:pen" />
+                            </Button>
+                            <Button
+                                @click="confirmDelete(slotProps.data.id)"
+                                severity="danger"
+                                size="small"
+                                v-tooltip="'Hapus'"
+                            >
+                                <Icon name="lucide:trash" />
+                            </Button>
+                        </div>
+                    </template>
+                </Column>
+            </DataTable>
+        </template>
+    </Card>
 
     <Dialog
         v-model:visible="visibleDialogForm"
