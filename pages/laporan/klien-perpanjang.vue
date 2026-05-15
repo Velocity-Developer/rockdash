@@ -401,14 +401,13 @@
   <Dialog v-model:visible="visibleDialogWhmcsUserAlasan" modal :header="titleDialogWhmcsUserAlasan" :style="{ width: '32rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
     <div class="grid grid-cols-1 gap-3">
       <div>
-        <label for="whmcs_user_alasan" class="block text-sm mb-1">Alasan</label>
-        <Textarea
-          id="whmcs_user_alasan"
-          v-model="formWhmcsUserAlasan.alasan"
-          class="w-full"
-          rows="5"
-          autoResize
-        />
+        <label for="whmcs_user_alasan" class="block text-sm mb-1">Alasan</label>        
+        <Select name="whmcs_user_alasan" id="whmcs_user_alasan" 
+          v-model="formWhmcsUserAlasan.alasan" 
+          :options="dataOpsiAlasanWhmcsUser"
+          optionValue="value" optionLabel="label"
+          filter showClear required editable
+          class="w-full" />
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
@@ -841,6 +840,7 @@ const saveWhmcsUserAlasan = async () => {
     item.user.alasan = response.alasan || null
     visibleDialogWhmcsUserAlasan.value = false
     await refreshDataExpiredWHMCS()
+    await refreshOpsiAlasanWhmcsUser()
 
     toast.add({
       severity: 'success',
@@ -860,4 +860,10 @@ const saveWhmcsUserAlasan = async () => {
     loadingWhmcsUserAlasan.value = false
   }
 }
+
+//get opsi jenis
+const { data: dataOpsiAlasanWhmcsUser , refresh: refreshOpsiAlasanWhmcsUser} = await useAsyncData(  
+    'data_opsi_alasan_whmcs_user',
+    () => client('/api/data_opsi/alasan_whmcs_user')
+) as any
 </script>
