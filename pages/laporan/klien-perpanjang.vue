@@ -21,7 +21,7 @@
     </div>
   </div>
   
-  <Card>
+  <Card v-if="isPermissions('manage-klienperpanjang')">
     <template #content>
       <div class="overflow-x-auto">
         <table class="w-full">
@@ -146,7 +146,7 @@
             </div>
           </template>
         </Column>
-        <Column field="project.tgl_masuk" sortable header="Tgl Perpanjang">
+        <Column v-if="isPermissions('manage-klienperpanjang')" field="project.tgl_masuk" sortable header="Tgl Perpanjang">
           <template #body="slotProps">
             <span v-if="slotProps.data.project" @click="openDialogStatusPerpanjang(slotProps.data,'Perpanjang terakhir '+slotProps.data.domain_name)">
             {{ slotProps.data.project.tgl_masuk }}
@@ -160,7 +160,7 @@
             </span>
           </template>
         </Column>
-        <Column field="webhost_available" sortable header="VDnet">
+        <Column v-if="isPermissions('manage-klienperpanjang')" field="webhost_available" sortable header="VDnet">
           <template #body="slotProps">
             <Badge :severity="slotProps.data.webhost_available?'success':'contrast'">
               {{ slotProps.data.webhost_available?'ada':'tidak' }}
