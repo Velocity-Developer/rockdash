@@ -413,11 +413,11 @@ onMounted(refreshData)
             </template>
           </Column>
 
-          <Column field="latest_check.updated_at" header="Riwayat Terakhir">
+          <!-- <Column field="latest_check.updated_at" header="Riwayat Terakhir">
             <template #body="slotProps">
               {{ formatDateTime(slotProps.data.latest_check?.updated_at || slotProps.data.latest_check?.created_at) }}
             </template>
-          </Column>
+          </Column> -->
 
           <Column field="hapus_backup_admin" header="Hapus Backup di folder Admin Backup">
             <template #body="slotProps">
@@ -427,15 +427,25 @@ onMounted(refreshData)
 
           <Column field="kapasitas_ssh" header="Cek Kapasitas lewat SSH">
             <template #body="slotProps">
+              <div>
               {{ slotProps.data.latest_check?.kapasitas_ssh || '-' }}
+              </div>
+              <Badge v-if="slotProps.data.latest_check" class="mt-1" severity="secondary">
+                {{ formatDateTime(slotProps.data.latest_check?.tanggal_update_kapasitas_ssh || slotProps.data.latest_check?.updated_at ) }}
+              </Badge>
             </template>
           </Column>
 
           <Column field="cek_error_idrac" header="iDRAC">
             <template #body="slotProps">
-              <Tag size="small" class="text-xs" :severity="slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'danger' : 'success') : 'secondary'">
-                {{ slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'Error' : 'Aman') : 'Belum Dicek' }}
-              </Tag>
+              <div>
+                <Tag size="small" class="text-xs" :severity="slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'danger' : 'success') : 'secondary'">
+                  {{ slotProps.data.latest_check ? (toBoolean(slotProps.data.latest_check.cek_error_idrac) ? 'Error' : 'Aman') : 'Belum Dicek' }}
+                </Tag>
+              </div>
+              <Badge class="mt-1" v-if="slotProps.data.latest_check" severity="secondary">
+                {{ formatDateTime(slotProps.data.latest_check?.tanggal_update_cek_error_idrac || slotProps.data.latest_check?.updated_at) }}
+              </Badge>
             </template>
           </Column>
 
