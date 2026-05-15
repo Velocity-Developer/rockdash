@@ -92,17 +92,31 @@
     <template #content>    
 
       <DataTable 
-        :value="dataExpiredWHMCS.data" 
+        :value="filteredDataExpiredWHMCS" 
         size="small" class="text-sm" 
         stripedRows scrollHeight="70vh" scrollable 
         :loading="statusDataExpiredWHMCS === 'pending'"
         paginator :rows="25" :rowsPerPageOptions="[5, 10, 25, 50, 100, 500]"
         paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
         currentPageReportTemplate="{first} to {last} of {totalRecords}"
+        :first="first"
         @page="onPage"
       >
       <template #header>
-            <div class="flex justify-end gap-1">                
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+              <IconField class="w-full md:w-72">
+                <InputIcon>
+                  <Icon name="lucide:search" />
+                </InputIcon>
+                <InputText
+                  v-model="searchExpiredDomain"
+                  placeholder="Cari domain"
+                  size="small"
+                  class="w-full"
+                />
+              </IconField>
+
+              <div class="flex justify-end gap-1">
               <Button @click="exportDataExpiredToExcel('total')" size="small" severity="success">
                 <Icon name="lucide:download" />
                 Export Excel
@@ -114,6 +128,7 @@
               <Button @click="refreshDataExpiredWHMCS()" :loading="statusDataExpiredWHMCS==='pending'" size="small">
                 <Icon name="lucide:refresh-cw" :class="statusDataExpiredWHMCS==='pending' ? 'animate-spin' : ''"/>
               </Button>
+              </div>
             </div>
         </template>
         <Column field="no" header="No">
@@ -442,6 +457,7 @@ const first = ref(0);
 const onPage = (event: any) => {
   first.value = event.first
 }
+const searchExpiredDomain = ref('')
 
 const loading = ref(false);
 const data = ref([] as any);
@@ -550,6 +566,23 @@ const getFilteredExpiredRows = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'tota
 
   return rows
 }
+
+const filteredDataExpiredWHMCS = computed(() => {
+  const rows = dataExpiredWHMCS.value?.data || []
+  const search = searchExpiredDomain.value.trim().toLowerCase()
+
+  if (!search) {
+    return rows
+  }
+
+  return rows.filter((item: any) => {
+    return String(item.domain_name || '').toLowerCase().includes(search)
+  })
+})
+
+watch(searchExpiredDomain, () => {
+  first.value = 0
+})
 
 const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'total' = 'total') => {
   const filteredRows = getFilteredExpiredRows(jenis)
