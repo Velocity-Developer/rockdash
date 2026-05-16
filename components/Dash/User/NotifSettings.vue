@@ -1,12 +1,16 @@
 <template>
 
   <div v-if="!status.telegram_id">
-    <Message severity="error">
+    <Message severity="error" class="mt-1">
       Telegram ID anda belum ada
     </Message>
-    <Button as="a" href="https://t.me/userinfobot" target="_blank" class="mt-1 mb-2">
-      Dapatkan di @userinfobot
-    </Button>
+
+    <div class="mt-1 mb-2 bg-gray-100 p-3 rounded">
+      <Button as="a" href="https://t.me/userinfobot" target="_blank" class="mb-1">
+        Dapatkan di @userinfobot
+      </Button>
+      <img src="https://i.imgur.com/KfPrhfJ.jpeg" alt="Telegram" class="w-50">
+    </div>
     
     <form @submit.prevent="handleSubmit" class="flex justify-between gap-1 bg-gray-500 text-white p-2 rounded-md">
       <InputText v-model="telegramId" placeholder="Masukkan Telegram ID" class="w-full"/>
