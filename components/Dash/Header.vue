@@ -109,7 +109,14 @@
     <DashUserForm :idUser="useConfig.config.user.id" :action="'edit'" @update="UserUpdate"/>
   </Dialog>
   
-  <Dialog v-model:visible="dialogNotifSetting" header="Pengaturan Telegram" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
+  <Dialog 
+    v-model:visible="dialogNotifSetting" 
+    header="Pengaturan Telegram" 
+    :style="{ width: '40rem', minHeight: '50vh' }" 
+    :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" 
+    :modal="true"
+    :dismissableMask="true"
+  >
     <DashUserNotifSettings/>
   </Dialog>
 
@@ -151,10 +158,10 @@ const itemsAVatar = ref([
                 label: 'Pengaturan',
                 command: () => dialogUserSetting.value = true 
             },
-            // {
-            //     label: 'Telegram',
-            //     command: () => dialogNotifSetting.value = true 
-            // },
+            {
+                label: 'Telegram',
+                command: () => dialogNotifSetting.value = true 
+            },
             {
                 label: 'Logout',
                 command: () => logout()
