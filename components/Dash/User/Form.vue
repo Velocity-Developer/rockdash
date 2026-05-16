@@ -93,6 +93,7 @@
   const isLoading = ref(false)
   const toast = useToast();
   const errors = ref('' as any)
+  const { start, finish } = useLoadingIndicator()
 
   const optionAction = [
     { label: 'Profil', value: 'edit', icon: 'lucide:user' },
@@ -192,6 +193,13 @@
       required: false,
       action: ['edit_avatar'],
     },
+    { 
+      key: 'telegram_id',
+      label: 'Telegram ID',
+      type: 'text',
+      required: false,
+      action: ['add','edit'],
+    },
   ];
 
   const form = reactive({
@@ -229,6 +237,7 @@ const getData = async () => {
       form.password = null,
       form.password_confirmation = null
       previewAvatar.value = res.avatar_url
+      form.telegram_id = res.telegram_id
     } catch (error) {
       const er = useSanctumError(error);
       loading.value = false;
@@ -248,6 +257,7 @@ watch(() => action.value, (newVal, oldVal) => {
 })
 
 const handleSubmit = async () => {
+    start()
     isLoading.value = true
     errors.value = ''
 
@@ -258,7 +268,7 @@ const handleSubmit = async () => {
     }
 
     if(action.value == 'add'){
-      try {          
+      try { 
         const response = await client(`/api/users`, {
           method: 'POST',
           body: payload
@@ -336,6 +346,7 @@ const handleSubmit = async () => {
     }
     
     isLoading.value = false
+    finish()
 }
 
 function onFileSelect(event: any) {

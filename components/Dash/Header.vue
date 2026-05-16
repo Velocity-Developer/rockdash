@@ -98,7 +98,14 @@
   </template>
   </Dialog>
 
-  <Dialog v-model:visible="dialogUserSetting" header="Pengaturan Profil" :style="{ width: '40rem', minHeight: '50vh' }" :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" :modal="true">
+  <Dialog 
+    v-model:visible="dialogUserSetting" 
+    header="Pengaturan Profil" 
+    :style="{ width: '40rem', minHeight: '50vh' }" 
+    :breakpoints="{ '1000px': '40rem', '768px': '90vw' }" 
+    :modal="true"
+    :dismissableMask="true"
+  >
     <DashUserForm :idUser="useConfig.config.user.id" :action="'edit'" @update="UserUpdate"/>
   </Dialog>
   
