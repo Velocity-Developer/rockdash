@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useDayjs } from '#dayjs'
-import SelectUser from '~/components/Form/SelectUser.vue'
 
 definePageMeta({
   title: 'Riwayat Absensi',
@@ -828,7 +827,28 @@ watch(
     <form class="space-y-4" @submit.prevent="handleSubmit">
       <div>
         <label class="mb-1 block text-sm font-medium">User</label>
-        <SelectUser v-model="form.user_id" />
+        <Select
+          v-model="form.user_id"
+          class="w-full"
+          :options="opsiUsers"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Pilih user"
+          showClear
+          filter
+        >
+          <template #option="slotProps">
+            <div class="flex items-center gap-2">
+              <img
+                v-if="slotProps.option.avatar"
+                :alt="slotProps.option.label"
+                :src="slotProps.option.avatar"
+                class="h-7 w-7 rounded-full object-cover"
+              >
+              <span>{{ slotProps.option.label }}</span>
+            </div>
+          </template>
+        </Select>
         <Message v-if="errors.user_id" severity="error" size="small" class="mt-1">
           {{ Array.isArray(errors.user_id) ? errors.user_id[0] : errors.user_id }}
         </Message>
