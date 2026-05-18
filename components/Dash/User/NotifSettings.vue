@@ -21,12 +21,23 @@
   </div>
 
   <div class="mt-1" v-else>
-    <Message severity="success" class="mb-1">
+    <Button severity="info" @click="handleTestNotif" class="group">
+      <Icon name="lucide:megaphone" class="group-hover:animate-bounce"/> Tes Notifikasi
+    </Button>
+
+    <Message severity="success" class="mt-2">
       Telegram ID: {{ status.telegram_id }}
     </Message>
-    <Button @click="handleTestNotif">
-      <Icon name="lucide:bell" /> Tes Notifikasi
-    </Button>
+    <Message severity="warn" class="mt-3">
+      Jika tes notifikasi belum berhasil,
+      <br> silahkan buka 
+      <br>
+      <Button severity="contrast" as="a" href="https://t.me/NewVDnetbot" target="_blank" size="small">
+        @NewVDnetbot
+      </Button>
+      <br><br>
+      lalu klik 'Start' atau kirim pesan '/start', lalu coba kembali tes notifikasi
+    </Message>
   </div>
 
 </template>
