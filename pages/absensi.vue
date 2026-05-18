@@ -611,6 +611,7 @@ watch(
                 placeholder="Pilih user"
                 showClear
                 filter
+                size="small"
               >
                 <template #option="slotProps">
                   <div class="flex items-center gap-2">
@@ -642,23 +643,23 @@ watch(
                   { label: 'Setengah Hari', value: 'Setengah Hari' },
                 ]"
                 optionLabel="label"
-                optionValue="value"
+                optionValue="value" size="small"
               />
             </div>
 
             <div class="lg:col-span-2">
               <label class="mb-1 block text-sm font-medium">Tanggal Mulai</label>
-              <DatePicker v-model="filters.tanggal_mulai" dateFormat="yy-mm-dd" class="w-full" showIcon />
+              <DatePicker v-model="filters.tanggal_mulai" dateFormat="yy-mm-dd" class="w-full" size="small" showIcon />
             </div>
 
             <div class="lg:col-span-2">
               <label class="mb-1 block text-sm font-medium">Tanggal Selesai</label>
-              <DatePicker v-model="filters.tanggal_selesai" dateFormat="yy-mm-dd" class="w-full" showIcon />
+              <DatePicker v-model="filters.tanggal_selesai" dateFormat="yy-mm-dd" class="w-full" size="small" showIcon />
             </div>
-            <div class="lg:col-span-1 md:pt-7">
+            <div class="lg:col-span-1 md:pt-6">
               <Button
                 size="small"
-                severity="secondary"
+                severity="info"
                 :loading="loading"
                 @click="loadData(); loadShiftOptions()"
                 class="w-full"
@@ -692,17 +693,13 @@ watch(
             <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <template 
                 v-for="item in statusTotalItems"
-                :key="item.value">
-              <div           
-                class="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-700"
-              >
-                <Tag :severity="item.severity">
-                  {{ item.label }}
+                :key="item.value">   
+
+                <Tag class="flex items-center justify-between py-2 px-5" :severity="item.severity">
+                  <span>{{ item.label }}</span>
+                  <span>{{ item.total }}</span>
                 </Tag>
-                <div class="text-lg" :class="item.total == 0 ? 'opacity-50' : 'font-semibold'">
-                  {{ item.total }}
-                </div>
-              </div>
+
               </template>
             </div>
           </div>
@@ -737,7 +734,7 @@ watch(
             scrollable
             responsiveLayout="scroll"
             scrollHeight="75vh"
-            class="text-sm"
+            class="text-xs"
           >
             <template #empty>
               <div class="py-10 text-center text-sm text-slate-500">
@@ -804,11 +801,11 @@ watch(
 
             <Column v-if="canManageAbsensi" header="" headerStyle="width: 8rem">
               <template #body="slotProps">
-                <div class="flex justify-end gap-2">
-                  <Button size="small" severity="info" @click="openEditDialog(slotProps.data)" v-tooltip="'Edit'">
+                <div class="flex justify-end gap-1">
+                  <Button size="small" class="px-2 py-1" severity="info" @click="openEditDialog(slotProps.data)" v-tooltip="'Edit'">
                     <Icon name="lucide:pencil" />
                   </Button>
-                  <Button size="small" severity="danger" @click="confirmDelete(slotProps.data)" v-tooltip="'Hapus'">
+                  <Button size="small" class="px-2 py-1" severity="danger" @click="confirmDelete(slotProps.data)" v-tooltip="'Hapus'">
                     <Icon name="lucide:trash-2" />
                   </Button>
                 </div>
