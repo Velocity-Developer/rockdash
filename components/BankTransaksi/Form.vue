@@ -88,7 +88,7 @@ const { data: dataBank,status: statusDataBank} = await useAsyncData(
 
 const forms = reactive({
   bank: props.bank?props.bank:'',
-  tgl: props.data?props.data.tgl:'',
+  tgl: props.data?.tgl?dayjs(props.data.tgl).toDate():new Date(),
   jenis: props.data?props.data.jenis:'',
   jenis_transaksi: props.data?props.data.jenis_transaksi:'masuk',
   nominal: props.data?props.data.nominal:'0',
@@ -115,14 +115,17 @@ const handleSubmit = async () => {
   loadingSubmit.value = true;
   errors.value = {};
 
-  //ubah tgl
-  forms.tgl = dayjs(forms.tgl).format('YYYY-MM-DD');
+  const payload = {
+    ...forms,
+    jenis_array: forms.newjenis_array,
+    tgl: dayjs(forms.tgl).format('YYYY-MM-DD'),
+  }
 
   if(props.action == 'add') {
     try {
       await client('/api/bank_transaksi',{
         method: 'POST',
-        body: forms
+        body: payload
       })
       emit('update');
       toast.add({
