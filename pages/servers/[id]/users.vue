@@ -1,9 +1,6 @@
 <template>
   
   <ServerLayout :id="id" @data="getServers($event)">
-    <div class="mb-5">
-      <h1 class="text-xl">Users : {{ dataServer.name }}</h1>
-    </div>
 
     <div class="flex justify-end gap-1 mb-5">
       <Button v-if="checkboxItems && checkboxItems.length > 0" @click="syncPackageData()" size="small" severity="warn" :loading="loading" v-tooltip.left="'Sync data masing-masing package'">
@@ -99,12 +96,13 @@
 
 <script setup lang="ts">
 definePageMeta({
-    title: 'Servers',
+    title: 'Users Server',
 })
 const client = useSanctumClient()
 import { useDayjs } from '#dayjs'
 const dayjs = useDayjs()
 const toast = useToast();
+const { start, finish } = useLoadingIndicator()
 
 const route = useRoute()
 const id = Number(route.params.id) || 0
@@ -122,6 +120,7 @@ const error = ref('' as any)
 const getData = async () => {
   loading.value = true
   error.value = ''
+  start()
 
   try {
     const res = await client('/api/server_users',{
@@ -137,6 +136,8 @@ const getData = async () => {
     const er = useSanctumError(e)
     loading.value = false
     error.value = e.data?.message
+  } finally {
+    finish()
   }
 }
 const onPaginate = (event: { page: number }) => {

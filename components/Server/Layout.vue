@@ -1,60 +1,40 @@
-<template>
-  <div class="flex flex-col md:flex-row gap-5">
-
-    <Card class="md:basis-[10em] md:min-h-[80vh] !bg-sky-50 dark:!bg-sky-800 md:pb-50 overflow-hidden relative">
-      <template #content>
-        <div>
-          <div class="font-bold text-lg md:text-xl mb-4 md:text-center min-h-[2em]">              
-              {{ data.name }}
+<template>  
+  <Card>
+      <template #header>
+        <div class="flex justify-start items-center gap-3 px-5 pt-5">
+          <span class="text-white bg-teal-600 dark:bg-teal-800 h-10 w-10 flex justify-center items-center rounded-lg">
+            <Icon name="lucide:server" size="1.5rem"/>
+          </span>
+          <div>
+            <div class="font-bold text-lg md:text-xl">              
+                {{ data?.name }}
+            </div>
+            <div v-if="data?.hostname" class="text-xs">
+              {{ data?.hostname }} | {{ data?.ip_address }}
+            </div>
           </div>
-
-          <Menu
-          :model="items"
-          :pt="{
-              root: () => ({
-                  class: [
-                      '!border-none',
-                      '!bg-transparent',
-                      '!min-w-[1rem]'
-                  ]
-              }),
-              item: () => ({
-                  class: [
-                      '!rounded-lg',
-                      '!bg-white dark:!bg-zinc-800',
-                      'mb-1 overflow-hidden',
-                  ]
-              }),
-          }"
-          >
-            <template #item="{ item, props }">
-                <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" :class="{ 'bg-sky-200 dark:bg-sky-700': route.path == item.route }" custom>
-                    <a v-ripple :href="href" v-bind="props.action" @click="navigate">
-                        <span>{{ item.label }}</span>
-                    </a>
-                </router-link>
-                <a v-else v-ripple :href="item.url" :target="item.target" v-bind="props.action">
-                    <span>{{ item.label }}</span>
-                </a>
-            </template>
-          </Menu>
-
-        </div>
-        <div class="absolute bottom-[-1em] right-[-1em] z-[1] opacity-10">
-          <Icon name="lucide:server" size="8rem" class="text-sky-600"/>
         </div>
       </template>
-    </Card>
-
-    <Card class="md:flex-1">
       <template #content>
-        <slot />
+        <Tabs :value="route.path">
+            <TabList>
+                <Tab v-for="tab in items" :key="tab.label" :value="tab.route">
+                    <router-link v-if="tab.route" v-slot="{ href, navigate }" :to="tab.route" custom>
+                        <a v-ripple :href="href" @click="navigate" class="flex items-center gap-2 text-inherit font-normal">
+                            <Icon :name="tab.icon" />
+                            <span>{{ tab.label }}</span>
+                        </a>
+                    </router-link>
+                </Tab>
+            </TabList>
+        </Tabs>
+        
+        <div class="px-3 py-5">         
+          <slot />
+        </div>
+
       </template>
     </Card>
-
-  </div>
-  
-  
 
 </template>
 
@@ -65,40 +45,50 @@ const props = defineProps({
     required: false
   }
 })
-const emit = defineEmits(['data'])
 const client = useSanctumClient()
 const route = useRoute()
 
-const loading = ref(false)
-const data = ref({} as any)
-const getData = async () => {
-  loading.value = true
-  try {
-    const res = await client('/api/servers/'+props.id)
-    loading.value = false
-    data.value = res
-    emit('data', res)
-  } catch (error) {
-    const er = useSanctumError(error)
-    loading.value = false
+const emit = defineEmits(['data'])
+
+const { data, refresh } = useAsyncData(
+  'data_server_'+props.id, () => client('/api/servers/'+props.id),
+) as any
+
+const refreshData = async () => {
+  await refresh()
+
+  if (data.value) {
+    emit('data', data.value)
   }
 }
-onMounted(() => {
-  getData()
+
+defineExpose({
+  refreshData
+})
+
+watch(data, (value) => {
+  if (value) {
+    emit('data', value)
+  }
+}, {
+  immediate: true
 })
 
 const items = ref([
     {
         label: 'Profile',
         route: '/servers/'+props.id,
+        icon: 'lucide:info'
     },
     {
         label: 'Packages',
-        route: '/servers/'+props.id+'/package'
+        route: '/servers/'+props.id+'/package',
+        icon: 'lucide:package'
     },
     {
         label: 'Users',
-        route: '/servers/'+props.id+'/users'
+        route: '/servers/'+props.id+'/users',
+        icon: 'lucide:users'
     }
 ]);
 </script>
