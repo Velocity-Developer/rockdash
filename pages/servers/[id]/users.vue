@@ -2,13 +2,34 @@
   
   <ServerLayout :id="id" @data="getServers($event)">
 
-    <div class="flex justify-end gap-1 mb-5">
+    <div class="flex flex-col md:flex-row md:justify-between gap-2 mb-5">
+      <form @submit.prevent="handleSearch" class="flex gap-1">
+        <IconField class="w-full md:w-80">
+          <InputIcon>
+            <Icon name="lucide:search" />
+          </InputIcon>
+          <InputText
+            v-model="search"
+            placeholder="Cari username / domain"
+            size="small"
+            class="w-full"
+          />
+        </IconField>
+        <Button type="submit" size="small" :loading="loading">
+          <Icon name="lucide:search" />
+        </Button>
+        <Button v-if="search" type="button" size="small" severity="secondary" @click="clearSearch()">
+          <Icon name="lucide:x" />
+        </Button>
+      </form>
+
+      <div class="flex justify-end gap-1">
       <Button v-if="checkboxItems && checkboxItems.length > 0" @click="syncPackageData()" size="small" severity="warn" :loading="loading" v-tooltip.left="'Sync data masing-masing package'">
         <Icon name="lucide:globe" :class="{ 'animate-spin': loading }" /> Sync Package
       </Button>
       <Select v-model="per_page"
         :options="[20, 50, 100, 500]"
-        @change="getData()" size="small"
+        @change="handlePerPageChange()" size="small"
       />
       <Button @click="syncData()" size="small" severity="success" :loading="loading" v-tooltip.left="'Sync data users dari server'">
         <Icon name="lucide:cloud-download"/> Sync
@@ -16,6 +37,7 @@
       <Button @click="getData()" size="small" :loading="loading">
         <Icon name="lucide:refresh-cw" :class="{ 'animate-spin': loading }"/> Reload
       </Button>
+      </div>
     </div>
 
     <div>
@@ -108,6 +130,7 @@ const route = useRoute()
 const id = Number(route.params.id) || 0
 const page = ref(route.query.page ? Number(route.query.page) : 1);
 const per_page = ref(route.query.per_page ? Number(route.query.per_page) : 20);
+const search = ref(typeof route.query.search === 'string' ? route.query.search : '');
 
 const dataServer = ref({} as any)
 const getServers = (data: any) => {
@@ -127,7 +150,8 @@ const getData = async () => {
       params: {
         server_id: id,
         page: page.value,
-        per_page: per_page.value
+        per_page: per_page.value,
+        search: search.value.trim()
       }
     })
     loading.value = false
@@ -144,6 +168,21 @@ const onPaginate = (event: { page: number }) => {
     page.value = event.page + 1;
     getData()
 };
+
+const handleSearch = () => {
+  page.value = 1
+  getData()
+}
+
+const clearSearch = () => {
+  search.value = ''
+  handleSearch()
+}
+
+const handlePerPageChange = () => {
+  page.value = 1
+  getData()
+}
 onMounted(() => {
   getData()
 })
