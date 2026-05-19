@@ -1,6 +1,6 @@
 <template>
 
-  <div class="flex justify-end gap-1">
+  <div class="flex justify-end gap-1 mb-3">
     <Button @click="getData()" size="small">
       <Icon name="lucide:refresh-cw" size="small" :class="{ 'animate-spin': loading }"/> Reload
     </Button>
@@ -8,42 +8,36 @@
       <Icon name="lucide:plus" size="small"/> Tambah
     </Button>
   </div>
-
-  <Card v-if="dataTable.data" class="mt-5">
-    <template #content>
-      <DataTable :value="dataTable.data" size="small" class="text-sm" stripedRows scrollable>
-        <Column field="name" header="Name">
-          <template #body="slotProps">
-            <NuxtLink :to="'/servers/'+slotProps.data.id" class="cursor-pointer">
-              {{ slotProps.data.name }}
-            </NuxtLink>
-          </template>
-        </Column>
-        <Column field="type" header="Type"></Column>
-        <Column field="ip_address" header="IP Address"></Column>
-        <Column field="hostname" header="Hostname"></Column>
-        <Column field="port" header="Port"></Column>
-        <Column field="is_active" header="Active">
-          <template #body="slotProps">
-            <Icon v-if="slotProps.data.is_active" name="lucide:check" size="small" class="text-green-600"/>
-            <Icon v-else name="lucide:x" size="small" class="text-red-600"/>
-          </template>
-        </Column>
-        <Column field="opt" header="">
-          <template #body="slotProps">
-            <div class="flex justify-end items-center gap-1">
-              <Button @click="openDialog('edit',slotProps.data)" severity="secondary" size="small">
-                <Icon name="lucide:pen" size="small"/>
+ 
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div v-for="(item, index) in dataTable.data" :key="index">
+      <Card>
+        <template #content>
+            <h3 class="font-bold text-lg mb-3 hover:underline" @click="navigateTo('/servers/'+item.id)">
+              {{ item.name }} 
+              <Icon v-if="item.is_active" name="lucide:circle-check" size="1rem" class="text-blue-500" v-tooltip="'Status : Active'"/>
+              <Icon v-else name="lucide:circle-check" size="1rem" class="text-red-500" v-tooltip="'Status : Inactive'"/>
+            </h3>
+            <div class="text-sm opacity-75 w-full grid grid-cols-1 md:grid-cols-3 gap-2">
+              <span> {{ item.hostname }} </span>
+              <span> {{ item.ip_address }} </span>
+              <span> {{ item.type }} </span>
+            </div>
+            <div class="flex items-center justify-between gap-1 mt-5">
+              <Button @click="navigateTo('/servers/'+item.id)" size="small" class="w-full">
+                <Icon name="lucide:info" size="small"/> Profil
+              </Button>              
+              <Button @click="openDialog('edit',item)" severity="contrast" size="small" class="w-full">
+                <Icon name="lucide:pen" size="small"/> Edit
               </Button>
-              <Button @click="confirmDelete(slotProps.data.id)" severity="danger" size="small">
-                <Icon name="lucide:trash-2" size="small"/>
+              <Button @click="confirmDelete(item.id)" severity="danger" size="small" class="w-full">
+                <Icon name="lucide:trash-2" size="small"/> Hapus
               </Button>
             </div>
-          </template>
-        </Column>
-      </DataTable>
-    </template>
-  </Card>
+        </template>
+      </Card>
+    </div>
+  </div>
 
   <Dialog v-model:visible="visibleDialog" :header="selectedItem ? 'Edit Server' : 'Add Server'" :style="{ width: '40rem', minHeight: '20vh' }" :breakpoints="{ '1000px': '30rem', '768px': '90vw' }" :modal="true">
     <ServerForm :action="dialogAction" :data="selectedItem" @update="getData()"/>

@@ -200,11 +200,48 @@ const handleSubmit = async () => {
   loadingSubmit.value = false
 }
 
-onMounted(() => {
+onMounted( async () => {
   if(props.data) {
     Object.assign(form, props.data)
   }
 })
+
+watch(
+  () => props.data,
+  async (val) => {
+    if (!val) return
+
+    Object.assign(form, val)
+
+    if (
+      props.action === 'edit' &&
+      !form.username &&
+      form.id != null
+    ) {
+      try {
+        const res = await client(`/api/servers/${form.id}`, {
+          method: 'GET',
+        }) as any
+        form.hostname = res.hostname
+        form.username = res.username
+        form.ip_address = res.ip_address
+        form.port = res.port
+        form.is_active = res.is_active
+        form.type = res.type
+      } catch (error) {
+        const er = useSanctumError(error);
+        errorSubmit.value = er.bag;
+        toast.add({      
+          severity: 'error',
+          summary: 'Gagal!',
+          detail: 'Terjadi kesalahan saat mengambil data profil server',
+          life: 3000
+        })
+      }
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 watch(() => props.data, (val) => {
  if(val) {

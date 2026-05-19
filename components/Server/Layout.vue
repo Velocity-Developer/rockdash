@@ -1,18 +1,25 @@
 <template>  
   <Card>
       <template #header>
-        <div class="flex justify-start items-center gap-3 px-5 pt-5">
-          <span class="text-white bg-teal-600 dark:bg-teal-800 h-10 w-10 flex justify-center items-center rounded-lg">
-            <Icon name="lucide:server" size="1.5rem"/>
-          </span>
-          <div>
-            <div class="font-bold text-lg md:text-xl">              
-                {{ data?.name }}
-            </div>
-            <div v-if="data?.hostname" class="text-xs">
-              {{ data?.hostname }} | {{ data?.ip_address }}
+        <div class="flex justify-between items-center gap-3 px-5 pt-5">
+          <div class="flex justify-start items-center gap-3">
+            <span class="text-white bg-teal-600 dark:bg-teal-800 h-10 w-10 flex justify-center items-center rounded-lg">
+              <Icon name="lucide:server" size="1.5rem"/>
+            </span>
+            <div>
+              <div class="font-bold text-lg md:text-xl">              
+                  {{ data?.name }}
+              </div>
+              <div v-if="data?.hostname" class="text-xs">
+                {{ data?.hostname }} | {{ data?.ip_address }}
+              </div>
             </div>
           </div>
+
+          <Button size="small" severity="secondary" @click="navigateTo('/servers')">
+            <Icon name="lucide:hard-drive"/> List Server
+          </Button>
+
         </div>
       </template>
       <template #content>
