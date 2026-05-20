@@ -290,6 +290,7 @@
   </Dialog>
 
   <Dialog v-model:visible="visibleDialogPerpanjang" modal :header="titleDialogPerpanjang" :style="{ width: '80rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    
     <WhmcsDomainPreview v-if="dataDialogPerpanjang.domain" :id="dataDialogPerpanjang.domain.id"/>
     <WhmcsHostingPreview v-else="!dataDialogPerpanjang.domain && dataDialogPerpanjang.hosting" :id="dataDialogPerpanjang.hosting.id"/>
 
