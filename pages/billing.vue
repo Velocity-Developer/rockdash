@@ -261,7 +261,12 @@
   </Drawer>
 
   <Dialog v-model:visible="visibleDialog" :dismissableMask="true" modal :header="actionDialog=='add'?'Tambah':'Edit'" :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <CsMainProjectForm :action="actionDialog" :data="dataDialog" @update="refresh();visibleDialog = false" />
+    <CsMainProjectForm 
+      :key="formKey"
+      :action="actionDialog" 
+      :data="dataDialog" 
+      @update="refresh();visibleDialog = false; formKey++ ;$nextTick(() => visibleDialog = true)"
+    />
   </Dialog>
 
   <DashLoader :loading="status=='pending'"/>
@@ -539,4 +544,5 @@ const confirmDelete = (id: any) => {
     });
 }
 
+const formKey = ref(0); 
 </script>
