@@ -20,19 +20,51 @@
         <div class="mb-3 text-amber-600">
           <Icon name="lucide:server"/> <span class="ml-1 font-bold text-md">Hostings</span>
         </div>
-       
+
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-1">
-          <div> <span class="font-bold">Domain</span> : 
-            {{ dataWhmcsHosting.domain }} 
-            <NuxtLink v-if="dataWhmcsHosting.webhost" :to="`/webhost/${dataWhmcsHosting.webhost.id_webhost}`" target="_blank" class="hover:underline text-blue-500">
-              <Icon name="lucide:external-link" />
-            </NuxtLink>
-          </div> 
-          <div> <span class="font-bold">Next Duedate</span> : {{ dataWhmcsHosting.nextduedate }} </div> 
-          <div> <span class="font-bold">Billing Cycle</span> : {{ dataWhmcsHosting.billingcycle }} </div> 
-          <div> <span class="font-bold">Package Name</span> : {{ dataWhmcsHosting.package_name }} </div> 
-          <div> <span class="font-bold">Package Server Type</span> : {{ dataWhmcsHosting.package_servertype }} </div> 
+          <div class="space-y-1"> 
+
+              <div> <span class="font-bold">Domain</span> : 
+                {{ dataWhmcsHosting.domain }} 
+                <NuxtLink v-if="dataWhmcsHosting.webhost" :to="`/webhost/${dataWhmcsHosting.webhost.id_webhost}`" target="_blank" class="hover:underline text-blue-500">
+                  <Icon name="lucide:external-link" />
+                </NuxtLink>
+              </div>
+              <div> <span class="font-bold">Next Duedate</span> : {{ dataWhmcsHosting.nextduedate }} </div> 
+              <div> <span class="font-bold">Billing Cycle</span> : {{ dataWhmcsHosting.billingcycle }} </div> 
+              <div> <span class="font-bold">Package Name</span> : {{ dataWhmcsHosting.package_name }} </div> 
+              <div> <span class="font-bold">Package Server Type</span> : {{ dataWhmcsHosting.package_servertype }} </div> 
+
+          </div>
+
+          <div class="bg-yellow-50 dark:bg-yellow-950 rounded-md p-4 border border-yellow-200 dark:border-yellow-800">
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <span class="font-bold">
+                    Disk Usage
+                    <Button @click="reloadHosting()" size="small" class="!p-0" variant="text">
+                      <Icon name="lucide:refresh-ccw" :class="loadingReloadHosting?'animate-spin':''"/>
+                    </Button>
+                  </span>
+                  <span class="text-sm">
+                    {{ dataWhmcsHosting.diskusage }} / {{ dataWhmcsHosting.disklimit }}
+                  </span>
+                </div>
+                <ProgressBar :value="((dataWhmcsHosting.diskusage/dataWhmcsHosting.disklimit)*100)"></ProgressBar>
+              </div>
+              <div class="mt-4">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="font-bold">Bandwidth Usage</span>
+                  <span class="text-sm">
+                    {{ dataWhmcsHosting.bwusage }} / {{ dataWhmcsHosting.bwlimit }}
+                  </span>
+                </div>
+                <ProgressBar :value="((dataWhmcsHosting.bwusage/dataWhmcsHosting.bwlimit)*100)"></ProgressBar>
+              </div>
+          </div>
         </div>
+       
 
     </div>
 
@@ -88,4 +120,20 @@ const { data: dataWhmcsHosting, status: statusWhmcsHosting, refresh: refreshWhmc
       }
     })
 ) as any
+
+const loadingReloadHosting = ref(false);
+const reloadHosting = async () => {
+  try {
+    loadingReloadHosting.value = true;
+    const res = await client('/api/whmcs-hosting-getwhmcs/'+dataWhmcsHosting.value.id) as any
+      dataWhmcsHosting.value.diskusage = res.diskusage;
+      dataWhmcsHosting.value.disklimit = res.disklimit;
+      dataWhmcsHosting.value.bwusage = res.bwusage;
+      dataWhmcsHosting.value.bwlimit = res.bwlimit;
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loadingReloadHosting.value = false;
+  }
+}
 </script>

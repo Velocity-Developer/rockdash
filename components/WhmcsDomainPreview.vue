@@ -65,13 +65,13 @@
             <div> <span class="font-bold">Package Servertype</span> : {{ dataWhmcsDomain.hosting.package_servertype }} </div> 
           </div>
 
-          <div v-if="dataHosting" class="bg-yellow-50 rounded-md p-4 border border-yellow-200">
+          <div v-if="dataHosting" class="bg-yellow-50 dark:bg-yellow-950 rounded-md p-4 border border-yellow-200 dark:border-yellow-800">
             <div>
               <div class="flex justify-between items-center mb-1">
                 <span class="font-bold">
                   Disk Usage
                   <Button @click="reloadHosting()" size="small" class="!p-0" variant="text">
-                    <Icon name="lucide:refresh-ccw"/>
+                    <Icon name="lucide:refresh-ccw" :class="loadingReloadHosting?'animate-spin':''"/>
                   </Button>
                 </span>
                 <span class="text-sm">
@@ -133,12 +133,16 @@ watch(
   }
 );
 
+const loadingReloadHosting = ref(false);
 const reloadHosting = async () => {
+  loadingReloadHosting.value = true;
   try {
     const res = await client('/api/whmcs-hosting-getwhmcs/'+dataHosting.value.id) as any
     dataHosting.value = res || {};
   } catch (error) {
     console.log(error);
+  } finally {
+    loadingReloadHosting.value = false;
   }
 }
 </script>
