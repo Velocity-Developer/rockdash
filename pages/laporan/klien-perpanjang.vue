@@ -194,7 +194,7 @@
             {{ slotProps.data.webhost?.hp || '-' }}
           </template>
         </Column>
-        <Column field="follow_up_perpanjang.tanggal" sortable header="Tgl FollowUp">
+        <!-- <Column field="follow_up_perpanjang.tanggal" sortable header="Tgl FollowUp">
           <template #body="slotProps">
             <button
               type="button"
@@ -204,7 +204,7 @@
               {{ slotProps.data.follow_up_perpanjang?.tanggal || '-' }}
             </button>
           </template>
-        </Column>
+        </Column> -->
         <Column field="follow_up_perpanjang.keterangan" header="Ket. FollowUp">
           <template #body="slotProps">
             <button
