@@ -189,6 +189,11 @@
             </Badge>
           </template>
         </Column>
+        <Column field="webhost.hp" sortable header="Hp">
+          <template #body="slotProps">
+            {{ slotProps.data.webhost?.hp || '-' }}
+          </template>
+        </Column>
         <Column field="follow_up_perpanjang.tanggal" sortable header="Tgl FollowUp">
           <template #body="slotProps">
             <button
