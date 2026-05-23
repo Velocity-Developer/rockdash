@@ -196,11 +196,11 @@
         </Column>
         <Column field="follow_up_perpanjang.keterangan" header="Ket. FollowUp">
           <template #body="slotProps">
-            <div class="flex min-w-[18rem] items-center gap-1">
+            <div class="flex items-center gap-1">
               <InputText
                 :modelValue="getFollowUpPerpanjangDraft(slotProps.data)"
                 size="small"
-                class="w-full"
+                class="w-auto"
                 :disabled="Boolean(loadingFollowUpPerpanjangKey)"
                 @update:model-value="setFollowUpPerpanjangDraft(slotProps.data, $event)"
                 @keydown.enter.prevent="saveFollowUpPerpanjang(slotProps.data)"
@@ -222,13 +222,28 @@
         </Column>
         <Column field="user.alasan" header="Alasan">
           <template #body="slotProps">
-            <button
-              type="button"
-              class="bg-transparent border-0 p-0 min-w-[12rem] whitespace-normal text-left hover:underline cursor-pointer"
-              @click="openDialogWhmcsUserAlasan(slotProps.data)"
-            >
-              {{ slotProps.data.user?.alasan || '-' }}
-            </button>
+            <div class="flex items-center gap-1">
+              <InputText
+                :modelValue="getWhmcsUserAlasanDraft(slotProps.data)"
+                size="small"
+                class="w-auto"
+                :disabled="Boolean(loadingWhmcsUserAlasanKey)"
+                @update:model-value="setWhmcsUserAlasanDraft(slotProps.data, $event)"
+                @keydown.enter.prevent="saveWhmcsUserAlasan(slotProps.data)"
+              />
+              <Button
+                v-if="isWhmcsUserAlasanChanged(slotProps.data)"
+                type="button"
+                size="small"
+                severity="success"
+                :loading="loadingWhmcsUserAlasanKey === getWhmcsUserAlasanKey(slotProps.data)"
+                aria-label="Simpan alasan"
+                v-tooltip.top="'Simpan'"
+                @click="saveWhmcsUserAlasan(slotProps.data)"
+              >
+                <Icon name="lucide:save" />
+              </Button>
+            </div>
           </template>
         </Column>
         <!-- <Column field="domain.status" sortable header="Status Domain">
@@ -361,30 +376,6 @@
     </div>
     <div v-else class="flex items-center justify-center">
       Tidak ada data perpanjang
-    </div>
-  </Dialog>
-
-  <Dialog v-model:visible="visibleDialogWhmcsUserAlasan" modal :header="titleDialogWhmcsUserAlasan" :style="{ width: '32rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <div class="grid grid-cols-1 gap-3">
-      <div>
-        <label for="whmcs_user_alasan" class="block text-sm mb-1">Alasan</label>        
-        <Select name="whmcs_user_alasan" id="whmcs_user_alasan" 
-          v-model="formWhmcsUserAlasan.alasan" 
-          :options="dataOpsiAlasanWhmcsUser"
-          optionValue="value" optionLabel="label"
-          filter showClear required editable
-          class="w-full" />
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <Button type="button" severity="secondary" @click="visibleDialogWhmcsUserAlasan = false">
-          Batal
-        </Button>
-        <Button type="button" :loading="loadingWhmcsUserAlasan" @click="saveWhmcsUserAlasan">
-          <Icon name="lucide:save" />
-          Simpan
-        </Button>
-      </div>
     </div>
   </Dialog>
 
@@ -785,23 +776,41 @@ const saveFollowUpPerpanjang = async (item = {} as any) => {
   }
 }
 
-const visibleDialogWhmcsUserAlasan = ref(false)
-const titleDialogWhmcsUserAlasan = ref('')
-const dataDialogWhmcsUserAlasan = ref({} as any)
-const loadingWhmcsUserAlasan = ref(false)
-const formWhmcsUserAlasan = reactive({
-  alasan: '',
-} as any)
+const loadingWhmcsUserAlasanKey = ref('')
+const whmcsUserAlasanDrafts = reactive({} as Record<string, string>)
 
-const openDialogWhmcsUserAlasan = (data = {} as any) => {
-  dataDialogWhmcsUserAlasan.value = data
-  titleDialogWhmcsUserAlasan.value = `Alasan ${data.domain_name || ''}`
-  formWhmcsUserAlasan.alasan = data.user?.alasan || ''
-  visibleDialogWhmcsUserAlasan.value = true
+const getWhmcsUserAlasanKey = (data = {} as any) => {
+  return String(data.user?.id || data.domain_name || '')
 }
 
-const saveWhmcsUserAlasan = async () => {
-  const item = dataDialogWhmcsUserAlasan.value
+const getWhmcsUserAlasanValue = (data = {} as any) => {
+  return data.user?.alasan || ''
+}
+
+const getWhmcsUserAlasanDraft = (data = {} as any) => {
+  const key = getWhmcsUserAlasanKey(data)
+
+  if (!(key in whmcsUserAlasanDrafts)) {
+    whmcsUserAlasanDrafts[key] = getWhmcsUserAlasanValue(data)
+  }
+
+  return whmcsUserAlasanDrafts[key]
+}
+
+const setWhmcsUserAlasanDraft = (data = {} as any, value = '') => {
+  whmcsUserAlasanDrafts[getWhmcsUserAlasanKey(data)] = String(value || '')
+}
+
+const isWhmcsUserAlasanChanged = (data = {} as any) => {
+  return getWhmcsUserAlasanDraft(data) !== getWhmcsUserAlasanValue(data)
+}
+
+const saveWhmcsUserAlasan = async (item = {} as any) => {
+  if (!isWhmcsUserAlasanChanged(item)) {
+    return
+  }
+
+  const key = getWhmcsUserAlasanKey(item)
   const user = item.user || {}
 
   if (!user.id) {
@@ -814,19 +823,18 @@ const saveWhmcsUserAlasan = async () => {
     return
   }
 
-  loadingWhmcsUserAlasan.value = true
+  loadingWhmcsUserAlasanKey.value = key
   try {
     const response = await client(`/api/whmcs_user_alasan/${user.id}`, {
       method: 'POST',
       body: {
-        alasan: formWhmcsUserAlasan.alasan || null,
+        alasan: whmcsUserAlasanDrafts[key] || null,
       },
     }) as any
 
     item.user.alasan = response.alasan || null
-    visibleDialogWhmcsUserAlasan.value = false
+    whmcsUserAlasanDrafts[key] = response.alasan || ''
     await refreshDataExpiredWHMCS()
-    await refreshOpsiAlasanWhmcsUser()
 
     toast.add({
       severity: 'success',
@@ -843,13 +851,7 @@ const saveWhmcsUserAlasan = async () => {
       life: 3000,
     })
   } finally {
-    loadingWhmcsUserAlasan.value = false
+    loadingWhmcsUserAlasanKey.value = ''
   }
 }
-
-//get opsi jenis
-const { data: dataOpsiAlasanWhmcsUser , refresh: refreshOpsiAlasanWhmcsUser} = await useAsyncData(  
-    'data_opsi_alasan_whmcs_user',
-    () => client('/api/data_opsi/alasan_whmcs_user')
-) as any
 </script>
