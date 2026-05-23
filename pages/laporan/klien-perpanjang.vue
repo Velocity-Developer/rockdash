@@ -197,7 +197,7 @@
         <Column field="follow_up_perpanjang.keterangan" header="Ket. FollowUp">
           <template #body="slotProps">
             <div class="flex items-center gap-1">
-              <InputText
+              <Textarea
                 :modelValue="getFollowUpPerpanjangDraft(slotProps.data)"
                 size="small"
                 class="w-auto"
@@ -223,7 +223,7 @@
         <Column field="user.alasan" header="Alasan">
           <template #body="slotProps">
             <div class="flex items-center gap-1">
-              <InputText
+              <Textarea
                 :modelValue="getWhmcsUserAlasanDraft(slotProps.data)"
                 size="small"
                 class="w-auto"
