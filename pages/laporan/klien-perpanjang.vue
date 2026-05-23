@@ -196,47 +196,28 @@
         </Column>
         <Column field="follow_up_perpanjang.keterangan" header="Ket. FollowUp">
           <template #body="slotProps">
-            <div v-if="isEditingFollowUpPerpanjang(slotProps.data)" class="flex min-w-[18rem] items-center gap-1">
+            <div class="flex min-w-[18rem] items-center gap-1">
               <InputText
-                v-model="formFollowUpPerpanjang.keterangan"
+                :modelValue="getFollowUpPerpanjangDraft(slotProps.data)"
                 size="small"
                 class="w-full"
-                autofocus
-                :disabled="loadingFollowUpPerpanjang"
+                :disabled="Boolean(loadingFollowUpPerpanjangKey)"
+                @update:model-value="setFollowUpPerpanjangDraft(slotProps.data, $event)"
                 @keydown.enter.prevent="saveFollowUpPerpanjang(slotProps.data)"
-                @keydown.esc.prevent="cancelEditFollowUpPerpanjang"
               />
               <Button
+                v-if="isFollowUpPerpanjangChanged(slotProps.data)"
                 type="button"
                 size="small"
                 severity="success"
-                :loading="loadingFollowUpPerpanjang"
+                :loading="loadingFollowUpPerpanjangKey === getFollowUpPerpanjangKey(slotProps.data)"
                 aria-label="Simpan keterangan follow up"
                 v-tooltip.top="'Simpan'"
                 @click="saveFollowUpPerpanjang(slotProps.data)"
               >
                 <Icon name="lucide:save" />
               </Button>
-              <Button
-                type="button"
-                size="small"
-                severity="secondary"
-                aria-label="Batal edit keterangan follow up"
-                v-tooltip.top="'Batal'"
-                :disabled="loadingFollowUpPerpanjang"
-                @click="cancelEditFollowUpPerpanjang"
-              >
-                <Icon name="lucide:x" />
-              </Button>
             </div>
-            <button
-              v-else
-              type="button"
-              class="bg-transparent border-0 p-0 max-w-[16rem] whitespace-normal text-left hover:underline cursor-pointer"
-              @click="startEditFollowUpPerpanjang(slotProps.data)"
-            >
-              {{ slotProps.data.follow_up_perpanjang?.keterangan || '-' }}
-            </button>
           </template>
         </Column>
         <Column field="user.alasan" header="Alasan">
@@ -719,17 +700,11 @@ const openDialogStatusPerpanjang = async (data = {} as any,title = '') => {
   titleDialogStatusPerpanjang.value = title;
 }
 
-const loadingFollowUpPerpanjang = ref(false)
-const editingFollowUpPerpanjangKey = ref('')
-const formFollowUpPerpanjang = reactive({
-  id: null,
-  status: false,
-  tanggal: dayjs().toDate(),
-  keterangan: '',
-} as any)
+const loadingFollowUpPerpanjangKey = ref('')
+const followUpPerpanjangDrafts = reactive({} as Record<string, string>)
 
 const getFollowUpPerpanjangKey = (data = {} as any) => {
-  return [
+  const key = [
     data.follow_up_perpanjang?.id,
     data.user?.id,
     data.domain?.id,
@@ -737,47 +712,58 @@ const getFollowUpPerpanjangKey = (data = {} as any) => {
     data.webhost?.id_webhost,
     data.domain_name,
   ].filter(Boolean).join('-')
+
+  return key || String(data.domain_name || '')
 }
 
-const isEditingFollowUpPerpanjang = (data = {} as any) => {
+const getFollowUpPerpanjangValue = (data = {} as any) => {
+  return data.follow_up_perpanjang?.keterangan || ''
+}
+
+const getFollowUpPerpanjangDraft = (data = {} as any) => {
   const key = getFollowUpPerpanjangKey(data)
-  return Boolean(key) && editingFollowUpPerpanjangKey.value === key
+
+  if (!(key in followUpPerpanjangDrafts)) {
+    followUpPerpanjangDrafts[key] = getFollowUpPerpanjangValue(data)
+  }
+
+  return followUpPerpanjangDrafts[key]
 }
 
-const startEditFollowUpPerpanjang = (data = {} as any) => {
-  const followUp = data.follow_up_perpanjang || {}
-
-  editingFollowUpPerpanjangKey.value = getFollowUpPerpanjangKey(data)
-  formFollowUpPerpanjang.id = followUp.id || null
-  formFollowUpPerpanjang.status = Boolean(followUp.status)
-  formFollowUpPerpanjang.tanggal = followUp.tanggal ? dayjs(followUp.tanggal).toDate() : dayjs().toDate()
-  formFollowUpPerpanjang.keterangan = followUp.keterangan || ''
+const setFollowUpPerpanjangDraft = (data = {} as any, value = '') => {
+  followUpPerpanjangDrafts[getFollowUpPerpanjangKey(data)] = String(value || '')
 }
 
-const cancelEditFollowUpPerpanjang = () => {
-  editingFollowUpPerpanjangKey.value = ''
+const isFollowUpPerpanjangChanged = (data = {} as any) => {
+  return getFollowUpPerpanjangDraft(data) !== getFollowUpPerpanjangValue(data)
 }
 
 const saveFollowUpPerpanjang = async (item = {} as any) => {
-  const idFollowUp = formFollowUpPerpanjang.id
+  if (!isFollowUpPerpanjangChanged(item)) {
+    return
+  }
 
-  loadingFollowUpPerpanjang.value = true
+  const key = getFollowUpPerpanjangKey(item)
+  const followUp = item.follow_up_perpanjang || {}
+  const idFollowUp = followUp.id || null
+
+  loadingFollowUpPerpanjangKey.value = key
   try {
     const response = await client(idFollowUp ? `/api/follow-up-perpanjang/${idFollowUp}` : '/api/follow-up-perpanjang', {
       method: idFollowUp ? 'PUT' : 'POST',
       body: {
-        status: Boolean(formFollowUpPerpanjang.status),
-        tanggal: dayjs(formFollowUpPerpanjang.tanggal).format('YYYY-MM-DD HH:mm:ss'),
+        status: Boolean(followUp.status),
+        tanggal: dayjs(followUp.tanggal || dayjs().toDate()).format('YYYY-MM-DD HH:mm:ss'),
         whmcs_user_id: item.user?.id || null,
         whmcs_domain_id: item.domain?.id || null,
         whmcs_hosting_id: item.hosting?.id || null,
         webhost_id: item.webhost?.id_webhost || null,
-        keterangan: formFollowUpPerpanjang.keterangan || null,
+        keterangan: followUpPerpanjangDrafts[key] || null,
       },
     }) as any
 
     item.follow_up_perpanjang = response.data
-    cancelEditFollowUpPerpanjang()
+    followUpPerpanjangDrafts[key] = response.data?.keterangan || ''
     await refreshDataExpiredWHMCS()
 
     toast.add({
@@ -795,7 +781,7 @@ const saveFollowUpPerpanjang = async (item = {} as any) => {
       life: 3000,
     })
   } finally {
-    loadingFollowUpPerpanjang.value = false
+    loadingFollowUpPerpanjangKey.value = ''
   }
 }
 
