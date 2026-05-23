@@ -194,23 +194,46 @@
             {{ slotProps.data.webhost?.hp || '-' }}
           </template>
         </Column>
-        <!-- <Column field="follow_up_perpanjang.tanggal" sortable header="Tgl FollowUp">
-          <template #body="slotProps">
-            <button
-              type="button"
-              class="bg-transparent border-0 p-0 text-left hover:underline cursor-pointer"
-              @click="openDialogFollowUpPerpanjang(slotProps.data)"
-            >
-              {{ slotProps.data.follow_up_perpanjang?.tanggal || '-' }}
-            </button>
-          </template>
-        </Column> -->
         <Column field="follow_up_perpanjang.keterangan" header="Ket. FollowUp">
           <template #body="slotProps">
+            <div v-if="isEditingFollowUpPerpanjang(slotProps.data)" class="flex min-w-[18rem] items-center gap-1">
+              <InputText
+                v-model="formFollowUpPerpanjang.keterangan"
+                size="small"
+                class="w-full"
+                autofocus
+                :disabled="loadingFollowUpPerpanjang"
+                @keydown.enter.prevent="saveFollowUpPerpanjang(slotProps.data)"
+                @keydown.esc.prevent="cancelEditFollowUpPerpanjang"
+              />
+              <Button
+                type="button"
+                size="small"
+                severity="success"
+                :loading="loadingFollowUpPerpanjang"
+                aria-label="Simpan keterangan follow up"
+                v-tooltip.top="'Simpan'"
+                @click="saveFollowUpPerpanjang(slotProps.data)"
+              >
+                <Icon name="lucide:save" />
+              </Button>
+              <Button
+                type="button"
+                size="small"
+                severity="secondary"
+                aria-label="Batal edit keterangan follow up"
+                v-tooltip.top="'Batal'"
+                :disabled="loadingFollowUpPerpanjang"
+                @click="cancelEditFollowUpPerpanjang"
+              >
+                <Icon name="lucide:x" />
+              </Button>
+            </div>
             <button
+              v-else
               type="button"
               class="bg-transparent border-0 p-0 max-w-[16rem] whitespace-normal text-left hover:underline cursor-pointer"
-              @click="openDialogFollowUpPerpanjang(slotProps.data)"
+              @click="startEditFollowUpPerpanjang(slotProps.data)"
             >
               {{ slotProps.data.follow_up_perpanjang?.keterangan || '-' }}
             </button>
@@ -357,50 +380,6 @@
     </div>
     <div v-else class="flex items-center justify-center">
       Tidak ada data perpanjang
-    </div>
-  </Dialog>
-
-  <Dialog v-model:visible="visibleDialogFollowUpPerpanjang" modal :header="titleDialogFollowUpPerpanjang" :style="{ width: '36rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-    <div class="grid grid-cols-1 gap-3">
-      <div>
-        <label for="followup_tanggal" class="block text-sm mb-1">Tanggal FollowUp</label>
-        <DatePicker
-          id="followup_tanggal"
-          v-model="formFollowUpPerpanjang.tanggal"
-          showTime
-          hourFormat="24"
-          dateFormat="dd/mm/yy"
-          class="w-full"
-          fluid
-          showIcon
-        />
-      </div>
-
-      <div class="flex items-center gap-2">
-        <ToggleSwitch id="followup_status" v-model="formFollowUpPerpanjang.status" />
-        <label for="followup_status" class="text-sm">Status FollowUp</label>
-      </div>
-
-      <div>
-        <label for="followup_keterangan" class="block text-sm mb-1">Keterangan FollowUp</label>
-        <Textarea
-          id="followup_keterangan"
-          v-model="formFollowUpPerpanjang.keterangan"
-          class="w-full"
-          rows="4"
-          autoResize
-        />
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <Button type="button" severity="secondary" @click="visibleDialogFollowUpPerpanjang = false">
-          Batal
-        </Button>
-        <Button type="button" :loading="loadingFollowUpPerpanjang" @click="saveFollowUpPerpanjang">
-          <Icon name="lucide:save" />
-          Simpan
-        </Button>
-      </div>
     </div>
   </Dialog>
 
@@ -740,10 +719,8 @@ const openDialogStatusPerpanjang = async (data = {} as any,title = '') => {
   titleDialogStatusPerpanjang.value = title;
 }
 
-const visibleDialogFollowUpPerpanjang = ref(false)
-const titleDialogFollowUpPerpanjang = ref('')
-const dataDialogFollowUpPerpanjang = ref({} as any)
 const loadingFollowUpPerpanjang = ref(false)
+const editingFollowUpPerpanjangKey = ref('')
 const formFollowUpPerpanjang = reactive({
   id: null,
   status: false,
@@ -751,20 +728,37 @@ const formFollowUpPerpanjang = reactive({
   keterangan: '',
 } as any)
 
-const openDialogFollowUpPerpanjang = (data = {} as any) => {
+const getFollowUpPerpanjangKey = (data = {} as any) => {
+  return [
+    data.follow_up_perpanjang?.id,
+    data.user?.id,
+    data.domain?.id,
+    data.hosting?.id,
+    data.webhost?.id_webhost,
+    data.domain_name,
+  ].filter(Boolean).join('-')
+}
+
+const isEditingFollowUpPerpanjang = (data = {} as any) => {
+  const key = getFollowUpPerpanjangKey(data)
+  return Boolean(key) && editingFollowUpPerpanjangKey.value === key
+}
+
+const startEditFollowUpPerpanjang = (data = {} as any) => {
   const followUp = data.follow_up_perpanjang || {}
 
-  dataDialogFollowUpPerpanjang.value = data
-  titleDialogFollowUpPerpanjang.value = `FollowUp ${data.domain_name || ''}`
+  editingFollowUpPerpanjangKey.value = getFollowUpPerpanjangKey(data)
   formFollowUpPerpanjang.id = followUp.id || null
   formFollowUpPerpanjang.status = Boolean(followUp.status)
   formFollowUpPerpanjang.tanggal = followUp.tanggal ? dayjs(followUp.tanggal).toDate() : dayjs().toDate()
   formFollowUpPerpanjang.keterangan = followUp.keterangan || ''
-  visibleDialogFollowUpPerpanjang.value = true
 }
 
-const saveFollowUpPerpanjang = async () => {
-  const item = dataDialogFollowUpPerpanjang.value
+const cancelEditFollowUpPerpanjang = () => {
+  editingFollowUpPerpanjangKey.value = ''
+}
+
+const saveFollowUpPerpanjang = async (item = {} as any) => {
   const idFollowUp = formFollowUpPerpanjang.id
 
   loadingFollowUpPerpanjang.value = true
@@ -783,7 +777,7 @@ const saveFollowUpPerpanjang = async () => {
     }) as any
 
     item.follow_up_perpanjang = response.data
-    visibleDialogFollowUpPerpanjang.value = false
+    cancelEditFollowUpPerpanjang()
     await refreshDataExpiredWHMCS()
 
     toast.add({
