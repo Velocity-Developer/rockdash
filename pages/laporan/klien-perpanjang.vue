@@ -745,6 +745,7 @@ const saveFollowUpPerpanjang = async (item = {} as any) => {
       body: {
         status: Boolean(followUp.status),
         tanggal: dayjs(followUp.tanggal || dayjs().toDate()).format('YYYY-MM-DD HH:mm:ss'),
+        followup_terakhir: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         whmcs_user_id: item.user?.id || null,
         whmcs_domain_id: item.domain?.id || null,
         whmcs_hosting_id: item.hosting?.id || null,
