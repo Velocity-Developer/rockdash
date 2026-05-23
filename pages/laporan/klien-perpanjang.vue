@@ -220,6 +220,32 @@
             </div>
           </template>
         </Column>
+        <Column field="follow_up_perpanjang.followup_terakhir" header="FollowUp Terakhir">
+          <template #body="slotProps">
+            <div class="flex items-center gap-1">
+              <Textarea
+                :modelValue="getFollowUpPerpanjangTerakhirDraft(slotProps.data)"
+                size="small"
+                class="w-auto"
+                :disabled="Boolean(loadingFollowUpPerpanjangKey)"
+                @update:model-value="setFollowUpPerpanjangTerakhirDraft(slotProps.data, $event)"
+                @keydown.enter.prevent="saveFollowUpPerpanjang(slotProps.data)"
+              />
+              <Button
+                v-if="isFollowUpPerpanjangTerakhirChanged(slotProps.data)"
+                type="button"
+                size="small"
+                severity="success"
+                :loading="loadingFollowUpPerpanjangKey === getFollowUpPerpanjangKey(slotProps.data)"
+                aria-label="Simpan follow up terakhir"
+                v-tooltip.top="'Simpan'"
+                @click="saveFollowUpPerpanjang(slotProps.data)"
+              >
+                <Icon name="lucide:save" />
+              </Button>
+            </div>
+          </template>
+        </Column>
         <Column field="user.alasan" header="Alasan">
           <template #body="slotProps">
             <div class="flex items-center gap-1">
@@ -551,7 +577,7 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
   const excelData: any[] = [];
   
   // Add header row
-  excelData.push(['No', 'Domain', 'Expiry Date domain', 'Status Domain', 'Expiry Date Hosting', 'Hosting', 'Webhost', 'Status', 'Tanggal FollowUp', 'Keterangan FollowUp', 'Alasan']);
+  excelData.push(['No', 'Domain', 'Expiry Date domain', 'Status Domain', 'Expiry Date Hosting', 'Hosting', 'Webhost', 'Status', 'Tanggal FollowUp', 'Keterangan FollowUp', 'FollowUp Terakhir', 'Alasan']);
   
   // Process each item
   filteredRows.forEach((item: any, index: number) => {
@@ -566,6 +592,7 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
       item.status ? 'Perpanjang' : 'Tidak',
       item.follow_up_perpanjang?.tanggal || '-',
       item.follow_up_perpanjang?.keterangan || '-',
+      item.follow_up_perpanjang?.followup_terakhir || '-',
       item.user?.alasan || '-'
     ]);
   });
@@ -586,6 +613,7 @@ const exportDataExpiredToExcel = (jenis: 'perpanjang' | 'tidak_perpanjang' | 'to
     { wch: 10 },  // Status
     { wch: 20 },  // Tanggal FollowUp
     { wch: 35 },  // Keterangan FollowUp
+    { wch: 25 },  // FollowUp Terakhir
     { wch: 25 }   // Alasan
   ];
 
@@ -693,6 +721,7 @@ const openDialogStatusPerpanjang = async (data = {} as any,title = '') => {
 
 const loadingFollowUpPerpanjangKey = ref('')
 const followUpPerpanjangDrafts = reactive({} as Record<string, string>)
+const followUpPerpanjangTerakhirDrafts = reactive({} as Record<string, string>)
 
 const getFollowUpPerpanjangKey = (data = {} as any) => {
   const key = [
@@ -711,6 +740,10 @@ const getFollowUpPerpanjangValue = (data = {} as any) => {
   return data.follow_up_perpanjang?.keterangan || ''
 }
 
+const getFollowUpPerpanjangTerakhirValue = (data = {} as any) => {
+  return data.follow_up_perpanjang?.followup_terakhir || ''
+}
+
 const getFollowUpPerpanjangDraft = (data = {} as any) => {
   const key = getFollowUpPerpanjangKey(data)
 
@@ -725,12 +758,30 @@ const setFollowUpPerpanjangDraft = (data = {} as any, value = '') => {
   followUpPerpanjangDrafts[getFollowUpPerpanjangKey(data)] = String(value || '')
 }
 
+const getFollowUpPerpanjangTerakhirDraft = (data = {} as any) => {
+  const key = getFollowUpPerpanjangKey(data)
+
+  if (!(key in followUpPerpanjangTerakhirDrafts)) {
+    followUpPerpanjangTerakhirDrafts[key] = getFollowUpPerpanjangTerakhirValue(data)
+  }
+
+  return followUpPerpanjangTerakhirDrafts[key]
+}
+
+const setFollowUpPerpanjangTerakhirDraft = (data = {} as any, value = '') => {
+  followUpPerpanjangTerakhirDrafts[getFollowUpPerpanjangKey(data)] = String(value || '')
+}
+
 const isFollowUpPerpanjangChanged = (data = {} as any) => {
   return getFollowUpPerpanjangDraft(data) !== getFollowUpPerpanjangValue(data)
 }
 
+const isFollowUpPerpanjangTerakhirChanged = (data = {} as any) => {
+  return getFollowUpPerpanjangTerakhirDraft(data) !== getFollowUpPerpanjangTerakhirValue(data)
+}
+
 const saveFollowUpPerpanjang = async (item = {} as any) => {
-  if (!isFollowUpPerpanjangChanged(item)) {
+  if (!isFollowUpPerpanjangChanged(item) && !isFollowUpPerpanjangTerakhirChanged(item)) {
     return
   }
 
@@ -745,7 +796,7 @@ const saveFollowUpPerpanjang = async (item = {} as any) => {
       body: {
         status: Boolean(followUp.status),
         tanggal: dayjs(followUp.tanggal || dayjs().toDate()).format('YYYY-MM-DD HH:mm:ss'),
-        followup_terakhir: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        followup_terakhir: followUpPerpanjangTerakhirDrafts[key] || null,
         whmcs_user_id: item.user?.id || null,
         whmcs_domain_id: item.domain?.id || null,
         whmcs_hosting_id: item.hosting?.id || null,
@@ -756,6 +807,7 @@ const saveFollowUpPerpanjang = async (item = {} as any) => {
 
     item.follow_up_perpanjang = response.data
     followUpPerpanjangDrafts[key] = response.data?.keterangan || ''
+    followUpPerpanjangTerakhirDrafts[key] = response.data?.followup_terakhir || ''
     await refreshDataExpiredWHMCS()
 
     toast.add({
