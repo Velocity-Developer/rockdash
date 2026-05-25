@@ -1,0 +1,48 @@
+name: Auto Release on Version Bump
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'package.json'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Wajib untuk membuat release
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # Sesuaikan dengan versi Node.js Anda
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Get Version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Run Build Script
+        run: node build.js
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: |
+            Automated release for version v${{ env.VERSION }}
+          files: |
+            .output/build.zip
+          draft: false
+          prerelease: false
