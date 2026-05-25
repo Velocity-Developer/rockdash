@@ -161,9 +161,16 @@
   
   <Card class="shadow mt-4">
     <template #content>
+      <div v-if="selectedJournalCount > 0" class="flex justify-end mb-2">
+        <Button @click="deleteSelectedJournals" size="small" severity="danger" :loading="loading">
+          <Icon name="lucide:trash-2" />
+          Hapus {{ selectedJournalCount }} Data
+        </Button>
+      </div>
 
-      <DataTable :value="data.data" stripedRows responsiveLayout="scroll" size="small" class="text-sm">
-         <Column field="journal_category" header="Kategori" :sortable="false">
+      <DataTable :value="data.data" v-model:selection="selectedJournals" stripedRows responsiveLayout="scroll" size="small" class="text-sm">
+        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+        <Column field="journal_category" header="Kategori" :sortable="false">
           <template #body="slotProps">
             <div class="flex items-start gap-2">
                 <span v-tooltip="slotProps.data.journal_category?.name" class="noto-emoji w-5 h-5 flex items-center justify-center bg-indigo-200 dark:bg-indigo-800 text-sm p-1 rounded-full">
@@ -447,6 +454,8 @@ const client = useSanctumClient();
 const route = useRoute();
 const router = useRouter();
 const useConfig = useConfigStore()
+const toast = useToast();
+const confirm = useConfirm();
 
 const filters = reactive({
   search: route.query.search || '',
@@ -468,6 +477,8 @@ const categories = ref([] as any[]);
 const loadingCategories = ref(false);
 const users = ref([] as any[]);
 const loadingUsers = ref(false);
+const selectedJournals = ref([] as any[]);
+const selectedJournalCount = computed(() => selectedJournals.value?.length || 0);
 
 const formatTimeMinutes = (seconds: number | string | null | undefined) => {
   const value = Number(seconds || 0);
@@ -554,6 +565,7 @@ const getData = async () => {
         params: filters,
       }) as any
       data.value = res;
+      selectedJournals.value = [];
       
       // categoryStats sekarang sudah dihitung di backend
     } catch (error) {
@@ -597,6 +609,62 @@ const deletedJournal = () => {
   getData()
   visibleFormDialog.value = false;
   selectedItem.value = {};
+}
+
+const deleteSelectedJournals = () => {
+  const journals = selectedJournals.value || [];
+  if (!journals.length) return;
+
+  confirm.require({
+    message: `Anda yakin hapus ${journals.length} jurnal yang dipilih?`,
+    header: 'Hapus Jurnal Terpilih',
+    accept: async () => {
+      loading.value = true;
+      try {
+        const results = await Promise.allSettled(
+          journals.map((journal: any) => client(`/api/journal/${journal.id}`, {
+            method: 'DELETE',
+          }))
+        );
+
+        const successCount = results.filter(result => result.status === 'fulfilled').length;
+        const failedCount = results.length - successCount;
+
+        if (successCount > 0) {
+          toast.add({
+            severity: 'success',
+            summary: 'Berhasil!',
+            detail: `${successCount} jurnal berhasil dihapus`,
+            life: 3000
+          });
+        }
+
+        if (failedCount > 0) {
+          toast.add({
+            severity: 'error',
+            summary: 'Gagal!',
+            detail: `${failedCount} jurnal gagal dihapus`,
+            life: 3000
+          });
+        }
+
+        selectedJournals.value = [];
+        await getData();
+      } finally {
+        loading.value = false;
+      }
+    },
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Hapus',
+      severity: 'danger',
+      outlined: false
+    },
+  });
 }
 
 const getDialogHeader = () => {
