@@ -33,7 +33,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Run Build Script
-        run: node build.js
+        run: node build-zip.js
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
