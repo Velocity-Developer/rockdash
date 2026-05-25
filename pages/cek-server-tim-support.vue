@@ -46,6 +46,12 @@ const confirm = useConfirm()
 
 const loading = ref(false)
 const loadingSubmit = ref(false)
+const loadingField = reactive({
+  hapus_backup_admin: false,
+  kapasitas_ssh: false,
+  cek_error_idrac: false,
+  error_idrac: false,
+})
 const latestRows = ref<ServerCekRow[]>([])
 const errors = ref({} as Record<string, string[] | string>)
 
@@ -123,6 +129,10 @@ function toServerId(value: number | string | null | undefined) {
 
   const id = Number(value)
   return Number.isNaN(id) ? null : id
+}
+
+function formatDateTimeForApi(value: Date | null) {
+  return value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss').toString() : null
 }
 
 function formatDateTime(value?: string | Date | null) {
@@ -236,7 +246,7 @@ async function handleSubmit() {
 
   const payload = {
     server_id: form.server_id,
-    hapus_backup_admin: form.hapus_backup_admin ? dayjs(form.hapus_backup_admin).format('YYYY-MM-DD HH:mm:ss').toString() : null,
+    hapus_backup_admin: formatDateTimeForApi(form.hapus_backup_admin),
     kapasitas_ssh: form.kapasitas_ssh || null,
     cek_error_idrac: form.cek_error_idrac,
     error_idrac: form.error_idrac || null,
@@ -282,6 +292,72 @@ async function handleSubmit() {
     })
   } finally {
     loadingSubmit.value = false
+  }
+}
+
+async function handleSaveField(field: keyof typeof loadingField) {
+  if (!form.id) return
+
+  loadingField[field] = true
+  errors.value = {}
+
+  const payload: Record<string, any> = {
+    server_id: form.server_id,
+  }
+
+  if (field === 'hapus_backup_admin') {
+    payload.hapus_backup_admin = formatDateTimeForApi(form.hapus_backup_admin)
+  }
+
+  if (field === 'kapasitas_ssh') {
+    payload.kapasitas_ssh = form.kapasitas_ssh || null
+  }
+
+  if (field === 'cek_error_idrac') {
+    payload.cek_error_idrac = form.cek_error_idrac
+  }
+
+  if (field === 'error_idrac') {
+    payload.error_idrac = form.error_idrac || null
+  }
+
+  try {
+    const updated = await client(`/api/cek-server-tim-support/${form.id}`, {
+      method: 'PUT',
+      body: payload,
+    }) as CekServerItem
+
+    const normalizedUpdated = {
+      ...updated,
+      server_id: toServerId(updated.server_id),
+    }
+
+    latestRows.value = latestRows.value.map((row) => {
+      if (row.id !== normalizedUpdated.server_id) return row
+
+      return {
+        ...row,
+        latest_check: normalizedUpdated,
+      }
+    })
+
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: 'Data berhasil disimpan',
+      life: 2000,
+    })
+  } catch (error) {
+    const er = useSanctumError(error)
+    errors.value = er.bag || {}
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat menyimpan data',
+      life: 3000,
+    })
+  } finally {
+    loadingField[field] = false
   }
 }
 
@@ -525,7 +601,7 @@ onMounted(refreshData)
       :dismissableMask="true"
     >
       <div v-if="previewData" class="space-y-4">
-        <div class="grid gap-3 md:grid-cols-2">
+        <div class="grid gap-3 grid-cols-1 md:grid-cols-2">
           <div class="rounded border border-slate-200 p-3 dark:border-slate-700">
             <div class="text-xs text-slate-500">Server</div>
             <div class="mt-1 flex items-center justify-between">
@@ -605,90 +681,133 @@ onMounted(refreshData)
     >
       <form class="space-y-4" @submit.prevent="handleSubmit">
 
-        <div class="grid gap-4 md:grid-cols-2">          
-          <div>
-            <label class="mb-1 block text-sm font-medium" for="server_id">Server</label>
-            <Select
-              id="server_id"
-              v-model="form.server_id"
-              :options="serverOptions"
-              optionLabel="name"
-              optionValue="id"
-              showClear
-              filter
-              class="w-full"
-              placeholder="Pilih server"
-            >            
-              <template #option="slotProps">
-                  <div class="flex items-center justify-between w-full gap-3">                      
-                      <div>{{ slotProps.option.name }}</div>
-                      <Badge>{{ slotProps.option.hostname }}</Badge>
-                  </div>
-              </template>
-          </Select>
-            <Message v-if="errorText('server_id')" severity="error" size="small" class="mt-1">
-              {{ errorText('server_id') }}
-            </Message>
+        <div>
+          <Select
+            id="server_id"
+            v-model="form.server_id"
+            :options="serverOptions"
+            optionLabel="name"
+            optionValue="id"
+            showClear
+            filter
+            class="w-full"
+            placeholder="Pilih server"
+            :disabled="actionDialog === 'edit'"
+          >            
+            <template #option="slotProps">
+                <div class="flex items-center justify-between w-full gap-3">                      
+                    <div>{{ slotProps.option.name }}</div>
+                    <Badge>{{ slotProps.option.hostname }}</Badge>
+                </div>
+            </template>
+        </Select>
+          <Message v-if="errorText('server_id')" severity="error" size="small" class="mt-1">
+            {{ errorText('server_id') }}
+          </Message>
+        </div>
+         
+        <div>
+          <label class="mb-1 block text-sm font-medium" for="hapus_backup_admin">
+            Hapus Backup di folder Admin Backup
+          </label>
+          <div class="flex gap-1 justify-between align-bottom">
+            <DatePicker id="hapus_backup_admin" v-model="form.hapus_backup_admin" showTime hourFormat="24" class="w-full" fluid />
+            <div v-if="actionDialog === 'edit'">
+              <Button
+                type="button"
+                size="small"
+                severity="success"
+                :loading="loadingField.hapus_backup_admin"
+                @click="handleSaveField('hapus_backup_admin')"
+              >
+                <Icon v-if="loadingField.hapus_backup_admin" name="lucide:loader-circle" class="animate-spin" />
+                <Icon v-else name="lucide:save" />
+                Save
+              </Button>
+            </div>
           </div>
-          <div>
-            <label class="mb-1 block text-sm font-medium" for="hapus_backup_admin">
-              Hapus Backup di folder Admin Backup
-            </label>
-            <DatePicker id="hapus_backup_admin" v-model="form.hapus_backup_admin" showTime hourFormat="24" fluid />
-            <Message v-if="errorText('hapus_backup_admin')" severity="error" size="small" class="mt-1">
-              {{ errorText('hapus_backup_admin') }}
-            </Message>
-          </div>
+          <Message v-if="errorText('hapus_backup_admin')" severity="error" size="small" class="mt-1">
+            {{ errorText('hapus_backup_admin') }}
+          </Message>
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium" for="kapasitas_ssh">
             Cek Kapasitas lewat SSH
           </label>
-          <Textarea
-            id="kapasitas_ssh"
-            v-model="form.kapasitas_ssh"
-            class="w-full"
-            placeholder="Contoh: 10 user"
-          />
+          <div class="flex gap-1 justify-between align-bottom">
+            <Textarea
+              id="kapasitas_ssh"
+              v-model="form.kapasitas_ssh"
+              class="w-full"
+              placeholder="Contoh: 10 user"
+            />
+            <div v-if="actionDialog === 'edit'">
+              <Button
+                type="button"
+                size="small"
+                severity="success"
+                :loading="loadingField.kapasitas_ssh"
+                @click="handleSaveField('kapasitas_ssh')"
+              >
+                <Icon v-if="loadingField.kapasitas_ssh" name="lucide:loader-circle" class="animate-spin" />
+                <Icon v-else name="lucide:save" />
+                Save
+              </Button>
+            </div>
+          </div>
           <Message v-if="errorText('kapasitas_ssh')" severity="error" size="small" class="mt-1">
             {{ errorText('kapasitas_ssh') }}
           </Message>
         </div>
 
-        <div class="flex items-center justify-between rounded border border-slate-200 px-4 py-3 dark:border-slate-700">
-          <div>
-            <div class="text-sm font-medium">Cek Error iDRAC</div>
-            <div class="text-xs text-slate-500">
-              Aktifkan bila ditemukan error pada iDRAC.
+
+        <div class="mt-10">          
+          <div class="text-sm font-medium">Cek Error iDRAC</div>
+          <div class="flex gap-1 justify-between align-bottom">
+            <div class="flex items-center gap-4">
+                <div class="text-xs text-slate-500">
+                  Aktifkan bila ditemukan error pada iDRAC.
+                </div>
+                <ToggleSwitch v-model="form.cek_error_idrac" @change="handleSaveField('cek_error_idrac')"/>
+                <Icon v-if="loadingField.cek_error_idrac" name="lucide:refresh-cw" :class="loadingField.cek_error_idrac ? 'animate-spin' : ''" @click="handleSaveField('cek_error_idrac')"/>
             </div>
           </div>
-          <ToggleSwitch v-model="form.cek_error_idrac" />
         </div>
-        <Message v-if="errorText('cek_error_idrac')" severity="error" size="small">
-          {{ errorText('cek_error_idrac') }}
-        </Message>
-
+        
         <div v-if="form.cek_error_idrac">
           <label class="mb-1 block text-sm font-medium" for="error_idrac">Keterangan Error iDRAC</label>
-          <Textarea
-            id="error_idrac"
-            v-model="form.error_idrac"
-            class="w-full"
-            rows="4"
-            autoResize
-            placeholder="Catatan error iDRAC"
-          />
-          <Message v-if="errorText('error_idrac')" severity="error" size="small" class="mt-1">
-            {{ errorText('error_idrac') }}
-          </Message>
+          <div class="flex gap-1 justify-between align-bottom">            
+            <Textarea
+              id="error_idrac"
+              v-model="form.error_idrac"
+              class="w-full"
+              rows="4"
+              autoResize
+              placeholder="Catatan error iDRAC"
+            />            
+            <div v-if="actionDialog === 'edit'" >         
+              <Button
+                type="button"
+                size="small"
+                severity="success"
+                :loading="loadingField.error_idrac"
+                @click="handleSaveField('error_idrac')"
+              >
+                <Icon v-if="loadingField.error_idrac" name="lucide:loader-circle" class="animate-spin" />
+                <Icon v-else name="lucide:save" />
+                Save
+              </Button>
+            </div>
+          </div>
         </div>
+
 
         <div class="flex justify-end gap-2">
           <Button type="button" severity="secondary" :disabled="loadingSubmit" @click="visibleDialog = false">
             Batal
           </Button>
-          <Button type="submit" :loading="loadingSubmit">
+          <Button v-if="actionDialog === 'add'" type="submit" :loading="loadingSubmit">
             <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin" />
             <Icon v-else name="lucide:save" />
             {{ submitLabel }}
