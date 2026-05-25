@@ -248,28 +248,13 @@
         </Column>
         <Column field="user.alasan" header="Alasan">
           <template #body="slotProps">
-            <div class="flex items-center gap-1">
-              <Textarea
-                :modelValue="getWhmcsUserAlasanDraft(slotProps.data)"
-                size="small"
-                class="w-auto"
-                :disabled="Boolean(loadingWhmcsUserAlasanKey)"
-                @update:model-value="setWhmcsUserAlasanDraft(slotProps.data, $event)"
-                @keydown.enter.prevent="saveWhmcsUserAlasan(slotProps.data)"
-              />
-              <Button
-                v-if="isWhmcsUserAlasanChanged(slotProps.data)"
-                type="button"
-                size="small"
-                severity="success"
-                :loading="loadingWhmcsUserAlasanKey === getWhmcsUserAlasanKey(slotProps.data)"
-                aria-label="Simpan alasan"
-                v-tooltip.top="'Simpan'"
-                @click="saveWhmcsUserAlasan(slotProps.data)"
-              >
-                <Icon name="lucide:save" />
-              </Button>
-            </div>
+            <button
+              type="button"
+              class="max-w-64 text-left hover:underline cursor-pointer"
+              @click="openDialogWhmcsUserAlasan(slotProps.data)"
+            >
+              <span class="line-clamp-2">{{ slotProps.data.user?.alasan || '-' }}</span>
+            </button>
           </template>
         </Column>
         <!-- <Column field="domain.status" sortable header="Status Domain">
@@ -402,6 +387,40 @@
     </div>
     <div v-else class="flex items-center justify-center">
       Tidak ada data perpanjang
+    </div>
+  </Dialog>
+
+  <Dialog v-model:visible="visibleDialogWhmcsUserAlasan" modal :header="titleDialogWhmcsUserAlasan" :style="{ width: '35rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <div class="grid gap-3">
+      <Textarea
+        :modelValue="getWhmcsUserAlasanDraft(dataDialogWhmcsUserAlasan)"
+        class="w-full"
+        rows="5"
+        autoResize
+        :disabled="Boolean(loadingWhmcsUserAlasanKey)"
+        @update:model-value="setWhmcsUserAlasanDraft(dataDialogWhmcsUserAlasan, $event)"
+      />
+
+      <div class="flex justify-end gap-2">
+        <Button
+          type="button"
+          severity="secondary"
+          :disabled="Boolean(loadingWhmcsUserAlasanKey)"
+          @click="visibleDialogWhmcsUserAlasan = false"
+        >
+          Batal
+        </Button>
+        <Button
+          type="button"
+          severity="success"
+          :loading="loadingWhmcsUserAlasanKey === getWhmcsUserAlasanKey(dataDialogWhmcsUserAlasan)"
+          :disabled="!isWhmcsUserAlasanChanged(dataDialogWhmcsUserAlasan)"
+          @click="saveDialogWhmcsUserAlasan"
+        >
+          <Icon name="lucide:save" />
+          Simpan
+        </Button>
+      </div>
     </div>
   </Dialog>
 
@@ -740,6 +759,16 @@ const getFollowUpPerpanjangValue = (data = {} as any) => {
   return data.follow_up_perpanjang?.keterangan || ''
 }
 
+const visibleDialogWhmcsUserAlasan = ref(false)
+const dataDialogWhmcsUserAlasan = ref({} as any)
+const titleDialogWhmcsUserAlasan = ref('')
+const openDialogWhmcsUserAlasan = (data = {} as any) => {
+  dataDialogWhmcsUserAlasan.value = data
+  titleDialogWhmcsUserAlasan.value = `Edit alasan ${data.domain_name || ''}`.trim()
+  getWhmcsUserAlasanDraft(data)
+  visibleDialogWhmcsUserAlasan.value = true
+}
+
 const getFollowUpPerpanjangTerakhirValue = (data = {} as any) => {
   return data.follow_up_perpanjang?.followup_terakhir || ''
 }
@@ -905,6 +934,14 @@ const saveWhmcsUserAlasan = async (item = {} as any) => {
     })
   } finally {
     loadingWhmcsUserAlasanKey.value = ''
+  }
+}
+
+const saveDialogWhmcsUserAlasan = async () => {
+  await saveWhmcsUserAlasan(dataDialogWhmcsUserAlasan.value)
+
+  if (!loadingWhmcsUserAlasanKey.value && !isWhmcsUserAlasanChanged(dataDialogWhmcsUserAlasan.value)) {
+    visibleDialogWhmcsUserAlasan.value = false
   }
 }
 </script>
