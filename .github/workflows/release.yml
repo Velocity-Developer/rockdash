@@ -32,7 +32,12 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Run Build Script
+      # 1. Jalankan generate Nuxt untuk membuat folder .output
+      - name: Run Nuxt Generate
+        run: npm run generate
+
+      # 2. Jalankan script pembuat ZIP setelah folder .output tersedia
+      - name: Run Build Zip Script
         run: node build-zip.js
 
       - name: Create Release
