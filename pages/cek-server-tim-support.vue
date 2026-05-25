@@ -118,6 +118,13 @@ function toBoolean(value: boolean | number | string | null | undefined) {
   return value === true || value === 1 || value === '1' || value === 'true'
 }
 
+function toServerId(value: number | string | null | undefined) {
+  if (value === null || value === undefined || value === '') return null
+
+  const id = Number(value)
+  return Number.isNaN(id) ? null : id
+}
+
 function formatDateTime(value?: string | Date | null) {
   if (!value) return '-'
 
@@ -128,9 +135,10 @@ function formatDateTime(value?: string | Date | null) {
 }
 
 function getServerName(serverId: number | null | undefined) {
-  if (!serverId) return '-'
+  const id = toServerId(serverId)
+  if (!id) return '-'
 
-  return latestRows.value.find((server) => server.id === serverId)?.name || '-'
+  return latestRows.value.find((server) => server.id === id)?.name || '-'
 }
 
 function openPreviewDialog(row: CekServerItem) {
@@ -167,10 +175,20 @@ async function loadData() {
     const res = await client('/api/cek_server_tim_support_latest', { params }) as any
     const rows = Array.isArray(res?.data) ? res.data : []
 
-    latestRows.value = rows.map((row: ServerCekRow) => ({
-      ...row,
-      latest_check: row.latest_check || row.cek_server_tim_support_latest || null,
-    }))
+    latestRows.value = rows.map((row: ServerCekRow) => {
+      const latestCheck = row.latest_check || row.cek_server_tim_support_latest || null
+
+      return {
+        ...row,
+        id: toServerId(row.id) || row.id,
+        latest_check: latestCheck
+          ? {
+              ...latestCheck,
+              server_id: toServerId(latestCheck.server_id),
+            }
+          : null,
+      }
+    })
   } catch (error) {
     const er = useSanctumError(error)
     toast.add({
@@ -191,7 +209,7 @@ function openDialog(action: 'add' | 'edit', row?: CekServerItem) {
 
   if (action === 'edit' && row) {
     form.id = row.id
-    form.server_id = row.server_id
+    form.server_id = toServerId(row.server_id)
     form.hapus_backup_admin = row.hapus_backup_admin ? dayjs(row.hapus_backup_admin).toDate() : null
     form.kapasitas_ssh = row.kapasitas_ssh || ''
     form.cek_error_idrac = toBoolean(row.cek_error_idrac)
