@@ -110,7 +110,7 @@
                 </InputIcon>
                 <InputText
                   v-model="searchExpiredDomain"
-                  placeholder="Cari domain"
+                  placeholder="Cari domain / ket. follow up"
                   size="small"
                   class="w-full"
                 />
@@ -577,7 +577,12 @@ const filteredDataExpiredWHMCS = computed(() => {
   }
 
   return rows.filter((item: any) => {
-    return String(item.domain_name || '').toLowerCase().includes(search)
+    const searchableText = [
+      item.domain_name,
+      item.follow_up_perpanjang?.keterangan,
+    ].filter(Boolean).join(' ').toLowerCase()
+
+    return searchableText.includes(search)
   })
 })
 
