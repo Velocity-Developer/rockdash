@@ -38,14 +38,12 @@ const menus = [
     <template #content>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Button
+        <NuxtLink
           v-for="menu in menus" 
           :key="menu.title"
-          as="a"
-          :href="menu.link"
-          severity="contrast" variant="outlined"
-          class="w-full"
-        >
+          :to="menu.link"
+          class="border border-gray-300 dark:border-gray-700 hover:bg-teal-50 dark:hover:bg-teal-900 rounded-md px-4 py-2"
+        >        
           <div class="flex items-center gap-5 w-full">
             <Icon :name="menu.icon" size="3rem" class="text-teal-600 dark:text-teal-300"/>
             <div class="flex flex-col">
@@ -53,7 +51,7 @@ const menus = [
               <span class="text-sm opacity-50">{{ menu.desc }}</span>
             </div>
           </div>
-        </Button>
+        </NuxtLink>
       </div>
 
     </template>
