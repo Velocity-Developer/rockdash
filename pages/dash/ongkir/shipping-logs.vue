@@ -138,9 +138,9 @@
               </th>
               <td class="py-2">
                 <pre
-                  v-if="isObjectValue(value)"
+                  v-if="shouldRenderAsJson(field, value)"
                   class="max-h-72 overflow-auto whitespace-pre-wrap rounded border border-zinc-200 bg-zinc-50 p-3 text-xs dark:border-zinc-700 dark:bg-zinc-900"
-                >{{ JSON.stringify(value, null, 2) }}</pre>
+                >{{ formatJsonValue(value) }}</pre>
                 <span v-else>{{ formatValue(value, field) }}</span>
               </td>
             </tr>
@@ -202,7 +202,7 @@ const { data, status, refresh, error } = await useAsyncData(
     }),
 ) as any
 
-const payload = computed(() => data.value?.data ?? data.value ?? null)
+const payload = computed(() => data.value ?? null)
 
 const paginatedPayload = computed(() => {
   if (payload.value?.total && Array.isArray(payload.value?.data)) return payload.value
@@ -215,6 +215,7 @@ const tableRows = computed<ShippingLog[]>(() => {
   if (paginatedPayload.value) return paginatedPayload.value.data
   if (Array.isArray(payload.value)) return payload.value
   if (Array.isArray(payload.value?.data)) return payload.value.data
+  if (Array.isArray(payload.value?.data?.data)) return payload.value.data.data
   if (Array.isArray(payload.value?.shipping_logs)) return payload.value.shipping_logs
   if (Array.isArray(payload.value?.logs)) return payload.value.logs
 
@@ -329,6 +330,7 @@ function valueAt(row: ShippingLog, field: string) {
 
 function formatValue(value: any, field = '') {
   if (value === null || value === undefined || value === '') return '-'
+  if (field === 'error_message') return formatErrorMessage(value)
   if (typeof value === 'boolean') return value ? 'Ya' : 'Tidak'
   if (isCurrencyField(field) && !Number.isNaN(Number(value))) return formatCurrency(Number(value))
   if (isDateField(field)) return formatDate(value)
@@ -378,6 +380,34 @@ function isDomainField(field: string) {
 
 function isObjectValue(value: any) {
   return value !== null && typeof value === 'object'
+}
+
+function shouldRenderAsJson(field: string, value: any) {
+  return isObjectValue(value) || (field === 'error_message' && Boolean(parseJsonString(value)))
+}
+
+function formatJsonValue(value: any) {
+  const parsed = typeof value === 'string' ? parseJsonString(value) : value
+  return JSON.stringify(parsed ?? value, null, 2)
+}
+
+function formatErrorMessage(value: any) {
+  const parsed = parseJsonString(value)
+  if (parsed?.message) return parsed.message
+  if (parsed?.body) return parsed.body
+  if (parsed) return JSON.stringify(parsed)
+
+  return value
+}
+
+function parseJsonString(value: any) {
+  if (typeof value !== 'string') return null
+
+  try {
+    return JSON.parse(value)
+  } catch {
+    return null
+  }
 }
 
 function statusSeverity(value: any) {
