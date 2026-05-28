@@ -52,10 +52,10 @@
           >
             <template #body="slotProps">
               <span
-              v-if="isPrimaryField(column.field)"
-              @click="openDetailDialog(slotProps.data)"
-              class="hover:underline cursor-pointer"
-              >                
+                v-if="isPrimaryField(column.field)"
+                class="cursor-pointer hover:underline"
+                @click="openDetailDialog(slotProps.data)"
+              >
                 {{ formatValue(valueAt(slotProps.data, column.field), column.field) }}
               </span>
               <Badge
@@ -105,26 +105,75 @@
       :breakpoints="{ '960px': '75vw', '640px': '92vw' }"
     >
       <div class="max-h-[70vh] overflow-auto">
-        <table class="w-full text-sm">
-          <tbody>
-            <tr
-              v-for="[field, value] in selectedCourierEntries"
-              :key="field"
-              class="border-b border-zinc-200 align-top last:border-0 dark:border-zinc-700"
+        <div class="mb-4 flex flex-col gap-4 border-b border-zinc-200 pb-2 dark:border-zinc-700 md:flex-row md:items-center md:justify-between">
+          <div class="flex min-w-0 items-center gap-3">
+            <img
+              v-if="selectedCourier?.logo"
+              :src="selectedCourier.logo"
+              :alt="detailTitle"
+              class="h-12 w-12 rounded border border-zinc-200 object-contain p-1 dark:border-zinc-700"
             >
-              <th class="w-48 px-0 py-2 pr-4 text-left font-medium text-zinc-500">
-                {{ titleCase(field) }}
-              </th>
-              <td class="py-2">
-                <pre
-                  v-if="isObjectValue(value)"
-                  class="max-h-72 overflow-auto whitespace-pre-wrap rounded border border-zinc-200 bg-zinc-50 p-3 text-xs dark:border-zinc-700 dark:bg-zinc-900"
-                >{{ JSON.stringify(value, null, 2) }}</pre>
-                <span v-else>{{ formatValue(value, field) }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            <div
+              v-else
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded border border-sky-700 bg-sky-800 text-sm font-semibold uppercase text-sky-100 dark:border-sky-700 dark:bg-sky-900 dark:text-sky-300"
+            >
+              {{ courierInitials }}
+            </div>
+
+            <div class="min-w-0">
+              <div class="truncate text-base font-semibold">
+                {{ formatValue(selectedCourier?.name) }}
+              </div>
+              <div class="mt-1 text-xs uppercase text-zinc-500">
+                {{ formatValue(selectedCourier?.code) }}
+              </div>
+            </div>
+          </div>
+
+          <Badge :value="`${selectedCourierServices.length} service`" severity="info" />
+        </div>
+
+        <div>
+          <div class="mb-2 text-sm font-semibold">Courier Services</div>
+          <DataTable
+            :value="selectedCourierServices"
+            size="small"
+            class="text-xs"
+            stripedRows
+            scrollable
+          >
+            <Column header="#" headerStyle="width:4rem">
+              <template #body="slotProps">
+                {{ slotProps.index + 1 }}
+              </template>
+            </Column>
+
+            <Column
+              v-for="column in courierServiceColumns(selectedCourierServices)"
+              :key="column.field"
+              :field="column.field"
+              :header="column.header"
+              headerStyle="min-width:8rem"
+            >
+              <template #body="slotProps">
+                <Badge
+                  v-if="isStatusField(column.field)"
+                  :value="formatValue(valueAt(slotProps.data, column.field), column.field)"
+                  :severity="statusSeverity(valueAt(slotProps.data, column.field))"
+                />
+                <span v-else>
+                  {{ formatValue(valueAt(slotProps.data, column.field), column.field) }}
+                </span>
+              </template>
+            </Column>
+
+            <template #empty>
+              <div class="py-4 text-center text-sm text-zinc-500">
+                Belum ada service
+              </div>
+            </template>
+          </DataTable>
+        </div>
       </div>
 
       <template #footer>
@@ -195,35 +244,13 @@ const tableRows = computed<Courier[]>(() => {
 
 const preferredColumns = [
   ['code', 'Kode'],
-  ['courier_code', 'Kode Kurir'],
   ['name', 'Nama'],
-  ['courier_name', 'Nama Kurir'],
-  ['type', 'Tipe'],
-  ['status', 'Status'],
-  ['is_active', 'Aktif'],
-  ['active', 'Aktif'],
-  ['created_at', 'Dibuat'],
-  ['updated_at', 'Diubah'],
 ] as const
 
-const hiddenColumns = new Set(['id', 'service', 'services', 'courier_service', 'courier_services', 'update_at'])
-
 const visibleColumns = computed(() => {
-  const keys = new Set<string>()
-  tableRows.value.slice(0, 10).forEach((row) => {
-    Object.keys(row || {}).forEach((key) => keys.add(key))
-  })
-
-  const preferred = preferredColumns
-    .filter(([field]) => hasField(field) && !hiddenColumns.has(field))
+  return preferredColumns
+    .filter(([field]) => hasField(field))
     .map(([field, header]) => ({ field, header }))
-
-  const preferredFields = new Set<string>(preferred.map((column) => column.field))
-  const extras = Array.from(keys)
-    .filter((field) => !preferredFields.has(field) && !hiddenColumns.has(field))
-    .map((field) => ({ field, header: titleCase(field) }))
-
-  return [...preferred, ...extras]
 })
 
 const pagination = computed(() => ({
@@ -233,7 +260,23 @@ const pagination = computed(() => ({
   per_page: Number(paginatedPayload.value?.per_page || filters.per_page),
 }))
 
-const selectedCourierEntries = computed(() => Object.entries(selectedCourier.value || {}))
+const selectedCourierServices = computed(() => {
+  const row = selectedCourier.value || {}
+  const services = row.courier_services || row.courier_service || row.services || row.service
+
+  return courierServiceRows(services)
+})
+
+const courierInitials = computed(() => {
+  const name = String(selectedCourier.value?.name || selectedCourier.value?.code || '')
+
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word.charAt(0))
+    .join('') || '-'
+})
 
 const detailTitle = computed(() => {
   const row = selectedCourier.value
@@ -331,6 +374,21 @@ function isDateField(field: string) {
 
 function isObjectValue(value: any) {
   return value !== null && typeof value === 'object'
+}
+
+function courierServiceRows(value: any) {
+  if (!Array.isArray(value)) return []
+
+  return value.map((item) => (isObjectValue(item) ? item : { service: item }))
+}
+
+function courierServiceColumns(value: any) {
+  if (!courierServiceRows(value).length) return []
+
+  return [
+    { field: 'name', header: 'Nama' },
+    { field: 'description', header: 'Deskripsi' },
+  ]
 }
 
 function isPrimaryField(field: string) {
