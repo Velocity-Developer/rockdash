@@ -69,8 +69,18 @@
             headerStyle="min-width:10rem"
           >
             <template #body="slotProps">
+              <Button
+                v-if="isDomainField(column.field)"
+                type="button"
+                link
+                size="small"
+                class="!p-0 text-left"
+                @click="openDetailDialog(slotProps.data)"
+              >
+                {{ formatValue(valueAt(slotProps.data, column.field), column.field) }}
+              </Button>
               <Badge
-                v-if="column.field === 'status'"
+                v-else-if="column.field === 'status'"
                 :value="formatValue(valueAt(slotProps.data, column.field), column.field)"
                 :severity="statusSeverity(valueAt(slotProps.data, column.field))"
               />
@@ -107,6 +117,45 @@
       </template>
     </Card>
 
+    <Dialog
+      v-model:visible="visibleDetailDialog"
+      modal
+      dismissableMask
+      :header="selectedLog?.domain || selectedLog?.nama_web || 'Detail Shipping Log'"
+      :style="{ width: '56rem' }"
+      :breakpoints="{ '960px': '75vw', '640px': '92vw' }"
+    >
+      <div class="max-h-[70vh] overflow-auto">
+        <table class="w-full text-sm">
+          <tbody>
+            <tr
+              v-for="[field, value] in selectedLogEntries"
+              :key="field"
+              class="border-b border-zinc-200 align-top last:border-0 dark:border-zinc-700"
+            >
+              <th class="w-40 px-0 py-2 pr-4 text-left font-medium text-zinc-500">
+                {{ titleCase(field) }}
+              </th>
+              <td class="py-2">
+                <pre
+                  v-if="isObjectValue(value)"
+                  class="max-h-72 overflow-auto whitespace-pre-wrap rounded border border-zinc-200 bg-zinc-50 p-3 text-xs dark:border-zinc-700 dark:bg-zinc-900"
+                >{{ JSON.stringify(value, null, 2) }}</pre>
+                <span v-else>{{ formatValue(value, field) }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <template #footer>
+        <Button size="small" severity="secondary" @click="visibleDetailDialog = false">
+          <Icon name="lucide:x" />
+          Tutup
+        </Button>
+      </template>
+    </Dialog>
+
     <DashLoader :loading="status === 'pending'" />
   </div>
 </template>
@@ -115,7 +164,7 @@
 import { useDayjs } from '#dayjs'
 
 definePageMeta({
-  title: 'Shipping Logs',
+  title: 'Ongkir : Shipping Logs',
   description: 'Daftar shipping log Ongkir VD',
 })
 
@@ -127,6 +176,8 @@ const router = useRouter()
 const client = useSanctumClient()
 
 const page = ref(route.query.page ? Number(route.query.page) : 1)
+const visibleDetailDialog = ref(false)
+const selectedLog = ref<ShippingLog | null>(null)
 const filters = reactive({
   page: computed(() => page.value),
   per_page: route.query.per_page ? Number(route.query.per_page) : 50,
@@ -171,24 +222,20 @@ const tableRows = computed<ShippingLog[]>(() => {
 })
 
 const preferredColumns = [
-  ['order_id', 'Order ID'],
-  ['invoice_id', 'Invoice ID'],
-  ['tracking_number', 'Resi'],
-  ['resi', 'Resi'],
-  ['courier', 'Kurir'],
-  ['kurir', 'Kurir'],
-  ['service', 'Layanan'],
-  ['origin', 'Origin'],
-  ['destination', 'Destination'],
-  ['receiver_name', 'Penerima'],
-  ['receiver_phone', 'HP'],
-  ['status', 'Status'],
-  ['price', 'Biaya'],
-  ['cost', 'Biaya'],
+  ['domain', 'Domain'],
   ['created_at', 'Tgl'],
+  ['method', 'Method'],
+  ['endpoint', 'Endpoint'],
+  ['status_code', 'Status Code'],
+  ['duration_ms', 'Duration'],
+  ['source', 'Source'],
+  ['success', 'Success'],
+  ['ip_address', 'IP Address'],
+  ['user_agent', 'User Agent'],
+  ['error_message', 'Error'],
 ] as const
 
-const hiddenColumns = new Set(['id', 'updated_at', 'update_at'])
+const hiddenColumns = new Set(['id', 'payload', 'updated_at', 'update_at'])
 
 const visibleColumns = computed(() => {
   const keys = new Set<string>()
@@ -214,6 +261,8 @@ const pagination = computed(() => ({
   to: Number(paginatedPayload.value?.to || 0),
   per_page: Number(paginatedPayload.value?.per_page || filters.per_page),
 }))
+
+const selectedLogEntries = computed(() => Object.entries(selectedLog.value || {}))
 
 const errorMessage = computed(() => {
   if (error.value) return 'Gagal mengambil shipping logs'
@@ -244,6 +293,11 @@ const onPaginate = (event: { page: number }) => {
   page.value = event.page + 1
   updateRouteParams()
   refresh()
+}
+
+const openDetailDialog = (row: ShippingLog) => {
+  selectedLog.value = row
+  visibleDetailDialog.value = true
 }
 
 function updateRouteParams() {
@@ -316,6 +370,14 @@ function isDateField(field: string) {
 
 function isCurrencyField(field: string) {
   return ['price', 'cost', 'amount', 'total', 'ongkir', 'shipping_cost'].includes(field)
+}
+
+function isDomainField(field: string) {
+  return ['domain', 'nama_web'].includes(field)
+}
+
+function isObjectValue(value: any) {
+  return value !== null && typeof value === 'object'
 }
 
 function statusSeverity(value: any) {
