@@ -4,6 +4,24 @@
     <Card>
       <template #header>
         <div class="flex flex-wrap items-center justify-end gap-2 px-4 pt-4">
+          <DatePicker
+            v-model="filters.created_at_start"
+            dateFormat="yy-mm-dd"
+            placeholder="dari"
+            size="small"
+            showIcon
+            showClear
+            class="w-[11rem]"
+          />
+          <DatePicker
+            v-model="filters.created_at_end"
+            dateFormat="yy-mm-dd"
+            placeholder="sampai"
+            size="small"
+            showIcon
+            showClear
+            class="w-[11rem]"
+          />
           <InputText
             v-model="filters.search"
             placeholder="Cari data"
@@ -94,6 +112,8 @@
 </template>
 
 <script setup lang="ts">
+import { useDayjs } from '#dayjs'
+
 definePageMeta({
   title: 'Shipping Logs',
   description: 'Daftar shipping log Ongkir VD',
@@ -101,6 +121,7 @@ definePageMeta({
 
 type ShippingLog = Record<string, any>
 
+const dayjs = useDayjs()
 const route = useRoute()
 const router = useRouter()
 const client = useSanctumClient()
@@ -110,13 +131,23 @@ const filters = reactive({
   page: computed(() => page.value),
   per_page: route.query.per_page ? Number(route.query.per_page) : 50,
   search: typeof route.query.search === 'string' ? route.query.search : '',
+  created_at_start: parseQueryDate(route.query.created_at_start),
+  created_at_end: parseQueryDate(route.query.created_at_end),
 })
+
+const requestParams = computed(() => ({
+  page: page.value,
+  per_page: filters.per_page,
+  ...(filters.search ? { search: filters.search } : {}),
+  ...(filters.created_at_start ? { created_at_start: formatFilterDate(filters.created_at_start) } : {}),
+  ...(filters.created_at_end ? { created_at_end: formatFilterDate(filters.created_at_end) } : {}),
+}))
 
 const { data, status, refresh, error } = await useAsyncData(
   'ongkir-vd-shipping-logs',
   () =>
     client('/api/ongkir-vd/shipping-logs', {
-      params: filters,
+      params: requestParams.value,
     }),
 ) as any
 
@@ -221,8 +252,21 @@ function updateRouteParams() {
       page: String(page.value),
       per_page: String(filters.per_page),
       ...(filters.search ? { search: filters.search } : {}),
+      ...(filters.created_at_start ? { created_at_start: formatFilterDate(filters.created_at_start) } : {}),
+      ...(filters.created_at_end ? { created_at_end: formatFilterDate(filters.created_at_end) } : {}),
     },
   })
+}
+
+function parseQueryDate(value: unknown) {
+  if (typeof value !== 'string' || !value) return null
+
+  const parsed = dayjs(value)
+  return parsed.isValid() ? parsed.toDate() : null
+}
+
+function formatFilterDate(value: Date | string) {
+  return dayjs(value).format('YYYY-MM-DD')
 }
 
 function valueAt(row: ShippingLog, field: string) {
