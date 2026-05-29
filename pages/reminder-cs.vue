@@ -18,6 +18,7 @@ type ReminderItem = {
   user?: ReminderUser | null
   created_at?: string
   updated_at?: string
+  __isNew?: boolean
 }
 
 type PaginationResponse = {
@@ -35,16 +36,15 @@ const confirm = useConfirm()
 
 const loading = ref(false)
 const loadingSubmit = ref(false)
-const visibleDialog = ref(false)
-const actionDialog = ref<'add' | 'edit'>('add')
+const editingId = ref<number | null>(null)
 const errors = ref({} as Record<string, string[] | string>)
 
 const filters = reactive({
   page: route.query.page ? Number(route.query.page) : 1,
   per_page: route.query.per_page ? Number(route.query.per_page) : 20,
   search: route.query.search ? String(route.query.search) : '',
-  order_by: route.query.order_by ? String(route.query.order_by) : 'jam',
-  order: route.query.order ? String(route.query.order) : 'asc',
+  order_by: 'jam',
+  order: 'asc',
 })
 
 const data = ref<PaginationResponse>({
@@ -54,18 +54,27 @@ const data = ref<PaginationResponse>({
   total: 0,
 })
 
-const form = reactive({
-  id: null as number | null,
+const newForm = reactive({
   jam: '',
   keterangan: '',
 })
 
-const dialogTitle = computed(() => {
-  return actionDialog.value === 'edit' ? 'Edit Reminder CS' : 'Tambah Reminder CS'
+const editForm = reactive({
+  jam: '',
+  keterangan: '',
 })
 
-const submitLabel = computed(() => {
-  return actionDialog.value === 'edit' ? 'Update' : 'Simpan'
+const tableRows = computed<ReminderItem[]>(() => {
+  return [
+    {
+      id: 0,
+      jam: newForm.jam,
+      keterangan: newForm.keterangan,
+      user_id: null,
+      __isNew: true,
+    },
+    ...(data.value.data || []),
+  ]
 })
 
 function normalizeTime(value?: string | null) {
@@ -79,21 +88,10 @@ function timeForApi(value?: string | null) {
   return normalized
 }
 
-function formatDate(value?: string) {
-  if (!value) return '-'
-
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-}
-
 function updateRouteParams() {
   const query: Record<string, string> = {
     page: String(filters.page),
     per_page: String(filters.per_page),
-    order_by: filters.order_by,
-    order: filters.order,
   }
 
   if (filters.search) {
@@ -134,64 +132,99 @@ async function loadData() {
   }
 }
 
-function resetForm() {
-  form.id = null
-  form.jam = ''
-  form.keterangan = ''
+function applyFilter() {
+  filters.page = 1
+  clearNewForm()
+  cancelEdit()
+  loadData()
 }
 
-function openDialog(action: 'add' | 'edit', row?: ReminderItem) {
-  actionDialog.value = action
+function onPaginate(event: { page: number; rows: number }) {
+  filters.page = event.page + 1
+  filters.per_page = event.rows
+  clearNewForm()
+  cancelEdit()
+  loadData()
+}
+
+function clearNewForm() {
+  newForm.jam = ''
+  newForm.keterangan = ''
   errors.value = {}
-
-  if (action === 'edit' && row) {
-    form.id = row.id
-    form.jam = normalizeTime(row.jam)
-    form.keterangan = row.keterangan || ''
-  } else {
-    resetForm()
-  }
-
-  visibleDialog.value = true
 }
 
-async function handleSubmit() {
+function startEdit(row: ReminderItem) {
+  clearNewForm()
+  errors.value = {}
+  editingId.value = row.id
+  editForm.jam = normalizeTime(row.jam)
+  editForm.keterangan = row.keterangan || ''
+}
+
+function cancelEdit() {
+  editingId.value = null
+  editForm.jam = ''
+  editForm.keterangan = ''
+  errors.value = {}
+}
+
+async function saveNew() {
   loadingSubmit.value = true
   errors.value = {}
 
-  const payload = {
-    jam: timeForApi(form.jam),
-    keterangan: form.keterangan,
+  try {
+    await client('/api/reminder-cs', {
+      method: 'POST',
+      body: {
+        jam: timeForApi(newForm.jam),
+        keterangan: newForm.keterangan,
+      },
+    })
+
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: 'Reminder berhasil ditambahkan',
+      life: 3000,
+    })
+
+    clearNewForm()
+    await loadData()
+  } catch (error) {
+    const er = useSanctumError(error)
+    errors.value = er.bag || {}
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat menyimpan reminder',
+      life: 3000,
+    })
+  } finally {
+    loadingSubmit.value = false
   }
+}
+
+async function saveEdit(row: ReminderItem) {
+  loadingSubmit.value = true
+  errors.value = {}
 
   try {
-    if (actionDialog.value === 'edit' && form.id) {
-      await client(`/api/reminder-cs/${form.id}`, {
-        method: 'PUT',
-        body: payload,
-      })
+    await client(`/api/reminder-cs/${row.id}`, {
+      method: 'PUT',
+      body: {
+        jam: timeForApi(editForm.jam),
+        keterangan: editForm.keterangan,
+      },
+    })
 
-      toast.add({
-        severity: 'success',
-        summary: 'Berhasil',
-        detail: 'Reminder berhasil diperbarui',
-        life: 3000,
-      })
-    } else {
-      await client('/api/reminder-cs', {
-        method: 'POST',
-        body: payload,
-      })
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: 'Reminder berhasil diperbarui',
+      life: 3000,
+    })
 
-      toast.add({
-        severity: 'success',
-        summary: 'Berhasil',
-        detail: 'Reminder berhasil ditambahkan',
-        life: 3000,
-      })
-    }
-
-    visibleDialog.value = false
+    cancelEdit()
     await loadData()
   } catch (error) {
     const er = useSanctumError(error)
@@ -247,15 +280,9 @@ function confirmDelete(row: ReminderItem) {
   })
 }
 
-function applyFilter() {
-  filters.page = 1
-  loadData()
-}
-
-function onPaginate(event: { page: number; rows: number }) {
-  filters.page = event.page + 1
-  filters.per_page = event.rows
-  loadData()
+function rowNumber(row: ReminderItem, index: number) {
+  if (row.__isNew) return 'Baru'
+  return ((data.value.current_page || 1) - 1) * (data.value.per_page || filters.per_page) + index
 }
 
 onMounted(() => {
@@ -284,17 +311,13 @@ onMounted(() => {
           <Icon name="lucide:refresh-cw" :class="loading ? 'animate-spin' : ''" />
           Refresh
         </Button>
-        <Button size="small" @click="openDialog('add')">
-          <Icon name="lucide:plus" />
-          Tambah
-        </Button>
       </div>
     </div>
 
     <Card>
       <template #content>
         <DataTable
-          :value="data.data"
+          :value="tableRows"
           size="small"
           stripedRows
           :loading="loading"
@@ -311,28 +334,83 @@ onMounted(() => {
 
           <Column header="#" headerStyle="width: 4rem">
             <template #body="slotProps">
-              {{ ((data.current_page || 1) - 1) * (data.per_page || filters.per_page) + slotProps.index + 1 }}
+              <Tag v-if="slotProps.data.__isNew" severity="success">Baru</Tag>
+              <span v-else>{{ rowNumber(slotProps.data, slotProps.index) }}</span>
             </template>
           </Column>
 
-          <Column field="jam" header="Jam" headerStyle="width: 8rem">
+          <Column field="jam" header="Jam" headerStyle="width: 10rem">
             <template #body="slotProps">
-              {{ normalizeTime(slotProps.data.jam) || '-' }}
+              <InputText
+                v-if="slotProps.data.__isNew"
+                v-model="newForm.jam"
+                type="text"
+                class="w-full"
+                size="small"
+                placeholder="08:00"
+              />
+              <InputText
+                v-else-if="editingId === slotProps.data.id"
+                v-model="editForm.jam"
+                type="text"
+                class="w-full"
+                size="small"
+              />
+              <span v-else>{{ normalizeTime(slotProps.data.jam) || '-' }}</span>
+              <Message v-if="errors.jam && (slotProps.data.__isNew || editingId === slotProps.data.id)" severity="error" size="small" class="mt-1">
+                {{ Array.isArray(errors.jam) ? errors.jam[0] : errors.jam }}
+              </Message>
             </template>
           </Column>
 
           <Column field="keterangan" header="Keterangan">
             <template #body="slotProps">
-              <div class="whitespace-pre-line leading-relaxed">
+              <div v-if="slotProps.data.__isNew">
+                <Textarea
+                  v-model="newForm.keterangan"
+                  class="w-full"
+                  rows="2"
+                  autoResize
+                  placeholder="Masukkan keterangan reminder"
+                />
+              </div>
+              <div v-else-if="editingId === slotProps.data.id">
+                <Textarea
+                  v-model="editForm.keterangan"
+                  class="w-full"
+                  rows="2"
+                  autoResize
+                />
+              </div>
+              <div v-else class="whitespace-pre-line leading-relaxed">
                 {{ slotProps.data.keterangan || '-' }}
               </div>
+              <Message v-if="errors.keterangan && (slotProps.data.__isNew || editingId === slotProps.data.id)" severity="error" size="small" class="mt-1">
+                {{ Array.isArray(errors.keterangan) ? errors.keterangan[0] : errors.keterangan }}
+              </Message>
             </template>
           </Column>
 
-          <Column header="" headerStyle="width: 8rem">
+          <Column header="" headerStyle="width: 9rem">
             <template #body="slotProps">
-              <div class="flex justify-end gap-2">
-                <Button size="small" severity="info" @click="openDialog('edit', slotProps.data)">
+              <div v-if="slotProps.data.__isNew" class="flex justify-end gap-2">
+                <Button size="small" severity="success" :loading="loadingSubmit" @click="saveNew">
+                  <Icon name="lucide:check" />
+                </Button>
+                <Button size="small" severity="secondary" :disabled="loadingSubmit" @click="clearNewForm">
+                  <Icon name="lucide:x" />
+                </Button>
+              </div>
+              <div v-else-if="editingId === slotProps.data.id" class="flex justify-end gap-2">
+                <Button size="small" severity="success" :loading="loadingSubmit" @click="saveEdit(slotProps.data)">
+                  <Icon name="lucide:check" />
+                </Button>
+                <Button size="small" severity="secondary" :disabled="loadingSubmit" @click="cancelEdit">
+                  <Icon name="lucide:x" />
+                </Button>
+              </div>
+              <div v-else class="flex justify-end gap-2">
+                <Button size="small" severity="info" @click="startEdit(slotProps.data)">
                   <Icon name="lucide:pencil" />
                 </Button>
                 <Button size="small" severity="danger" @click="confirmDelete(slotProps.data)">
@@ -358,54 +436,6 @@ onMounted(() => {
         />
       </template>
     </Card>
-
-    <Dialog
-      v-model:visible="visibleDialog"
-      modal
-      :header="dialogTitle"
-      :style="{ width: '38rem' }"
-      :breakpoints="{ '1199px': '75vw', '575px': '95vw' }"
-    >
-      <form class="space-y-4" @submit.prevent="handleSubmit">
-        <div>
-          <label class="mb-1 block text-sm font-medium" for="jam">Jam</label>
-          <InputText
-            id="jam"
-            v-model="form.jam"
-            type="text"
-            class="w-full"
-          />
-          <Message v-if="errors.jam" severity="error" size="small" class="mt-1">
-            {{ Array.isArray(errors.jam) ? errors.jam[0] : errors.jam }}
-          </Message>
-        </div>
-
-        <div>
-          <label class="mb-1 block text-sm font-medium" for="keterangan">Keterangan</label>
-          <Textarea
-            id="keterangan"
-            v-model="form.keterangan"
-            class="w-full"
-            rows="6"
-            placeholder="Masukkan keterangan reminder"
-          />
-          <Message v-if="errors.keterangan" severity="error" size="small" class="mt-1">
-            {{ Array.isArray(errors.keterangan) ? errors.keterangan[0] : errors.keterangan }}
-          </Message>
-        </div>
-
-        <div class="flex justify-end gap-2">
-          <Button type="button" severity="secondary" :disabled="loadingSubmit" @click="visibleDialog = false">
-            Batal
-          </Button>
-          <Button type="submit" :loading="loadingSubmit">
-            <Icon v-if="loadingSubmit" name="lucide:loader-circle" class="animate-spin" />
-            <Icon v-else name="lucide:save" />
-            {{ submitLabel }}
-          </Button>
-        </div>
-      </form>
-    </Dialog>
   </div>
 </template>
 
