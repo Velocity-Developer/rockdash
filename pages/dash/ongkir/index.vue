@@ -3,25 +3,44 @@ definePageMeta({
   title: 'Api Ongkir',
   description: 'Api Ongkir Velocity Developer',
 })
+const client = useSanctumClient()
+
+const { data: analyticsData} = await useAsyncData(
+  'ongkir-vd-analytics', async () => await client('api/ongkir-vd/analytics'),
+) as any
+
+const { data: shippingLogChartData } = await useAsyncData(
+  'ongkir-vd-analytic-shipping-log-chart', async () => await client('api/ongkir-vd/analytic-shipping-log-chart'),
+) as any
 
 const menus = [
   {
-    title: 'Shipping Logs',
+    title: 'Shipping Logs Hari ini',
     icon: 'lucide:scroll-text',
     link: '/dash/ongkir/shipping-logs',
     desc: 'Log request shipping',
-  },
-  {
-    title: 'Kurir',
-    icon: 'lucide:truck',
-    link: '/dash/ongkir/couriers',
-    desc: 'Daftar kurir yang tersedia',
+    data: 'shipping_logs_today',
   },
   {
     title: 'KodePos tidak ditemukan',
     icon: 'lucide:map-pin-x',
     link: '/dash/ongkir/kodepos-logs',
     desc: 'Daftar request kodepos yang tidak ditemukan',
+    data: 'kodepos_inactive',
+  },
+  {
+    title: 'Kurir',
+    icon: 'lucide:truck',
+    link: '/dash/ongkir/couriers',
+    desc: 'Daftar kurir yang tersedia',
+    data: 'count_courier',
+  },
+  {
+    title: 'Layanan Pengiriman',
+    icon: 'lucide:package',
+    link: '/dash/ongkir/couriers',
+    desc: 'Daftar layanan pengiriman yang tersedia',
+    data: 'count_courier_services',
   }
 ];
 </script>
@@ -36,6 +55,10 @@ const menus = [
       </div>
     </template>
     <template #content>
+
+      <div v-if="shippingLogChartData" class="border-b mb-5 pb-5">
+        {{ shippingLogChartData }}
+      </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <NuxtLink
@@ -47,7 +70,10 @@ const menus = [
           <div class="flex items-center gap-5 w-full">
             <Icon :name="menu.icon" size="3rem" class="text-teal-600 dark:text-teal-300"/>
             <div class="flex flex-col">
-              {{ menu.title }}
+              <div>
+                <span class="font-bold mr-1">{{ analyticsData?.[menu.data] }}</span>
+                <span>{{ menu.title }}</span>
+              </div>
               <span class="text-sm opacity-50">{{ menu.desc }}</span>
             </div>
           </div>
