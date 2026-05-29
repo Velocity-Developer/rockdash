@@ -295,11 +295,10 @@ onMounted(() => {
     <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
       <div class="grid gap-3 md:grid-cols-[minmax(16rem,1fr)]">
         <div>
-          <label class="mb-1 block text-sm font-medium">Cari Keterangan</label>
           <InputText
             v-model="filters.search"
             class="w-full"
-            placeholder="Cari teks keterangan"
+            placeholder="Cari keterangan"
             size="small"
             @keyup.enter="applyFilter"
           />
