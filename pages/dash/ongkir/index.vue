@@ -9,8 +9,16 @@ const { data: analyticsData} = await useAsyncData(
   'ongkir-vd-analytics', async () => await client('api/ongkir-vd/analytics'),
 ) as any
 
-const { data: shippingLogChartData } = await useAsyncData(
-  'ongkir-vd-analytic-shipping-log-chart', async () => await client('api/ongkir-vd/analytic-shipping-log-chart'),
+const selectedPeriod = ref()
+
+const { data: shippingLogChartData, pending: shippingLogChartPending, refresh: refreshShippingLogChartData } = await useAsyncData(
+  'ongkir-vd-analytic-shipping-log-chart',
+  async () => await client('api/ongkir-vd/analytic-shipping-log-chart', {
+    method: 'GET',
+    params: selectedPeriod.value
+      ? { period: selectedPeriod.value }
+      : {},
+  }),
 ) as any
 
 const shippingLogChart = computed(() => {
@@ -37,16 +45,27 @@ const shippingLogChart = computed(() => {
   }
 })
 
-const shippingLogPeriodLabel = computed(() => {
-  const selectedPeriod = shippingLogChartData.value?.period
-  const periodOptions = Array.isArray(shippingLogChartData.value?.period_options)
+const periodOptions = computed(() => {
+  return Array.isArray(shippingLogChartData.value?.period_options)
     ? shippingLogChartData.value.period_options
     : []
-
-  return periodOptions.find((item: any) => item.value === selectedPeriod)?.label || selectedPeriod
 })
 
 const shippingLogChartOptions = ref()
+
+watch(
+  shippingLogChartData,
+  (value: any) => {
+    if (!selectedPeriod.value && value?.period) {
+      selectedPeriod.value = value.period
+    }
+  },
+  { immediate: true },
+)
+
+const updateShippingLogChartPeriod = async () => {
+  await refreshShippingLogChartData()
+}
 
 onMounted(() => {
   const documentStyle = getComputedStyle(document.documentElement)
@@ -148,11 +167,19 @@ const menus = [
               {{ shippingLogChartData.start_date }} - {{ shippingLogChartData.end_date }}
             </p>
           </div>
-          <Badge
-            v-if="shippingLogPeriodLabel"
-            :value="shippingLogPeriodLabel"
-            severity="info"
-          />
+          <div class="flex items-center gap-2">
+            <Select
+              v-model="selectedPeriod"
+              :options="periodOptions"
+              optionLabel="label"
+              optionValue="value"
+              class="w-full md:w-64"
+              size="small"
+              placeholder="Pilih periode"
+              :loading="shippingLogChartPending"
+              @change="updateShippingLogChartPeriod"
+            />
+          </div>
         </div>
 
         <div class="h-[18rem] md:h-[24rem]">
