@@ -32,7 +32,6 @@ const client = useSanctumClient()
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const confirm = useConfirm()
 
 const loading = ref(false)
 const loadingSubmit = ref(false)
@@ -240,44 +239,29 @@ async function saveEdit(row: ReminderItem) {
   }
 }
 
-function confirmDelete(row: ReminderItem) {
-  confirm.require({
-    message: `Hapus reminder ${normalizeTime(row.jam) || 'ini'}?`,
-    header: 'Hapus Reminder',
-    accept: async () => {
-      try {
-        await client(`/api/reminder-cs/${row.id}`, {
-          method: 'DELETE',
-        })
+async function deleteReminder(row: ReminderItem) {
+  try {
+    await client(`/api/reminder-cs/${row.id}`, {
+      method: 'DELETE',
+    })
 
-        toast.add({
-          severity: 'success',
-          summary: 'Berhasil',
-          detail: 'Reminder berhasil dihapus',
-          life: 3000,
-        })
+    toast.add({
+      severity: 'success',
+      summary: 'Berhasil',
+      detail: 'Reminder berhasil dihapus',
+      life: 3000,
+    })
 
-        await loadData()
-      } catch (error) {
-        const er = useSanctumError(error)
-        toast.add({
-          severity: 'error',
-          summary: 'Gagal',
-          detail: er.msg || 'Terjadi kesalahan saat menghapus reminder',
-          life: 3000,
-        })
-      }
-    },
-    rejectProps: {
-      label: 'Batal',
-      severity: 'secondary',
-      outlined: true,
-    },
-    acceptProps: {
-      label: 'Hapus',
-      severity: 'danger',
-    },
-  })
+    await loadData()
+  } catch (error) {
+    const er = useSanctumError(error)
+    toast.add({
+      severity: 'error',
+      summary: 'Gagal',
+      detail: er.msg || 'Terjadi kesalahan saat menghapus reminder',
+      life: 3000,
+    })
+  }
 }
 
 function rowNumber(row: ReminderItem, index: number) {
@@ -412,7 +396,7 @@ onMounted(() => {
                 <Button size="small" severity="info" @click="startEdit(slotProps.data)">
                   <Icon name="lucide:pencil" />
                 </Button>
-                <Button size="small" severity="danger" @click="confirmDelete(slotProps.data)">
+                <Button size="small" severity="danger" @click="deleteReminder(slotProps.data)">
                   <Icon name="lucide:trash-2" />
                 </Button>
               </div>
