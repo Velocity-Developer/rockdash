@@ -31,6 +31,8 @@ type CekServerItem = {
   kapasitas_ssh: string | null
   cek_error_idrac: boolean | number | null
   error_idrac: string | null
+  tanggal_update_cek_error_idrac?: string | Date | null
+  tanggal_update_kapasitas_ssh?: string | Date | null
   created_at?: string
   updated_at?: string
 }
@@ -770,7 +772,18 @@ onMounted(refreshData)
                   Aktifkan bila ditemukan error pada iDRAC.
                 </div>
                 <ToggleSwitch v-model="form.cek_error_idrac" @change="handleSaveField('cek_error_idrac')"/>
-                <Icon v-if="loadingField.cek_error_idrac" name="lucide:refresh-cw" :class="loadingField.cek_error_idrac ? 'animate-spin' : ''" @click="handleSaveField('cek_error_idrac')"/>
+                <Button
+                  v-if="actionDialog === 'edit'"
+                  type="button"
+                  size="small"
+                  severity="success"
+                  :loading="loadingField.cek_error_idrac"
+                  @click="handleSaveField('cek_error_idrac')"
+                >
+                  <Icon v-if="loadingField.cek_error_idrac" name="lucide:loader-circle" class="animate-spin" />
+                  <Icon v-else name="lucide:refresh-cw" />
+                  Update
+                </Button>
             </div>
           </div>
         </div>
