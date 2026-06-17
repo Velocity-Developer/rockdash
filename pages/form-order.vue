@@ -106,11 +106,16 @@
             </template>
           </Column>
 
-          <Column header="Aksi" headerStyle="width:6rem">
+          <Column header="Aksi" headerStyle="width:9rem">
             <template #body="slotProps">
-              <Button size="small" severity="secondary" outlined @click="openPreview(slotProps.data)">
-                <Icon name="lucide:eye" />
-              </Button>
+              <div class="flex gap-1">
+                <Button size="small" severity="secondary" outlined @click="openPreview(slotProps.data)">
+                  <Icon name="lucide:eye" />
+                </Button>
+                <Button size="small" severity="danger" outlined @click="confirmDelete(slotProps.data.id)">
+                  <Icon name="lucide:trash-2" />
+                </Button>
+              </div>
             </template>
           </Column>
 
@@ -282,5 +287,45 @@ const selectedOrder = ref<Partial<FormOrder>>({})
 function openPreview(row: FormOrder) {
   selectedOrder.value = row
   visiblePreview.value = true
+}
+
+const toast = useToast()
+const confirm = useConfirm()
+
+function confirmDelete(id: number) {
+  confirm.require({
+    message: 'Anda yakin hapus data ini?',
+    header: 'Hapus Data',
+    accept: async () => {
+      try {
+        await client(`/api/form-order/${id}`, { method: 'DELETE' })
+        toast.add({
+          severity: 'success',
+          summary: 'Berhasil!',
+          detail: 'Data berhasil dihapus',
+          life: 3000,
+        })
+        refresh()
+      } catch (error: any) {
+        const er = useSanctumError(error)
+        toast.add({
+          severity: 'error',
+          summary: 'Gagal!',
+          detail: er.msg ? er.msg : 'Terjadi kesalahan saat menghapus data',
+          life: 3000,
+        })
+      }
+    },
+    acceptProps: {
+      label: 'Hapus',
+      severity: 'danger',
+      outlined: false,
+    },
+    rejectProps: {
+      label: 'Cancel',
+      severity: 'secondary',
+      outlined: true,
+    },
+  })
 }
 </script>
